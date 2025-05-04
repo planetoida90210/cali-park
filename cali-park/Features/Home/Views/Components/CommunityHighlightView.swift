@@ -5,23 +5,6 @@ struct CommunityHighlightView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Nagłówek
-            HStack {
-                Text("Społeczność")
-                    .font(.title3)
-                    .foregroundColor(.textPrimary)
-                
-                Spacer()
-                
-                Button(action: {
-                    // Akcja przejścia do widoku społeczności
-                }) {
-                    Text("Zobacz więcej")
-                        .font(.bodySmall)
-                        .foregroundColor(.accent)
-                }
-            }
-            
             // Post użytkownika
             VStack(alignment: .leading, spacing: 12) {
                 // Informacje o autorze
@@ -44,13 +27,6 @@ struct CommunityHighlightView: View {
                     }
                     
                     Spacer()
-                    
-                    Button(action: {
-                        // Akcja menu opcji
-                    }) {
-                        Image(systemName: "ellipsis")
-                            .foregroundColor(.textSecondary)
-                    }
                 }
                 
                 // Treść posta
@@ -131,9 +107,26 @@ struct CommunityHighlightView: View {
             .padding()
             .background(Color.componentBackground)
             .cornerRadius(16)
+            
+            // Wyraźne CTA
+            Button(action: {
+                // Akcja przejścia do widoku społeczności
+            }) {
+                HStack {
+                    Text("Przejdź do społeczności")
+                        .font(.bodyMedium)
+                        .foregroundColor(.accent)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "arrow.right")
+                        .foregroundColor(.accent)
+                }
+                .padding()
+                .background(Color.componentBackground)
+                .cornerRadius(12)
+            }
         }
-        .padding()
-        .cardStyle()
     }
 }
 

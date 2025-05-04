@@ -15,23 +15,32 @@ struct HomeScreenView: View {
                     Spacer()
                         .frame(height: 10)
                     
-                    // Hero + Progress
+                    // Hero + Progress (moduł 1)
                     HeroProgressView(userProfile: userProfile)
                     
-                    // Wyzwanie dnia
+                    // Wyzwanie dnia (moduł 2)
                     DailyChallengeView(challenge: dailyChallenge)
                     
-                    // Szybkie akcje
+                    // Szybkie akcje - CTA
                     QuickActionsView()
                     
-                    // Mini-mapa
-                    MiniMapView(nearbySpots: nearbySpots)
+                    // Mini-mapa (zwijana)
+                    CollapsibleCard(title: "Najbliższe parki", icon: "map.fill") {
+                        MiniMapView(nearbySpots: nearbySpots)
+                            .padding(.bottom, 8)
+                    }
                     
-                    // Community highlight
-                    CommunityHighlightView(post: communityHighlight)
+                    // Community highlight (zwijana)
+                    CollapsibleCard(title: "Aktywność społeczności", icon: "person.3.fill") {
+                        CommunityHighlightView(post: communityHighlight)
+                            .padding(.bottom, 8)
+                    }
                     
-                    // Tracker osiągnięć
-                    AchievementTrackerView(achievement: currentAchievement)
+                    // Tracker osiągnięć (zwijany)
+                    CollapsibleCard(title: "Twoje osiągnięcia", icon: "trophy.fill") {
+                        AchievementTrackerView(achievement: currentAchievement)
+                            .padding(.bottom, 8)
+                    }
                     
                     // Dolny padding
                     Spacer()

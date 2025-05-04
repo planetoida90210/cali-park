@@ -60,14 +60,30 @@ struct AchievementTrackerView: View {
                         .foregroundColor(.accent)
                 }
             }
+            
+            // CTA - przycisk
+            Button(action: {
+                // Akcja treningu
+            }) {
+                HStack {
+                    Text("Zacznij trening")
+                        .font(.bodyMedium)
+                        .foregroundColor(.black)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "play.fill")
+                        .foregroundColor(.black)
+                }
+                .padding()
+                .background(Color.accent)
+                .cornerRadius(12)
+            }
+            .padding(.top, 8)
         }
         .padding()
-        .background(Color.black.opacity(0.3))
+        .background(Color.componentBackground)
         .cornerRadius(16)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.accent.opacity(0.3), lineWidth: 1)
-        )
     }
 }
 

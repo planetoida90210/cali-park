@@ -7,10 +7,6 @@ struct MiniMapView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Najbliższe parki kalisteniki")
-                .font(.title3)
-                .foregroundColor(.textPrimary)
-            
             // Mapa
             ZStack(alignment: .bottom) {
                 Map {
@@ -39,45 +35,31 @@ struct MiniMapView: View {
                 .cornerRadius(12)
             }
             
-            // Lista najbliższych parków
-            ForEach(nearbySpots.prefix(2), id: \.id) { spot in
+            if let closest = nearbySpots.first {
+                // Główny CTA - nawigacja do najbliższego parku
                 Button(action: {
-                    selectedSpot = spot
+                    // Akcja nawigowania do parku
                 }) {
                     HStack {
-                        VStack(alignment: .leading) {
-                            Text(spot.name)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(closest.name)
                                 .font(.bodyLarge)
                                 .foregroundColor(.textPrimary)
                             
-                            HStack {
-                                Text("\(String(format: "%.1f", spot.distance)) km")
-                                    .font(.bodySmall)
-                                    .foregroundColor(.accent)
-                                
-                                Text("•")
-                                    .foregroundColor(.textSecondary)
-                                
-                                Text(spot.difficultyLevel.rawValue)
-                                    .font(.bodySmall)
-                                    .foregroundColor(.textSecondary)
-                            }
+                            Text("\(String(format: "%.1f", closest.distance)) km • \(closest.difficultyLevel.rawValue)")
+                                .font(.bodySmall)
+                                .foregroundColor(.textSecondary)
                         }
                         
                         Spacer()
                         
-                        // Przycisk nawiguj
-                        Button(action: {
-                            // Akcja nawigowania do parku
-                        }) {
-                            Text("Nawiguj")
-                                .font(.bodyMedium)
-                                .foregroundColor(.black)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(Color.accent)
-                                .cornerRadius(8)
-                        }
+                        Text("Nawiguj")
+                            .font(.buttonMedium)
+                            .foregroundColor(.black)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(Color.accent)
+                            .cornerRadius(8)
                     }
                     .padding()
                     .background(Color.componentBackground)
@@ -85,29 +67,25 @@ struct MiniMapView: View {
                 }
             }
             
-            // Przycisk "Zobacz wszystkie"
-            if nearbySpots.count > 2 {
-                Button(action: {
-                    // Akcja pokazania wszystkich parków
-                }) {
-                    HStack {
-                        Text("Zobacz wszystkie")
-                            .font(.bodyMedium)
-                            .foregroundColor(.accent)
-                        
-                        Spacer()
-                        
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.accent)
-                    }
-                    .padding()
-                    .background(Color.componentBackground)
-                    .cornerRadius(12)
+            // Zobacz wszystkie - Drugie CTA
+            Button(action: {
+                // Akcja pokazania wszystkich parków
+            }) {
+                HStack {
+                    Text("Zobacz wszystkie parki")
+                        .font(.bodyMedium)
+                        .foregroundColor(.accent)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "arrow.right")
+                        .foregroundColor(.accent)
                 }
+                .padding()
+                .background(Color.componentBackground)
+                .cornerRadius(12)
             }
         }
-        .padding()
-        .cardStyle()
     }
 }
 
