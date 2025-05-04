@@ -64,36 +64,7 @@ struct MainTabView: View {
     }
 }
 
-// Placeholder Views
-struct HomeView: View {
-    var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(spacing: 20) {
-                    Text("CaliPark")
-                        .font(.title1)
-                        .foregroundColor(.textPrimary)
-                    
-                    // Placeholder content
-                    ForEach(0..<5) { index in
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.componentBackground)
-                            .frame(height: 180)
-                            .overlay(
-                                Text("Panel informacyjny \(index + 1)")
-                                    .foregroundColor(.textPrimary)
-                            )
-                    }
-                }
-                .padding()
-            }
-            .background(Color.appBackground.edgesIgnoringSafeArea(.all))
-            .navigationTitle("Strona główna")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
+// Placeholder Views dla zakładek innych niż Home
 struct GymCatalogView: View {
     var body: some View {
         NavigationView {
