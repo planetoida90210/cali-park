@@ -10,11 +10,19 @@ import SwiftUI
 @main
 struct cali_parkApp: App {
     let persistenceController = PersistenceController.shared
-
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            if hasCompletedOnboarding {
+                MainTabView()
+                    .preferredColorScheme(.dark)
+                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            } else {
+                OnboardingView()
+                    .preferredColorScheme(.dark)
+                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            }
         }
     }
 }
