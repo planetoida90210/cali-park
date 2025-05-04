@@ -1,15 +1,19 @@
 import SwiftUI
 
 struct CollapsibleCard<Content: View>: View {
+    let id: String
     let title: String
     let icon: String
     let content: Content
     @State private var isExpanded: Bool = false
+    @Binding var scrollTarget: String?
     
-    init(title: String, icon: String, @ViewBuilder content: () -> Content) {
+    init(id: String, title: String, icon: String, scrollTarget: Binding<String?>, @ViewBuilder content: () -> Content) {
+        self.id = id
         self.title = title
         self.icon = icon
         self.content = content()
+        self._scrollTarget = scrollTarget
     }
     
     var body: some View {
@@ -18,6 +22,13 @@ struct CollapsibleCard<Content: View>: View {
             Button(action: {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     isExpanded.toggle()
+                    
+                    // Jeśli karta została rozwinięta, ustaw cel przewijania
+                    if isExpanded {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            scrollTarget = id
+                        }
+                    }
                 }
             }) {
                 HStack {
@@ -50,31 +61,51 @@ struct CollapsibleCard<Content: View>: View {
                     .padding(.top, 8)
             }
         }
+        .id(id)
         .background(Color.appBackground)
     }
 }
 
 #Preview {
-    VStack(spacing: 16) {
-        CollapsibleCard(title: "Przykładowa karta", icon: "map") {
-            VStack {
-                Text("Zawartość karty")
-                    .foregroundColor(.textPrimary)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.componentBackground)
-            }
-        }
+    struct PreviewWrapper: View {
+        @State private var scrollTarget: String? = nil
         
-        CollapsibleCard(title: "Inna karta", icon: "person.3") {
-            Text("Inna zawartość")
-                .foregroundColor(.textPrimary)
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.componentBackground)
+        var body: some View {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(spacing: 16) {
+                        CollapsibleCard(id: "karta1", title: "Przykładowa karta", icon: "map", scrollTarget: $scrollTarget) {
+                            VStack {
+                                Text("Zawartość karty")
+                                    .foregroundColor(.textPrimary)
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .background(Color.componentBackground)
+                            }
+                        }
+                        
+                        CollapsibleCard(id: "karta2", title: "Inna karta", icon: "person.3", scrollTarget: $scrollTarget) {
+                            Text("Inna zawartość")
+                                .foregroundColor(.textPrimary)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.componentBackground)
+                        }
+                    }
+                    .padding()
+                }
+                .onChange(of: scrollTarget) { target in
+                    if let target = target {
+                        withAnimation {
+                            proxy.scrollTo(target, anchor: .center)
+                        }
+                    }
+                }
+            }
+            .background(Color.appBackground)
+            .preferredColorScheme(.dark)
         }
     }
-    .padding()
-    .background(Color.appBackground)
-    .preferredColorScheme(.dark)
+    
+    return PreviewWrapper()
 } 

@@ -6,58 +6,68 @@ struct HomeScreenView: View {
     @State private var nearbySpots: [CalisthenicsSpot] = MockData.nearbySpots
     @State private var communityHighlight: CommunityPost = MockData.communityHighlight
     @State private var currentAchievement: Achievement = MockData.currentAchievement
+    @State private var scrollTarget: String? = nil
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Górny padding
-                    Spacer()
-                        .frame(height: 10)
-                    
-                    // Hero + Progress (moduł 1)
-                    HeroProgressView(userProfile: userProfile)
-                    
-                    // Wyzwanie dnia (moduł 2)
-                    DailyChallengeView(challenge: dailyChallenge)
-                    
-                    // Szybkie akcje - CTA
-                    QuickActionsView()
-                    
-                    // Mini-mapa (zwijana)
-                    CollapsibleCard(title: "Najbliższe parki", icon: "map.fill") {
-                        MiniMapView(nearbySpots: nearbySpots)
-                            .padding(.bottom, 8)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(spacing: 24) {
+                        // Górny padding
+                        Spacer()
+                            .frame(height: 10)
+                        
+                        // Hero + Progress (moduł 1)
+                        HeroProgressView(userProfile: userProfile)
+                        
+                        // Wyzwanie dnia (moduł 2)
+                        DailyChallengeView(challenge: dailyChallenge)
+                        
+                        // Szybkie akcje - CTA
+                        QuickActionsView()
+                        
+                        // Mini-mapa (zwijana)
+                        CollapsibleCard(id: "map", title: "Najbliższe parki", icon: "map.fill", scrollTarget: $scrollTarget) {
+                            MiniMapView(nearbySpots: nearbySpots)
+                                .padding(.bottom, 8)
+                        }
+                        
+                        // Community highlight (zwijana)
+                        CollapsibleCard(id: "community", title: "Aktywność społeczności", icon: "person.3.fill", scrollTarget: $scrollTarget) {
+                            CommunityHighlightView(post: communityHighlight)
+                                .padding(.bottom, 8)
+                        }
+                        
+                        // Tracker osiągnięć (zwijany)
+                        CollapsibleCard(id: "achievements", title: "Twoje osiągnięcia", icon: "trophy.fill", scrollTarget: $scrollTarget) {
+                            AchievementTrackerView(achievement: currentAchievement)
+                                .padding(.bottom, 8)
+                        }
+                        
+                        // Dolny padding
+                        Spacer()
+                            .frame(height: 30)
                     }
-                    
-                    // Community highlight (zwijana)
-                    CollapsibleCard(title: "Aktywność społeczności", icon: "person.3.fill") {
-                        CommunityHighlightView(post: communityHighlight)
-                            .padding(.bottom, 8)
-                    }
-                    
-                    // Tracker osiągnięć (zwijany)
-                    CollapsibleCard(title: "Twoje osiągnięcia", icon: "trophy.fill") {
-                        AchievementTrackerView(achievement: currentAchievement)
-                            .padding(.bottom, 8)
-                    }
-                    
-                    // Dolny padding
-                    Spacer()
-                        .frame(height: 30)
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
-            }
-            .background(Color.appBackground.edgesIgnoringSafeArea(.all))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        // Akcja powiadomień
-                    }) {
-                        Image(systemName: "bell")
-                            .font(.title3)
-                            .foregroundColor(.textPrimary)
+                .onChange(of: scrollTarget) { target in
+                    if let target = target {
+                        withAnimation {
+                            proxy.scrollTo(target, anchor: .top)
+                        }
+                    }
+                }
+                .background(Color.appBackground.edgesIgnoringSafeArea(.all))
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: {
+                            // Akcja powiadomień
+                        }) {
+                            Image(systemName: "bell")
+                                .font(.title3)
+                                .foregroundColor(.textPrimary)
+                        }
                     }
                 }
             }
