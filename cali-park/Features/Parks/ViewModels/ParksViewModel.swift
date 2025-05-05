@@ -8,10 +8,10 @@ final class ParksViewModel: ObservableObject {
     // MARK: Published Properties
     @Published private(set) var parks: [Park] = []
     @Published var searchText: String = "" {
-        didSet { filterParks() }
+        didSet { applyFilters() }
     }
     @Published var selectedTab: Tab = .nearest {
-        didSet { sortParks() }
+        didSet { applyFilters() }
     }
 
     // Computed list after filter & sort
@@ -38,7 +38,7 @@ final class ParksViewModel: ObservableObject {
         // Replace with networking later
         parks = Park.mock
         computeDistances()
-        filterParks()
+        applyFilters()
     }
 
     private func computeDistances() {
@@ -50,30 +50,26 @@ final class ParksViewModel: ObservableObject {
         }
     }
 
-    private func filterParks() {
-        let filtered: [Park]
-        if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            filtered = parks
-        } else {
+    private func applyFilters() {
+        var list = parks
+
+        // Search filter
+        if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             let term = searchText.lowercased()
-            filtered = parks.filter { $0.name.lowercased().contains(term) || $0.city.lowercased().contains(term) }
+            list = list.filter { $0.name.lowercased().contains(term) || $0.city.lowercased().contains(term) }
         }
-        displayedParks = sort(filtered)
-    }
 
-    private func sortParks() {
-        displayedParks = sort(displayedParks)
-    }
-
-    private func sort(_ list: [Park]) -> [Park] {
+        // Tab filter / sort
         switch selectedTab {
         case .nearest:
-            return list.sorted { ($0.distance ?? .greatestFiniteMagnitude) < ($1.distance ?? .greatestFiniteMagnitude) }
+            list = list.sorted { ($0.distance ?? .greatestFiniteMagnitude) < ($1.distance ?? .greatestFiniteMagnitude) }
         case .popular:
-            return list.sorted { $0.rating > $1.rating }
+            list = list.sorted { $0.rating > $1.rating }
         case .favorites:
-            return list.filter { $0.isFavorite }
+            list = list.filter { $0.isFavorite }
         }
+
+        displayedParks = list
     }
 
     // MARK: Tab Enum
