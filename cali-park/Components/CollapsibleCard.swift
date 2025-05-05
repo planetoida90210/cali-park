@@ -66,46 +66,48 @@ struct CollapsibleCard<Content: View>: View {
     }
 }
 
-#Preview {
-    struct PreviewWrapper: View {
-        @State private var scrollTarget: String? = nil
-        
-        var body: some View {
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(spacing: 16) {
-                        CollapsibleCard(id: "karta1", title: "Przykładowa karta", icon: "map", scrollTarget: $scrollTarget) {
-                            VStack {
-                                Text("Zawartość karty")
+struct CollapsibleCard_Previews: PreviewProvider {
+    static var previews: some View {
+        struct PreviewWrapper: View {
+            @State private var scrollTarget: String? = nil
+            
+            var body: some View {
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(spacing: 16) {
+                            CollapsibleCard(id: "karta1", title: "Przykładowa karta", icon: "map", scrollTarget: $scrollTarget) {
+                                VStack {
+                                    Text("Zawartość karty")
+                                        .foregroundColor(.textPrimary)
+                                        .padding()
+                                        .frame(maxWidth: .infinity)
+                                        .background(Color.componentBackground)
+                                }
+                            }
+                            
+                            CollapsibleCard(id: "karta2", title: "Inna karta", icon: "person.3", scrollTarget: $scrollTarget) {
+                                Text("Inna zawartość")
                                     .foregroundColor(.textPrimary)
                                     .padding()
                                     .frame(maxWidth: .infinity)
                                     .background(Color.componentBackground)
                             }
                         }
-                        
-                        CollapsibleCard(id: "karta2", title: "Inna karta", icon: "person.3", scrollTarget: $scrollTarget) {
-                            Text("Inna zawartość")
-                                .foregroundColor(.textPrimary)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.componentBackground)
-                        }
+                        .padding()
                     }
-                    .padding()
-                }
-                .onChange(of: scrollTarget) { target in
-                    if let target = target {
-                        withAnimation {
-                            proxy.scrollTo(target, anchor: .center)
+                    .onChange(of: scrollTarget) { oldValue, newValue in
+                        if let target = newValue {
+                            withAnimation {
+                                proxy.scrollTo(target, anchor: .center)
+                            }
                         }
                     }
                 }
+                .background(Color.appBackground)
+                .preferredColorScheme(.dark)
             }
-            .background(Color.appBackground)
-            .preferredColorScheme(.dark)
         }
+        
+        return PreviewWrapper()
     }
-    
-    return PreviewWrapper()
 } 
