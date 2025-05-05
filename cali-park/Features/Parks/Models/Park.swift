@@ -15,9 +15,14 @@ struct Park: Identifiable, Codable, Equatable {
     var isFavorite: Bool
     var equipments: [String]
 
-    // Custom Equatable (compare by id)
+    // Custom Equatable – include key visual fields so SwiftUI diff recognises updates (esp. isFavorite)
     static func == (lhs: Park, rhs: Park) -> Bool {
-        lhs.id == rhs.id
+        lhs.id == rhs.id &&
+        lhs.isFavorite == rhs.isFavorite &&
+        lhs.name == rhs.name &&
+        lhs.city == rhs.city &&
+        lhs.distance == rhs.distance &&
+        lhs.rating == rhs.rating
     }
 
     // Custom Codable because CLLocationCoordinate2D isn't Codable by default

@@ -33,6 +33,13 @@ final class ParksViewModel: ObservableObject {
         loadParks()
     }
 
+    // Toggle favorite status for a given park
+    func toggleFavorite(for park: Park) {
+        guard let index = parks.firstIndex(where: { $0.id == park.id }) else { return }
+        parks[index].isFavorite.toggle()
+        applyFilters()
+    }
+
     // MARK: Private Helpers
     private func loadParks() {
         // Replace with networking later

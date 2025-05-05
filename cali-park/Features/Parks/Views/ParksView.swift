@@ -34,6 +34,11 @@ struct ParksView: View {
         .navigationTitle("Siłownie")
         .navigationBarTitleDisplayMode(.inline)
         .onTapGesture { hideKeyboard() }
+        .task {
+            // Auto-focus search bar shortly after view appears
+            try? await Task.sleep(for: .milliseconds(200))
+            searchFocused = true
+        }
     }
 
     // MARK: - Subviews
@@ -114,6 +119,7 @@ struct ParksView: View {
         LazyVStack(spacing: 12) {
             ForEach(viewModel.displayedParks) { park in
                 ParkCardView(park: park)
+                    .environmentObject(viewModel)
             }
         }
     }
