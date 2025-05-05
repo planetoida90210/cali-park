@@ -14,6 +14,7 @@ struct Park: Identifiable, Codable, Equatable {
     var description: String
     var isFavorite: Bool
     var equipments: [String]
+    var tags: [ParkTag]
 
     // Custom Equatable – include key visual fields so SwiftUI diff recognises updates (esp. isFavorite)
     static func == (lhs: Park, rhs: Park) -> Bool {
@@ -27,7 +28,7 @@ struct Park: Identifiable, Codable, Equatable {
 
     // Custom Codable because CLLocationCoordinate2D isn't Codable by default
     enum CodingKeys: String, CodingKey {
-        case id, name, city, latitude, longitude, distance, rating, images, description, isFavorite, equipments
+        case id, name, city, latitude, longitude, distance, rating, images, description, isFavorite, equipments, tags
     }
 
     init(id: UUID = UUID(),
@@ -39,7 +40,8 @@ struct Park: Identifiable, Codable, Equatable {
          images: [URL] = [],
          description: String,
          isFavorite: Bool = false,
-         equipments: [String] = []) {
+         equipments: [String] = [],
+         tags: [ParkTag] = []) {
         self.id = id
         self.name = name
         self.city = city
@@ -50,6 +52,7 @@ struct Park: Identifiable, Codable, Equatable {
         self.description = description
         self.isFavorite = isFavorite
         self.equipments = equipments
+        self.tags = tags
     }
 
     init(from decoder: Decoder) throws {
@@ -66,6 +69,7 @@ struct Park: Identifiable, Codable, Equatable {
         description = try container.decode(String.self, forKey: .description)
         isFavorite = try container.decode(Bool.self, forKey: .isFavorite)
         equipments = try container.decode([String].self, forKey: .equipments)
+        tags = try container.decodeIfPresent([ParkTag].self, forKey: .tags) ?? []
     }
 
     func encode(to encoder: Encoder) throws {
@@ -81,6 +85,7 @@ struct Park: Identifiable, Codable, Equatable {
         try container.encode(description, forKey: .description)
         try container.encode(isFavorite, forKey: .isFavorite)
         try container.encode(equipments, forKey: .equipments)
+        try container.encode(tags, forKey: .tags)
     }
 }
 
@@ -97,7 +102,8 @@ extension Park {
             images: [],
             description: "Solid pull-up bars, parallel bars and more.",
             isFavorite: false,
-            equipments: ["Pull-up bar", "Dip bar", "Monkey bars"]
+            equipments: ["Pull-up bar", "Dip bar", "Monkey bars"],
+            tags: [.shade, .light, .water]
         ),
         Park(
             id: UUID(),
@@ -109,7 +115,8 @@ extension Park {
             images: [],
             description: "Shaded area with rubber flooring.",
             isFavorite: true,
-            equipments: ["Rings", "Push-up handles"]
+            equipments: ["Rings", "Push-up handles"],
+            tags: [.roof, .light]
         )
     ]
 } 

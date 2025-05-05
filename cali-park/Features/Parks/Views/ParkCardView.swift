@@ -11,7 +11,7 @@ struct ParkCardView: View {
             VStack(alignment: .leading, spacing: 6) {
                 headerRow
                 locationRow
-                equipmentsRow
+                tagsRow
             }
             Spacer(minLength: 8)
 
@@ -104,18 +104,28 @@ struct ParkCardView: View {
         }
     }
 
-    private var equipmentsRow: some View {
-        HStack(spacing: 6) {
-            ForEach(park.equipments.prefix(3), id: \ .self) { eq in
-                Text(eq)
-                    .font(.caption2)
-                    .foregroundColor(.textSecondary)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.glassBackground)
-                    )
+    private var tagsRow: some View {
+        let ordered: [ParkTag] = [.roof, .light, .shade, .water, .parking, .toilet, .ground, .wind]
+        let active = ordered.filter { park.tags.contains($0) }.prefix(3)
+
+        return HStack(spacing: 6) {
+            ForEach(Array(active), id: \.rawValue) { tag in
+                Button(action: {
+                    // Placeholder – w przyszłości otworzy szczegóły
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }) {
+                    Text(tag.shortLabelPL)
+                        .font(.caption2.weight(.semibold))
+                        .foregroundColor(.accent)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(
+                            Capsule()
+                                .fill(Color.accent.opacity(0.15))
+                        )
+                }
+                .buttonStyle(.plain)
+                .help(tag.descriptionPL)
             }
         }
     }
