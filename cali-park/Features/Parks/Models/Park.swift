@@ -2,7 +2,7 @@ import Foundation
 import CoreLocation
 
 // MARK: - Park Model
-struct Park: Identifiable, Codable, Equatable {
+struct Park: Identifiable, Codable, Equatable, Hashable {
     // MARK: Properties
     let id: UUID
     var name: String
@@ -86,6 +86,11 @@ struct Park: Identifiable, Codable, Equatable {
         try container.encode(isFavorite, forKey: .isFavorite)
         try container.encode(equipments, forKey: .equipments)
         try container.encode(tags, forKey: .tags)
+    }
+
+    // Custom Hashable – wystarczy unikalne id
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 

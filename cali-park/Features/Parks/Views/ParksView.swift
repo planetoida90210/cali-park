@@ -5,6 +5,7 @@ struct ParksView: View {
     @StateObject private var viewModel = ParksViewModel()
     @State private var showMapSheet: Bool = false
     @FocusState private var searchFocused: Bool
+    @State private var selectedPark: Park?
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -38,6 +39,10 @@ struct ParksView: View {
             // Auto-focus search bar shortly after view appears
             try? await Task.sleep(for: .milliseconds(200))
             searchFocused = true
+        }
+        .navigationDestination(item: $selectedPark) { park in
+            ParkDetailView(park: park)
+                .environmentObject(viewModel)
         }
     }
 
@@ -125,6 +130,10 @@ struct ParksView: View {
                     ForEach(viewModel.displayedParks) { park in
                         ParkCardView(park: park)
                             .environmentObject(viewModel)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                navigateToDetail(park)
+                            }
                     }
                 }
             }
@@ -167,6 +176,10 @@ struct ParksView: View {
                 .shadow(color: Color.black.opacity(0.4), radius: 8, x: 0, y: 4)
         }
         .padding(20)
+    }
+
+    private func navigateToDetail(_ park: Park) {
+        selectedPark = park
     }
 }
 

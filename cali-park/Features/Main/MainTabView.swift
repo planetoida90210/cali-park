@@ -13,7 +13,9 @@ struct MainTabView: View {
                 .tag(0)
             
             // Siłownie Tab – Parks Feature
-            ParksView()
+            NavigationStack {
+                ParksView()
+            }
                 .tabItem {
                     Label("Siłownie", systemImage: "mappin.and.ellipse")
                 }
