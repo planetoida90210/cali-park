@@ -8,6 +8,10 @@ struct ParksView: View {
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
+            // Global background matching HomeView
+            Color.appBackground
+                .edgesIgnoringSafeArea(.all)
+
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: 0) {
@@ -17,6 +21,7 @@ struct ParksView: View {
                             .padding(.horizontal, 12)
                             .padding(.top, 8)
                     }
+                    // Background handled by root ZStack
                 }
             }
             .scrollDismissesKeyboard(.interactively)

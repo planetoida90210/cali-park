@@ -35,7 +35,7 @@ struct ParkCardView: View {
             }
         }
         .padding(12)
-        .background(Color.glassBackground)
+        .background(Color.componentBackground)
         .cornerRadius(14)
     }
 }
