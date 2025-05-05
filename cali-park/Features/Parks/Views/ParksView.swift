@@ -33,13 +33,27 @@ struct ParksView: View {
 
     // MARK: - Subviews
     private var searchBar: some View {
-        HStack {
+        HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
-                .foregroundColor(.textSecondary)
+                .foregroundColor(.accent)
+
             TextField("Szukaj nazwy lub miasta", text: $viewModel.searchText)
                 .textFieldStyle(.plain)
                 .focused($searchFocused)
                 .submitLabel(.search)
+                .foregroundColor(.textPrimary)
+                .onChange(of: viewModel.searchText) { old, new in
+                    // Trim spaces so clear button rzeczywiście znika
+                    viewModel.searchText = new.trimmingCharacters(in: .whitespaces)
+                }
+
+            if !viewModel.searchText.isEmpty {
+                Button(action: { viewModel.searchText = "" }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.textSecondary)
+                }
+            }
+
             Button {
                 // TODO: filter action
             } label: {
@@ -48,16 +62,16 @@ struct ParksView: View {
                     .foregroundColor(.accent)
             }
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 14)
         .padding(.vertical, 10)
         .background(Color.componentBackground)
-        .cornerRadius(12)
-        .padding(.horizontal, 12)
-        .padding(.top, 12)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.cardBorderEnd, lineWidth: searchFocused ? 2 : 0)
+                .stroke(Color.accent.opacity(searchFocused ? 1 : 0.4), lineWidth: 1)
         )
+        .padding(.horizontal, 12)
+        .padding(.top, 12)
     }
 
     private var tabBar: some View {
@@ -103,7 +117,7 @@ struct ParksView: View {
         Button(action: { showMapSheet = true }) {
             Image(systemName: "map.fill")
                 .font(.system(size: 22, weight: .bold))
-                .foregroundColor(.black)
+                .foregroundColor(Color.componentBackground)
                 .padding(18)
                 .background(Color.accent)
                 .clipShape(Circle())
