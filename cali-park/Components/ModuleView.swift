@@ -22,6 +22,11 @@ struct ModuleView: View {
     // Impact feedback generator
     private let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
     
+    // Czy pokazać własny uchwyt (hamburger); przy przestawianiu w List chcemy go ukryć
+    var showGrabber: Bool = true
+    // Callback dla rodzica – powiadamia o kliknięciu (np. aby przewinąć widok)
+    var onToggle: ((String) -> Void)? = nil
+    
     var body: some View {
         if let module = module {
             VStack(spacing: 0) {
@@ -31,6 +36,8 @@ struct ModuleView: View {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                             isExpanded.toggle()
                             impactFeedback.impactOccurred()
+                            // Powiadom o zmianie (przewinięcie do widoku)
+                            onToggle?(moduleId)
                         }
                     }
                 }) {
@@ -51,7 +58,7 @@ struct ModuleView: View {
                             Spacer()
                             
                             // W trybie edycji - przycisk grabber
-                            if editMode?.wrappedValue.isEditing == true {
+                            if editMode?.wrappedValue.isEditing == true && showGrabber {
                                 Image(systemName: "line.3.horizontal")
                                     .foregroundColor(.textSecondary)
                                     .font(.bodyMedium)

@@ -14,6 +14,9 @@ struct HomeView: View {
     // Selected module ID for auto-scrolling
     @State private var selectedModuleId: String? = nil
     
+    // Dragging state for reordering
+    @State private var draggingModuleId: String? = nil
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -27,7 +30,7 @@ struct HomeView: View {
                         .transition(.opacity)
                 }
                 
-                // Main content
+                // Main content (zawsze jeden ScrollView – również w trybie edycji)
                 ScrollViewReader { scrollProxy in
                     ScrollView {
                         VStack(spacing: 0) {
@@ -50,7 +53,6 @@ struct HomeView: View {
                                 modulesStackView
                             }
                             
-                            // Bottom padding for safe area
                             Spacer().frame(height: 12)
                         }
                         .padding(.bottom, 12)
@@ -59,7 +61,6 @@ struct HomeView: View {
                                 withAnimation {
                                     scrollProxy.scrollTo(id, anchor: .top)
                                 }
-                                // Reset after scrolling
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                     selectedModuleId = nil
                                 }
@@ -71,20 +72,29 @@ struct HomeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    // Edit mode toggle button
-                    Button(action: {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                            editMode = editMode.isEditing ? .inactive : .active
-                        }
-                    }) {
-                        if editMode.isEditing {
-                            Text("✓ Gotowe")
-                                .foregroundColor(.accent)
-                                .font(.buttonMedium)
-                        } else {
-                            Image(systemName: "slider.horizontal.3")
+                    if modulePreferences.enabledModules.isEmpty {
+                        // Gdy brak modułów – przycisk dodania
+                        Button(action: { showModuleSelector = true }) {
+                            Image(systemName: "plus.circle")
                                 .font(.title3)
-                                .foregroundColor(.textPrimary)
+                                .foregroundColor(.accent)
+                        }
+                    } else {
+                        // Edit mode toggle button
+                        Button(action: {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                editMode = editMode.isEditing ? .inactive : .active
+                            }
+                        }) {
+                            if editMode.isEditing {
+                                Text("✓ Gotowe")
+                                    .foregroundColor(.accent)
+                                    .font(.buttonMedium)
+                            } else {
+                                Image(systemName: "slider.horizontal.3")
+                                    .font(.title3)
+                                    .foregroundColor(.textPrimary)
+                            }
                         }
                     }
                 }
@@ -100,20 +110,34 @@ struct HomeView: View {
                 ModuleSelectionView(modulePreferences: modulePreferences)
             }
             .environment(\.editMode, $editMode)
+            .onChange(of: modulePreferences.enabledModules) { oldValue, newValue in
+                if newValue.isEmpty {
+                    // Automatycznie wyłącz tryb edycji gdy nie ma już modułów
+                    editMode = .inactive
+                }
+            }
         }
         .environmentObject(modulePreferences)
     }
     
     // Smart Stack Modules View
+    @ViewBuilder
     private var modulesStackView: some View {
         VStack(spacing: 10) {
             ForEach(modulePreferences.enabledModules, id: \.self) { moduleId in
                 ModuleView(moduleId: moduleId)
                     .id(moduleId)
+                    .onDrag({
+                        draggingModuleId = moduleId
+                        return NSItemProvider(object: moduleId as NSString)
+                    }, preview: {
+                        // Minimalistic preview to uniknąć miniaturki
+                        Color.clear.frame(width: 1, height: 1)
+                    })
+                    .onDrop(of: [.text], delegate: ModuleDropDelegate(item: moduleId, draggingItem: $draggingModuleId, prefs: modulePreferences))
             }
             
-            // Zawsze pokazuj przycisk dodania modułów pod listą modułów
-            if editMode.isEditing == false && !modulePreferences.enabledModules.isEmpty {
+            if !modulePreferences.enabledModules.isEmpty {
                 addMoreModulesButton
             }
         }
