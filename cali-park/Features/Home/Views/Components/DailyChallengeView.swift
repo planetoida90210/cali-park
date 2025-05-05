@@ -1,10 +1,10 @@
 import SwiftUI
 
 struct DailyChallengeView: View {
-    var challenge: DailyChallenge
+    var challenge: MockDailyChallenge
     @State private var completed: Bool
     
-    init(challenge: DailyChallenge) {
+    init(challenge: MockDailyChallenge) {
         self.challenge = challenge
         self._completed = State(initialValue: challenge.completed)
     }
@@ -82,9 +82,11 @@ struct DailyChallengeView: View {
     }
 }
 
-#Preview {
-    DailyChallengeView(challenge: MockData.dailyChallenge)
-        .padding()
-        .background(Color.appBackground)
-        .preferredColorScheme(.dark)
+struct DailyChallengeView_Previews: PreviewProvider {
+    static var previews: some View {
+        DailyChallengeView(challenge: MockDataProvider.dailyChallenge)
+            .padding()
+            .background(Color.appBackground)
+            .preferredColorScheme(.dark)
+    }
 } 
