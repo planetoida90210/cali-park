@@ -4,6 +4,7 @@ struct ParksView: View {
     // MARK: - State & ViewModel
     @StateObject private var viewModel = ParksViewModel()
     @State private var showMapSheet: Bool = false
+    @FocusState private var searchFocused: Bool
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -18,6 +19,7 @@ struct ParksView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             mapButton
         }
         .sheet(isPresented: $showMapSheet) {
@@ -26,6 +28,7 @@ struct ParksView: View {
         }
         .navigationTitle("Siłownie")
         .navigationBarTitleDisplayMode(.inline)
+        .onTapGesture { hideKeyboard() }
     }
 
     // MARK: - Subviews
@@ -35,6 +38,8 @@ struct ParksView: View {
                 .foregroundColor(.textSecondary)
             TextField("Szukaj nazwy lub miasta", text: $viewModel.searchText)
                 .textFieldStyle(.plain)
+                .focused($searchFocused)
+                .submitLabel(.search)
             Button {
                 // TODO: filter action
             } label: {
@@ -45,10 +50,14 @@ struct ParksView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(Color.glassBackground)
+        .background(Color.componentBackground)
         .cornerRadius(12)
         .padding(.horizontal, 12)
         .padding(.top, 12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.cardBorderEnd, lineWidth: searchFocused ? 2 : 0)
+        )
     }
 
     private var tabBar: some View {
@@ -92,12 +101,13 @@ struct ParksView: View {
 
     private var mapButton: some View {
         Button(action: { showMapSheet = true }) {
-            Text("🗺️")
-                .font(.title2)
-                .padding(12)
+            Image(systemName: "map.fill")
+                .font(.system(size: 22, weight: .bold))
+                .foregroundColor(.black)
+                .padding(18)
                 .background(Color.accent)
                 .clipShape(Circle())
-                .shadow(radius: 4)
+                .shadow(color: Color.black.opacity(0.4), radius: 8, x: 0, y: 4)
         }
         .padding(20)
     }
