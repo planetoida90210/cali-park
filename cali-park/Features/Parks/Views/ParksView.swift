@@ -116,12 +116,44 @@ struct ParksView: View {
     @Namespace var namespace
 
     private var parksList: some View {
-        LazyVStack(spacing: 12) {
-            ForEach(viewModel.displayedParks) { park in
-                ParkCardView(park: park)
-                    .environmentObject(viewModel)
+        Group {
+            if viewModel.displayedParks.isEmpty {
+                emptyState
+                    .padding(.top, 60)
+            } else {
+                LazyVStack(spacing: 12) {
+                    ForEach(viewModel.displayedParks) { park in
+                        ParkCardView(park: park)
+                            .environmentObject(viewModel)
+                    }
+                }
             }
         }
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 12) {
+            Image(systemName: viewModel.selectedTab == .favorites ? "heart" : "mappin.slash")
+                .font(.system(size: 32))
+                .foregroundColor(.accent.opacity(0.8))
+
+            Text(viewModel.selectedTab == .favorites ? "Brak ulubionych siłowni" : "Brak wyników")
+                .font(.bodyMedium)
+                .foregroundColor(.textPrimary)
+
+            if viewModel.selectedTab == .favorites {
+                Text("Polub swoją pierwszą siłownię, klikając w serduszko przy kafelku.")
+                    .font(.caption)
+                    .foregroundColor(.textSecondary)
+                    .multilineTextAlignment(.center)
+            } else {
+                Text("Spróbuj zmienić filtry lub wyszukaj inną lokalizację.")
+                    .font(.caption)
+                    .foregroundColor(.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .frame(maxWidth: .infinity)
     }
 
     private var mapButton: some View {
