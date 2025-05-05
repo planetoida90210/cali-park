@@ -50,11 +50,6 @@ struct HomeView: View {
                                 modulesStackView
                             }
                             
-                            // Add modules button (in edit mode)
-                            if editMode.isEditing {
-                                addModulesButton
-                            }
-                            
                             // Bottom padding for safe area
                             Spacer().frame(height: 12)
                         }
@@ -94,7 +89,14 @@ struct HomeView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showModuleSelector) {
+            .sheet(isPresented: $showModuleSelector, onDismiss: {
+                // Automatycznie wyjdź z trybu edycji po zamknięciu selektora modułów
+                if modulePreferences.enabledModules.isEmpty == false {
+                    withAnimation {
+                        editMode = .inactive
+                    }
+                }
+            }) {
                 ModuleSelectionView(modulePreferences: modulePreferences)
             }
             .environment(\.editMode, $editMode)
@@ -108,6 +110,11 @@ struct HomeView: View {
             ForEach(modulePreferences.enabledModules, id: \.self) { moduleId in
                 ModuleView(moduleId: moduleId)
                     .id(moduleId)
+            }
+            
+            // Zawsze pokazuj przycisk dodania modułów pod listą modułów
+            if editMode.isEditing == false && !modulePreferences.enabledModules.isEmpty {
+                addMoreModulesButton
             }
         }
     }
@@ -145,37 +152,22 @@ struct HomeView: View {
         .padding(.horizontal, 16)
     }
     
-    // Add modules button
-    private var addModulesButton: some View {
+    // Add more modules button for normal mode (not edit mode)
+    private var addMoreModulesButton: some View {
         Button(action: { showModuleSelector = true }) {
             HStack {
-                Spacer()
-                
                 Image(systemName: "plus.circle.fill")
-                    .font(.title2)
+                    .font(.body)
                 
-                Text("Dodaj więcej modułów")
-                    .font(.bodyLarge)
-                
-                Spacer()
+                Text("Dostosuj moduły")
+                    .font(.bodyMedium)
             }
-            .padding(.vertical, 16)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 20)
             .foregroundColor(.accent)
-            .background(Color.glassBackground.blur(radius: 30))
+            .background(Color.glassBackground.opacity(0.5))
             .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(
-                        LinearGradient(
-                            gradient: Gradient(colors: [Color.cardBorderStart, Color.cardBorderEnd]),
-                            startPoint: .top,
-                            endPoint: .bottom
-                        ),
-                        lineWidth: 1
-                    )
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
+            .padding(.top, 8)
         }
     }
     
@@ -197,17 +189,17 @@ struct ModuleSelectionView: View {
                     }
                 }
                 
-                Section(footer: Text("Włączone moduły będą widoczne na ekranie głównym. Możesz zmieniać ich kolejność przeciągając w trybie edycji.")) {
+                Section(footer: Text("Włączone moduły będą widoczne na ekranie głównym. Możesz zmieniać ich kolejność na ekranie głównym w trybie edycji.")) {
                     // Empty view for footer
                     EmptyView()
                 }
             }
             .listStyle(InsetGroupedListStyle())
-            .navigationTitle("Edytuj ekran główny")
+            .navigationTitle("Wybierz moduły")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Gotowe") {
+                    Button("Zapisz") {
                         presentationMode.wrappedValue.dismiss()
                     }
                     .foregroundColor(.accent)

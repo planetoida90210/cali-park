@@ -21,6 +21,10 @@ extension Color {
     // Text colors
     static let textPrimary = Color.white
     static let textSecondary = Color(hex: "#9A9A9A") // Updated to specified color
+    // Tertiary text color (even lighter gray)
+    static let textTertiary = Color(hex: "#6C6C6C")
+    // Divider line color
+    static let divider = Color.white.opacity(0.15)
     
     // Helper to create color from hex
     init(hex: String) {
