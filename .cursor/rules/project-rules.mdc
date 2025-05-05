@@ -1,0 +1,70 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 🗂️  STRUKTURA PROJEKTU
+################################################################################
+file_system:
+  new_files_allowed_paths:
+    - App/**
+    - Components/**
+    - Core/**
+    - Features/**
+    - Models/**
+    - Resources/**
+  forbid_top_level_files: true
+  editable_paths:
+    - App/**
+    - Components/**
+    - Core/**
+    - Features/**
+    - Models/**
+    - Resources/**
+
+################################################################################
+# 🧭  UMIEJSCOWIENIE KODU
+################################################################################
+coding_guidelines:
+  enforce_folder_logic: true               # patrz konwencje poniżej
+  require_user_confirmation_for_ambiguous_files: true
+
+  folder_conventions:
+    - path: Features/**/Views/**
+      purpose: "SwiftUI widoki + Preview"
+    - path: Features/**/Models/**
+      purpose: "modele danych, enums, DTO"
+    - path: Core/Services/**
+      purpose: "logika, sieć, persystencja"
+    - path: Components/**
+      purpose: "wielorazowe UI (Buttons, Cards…)"
+
+################################################################################
+# 📝  STYLE SWIFT
+################################################################################
+swift_style:
+  language_version: "5.9"
+  frameworks_allowed: [SwiftUI, Combine, Foundation]
+  frameworks_disallowed: [UIKit, ObjectiveC]
+  naming_convention: swift_default
+
+  size_limits:
+    component_soft_limit: 200      # linie „komfortowe”
+    component_hard_limit: 500      # ABS‑max, w skrajnych wypadkach
+    description: "Powyżej soft‑limit podziel kod na mniejsze widoki, view‑modele lub extension; przekroczenie hard‑limit zabronione."
+
+  patterns_required:
+    - "MARK pragmas": "Używaj // MARK: - dla grupowania metod & właściwości"
+    - "MVVM separation": "ViewModel oddzielony od View; dane w @Published"
+    - "DependencyInjection": "Injectuj serwisy przez init, nie używaj singletonów poza AppEnvironment"
+    - "SwiftUI Previews": "Każdy publiczny View ma Preview z MockData"
+    - "swiftformat": "Przyjmij domyślne reguły SwiftFormat przed wygenerowaniem outputu"
+
+################################################################################
+# ✅  WALIDACJA PRZED ODPOWIEDZIĄ
+################################################################################
+preflight_checks:
+  - "Sprawdź ścieżkę docelową – czy mieści się w allowed_paths?"
+  - "Zweryfikuj długość każdego edytowanego lub nowego pliku vs size_limits"
+  - "Potwierdź użycie wymaganych wzorców i nie używaj zabronionych frameworków"
+  - "Jeśli którakolwiek reguła jest naruszona → zamiast kodu ZADAJ użytkownikowi pytanie lub zaproponuj refaktor"
