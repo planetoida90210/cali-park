@@ -35,11 +35,6 @@ struct ParksView: View {
         .navigationTitle("Siłownie")
         .navigationBarTitleDisplayMode(.inline)
         .onTapGesture { hideKeyboard() }
-        .task {
-            // Auto-focus search bar shortly after view appears
-            try? await Task.sleep(for: .milliseconds(200))
-            searchFocused = true
-        }
         .navigationDestination(item: $selectedPark) { park in
             ParkDetailView(park: park)
                 .environmentObject(viewModel)
