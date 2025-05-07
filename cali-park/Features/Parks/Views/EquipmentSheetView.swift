@@ -7,15 +7,21 @@ struct EquipmentSheetView: View {
     let equipments: [String]
     @Environment(\.dismiss) private var dismiss
 
+    // ViewModel
+    @StateObject private var viewModel: EquipmentSheetViewModel
+
+    // Init to inject equipments into VM
+    init(equipments: [String]) {
+        self.equipments = equipments
+        _viewModel = StateObject(wrappedValue: EquipmentSheetViewModel(equipments: equipments))
+    }
+
     // Grid 2 × n
     private let columns = [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
 
-    // Derived typed items
-    private var items: [EquipmentItem] { EquipmentItem.items(from: equipments) }
-
-    // Grouped by category to drive Section headers
+    // Grouped view-model items
     private var grouped: [(EquipmentCategory, [EquipmentItem])] {
-        Dictionary(grouping: items, by: \.category)
+        Dictionary(grouping: viewModel.filteredItems, by: \.category)
             .sorted { $0.key.rawValue < $1.key.rawValue }
             .map { ($0.key, $0.value.sorted { $0.name < $1.name }) }
     }
@@ -28,6 +34,17 @@ struct EquipmentSheetView: View {
                     ContentUnavailableView("Brak danych", systemImage: "exclamationmark.triangle")
                 } else {
                     ScrollView {
+                        // Category Picker
+                        Picker("Kategoria", selection: $viewModel.selectedCategory) {
+                            Text("Wszystkie").tag(Optional<EquipmentCategory>.none)
+                            ForEach(EquipmentCategory.allCases) { cat in
+                                Text(cat.title).tag(Optional(cat))
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
+
                         LazyVStack(alignment: .leading, spacing: 24) {
                             ForEach(grouped, id: \.0) { category, items in
                                 if !items.isEmpty {
@@ -46,11 +63,12 @@ struct EquipmentSheetView: View {
                                 }
                             }
                         }
-                        .padding(.top, 24)
+                        .padding(.top, 16)
                     }
                 }
             }
             .navigationTitle("Wyposażenie")
+            .searchable(text: $viewModel.searchText, prompt: "Szukaj drążka…")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Zamknij") { dismiss() } }
             }
