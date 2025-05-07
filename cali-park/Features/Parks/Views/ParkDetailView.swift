@@ -11,6 +11,10 @@ struct ParkDetailView: View {
     @EnvironmentObject private var parksVM: ParksViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var showReportSheet = false
+    @State private var showAddLogSheet = false
+
+    // Action Row View-Model
+    @StateObject private var actionVM = ParkActionRowViewModel()
 
     // Mock – pierwsze nadchodzące wydarzenie
     private var upcomingEvent: (title: String, date: String)? {
@@ -19,23 +23,40 @@ struct ParkDetailView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                ParkHeroHeaderView(park: park, isPremiumUser: isPremiumUser)
-                ParkStatsStripView(park: park)
-                equipmentSection
-                navigationSection
-                if let event = upcomingEvent { eventSection(event) }
-                actionsSection
+        ZStack(alignment: .bottomTrailing) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    ParkHeroHeaderView(park: park, isPremiumUser: isPremiumUser)
+                    ParkStatsStripView(park: park)
+                    ParkActionRowView(viewModel: actionVM)
+                    equipmentSection
+                    if let event = upcomingEvent { eventSection(event) }
+                }
+                .padding(16)
+                // Listen for row offset updates
+                .onPreferenceChange(ActionRowOffsetKey.self) { value in
+                    actionVM.updateRowOffset(value)
+                }
             }
-            .padding(16)
+            // Floating Action Button
+            if actionVM.showFAB {
+                ParkActionFAB(viewModel: actionVM)
+                    .padding(.trailing, 24)
+                    .padding(.bottom, 24)
+                    .transition(.scale.combined(with: .opacity))
+            }
         }
         .background(Color.appBackground)
         .navigationTitle(park.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Zamknij") { dismiss() } } }
-        .sheet(isPresented: $showReportSheet) {
-            ReportParkView(park: park)
+        .sheet(isPresented: $showReportSheet) { ReportParkView(park: park) }
+        .sheet(isPresented: $showAddLogSheet) { QuickLogPlaceholder() }
+        .onAppear {
+            // Inject actions into VM
+            actionVM.navigateToPark = openInMaps
+            actionVM.addWorkoutLog = { showAddLogSheet = true }
+            actionVM.reportProblem = { showReportSheet = true }
         }
     }
 
@@ -56,14 +77,6 @@ struct ParkDetailView: View {
                 }
             }
         }
-    }
-
-    private var navigationSection: some View {
-        Button(action: openInMaps) {
-            Label("Nawiguj", systemImage: "car.fill")
-                .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(PrimaryButtonStyle())
     }
 
     private func eventSection(_ event: (title: String, date: String)) -> some View {
@@ -95,21 +108,25 @@ struct ParkDetailView: View {
         }
     }
 
-    private var actionsSection: some View {
-        VStack(spacing: 12) {
-            Button(role: .destructive) { showReportSheet = true } label: {
-                Label("Zgłoś problem", systemImage: "exclamationmark.bubble")
-            }
-            .buttonStyle(SecondaryButtonStyle())
-        }
-    }
-
     // MARK: - Helpers
     private func openInMaps() {
         let placemark = MKPlacemark(coordinate: park.coordinate)
         let mapItem = MKMapItem(placemark: placemark)
         mapItem.name = park.name
         mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving])
+    }
+}
+
+// MARK: - Quick Log placeholder
+private struct QuickLogPlaceholder: View {
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        NavigationStack {
+            Text("Quick workout log w budowie ✌️")
+                .padding()
+                .navigationTitle("Dodaj log")
+                .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Zamknij") { dismiss() } } }
+        }
     }
 }
 
