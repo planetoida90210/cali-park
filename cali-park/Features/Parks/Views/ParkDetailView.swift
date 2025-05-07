@@ -74,7 +74,7 @@ struct ParkDetailView: View {
                     .font(.caption)
                     .foregroundColor(.textSecondary)
             } else {
-                ParkEquipmentGridView(
+                ParkEquipmentRowView(
                     equipments: park.equipments,
                     onTapShowAll: { showEquipmentSheet = true }
                 )
