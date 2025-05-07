@@ -107,7 +107,11 @@ extension Park {
             images: [],
             description: "Solid pull-up bars, parallel bars and more.",
             isFavorite: false,
-            equipments: ["Pull-up bar", "Dip bar", "Monkey bars"],
+            equipments: [
+                "Pull-up bar", "Dip bar", "Monkey bars", "Rings", "Push-up handles",
+                "Climbing rope", "Box jump", "Resistance bands", "Parallel bars", "Tires",
+                "Battle ropes", "Sledge hammer", "Kettlebell", "Medicine ball"
+            ],
             tags: [.shade, .light, .water]
         ),
         Park(
@@ -120,7 +124,10 @@ extension Park {
             images: [],
             description: "Shaded area with rubber flooring.",
             isFavorite: true,
-            equipments: ["Rings", "Push-up handles"],
+            equipments: [
+                "Pull-up bar", "Dip bar", "Monkey bars", "Rings", "Push-up handles",
+                "Parallel bars", "Kettlebell", "Medicine ball"
+            ],
             tags: [.roof, .light]
         )
     ]

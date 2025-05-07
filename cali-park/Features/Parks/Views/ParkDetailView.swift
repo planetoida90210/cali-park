@@ -12,6 +12,7 @@ struct ParkDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showReportSheet = false
     @State private var showAddLogSheet = false
+    @State private var showEquipmentSheet = false
 
     // Action Row View-Model
     @StateObject private var actionVM = ParkActionRowViewModel()
@@ -53,6 +54,7 @@ struct ParkDetailView: View {
         .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Zamknij") { dismiss() } } }
         .sheet(isPresented: $showReportSheet) { ReportParkView(park: park) }
         .sheet(isPresented: $showAddLogSheet) { QuickLogPlaceholder() }
+        .sheet(isPresented: $showEquipmentSheet) { EquipmentSheetView(equipments: park.equipments) }
         .onAppear {
             // Inject actions into VM
             actionVM.navigateToPark = openInMaps
@@ -65,17 +67,17 @@ struct ParkDetailView: View {
     private var equipmentSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Wyposażenie")
-                .font(.bodyMedium).foregroundColor(.textPrimary)
+                .font(.bodyMedium)
+                .foregroundColor(.textPrimary)
             if park.equipments.isEmpty {
                 Text("Brak danych")
                     .font(.caption)
                     .foregroundColor(.textSecondary)
             } else {
-                ForEach(park.equipments, id: \.self) { item in
-                    Text("• \(item)")
-                        .font(.caption)
-                        .foregroundColor(.textSecondary)
-                }
+                ParkEquipmentGridView(
+                    equipments: park.equipments,
+                    onTapShowAll: { showEquipmentSheet = true }
+                )
             }
         }
     }
