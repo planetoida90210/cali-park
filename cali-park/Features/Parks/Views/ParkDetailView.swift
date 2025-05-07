@@ -33,6 +33,7 @@ struct ParkDetailView: View {
                     if let event = upcomingEvent { eventSection(event) }
                 }
                 .padding(16)
+                .padding(.bottom, 140) // extra space for FAB
                 // Listen for row offset updates
                 .onPreferenceChange(ActionRowOffsetKey.self) { value in
                     actionVM.updateRowOffset(value)
