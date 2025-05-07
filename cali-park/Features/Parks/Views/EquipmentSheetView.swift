@@ -10,6 +10,9 @@ struct EquipmentSheetView: View {
     // ViewModel
     @StateObject private var viewModel: EquipmentSheetViewModel
 
+    // Sheet presentation
+    @State private var selectedItem: EquipmentItem?
+
     // Init to inject equipments into VM
     init(equipments: [String]) {
         self.equipments = equipments
@@ -56,7 +59,25 @@ struct EquipmentSheetView: View {
                                     LazyVGrid(columns: columns, alignment: .leading, spacing: 16) {
                                         ForEach(items) { item in
                                             EquipmentGridCell(item: item)
-                                                .onTapGesture { /* reserved for future actions */ }
+                                                .onTapGesture { /* simple tap reserved */ }
+                                                .onLongPressGesture {
+                                                    selectedItem = item
+                                                }
+                                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                                    Button {
+                                                        // Report missing
+                                                    } label: {
+                                                        Label("Brak", systemImage: "xmark")
+                                                    }
+                                                    .tint(.red)
+
+                                                    Button {
+                                                        // Report damaged
+                                                    } label: {
+                                                        Label("Uszkodzone", systemImage: "wrench.adjustable")
+                                                    }
+                                                    .tint(.orange)
+                                                }
                                         }
                                     }
                                     .padding(.horizontal, 16)
@@ -71,6 +92,11 @@ struct EquipmentSheetView: View {
             .searchable(text: $viewModel.searchText, prompt: "Szukaj drążka…")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Zamknij") { dismiss() } }
+            }
+            .sheet(item: $selectedItem) { item in
+                NavigationStack {
+                    EquipmentDetailSheetView(item: item)
+                }
             }
         }
     }
