@@ -23,6 +23,12 @@ struct ParkHeroHeaderView: View {
             .frame(height: headerHeight(geo))
             .clipped()
             .offset(y: -parallaxOffset(geo))
+            // Publish global offset for sticky behaviour consumers
+            .background(
+                GeometryReader { proxy in
+                    Color.clear.preference(key: HeaderOffsetKey.self, value: proxy.frame(in: .global).minY)
+                }
+            )
         }
         .frame(height: 260) // Base height
     }
