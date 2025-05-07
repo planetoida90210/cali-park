@@ -21,8 +21,7 @@ struct ParkDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                gallerySection
-                ratingSection
+                ParkHeroHeaderView(park: park, isPremiumUser: isPremiumUser)
                 equipmentSection
                 navigationSection
                 if let event = upcomingEvent { eventSection(event) }
@@ -40,71 +39,6 @@ struct ParkDetailView: View {
     }
 
     // MARK: - Sections
-    private var gallerySection: some View {
-        TabView {
-            if park.images.isEmpty {
-                VStack(spacing: 12) {
-                    Image(systemName: "photo.on.rectangle")
-                        .font(.system(size: 40))
-                        .foregroundColor(.textSecondary)
-                    Text("Brak zdjęć")
-                        .font(.bodyMedium)
-                        .foregroundColor(.textSecondary)
-                    if !isPremiumUser {
-                        premiumCTA
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.componentBackground)
-            } else {
-                ForEach(park.images, id: \ .self) { url in
-                    AsyncImage(url: url) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image.resizable().scaledToFill()
-                        default:
-                            Color.gray.opacity(0.2)
-                        }
-                    }
-                }
-            }
-        }
-        .frame(height: 240)
-        .tabViewStyle(.page(indexDisplayMode: .always))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-    private var premiumCTA: some View {
-        Button(action: {/* paywall */}) {
-            HStack(spacing: 6) {
-                Image(systemName: "star.fill")
-                Text("Dodaj zdjęcie (Premium)")
-            }
-            .font(.caption.weight(.semibold))
-            .padding(8)
-            .foregroundColor(.black)
-            .background(Color.accent)
-            .clipShape(Capsule())
-        }
-    }
-
-    private var ratingSection: some View {
-        HStack(spacing: 4) {
-            Image(systemName: "star.fill")
-                .foregroundColor(.accent)
-            Text(String(format: "%.1f", park.rating))
-                .font(.bodyMedium)
-                .foregroundColor(.textPrimary)
-            Spacer()
-            Button(action: { parksVM.toggleFavorite(for: park) }) {
-                Image(systemName: park.isFavorite ? "heart.fill" : "heart")
-                    .font(.title3)
-                    .foregroundColor(park.isFavorite ? .accent : .textSecondary)
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
     private var equipmentSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Wyposażenie")
@@ -114,7 +48,7 @@ struct ParkDetailView: View {
                     .font(.caption)
                     .foregroundColor(.textSecondary)
             } else {
-                ForEach(park.equipments, id: \ .self) { item in
+                ForEach(park.equipments, id: \.self) { item in
                     Text("• \(item)")
                         .font(.caption)
                         .foregroundColor(.textSecondary)
