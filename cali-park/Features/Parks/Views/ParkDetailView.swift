@@ -22,6 +22,7 @@ struct ParkDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 ParkHeroHeaderView(park: park, isPremiumUser: isPremiumUser)
+                ParkStatsStripView(park: park)
                 equipmentSection
                 navigationSection
                 if let event = upcomingEvent { eventSection(event) }
