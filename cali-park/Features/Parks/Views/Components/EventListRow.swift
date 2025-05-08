@@ -27,7 +27,7 @@ struct EventListRow: View {
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.componentBackground)
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .contextMenu {
             Button("Dołącz") { onJoin() }
             Button("Szczegóły") { onDetails() }
@@ -35,6 +35,7 @@ struct EventListRow: View {
         .accessibilityElement()
         .accessibilityLabel(event.title)
         .accessibilityHint("Przesuń w prawo, aby dołączyć")
+        .onTapGesture { onDetails() }
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
             Button {
                 onJoin()
@@ -43,6 +44,35 @@ struct EventListRow: View {
             }
             .tint(.accent)
         }
+        // Subtle swipe hint arrow (one-time animated)
+        .overlay(alignment: .trailing) {
+            SwipeHintArrow()
+                .allowsHitTesting(false)
+        }
+    }
+}
+
+// MARK: - SwipeHintArrow helper
+private struct SwipeHintArrow: View {
+    @State private var offset: CGFloat = 0
+    @AppStorage("hasSeenSwipeHint") private var hasSeenHint: Bool = false
+
+    var body: some View {
+        Image(systemName: "arrow.right")
+            .font(.caption)
+            .foregroundColor(.textSecondary)
+            .opacity(hasSeenHint ? 0 : 0.6)
+            .offset(x: offset)
+            .onAppear {
+                guard !hasSeenHint else { return }
+                withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
+                    offset = -8
+                }
+                // Auto-hide after 3 sec
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    withAnimation(.easeOut) { hasSeenHint = true }
+                }
+            }
     }
 }
 

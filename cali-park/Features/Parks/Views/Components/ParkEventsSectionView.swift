@@ -7,7 +7,8 @@ struct ParkEventsSectionView: View {
     let isPremiumUser: Bool
 
     // Local state
-    @State private var selectedEvent: ParkEvent?
+    @State private var selectedEventForJoin: ParkEvent?
+    @State private var selectedEventForDetails: ParkEvent?
     @State private var showList: Bool = false
 
     // Derived data
@@ -22,10 +23,11 @@ struct ParkEventsSectionView: View {
             if let first = events.first {
                 List {
                     EventListRow(event: first,
-                                 onJoin: { selectedEvent = first },
-                                 onDetails: { selectedEvent = first })
+                                 onJoin: { selectedEventForJoin = first },
+                                 onDetails: { selectedEventForDetails = first })
                         .listRowInsets(EdgeInsets())
                         .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
                 }
                 .frame(height: 120)
                 .listStyle(.plain)
@@ -45,15 +47,19 @@ struct ParkEventsSectionView: View {
                 emptyStateView
             }
         }
-        .sheet(item: $selectedEvent) { event in
+        .sheet(item: $selectedEventForJoin) { event in
             JoinEventSheetView(event: event)
                 .presentationDetents([.height(220)])
         }
+        .sheet(item: $selectedEventForDetails) { event in
+            EventDetailSheetView(event: event, onJoin: { selectedEventForJoin = event })
+                .presentationDetents([.fraction(0.5), .large])
+        }
         .sheet(isPresented: $showList) {
             EventsListSheetView(events: events) { event in
-                selectedEvent = event
+                selectedEventForDetails = event
             }
-            .presentationDetents([.medium])
+            .presentationDetents([.fraction(0.45), .large])
         }
     }
 
