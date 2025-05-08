@@ -81,6 +81,7 @@ struct ParkEquipmentRowView: View {
                     Text("+\(count)")
                         .font(.caption.weight(.bold))
                         .foregroundColor(.textPrimary)
+                        .symbolEffect(.pulse, value: count)
                 )
             Text("więcej")
                 .font(.caption2)
