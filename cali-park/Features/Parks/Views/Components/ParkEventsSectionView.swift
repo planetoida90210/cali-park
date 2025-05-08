@@ -8,6 +8,7 @@ struct ParkEventsSectionView: View {
 
     // Local state
     @State private var selectedEvent: ParkEvent?
+    @State private var showList: Bool = false
 
     // Derived data
     private var events: [ParkEvent] { ParkEvent.events(for: park.id) }
@@ -19,7 +20,27 @@ struct ParkEventsSectionView: View {
                 .foregroundColor(.textPrimary)
 
             if let first = events.first {
-                ParkEventCardView(event: first, onJoinTap: { selectedEvent = first }, fullWidth: true)
+                List {
+                    EventListRow(event: first,
+                                 onJoin: { selectedEvent = first },
+                                 onDetails: { selectedEvent = first })
+                        .listRowInsets(EdgeInsets())
+                        .listRowSeparator(.hidden)
+                }
+                .frame(height: 120)
+                .listStyle(.plain)
+                .scrollDisabled(true)
+                .padding(.trailing, 80)
+                if events.count > 1 {
+                    Button {
+                        showList = true
+                    } label: {
+                        Text("Pokaż wszystkie \(events.count)")
+                            .font(.caption.weight(.semibold))
+                            .foregroundColor(.accent)
+                    }
+                    .padding(.top, 4)
+                }
             } else {
                 emptyStateView
             }
@@ -27,6 +48,12 @@ struct ParkEventsSectionView: View {
         .sheet(item: $selectedEvent) { event in
             JoinEventSheetView(event: event)
                 .presentationDetents([.height(220)])
+        }
+        .sheet(isPresented: $showList) {
+            EventsListSheetView(events: events) { event in
+                selectedEvent = event
+            }
+            .presentationDetents([.medium])
         }
     }
 
