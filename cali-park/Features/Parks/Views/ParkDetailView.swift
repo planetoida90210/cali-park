@@ -17,12 +17,6 @@ struct ParkDetailView: View {
     // Action Row View-Model
     @StateObject private var actionVM = ParkActionRowViewModel()
 
-    // Mock – pierwsze nadchodzące wydarzenie
-    private var upcomingEvent: (title: String, date: String)? {
-        // To będzie pobierane z API
-        return ("Trening grupowy", "Sobota • 10:00")
-    }
-
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             ScrollView {
@@ -31,7 +25,7 @@ struct ParkDetailView: View {
                     ParkStatsStripView(park: park)
                     ParkActionRowView(viewModel: actionVM)
                     equipmentSection
-                    if let event = upcomingEvent { eventSection(event) }
+                    ParkEventsSectionView(park: park, isPremiumUser: isPremiumUser)
                 }
                 .padding(16)
                 .padding(.bottom, 140) // extra space for FAB
@@ -79,35 +73,6 @@ struct ParkDetailView: View {
                     onTapShowAll: { showEquipmentSheet = true }
                 )
             }
-        }
-    }
-
-    private func eventSection(_ event: (title: String, date: String)) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("Wydarzenie")
-                .font(.bodyMedium)
-                .foregroundColor(.textPrimary)
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(event.title)
-                        .font(.caption.weight(.semibold))
-                        .foregroundColor(.accent)
-                    Text(event.date)
-                        .font(.caption)
-                        .foregroundColor(.textSecondary)
-                }
-                Spacer()
-                Button("Zapisz się") {}
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(.black)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color.accent)
-                    .clipShape(Capsule())
-            }
-            .padding(12)
-            .background(Color.componentBackground)
-            .cornerRadius(8)
         }
     }
 
