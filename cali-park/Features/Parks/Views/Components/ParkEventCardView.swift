@@ -6,6 +6,7 @@ import SwiftUI
 struct ParkEventCardView: View {
     let event: ParkEvent
     let onJoinTap: () -> Void
+    var fullWidth: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -41,7 +42,8 @@ struct ParkEventCardView: View {
             .disabled(event.isFull)
         }
         .padding(12)
-        .frame(width: 180, height: 140)
+        .frame(width: fullWidth ? nil : 180, height: 140)
+        .frame(maxWidth: fullWidth ? .infinity : nil)
         .background(Color.componentBackground)
         .cornerRadius(10)
     }
@@ -49,6 +51,9 @@ struct ParkEventCardView: View {
 
 // MARK: - Preview
 #Preview {
-    ParkEventCardView(event: .mock.first!, onJoinTap: {})
-        .preferredColorScheme(.dark)
+    VStack(spacing: 20) {
+        ParkEventCardView(event: .mock.first!, onJoinTap: {})
+        ParkEventCardView(event: .mock.first!, onJoinTap: {}, fullWidth: true)
+    }
+    .preferredColorScheme(.dark)
 } 

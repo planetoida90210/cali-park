@@ -18,19 +18,10 @@ struct ParkEventsSectionView: View {
                 .font(.bodyMedium)
                 .foregroundColor(.textPrimary)
 
-            if events.isEmpty {
-                emptyStateView
+            if let first = events.first {
+                ParkEventCardView(event: first, onJoinTap: { selectedEvent = first }, fullWidth: true)
             } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(events) { event in
-                            ParkEventCardView(event: event) {
-                                selectedEvent = event
-                            }
-                        }
-                    }
-                    .padding(.vertical, 4)
-                }
+                emptyStateView
             }
         }
         .sheet(item: $selectedEvent) { event in
