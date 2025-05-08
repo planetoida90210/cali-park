@@ -40,12 +40,12 @@ struct EquipmentDetailSheetView: View {
                     }
                     .buttonStyle(PrimaryButtonStyle())
 
-                    Button(action: reportDamaged) {
+                    Button(action: { /* TODO: integrate */ }) {
                         Label("Zgłoś uszkodzenie", systemImage: "wrench.adjustable")
                     }
                     .buttonStyle(SecondaryButtonStyle())
 
-                    Button(action: reportMissing) {
+                    Button(action: { /* TODO: integrate */ }) {
                         Label("Nie ma tego sprzętu", systemImage: "xmark")
                     }
                     .buttonStyle(SecondaryButtonStyle())
@@ -61,24 +61,6 @@ struct EquipmentDetailSheetView: View {
 
     private func openDemoVideo() {
         // Placeholder – future deep link.
-    }
-
-    private func reportDamaged() {
-        generateHaptic(.success)
-        // TODO: integrate report logic
-    }
-
-    private func reportMissing() {
-        generateHaptic(.warning)
-        // TODO: integrate report logic
-    }
-
-    // Simple haptic wrapper (works iOS 13+)
-    private func generateHaptic(_ type: UINotificationFeedbackGenerator.FeedbackType) {
-        #if os(iOS)
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(type)
-        #endif
     }
 }
 

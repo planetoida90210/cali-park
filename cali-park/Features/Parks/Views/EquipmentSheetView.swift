@@ -112,6 +112,7 @@ private struct EquipmentGridCell: View {
                 .fill(Color(uiColor: .secondarySystemBackground))
         )
         .accessibilityElement(children: .combine)
+        .accessibilityHint("Przytrzymaj, aby otworzyć szczegóły i zgłosić problem")
     }
 }
 
@@ -130,6 +131,7 @@ private struct CategorySection: View {
             }
         }
         .padding(.horizontal, 16)
+        .animation(.default, value: items.count)
     }
 }
 
