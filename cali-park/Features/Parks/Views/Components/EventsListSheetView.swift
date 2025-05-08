@@ -3,7 +3,8 @@ import SwiftUI
 // MARK: - EventsListSheetView
 struct EventsListSheetView: View {
     let events: [ParkEvent]
-    let onSelect: (ParkEvent) -> Void
+    let onJoin: (ParkEvent) -> Void
+    let onSelectDetails: (ParkEvent) -> Void
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -14,27 +15,33 @@ struct EventsListSheetView: View {
                 .font(.headline)
                 .padding(.vertical, 8)
             Divider().background(Color.divider)
-            ScrollView {
-                VStack(spacing: 12) {
-                    ForEach(events) { event in
-                        EventListRow(event: event,
-                                     onJoin: { onSelectAndDismiss(event) },
-                                     onDetails: { onSelectAndDismiss(event) })
-                    }
+            List {
+                ForEach(events) { event in
+                    EventListRow(event: event,
+                                 onJoin: { joinAndDismiss(event) },
+                                 onDetails: { selectAndDismiss(event) })
+                        .listRowInsets(EdgeInsets())
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .padding(.vertical, 4)
                 }
-                .padding()
             }
+            .listStyle(.plain)
+            .padding(.horizontal)
         }
         .background(Color.appBackground)
         .ignoresSafeArea(edges: .bottom)
     }
 
-    private func onSelectAndDismiss(_ event: ParkEvent) {
-        dismiss()
-        onSelect(event)
+    private func joinAndDismiss(_ event: ParkEvent) {
+        dismiss(); onJoin(event)
+    }
+
+    private func selectAndDismiss(_ event: ParkEvent) {
+        dismiss(); onSelectDetails(event)
     }
 }
 
 #Preview {
-    EventsListSheetView(events: ParkEvent.mock) { _ in }
+    EventsListSheetView(events: ParkEvent.mock) { _ in } onSelectDetails: { _ in }
 } 

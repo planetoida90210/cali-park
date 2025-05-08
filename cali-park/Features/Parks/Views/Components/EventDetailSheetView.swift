@@ -26,7 +26,7 @@ struct EventDetailSheetView: View {
             .foregroundColor(.textSecondary)
             Spacer()
             Button(action: {
-                dismiss(); onJoin()
+                onJoin(); dismiss()
             }) {
                 Text("Dołącz do wydarzenia")
                     .font(.body.weight(.semibold))

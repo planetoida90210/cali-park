@@ -5,9 +5,9 @@ import SwiftUI
 struct ParkEventsSectionView: View {
     let park: Park
     let isPremiumUser: Bool
+    let onJoin: (ParkEvent) -> Void
 
     // Local state
-    @State private var selectedEventForJoin: ParkEvent?
     @State private var selectedEventForDetails: ParkEvent?
     @State private var showList: Bool = false
 
@@ -23,7 +23,7 @@ struct ParkEventsSectionView: View {
             if let first = events.first {
                 List {
                     EventListRow(event: first,
-                                 onJoin: { selectedEventForJoin = first },
+                                 onJoin: { onJoin(first) },
                                  onDetails: { selectedEventForDetails = first })
                         .listRowInsets(EdgeInsets())
                         .listRowSeparator(.hidden)
@@ -47,19 +47,13 @@ struct ParkEventsSectionView: View {
                 emptyStateView
             }
         }
-        .sheet(item: $selectedEventForJoin) { event in
-            JoinEventSheetView(event: event)
-                .presentationDetents([.height(220)])
-        }
         .sheet(item: $selectedEventForDetails) { event in
-            EventDetailSheetView(event: event, onJoin: { selectedEventForJoin = event })
+            EventDetailSheetView(event: event, onJoin: { onJoin(event) })
                 .presentationDetents([.fraction(0.5), .large])
         }
         .sheet(isPresented: $showList) {
-            EventsListSheetView(events: events) { event in
-                selectedEventForDetails = event
-            }
-            .presentationDetents([.fraction(0.45), .large])
+            EventsListSheetView(events: events, onJoin: { onJoin($0) }, onSelectDetails: { selectedEventForDetails = $0 })
+                .presentationDetents([.fraction(0.45), .large])
         }
     }
 
@@ -95,6 +89,11 @@ struct ParkEventsSectionView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.componentBackground)
         .cornerRadius(8)
+    }
+
+    // MARK: - Join Logic
+    private func joinAndDismiss(_ event: ParkEvent) {
+        onJoin(event)
     }
 }
 
@@ -137,8 +136,8 @@ private struct JoinEventSheetView: View {
 // MARK: - Preview
 #Preview {
     VStack(alignment: .leading, spacing: 16) {
-        ParkEventsSectionView(park: .mock.first!, isPremiumUser: false)
-        ParkEventsSectionView(park: .mock.first!, isPremiumUser: true)
+        ParkEventsSectionView(park: .mock.first!, isPremiumUser: false, onJoin: { _ in })
+        ParkEventsSectionView(park: .mock.first!, isPremiumUser: true, onJoin: { _ in })
     }
     .padding()
     .preferredColorScheme(.dark)

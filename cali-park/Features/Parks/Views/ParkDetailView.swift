@@ -17,6 +17,9 @@ struct ParkDetailView: View {
     // Action Row View-Model
     @StateObject private var actionVM = ParkActionRowViewModel()
 
+    // Global quick-join state
+    @State private var joinedEventID: UUID?
+
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             ScrollView {
@@ -25,7 +28,7 @@ struct ParkDetailView: View {
                     ParkStatsStripView(park: park)
                     ParkActionRowView(viewModel: actionVM)
                     equipmentSection
-                    ParkEventsSectionView(park: park, isPremiumUser: isPremiumUser)
+                    ParkEventsSectionView(park: park, isPremiumUser: isPremiumUser, onJoin: joinEvent)
                 }
                 .padding(16)
                 .padding(.bottom, 140) // extra space for FAB
@@ -43,6 +46,20 @@ struct ParkDetailView: View {
             }
         }
         .background(Color.appBackground)
+        // Global toast overlay
+        .overlay {
+            if joinedEventID != nil {
+                QuickJoinToast()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                    .padding(.bottom, 90)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            withAnimation { joinedEventID = nil }
+                        }
+                    }
+            }
+        }
         .navigationTitle(park.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Zamknij") { dismiss() } } }
@@ -82,6 +99,28 @@ struct ParkDetailView: View {
         let mapItem = MKMapItem(placemark: placemark)
         mapItem.name = park.name
         mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving])
+    }
+
+    // MARK: - Join handler
+    private func joinEvent(_ event: ParkEvent) {
+        // TODO integrate backend
+        withAnimation { joinedEventID = event.id }
+    }
+
+    // MARK: - Toast
+    private struct QuickJoinToast: View {
+        var body: some View {
+            HStack(spacing: 8) {
+                Image(systemName: "checkmark.circle.fill").foregroundColor(.black)
+                Text("Dołączono do wydarzenia")
+                    .foregroundColor(.black)
+                    .font(.caption.weight(.semibold))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(Color.accent)
+            .clipShape(Capsule())
+        }
     }
 }
 
