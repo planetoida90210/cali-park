@@ -33,11 +33,23 @@ struct EquipmentDetailSheetView: View {
                         .foregroundColor(.textSecondary)
                 }
 
-                // Placeholder YouTube link
-                Button(action: openDemoVideo) {
-                    Label("Zobacz instruktaż (YouTube)", systemImage: "play.circle")
+                // Actions
+                VStack(spacing: 12) {
+                    Button(action: openDemoVideo) {
+                        Label("Zobacz instruktaż (YouTube)", systemImage: "play.circle")
+                    }
+                    .buttonStyle(PrimaryButtonStyle())
+
+                    Button(action: reportDamaged) {
+                        Label("Zgłoś uszkodzenie", systemImage: "wrench.adjustable")
+                    }
+                    .buttonStyle(SecondaryButtonStyle())
+
+                    Button(action: reportMissing) {
+                        Label("Nie ma tego sprzętu", systemImage: "xmark")
+                    }
+                    .buttonStyle(SecondaryButtonStyle())
                 }
-                .buttonStyle(PrimaryButtonStyle())
             }
             .padding(24)
         }
@@ -49,6 +61,24 @@ struct EquipmentDetailSheetView: View {
 
     private func openDemoVideo() {
         // Placeholder – future deep link.
+    }
+
+    private func reportDamaged() {
+        generateHaptic(.success)
+        // TODO: integrate report logic
+    }
+
+    private func reportMissing() {
+        generateHaptic(.warning)
+        // TODO: integrate report logic
+    }
+
+    // Simple haptic wrapper (works iOS 13+)
+    private func generateHaptic(_ type: UINotificationFeedbackGenerator.FeedbackType) {
+        #if os(iOS)
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(type)
+        #endif
     }
 }
 
