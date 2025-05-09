@@ -41,7 +41,10 @@ struct ParkDetailView: View {
         ZStack(alignment: .bottomTrailing) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    ParkHeroHeaderView(park: park, isPremiumUser: isPremiumUser)
+                    ParkHeroHeaderView(park: park,
+                                       isPremiumUser: isPremiumUser,
+                                       rating: reviewsVM.reviews.isEmpty ? park.rating : reviewsVM.averageRating,
+                                       onRatingTap: { showAddEditReviewSheet = true })
                     ParkStatsStripView(park: park)
                     ParkActionRowView(viewModel: actionVM)
                     equipmentSection

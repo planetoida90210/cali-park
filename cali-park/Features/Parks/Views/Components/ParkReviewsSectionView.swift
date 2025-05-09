@@ -9,44 +9,67 @@ struct ParkReviewsSectionView: View {
     var onShowAll: () -> Void
 
     private let recentLimit = 3
+    @State private var isExpanded: Bool = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             header
-            Divider().opacity(0.4)
-            // Recent reviews
-            if viewModel.reviews.isEmpty {
-                Text("Brak opinii")
-                    .font(.caption)
-                    .foregroundColor(.textSecondary)
-            } else {
-                ForEach(viewModel.reviews.prefix(recentLimit)) { review in
-                    ReviewRowView(review: review)
-                    if review.id != viewModel.reviews.prefix(recentLimit).last?.id {
-                        Divider().opacity(0.1)
-                    }
-                }
+            if isExpanded {
+                Divider().opacity(0.4)
+                reviewList
             }
         }
         .padding(.vertical, 4)
+        .animation(.easeInOut, value: isExpanded)
     }
 
     // MARK: - Header
     private var header: some View {
-        HStack(alignment: .center) {
+        HStack(alignment: .center, spacing: 8) {
+            Text("Opinie")
+                .font(.bodyMedium)
+                .foregroundColor(.textPrimary)
+                .onTapGesture { withAnimation { isExpanded.toggle() } }
+            Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                .font(.caption.weight(.semibold))
+                .foregroundColor(.textSecondary)
+                .onTapGesture { withAnimation { isExpanded.toggle() } }
+
+            Spacer(minLength: 16)
+
             RatingSummaryView(avg: viewModel.averageRating, count: viewModel.reviews.count)
+
             Spacer()
+
             Button(action: onAddEdit) {
-                Text(viewModel.userReview == nil ? "Dodaj" : "Edytuj")
-            }
-            .font(.caption.weight(.semibold))
-            .buttonStyle(.borderedProminent)
-            .tint(.accent)
-            Button(action: onShowAll) {
-                Text("Wszystkie")
+                Label(viewModel.userReview == nil ? "Dodaj" : "Edytuj", systemImage: viewModel.userReview == nil ? "plus" : "pencil")
             }
             .font(.caption)
-            .buttonStyle(.borderless)
+            .buttonStyle(.bordered) // neutral border, no fill
+
+            Button(action: onShowAll) {
+                Text("Wszystkie")
+                    .foregroundColor(.textSecondary)
+            }
+            .font(.caption)
+            .buttonStyle(.plain)
+        }
+    }
+
+    // MARK: - Review list (collapsed/expanded)
+    @ViewBuilder
+    private var reviewList: some View {
+        if viewModel.reviews.isEmpty {
+            Text("Brak opinii")
+                .font(.caption)
+                .foregroundColor(.textSecondary)
+        } else {
+            ForEach(viewModel.reviews.prefix(recentLimit)) { review in
+                ReviewRowView(review: review)
+                if review.id != viewModel.reviews.prefix(recentLimit).last?.id {
+                    Divider().opacity(0.1)
+                }
+            }
         }
     }
 }

@@ -5,9 +5,22 @@ import SwiftUI
 struct ParkHeroHeaderView: View {
     let park: Park
     let isPremiumUser: Bool
+    private let ratingValue: Double
+    var onRatingTap: (() -> Void)? = nil
 
     @State private var currentIndex: Int = 0
     @EnvironmentObject private var parksVM: ParksViewModel
+
+    // Custom init to allow passing dynamic rating while keeping backward compatibility
+    init(park: Park,
+         isPremiumUser: Bool,
+         rating: Double? = nil,
+         onRatingTap: (() -> Void)? = nil) {
+        self.park = park
+        self.isPremiumUser = isPremiumUser
+        self.ratingValue = rating ?? park.rating
+        self.onRatingTap = onRatingTap
+    }
 
     var body: some View {
         GeometryReader { geo in
@@ -76,17 +89,20 @@ struct ParkHeroHeaderView: View {
     // MARK: - Badges Overlay
     private var badges: some View {
         HStack(spacing: 8) {
-            // Rating
-            HStack(spacing: 4) {
-                Image(systemName: "star.fill")
-                    .foregroundColor(.accent)
-                Text(String(format: "%.1f", park.rating))
+            // Rating – clickable
+            Button(action: { onRatingTap?() }) {
+                HStack(spacing: 4) {
+                    Image(systemName: "star.fill")
+                        .foregroundColor(.accent)
+                    Text(String(format: "%.1f", ratingValue))
+                }
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(.ultraThinMaterial)
+                .clipShape(Capsule())
             }
-            .font(.caption.weight(.semibold))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(.ultraThinMaterial)
-            .clipShape(Capsule())
+            .buttonStyle(.plain)
 
             // Favorite toggle
             Button(action: toggleFavorite) {
