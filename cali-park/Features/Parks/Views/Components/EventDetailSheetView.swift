@@ -142,8 +142,8 @@ struct EventDetailSheetView: View {
                 } label: {
                     Text("Wypisz się")
                         .font(.caption.weight(.semibold))
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 8)
+                        .frame(height: 36)
+                        .padding(.horizontal, 20)
                 }
                 .buttonStyle(.bordered)
                 .tint(.red)
@@ -154,12 +154,12 @@ struct EventDetailSheetView: View {
                 } label: {
                     Text("Dołącz")
                         .font(.caption.weight(.semibold))
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 8)
+                        .frame(height: 36)
+                        .padding(.horizontal, 20)
+                        .background(Color.accent)
+                        .foregroundColor(.black)
+                        .clipShape(Capsule())
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.accent)
-                .clipShape(Capsule())
             }
 
             // Share chip
@@ -167,7 +167,8 @@ struct EventDetailSheetView: View {
                 Image(systemName: "square.and.arrow.up")
             }
             .font(.caption)
-            .padding(8)
+            .frame(height: 36)
+            .padding(.horizontal, 14)
             .background(Color.componentBackground)
             .foregroundColor(.textSecondary)
             .clipShape(Capsule())
@@ -180,7 +181,8 @@ struct EventDetailSheetView: View {
                     Image(systemName: "bubble.left.and.bubble.right.fill")
                 }
                 .font(.caption)
-                .padding(8)
+                .frame(height: 36)
+                .padding(.horizontal, 14)
                 .background(Color.componentBackground)
                 .foregroundColor(.accent)
                 .clipShape(Capsule())

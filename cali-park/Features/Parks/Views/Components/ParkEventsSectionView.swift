@@ -16,6 +16,7 @@ struct ParkEventsSectionView: View {
     @EnvironmentObject private var eventsVM: ParkEventsViewModel
 
     private var events: [ParkEvent] { eventsVM.events }
+    private var joinedEvents: [ParkEvent] { events.filter { $0.isAttending } }
 
     private var dateDescriptor: String? {
         guard let first = events.first else { return nil }
@@ -40,6 +41,32 @@ struct ParkEventsSectionView: View {
                         .foregroundColor(.black)
                         .clipShape(Capsule())
                         .transition(.scale)
+                }
+            }
+
+            // Joined events quick view
+            if !joinedEvents.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Twoje wydarzenia")
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.textSecondary)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(joinedEvents) { ev in
+                                Button {
+                                    selectedEventForDetails = ev
+                                } label: {
+                                    Text(ev.title)
+                                        .font(.caption2.weight(.semibold))
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(Color.componentBackground)
+                                        .foregroundColor(.accent)
+                                        .clipShape(Capsule())
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
