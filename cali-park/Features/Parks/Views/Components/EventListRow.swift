@@ -7,6 +7,7 @@ struct EventListRow: View {
     let event: ParkEvent
     let onJoin: () -> Void
     let onDetails: () -> Void
+    var showChevron: Bool = true
 
     // Local glow animation for newly joined state
     @State private var joinedHighlight: Bool = false
@@ -42,10 +43,12 @@ struct EventListRow: View {
                 }
             }
             Spacer()
-            // Trailing status icon
-            Image(systemName: event.isAttending ? "checkmark.circle.fill" : "chevron.right")
-                .foregroundColor(event.isAttending ? .green : .textSecondary)
-                .imageScale(.medium)
+            if showChevron {
+                // Trailing status icon
+                Image(systemName: event.isAttending ? "checkmark.circle.fill" : "chevron.right")
+                    .foregroundColor(event.isAttending ? .green : .textSecondary)
+                    .imageScale(.medium)
+            }
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
