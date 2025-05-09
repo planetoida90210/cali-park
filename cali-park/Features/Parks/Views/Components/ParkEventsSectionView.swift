@@ -7,18 +7,68 @@ struct ParkEventsSectionView: View {
     let isPremiumUser: Bool
     let onJoin: (ParkEvent) -> Void
 
+    @Namespace private var cardNS
     // Local state
-    @State private var selectedEventForDetails: ParkEvent?
     @State private var showList: Bool = false
+    @State private var selectedEventForDetails: ParkEvent?
 
-    // Derived data
-    private var events: [ParkEvent] { ParkEvent.events(for: park.id) }
+    // Shared events view model injected from parent
+    @EnvironmentObject private var eventsVM: ParkEventsViewModel
+
+    private var events: [ParkEvent] { eventsVM.events }
+    private var joinedEvents: [ParkEvent] { events.filter { $0.isAttending } }
+
+    private var dateDescriptor: String? {
+        guard let first = events.first else { return nil }
+        let cal = Calendar.current
+        if cal.isDateInToday(first.date) { return "Dziś" }
+        if cal.isDateInTomorrow(first.date) { return "Jutro" }
+        return nil
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Nadchodzące wydarzenia")
-                .font(.bodyMedium)
-                .foregroundColor(.textPrimary)
+            HStack(spacing: 6) {
+                Text("Nadchodzące wydarzenia")
+                    .font(.bodyMedium)
+                    .foregroundColor(.textPrimary)
+                if let chip = dateDescriptor {
+                    Text(chip)
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.accent)
+                        .foregroundColor(.black)
+                        .clipShape(Capsule())
+                        .transition(.scale)
+                }
+            }
+
+            // Joined events quick view
+            if !joinedEvents.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Twoje wydarzenia")
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.textSecondary)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(joinedEvents) { ev in
+                                Button {
+                                    selectedEventForDetails = ev
+                                } label: {
+                                    Text(ev.title)
+                                        .font(.caption2.weight(.semibold))
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(Color.componentBackground)
+                                        .foregroundColor(.accent)
+                                        .clipShape(Capsule())
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             if let first = events.first {
                 List {
@@ -33,6 +83,7 @@ struct ParkEventsSectionView: View {
                 .listStyle(.plain)
                 .scrollDisabled(true)
                 .padding(.trailing, 80)
+
                 if events.count > 1 {
                     Button {
                         showList = true
@@ -41,19 +92,21 @@ struct ParkEventsSectionView: View {
                             .font(.caption.weight(.semibold))
                             .foregroundColor(.accent)
                     }
-                    .padding(.top, 4)
+                    .padding(.top, 2)
                 }
             } else {
                 emptyStateView
             }
         }
+        .sheet(isPresented: $showList) {
+            EventsListSheetView(onJoin: { onJoin($0) })
+                .environmentObject(eventsVM)
+                .presentationDetents([.fraction(0.45), .large])
+        }
         .sheet(item: $selectedEventForDetails) { event in
             EventDetailSheetView(event: event, onJoin: { onJoin(event) })
+                .environmentObject(eventsVM)
                 .presentationDetents([.fraction(0.5), .large])
-        }
-        .sheet(isPresented: $showList) {
-            EventsListSheetView(events: events, onJoin: { onJoin($0) }, onSelectDetails: { selectedEventForDetails = $0 })
-                .presentationDetents([.fraction(0.45), .large])
         }
     }
 
@@ -139,6 +192,7 @@ private struct JoinEventSheetView: View {
         ParkEventsSectionView(park: .mock.first!, isPremiumUser: false, onJoin: { _ in })
         ParkEventsSectionView(park: .mock.first!, isPremiumUser: true, onJoin: { _ in })
     }
+    .environmentObject(ParkEventsViewModel(parkID: Park.mock.first!.id))
     .padding()
     .preferredColorScheme(.dark)
 } 

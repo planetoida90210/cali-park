@@ -1,54 +1,96 @@
 import Foundation
 
 // MARK: - ParkEvent Model
-/// Describes a community event related to a specific park (e.g. group training session).
-/// Pure-UI phase – data comes from mock provider; later to be replaced by backend API.
+/// Enhanced event model ready for backend integration while keeping backward-compat fields for existing UI.
 struct ParkEvent: Identifiable, Codable, Equatable, Hashable {
-    // MARK: Properties
+    // MARK: Stored properties
     let id: UUID
     let parkID: UUID
     var title: String
-    var date: Date
-    var attendeeCount: Int
+
+    // Dates
+    var date: Date                // start date (legacy name – keep for now)
+    var endDate: Date?            // optional end date
+    var location: String?
+
+    // Capacity & attendance
+    var attendeeCount: Int        // current sign-ups
     var capacity: Int?
 
-    // Computed helpers
+    // Participants preview (first few avatars)
+    var participants: [User]
+
+    // RSVP state for current user
+    var isAttending: Bool
+    var calendarEventIdentifier: String?
+
+    // Metadata
+    var lastUpdated: Date
+
+    // Extended details
+    var description: String?
+    var organizer: User?
+    var requiredEquipment: [String]
+
+    // MARK: Computed helpers
     var isFull: Bool {
-        if let capacity { return attendeeCount >= capacity } else { return false }
+        if let capacity { attendeeCount >= capacity } else { false }
     }
 
-    /// Formatted date (e.g. "12 mar, 18:30") – used directly in UI.
     var formattedDate: String {
         Self.dateFormatter.string(from: date)
     }
 
-    // MARK: Private
-    private static let dateFormatter: DateFormatter = {
-        let df = DateFormatter()
-        df.dateStyle = .medium
-        df.timeStyle = .short
-        return df
-    }()
+    // Aliases for upcoming refactor
+    var startDate: Date { date }
+    var attendeesCount: Int { attendeeCount }
 
     // MARK: Init
     init(id: UUID = UUID(),
          parkID: UUID,
          title: String,
          date: Date,
+         endDate: Date? = nil,
+         location: String? = nil,
          attendeeCount: Int = 0,
-         capacity: Int? = nil) {
+         capacity: Int? = nil,
+         participants: [User] = [],
+         description: String? = nil,
+         organizer: User? = nil,
+         requiredEquipment: [String] = [],
+         isAttending: Bool = false,
+         calendarEventIdentifier: String? = nil,
+         lastUpdated: Date = Date()) {
         self.id = id
         self.parkID = parkID
         self.title = title
         self.date = date
+        self.endDate = endDate
+        self.location = location
         self.attendeeCount = attendeeCount
         self.capacity = capacity
+        self.participants = participants
+        self.description = description
+        self.organizer = organizer
+        self.requiredEquipment = requiredEquipment
+        self.isAttending = isAttending
+        self.calendarEventIdentifier = calendarEventIdentifier
+        self.lastUpdated = lastUpdated
     }
+
+    // MARK: Private
+    private static let dateFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.locale = Locale.current
+        df.dateStyle = .medium
+        df.timeStyle = .short
+        return df
+    }()
 }
 
 // MARK: - Mock Data
 extension ParkEvent {
-    /// Quick access to a handful of upcoming events for previews.
+    /// Example stub events used by previews & initial data loads.
     static var mock: [ParkEvent] {
         guard let firstPark = Park.mock.first else { return [] }
         let now = Date()
@@ -58,19 +100,29 @@ extension ParkEvent {
                 title: "Poranny trening siłowy",
                 date: Calendar.current.date(byAdding: .day, value: 2, to: now) ?? now,
                 attendeeCount: 8,
-                capacity: 15
+                capacity: 15,
+                participants: [.mock, .mock],
+                description: "Intensywny circuit training oparty na ćwiczeniach z ciężarem własnego ciała. Idealny na rozruch dnia. Prowadzi trener Kuba.",
+                organizer: .mock,
+                requiredEquipment: [],
+                isAttending: true
             ),
             ParkEvent(
                 parkID: firstPark.id,
                 title: "Mobility & Stretching",
                 date: Calendar.current.date(byAdding: .day, value: 5, to: now) ?? now,
                 attendeeCount: 3,
-                capacity: 10
+                capacity: 10,
+                participants: [.mock],
+                description: "Sesja rozciągania i mobilizacji stawów dla każdego poziomu zaawansowania.",
+                organizer: .mock,
+                requiredEquipment: [],
+                isAttending: false
             )
         ]
     }
 
-    /// Filtered events matching a particular park.
+    /// Returns events matching concrete park id.
     static func events(for parkID: UUID) -> [ParkEvent] {
         mock.filter { $0.parkID == parkID }
     }
