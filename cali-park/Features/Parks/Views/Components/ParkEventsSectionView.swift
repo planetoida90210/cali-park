@@ -12,7 +12,10 @@ struct ParkEventsSectionView: View {
     @State private var showList: Bool = false
     @State private var selectedEventForDetails: ParkEvent?
 
-    private var events: [ParkEvent] { ParkEvent.events(for: park.id) }
+    // Shared events view model injected from parent
+    @EnvironmentObject private var eventsVM: ParkEventsViewModel
+
+    private var events: [ParkEvent] { eventsVM.events }
 
     private var dateDescriptor: String? {
         guard let first = events.first else { return nil }
@@ -161,6 +164,7 @@ private struct JoinEventSheetView: View {
         ParkEventsSectionView(park: .mock.first!, isPremiumUser: false, onJoin: { _ in })
         ParkEventsSectionView(park: .mock.first!, isPremiumUser: true, onJoin: { _ in })
     }
+    .environmentObject(ParkEventsViewModel(parkID: Park.mock.first!.id))
     .padding()
     .preferredColorScheme(.dark)
 } 

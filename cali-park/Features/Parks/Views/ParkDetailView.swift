@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import MapKit
 
 // MARK: - ParkDetailView
@@ -17,8 +18,18 @@ struct ParkDetailView: View {
     // Action Row View-Model
     @StateObject private var actionVM = ParkActionRowViewModel()
 
-    // Global quick-join state
+    // Shared events ViewModel injected down the hierarchy
+    @StateObject private var eventsVM: ParkEventsViewModel
+
+    // Global quick-join state – drives toast visibility
     @State private var joinedEventID: UUID?
+
+    // Custom init to create shared Events ViewModel
+    init(park: Park, isPremiumUser: Bool = false) {
+        self.park = park
+        self.isPremiumUser = isPremiumUser
+        _eventsVM = StateObject(wrappedValue: ParkEventsViewModel(parkID: park.id))
+    }
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -29,6 +40,7 @@ struct ParkDetailView: View {
                     ParkActionRowView(viewModel: actionVM)
                     equipmentSection
                     ParkEventsSectionView(park: park, isPremiumUser: isPremiumUser, onJoin: joinEvent)
+                        .environmentObject(eventsVM)
                 }
                 .padding(16)
                 .padding(.bottom, 140) // extra space for FAB
@@ -46,7 +58,7 @@ struct ParkDetailView: View {
             }
         }
         .background(Color.appBackground)
-        // Global toast overlay
+        // Global toast overlay driven by joinedEventID
         .overlay {
             if joinedEventID != nil {
                 QuickJoinToast()
@@ -59,6 +71,10 @@ struct ParkDetailView: View {
                         }
                     }
             }
+        }
+        // Listen for last joined updates from VM to trigger toast
+        .onReceive(eventsVM.$lastJoined.compactMap { $0 }) { event in
+            withAnimation { joinedEventID = event.id }
         }
         .navigationTitle(park.name)
         .navigationBarTitleDisplayMode(.inline)
@@ -103,8 +119,7 @@ struct ParkDetailView: View {
 
     // MARK: - Join handler
     private func joinEvent(_ event: ParkEvent) {
-        // TODO integrate backend
-        withAnimation { joinedEventID = event.id }
+        Task { await eventsVM.join(event) }
     }
 
     // MARK: - Toast

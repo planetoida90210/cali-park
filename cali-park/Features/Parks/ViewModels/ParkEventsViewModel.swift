@@ -6,6 +6,8 @@ import SwiftUI
 final class ParkEventsViewModel: ObservableObject {
     // Published list consumed by UI
     @Published private(set) var events: [ParkEvent] = []
+    /// Most recently joined event – used by UI to show global toast.
+    @Published var lastJoined: ParkEvent?
 
     private let parkID: UUID
     private let calendarService: CalendarService
@@ -41,6 +43,9 @@ final class ParkEventsViewModel: ObservableObject {
             let identifier = try await calendarService.addEvent(updated)
             updated.calendarEventIdentifier = identifier
             events[index] = updated
+
+            // Expose to UI
+            lastJoined = updated
         } catch {
             // Rollback on failure
             updated.isAttending = false
