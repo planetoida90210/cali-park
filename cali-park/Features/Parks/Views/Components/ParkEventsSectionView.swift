@@ -7,18 +7,38 @@ struct ParkEventsSectionView: View {
     let isPremiumUser: Bool
     let onJoin: (ParkEvent) -> Void
 
+    @Namespace private var cardNS
     // Local state
     @State private var selectedEventForDetails: ParkEvent?
     @State private var showList: Bool = false
 
-    // Derived data
     private var events: [ParkEvent] { ParkEvent.events(for: park.id) }
+
+    private var dateDescriptor: String? {
+        guard let first = events.first else { return nil }
+        let cal = Calendar.current
+        if cal.isDateInToday(first.date) { return "Dziś" }
+        if cal.isDateInTomorrow(first.date) { return "Jutro" }
+        return nil
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Nadchodzące wydarzenia")
-                .font(.bodyMedium)
-                .foregroundColor(.textPrimary)
+            HStack(spacing: 6) {
+                Text("Nadchodzące wydarzenia")
+                    .font(.bodyMedium)
+                    .foregroundColor(.textPrimary)
+                if let chip = dateDescriptor {
+                    Text(chip)
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.accent)
+                        .foregroundColor(.black)
+                        .clipShape(Capsule())
+                        .transition(.scale)
+                }
+            }
 
             if let first = events.first {
                 List {
@@ -33,6 +53,7 @@ struct ParkEventsSectionView: View {
                 .listStyle(.plain)
                 .scrollDisabled(true)
                 .padding(.trailing, 80)
+
                 if events.count > 1 {
                     Button {
                         showList = true
@@ -41,7 +62,7 @@ struct ParkEventsSectionView: View {
                             .font(.caption.weight(.semibold))
                             .foregroundColor(.accent)
                     }
-                    .padding(.top, 4)
+                    .padding(.top, 2)
                 }
             } else {
                 emptyStateView
@@ -53,6 +74,7 @@ struct ParkEventsSectionView: View {
         }
         .sheet(isPresented: $showList) {
             EventsListSheetView(events: events, onJoin: { onJoin($0) }, onSelectDetails: { selectedEventForDetails = $0 })
+                .matchedGeometryEffect(id: events.first?.id ?? UUID(), in: cardNS)
                 .presentationDetents([.fraction(0.45), .large])
         }
     }

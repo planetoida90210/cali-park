@@ -51,10 +51,10 @@ struct ParkDetailView: View {
             if joinedEventID != nil {
                 QuickJoinToast()
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                    .padding(.bottom, 90)
+                    .padding(.bottom, 50)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
                             withAnimation { joinedEventID = nil }
                         }
                     }
