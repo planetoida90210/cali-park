@@ -9,7 +9,6 @@ struct ParkEventsSectionView: View {
 
     @Namespace private var cardNS
     // Local state
-    @State private var selectedEventForDetails: ParkEvent?
     @State private var showList: Bool = false
 
     private var events: [ParkEvent] { ParkEvent.events(for: park.id) }
@@ -44,7 +43,7 @@ struct ParkEventsSectionView: View {
                 List {
                     EventListRow(event: first,
                                  onJoin: { onJoin(first) },
-                                 onDetails: { selectedEventForDetails = first })
+                                 onDetails: { showList = true })
                         .listRowInsets(EdgeInsets())
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
@@ -68,12 +67,8 @@ struct ParkEventsSectionView: View {
                 emptyStateView
             }
         }
-        .sheet(item: $selectedEventForDetails) { event in
-            EventDetailSheetView(event: event, onJoin: { onJoin(event) })
-                .presentationDetents([.fraction(0.5), .large])
-        }
         .sheet(isPresented: $showList) {
-            EventsListSheetView(events: events, onJoin: { onJoin($0) }, onSelectDetails: { selectedEventForDetails = $0 })
+            EventsListSheetView(events: events, onJoin: { onJoin($0) })
                 .matchedGeometryEffect(id: events.first?.id ?? UUID(), in: cardNS)
                 .presentationDetents([.fraction(0.45), .large])
         }
