@@ -18,17 +18,23 @@ struct ParkDetailView: View {
     // Action Row View-Model
     @StateObject private var actionVM = ParkActionRowViewModel()
 
-    // Shared events ViewModel injected down the hierarchy
+    // Shared events & reviews ViewModels injected down the hierarchy
     @StateObject private var eventsVM: ParkEventsViewModel
+    @StateObject private var reviewsVM: ParkReviewsViewModel
 
     // Global quick-join state – drives toast visibility
     @State private var joinedEventID: UUID?
+
+    // Review sheet states
+    @State private var showAddEditReviewSheet = false
+    @State private var showAllReviewsSheet = false
 
     // Custom init to create shared Events ViewModel
     init(park: Park, isPremiumUser: Bool = false) {
         self.park = park
         self.isPremiumUser = isPremiumUser
         _eventsVM = StateObject(wrappedValue: ParkEventsViewModel(parkID: park.id))
+        _reviewsVM = StateObject(wrappedValue: ParkReviewsViewModel(parkID: park.id))
     }
 
     var body: some View {
@@ -41,6 +47,11 @@ struct ParkDetailView: View {
                     equipmentSection
                     ParkEventsSectionView(park: park, isPremiumUser: isPremiumUser, onJoin: joinEvent)
                         .environmentObject(eventsVM)
+                    ParkReviewsSectionView(
+                        viewModel: reviewsVM,
+                        onAddEdit: { showAddEditReviewSheet = true },
+                        onShowAll: { showAllReviewsSheet = true }
+                    )
                 }
                 .padding(16)
                 .padding(.bottom, 140) // extra space for FAB
@@ -82,6 +93,8 @@ struct ParkDetailView: View {
         .sheet(isPresented: $showReportSheet) { ReportParkView(park: park) }
         .sheet(isPresented: $showAddLogSheet) { QuickLogPlaceholder() }
         .sheet(isPresented: $showEquipmentSheet) { EquipmentSheetView(equipments: park.equipments) }
+        .sheet(isPresented: $showAddEditReviewSheet) { AddReviewSheetView(viewModel: reviewsVM) }
+        .sheet(isPresented: $showAllReviewsSheet) { ReviewsListSheetView(viewModel: reviewsVM) }
         .onAppear {
             // Inject actions into VM
             actionVM.navigateToPark = openInMaps
