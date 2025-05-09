@@ -13,39 +13,34 @@ struct EventDetailSheetView: View {
     }
 
     private var joinTitle: String {
-        if currentEvent.isAttending { return "Dołączono" }
-        if currentEvent.isFull { return "Brak miejsc" }
-        return "Dołącz do wydarzenia"
+        currentEvent.isAttending ? "Dołączono" : "Dołącz do wydarzenia"
     }
 
-    private var joinDisabled: Bool { currentEvent.isAttending || currentEvent.isFull }
+    private var joinDisabled: Bool { currentEvent.isAttending }
 
     // MARK: - Body
     var body: some View {
         ScrollView {
-            VStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 24) {
                 Text(currentEvent.title)
                     .font(.title3.weight(.semibold))
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
                     .foregroundColor(.accent)
                     .padding(.horizontal)
+                    .frame(maxWidth: .infinity)
                 Text(currentEvent.formattedDate)
                     .font(.bodySmall)
                     .foregroundColor(.textSecondary)
                 HStack(spacing: 6) {
                     Image(systemName: "person.3.fill")
-                    Text("\(currentEvent.attendeeCount) uczestników")
+                    Text("\(currentEvent.attendeeCount) osób planuje być")
                 }
                 .font(.caption)
                 .foregroundColor(.textSecondary)
 
-                // Capacity status & progress
-                CapacityStatusChip(event: currentEvent)
-                ProgressView(value: Float(currentEvent.attendeeCount), total: Float(currentEvent.capacity ?? max(currentEvent.attendeeCount,1)))
-                    .progressViewStyle(.linear)
-                    .tint(Color.accent)
-                    .scaleEffect(x: 1, y: 2, anchor: .center)
+                // ACTIONS ROW (join/share/chat)
+                buttonsRow
 
                 // Organizer
                 if let organizer = currentEvent.organizer {
@@ -71,8 +66,8 @@ struct EventDetailSheetView: View {
 
                 // Participants preview & action
                 if !currentEvent.participants.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Uczestnicy (") + Text(String(currentEvent.attendeeCount)) + Text(")")
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Uczestnicy (\(currentEvent.attendeeCount))")
                             .font(.caption.weight(.semibold))
                             .foregroundColor(.textSecondary)
                         HStack(spacing: 8) {
@@ -123,31 +118,80 @@ struct EventDetailSheetView: View {
                 }
             }
             .padding(.horizontal)
-            .padding(.top, 32) // keeps content below drag indicator
-            .padding(.bottom, 120) // extra space so last element not hidden by CTA inset
-        }
-        .safeAreaInset(edge: .bottom) {
-            joinButton
-                .padding(.vertical, 16)
+            .padding(.top, 32) // below drag indicator
+            .padding(.bottom, 40) // regular bottom spacing
         }
         .background(Color.appBackground.ignoresSafeArea())
     }
 
-    // MARK: - Join CTA
-    private var joinButton: some View {
-        Button(action: {
-            guard !joinDisabled else { return }
-            onJoin(); dismiss()
-        }) {
-            Text(joinTitle)
-                .font(.body.weight(.semibold))
-                .foregroundColor(joinDisabled ? .textSecondary : .black)
-                .padding(.horizontal, 24)
-                .padding(.vertical, 12)
-                .background(joinDisabled ? Color.componentBackground : Color.accent)
+    // MARK: - Buttons Row (horizontal)
+    private var buttonsRow: some View {
+        HStack(spacing: 12) {
+            // Join / joined capsule
+            if currentEvent.isAttending {
+                Label("Dołączono", systemImage: "checkmark.circle.fill")
+                    .font(.caption.weight(.semibold))
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 8)
+                    .background(Color.green.opacity(0.2))
+                    .foregroundColor(.green)
+                    .clipShape(Capsule())
+
+                Button {
+                    Task { await eventsVM.leave(currentEvent) }
+                } label: {
+                    Text("Wypisz się")
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 8)
+                }
+                .buttonStyle(.bordered)
+                .tint(.red)
                 .clipShape(Capsule())
+            } else {
+                Button {
+                    onJoin(); dismiss()
+                } label: {
+                    Text("Dołącz")
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 8)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.accent)
+                .clipShape(Capsule())
+            }
+
+            // Share chip
+            ShareLink(item: shareMessage) {
+                Image(systemName: "square.and.arrow.up")
+            }
+            .font(.caption)
+            .padding(8)
+            .background(Color.componentBackground)
+            .foregroundColor(.textSecondary)
+            .clipShape(Capsule())
+
+            // Chat chip (only if attending)
+            if currentEvent.isAttending {
+                Button {
+                    // TODO: navigate to chat view
+                } label: {
+                    Image(systemName: "bubble.left.and.bubble.right.fill")
+                }
+                .font(.caption)
+                .padding(8)
+                .background(Color.componentBackground)
+                .foregroundColor(.accent)
+                .clipShape(Capsule())
+            }
         }
-        .disabled(joinDisabled)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    // MARK: - Share message helper
+    private var shareMessage: String {
+        "Będę na wydarzeniu \(currentEvent.title) w CaliParku – dołączysz? \n\(currentEvent.formattedDate)"
     }
 }
 

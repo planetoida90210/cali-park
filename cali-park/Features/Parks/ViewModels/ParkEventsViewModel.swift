@@ -54,6 +54,31 @@ final class ParkEventsViewModel: ObservableObject {
         }
     }
 
+    /// Allows user to opt-out from an event they previously joined.
+    func leave(_ event: ParkEvent) async {
+        guard let index = events.firstIndex(where: { $0.id == event.id }) else { return }
+        var updated = events[index]
+        guard updated.isAttending else { return }
+
+        // Optimistic update
+        updated.isAttending = false
+        updated.attendeeCount = max(0, updated.attendeeCount - 1)
+        events[index] = updated
+
+        do {
+            if let id = updated.calendarEventIdentifier {
+                try await calendarService.removeEvent(identifier: id)
+            }
+            // Clear lastJoined if leaving same event
+            if lastJoined?.id == updated.id { lastJoined = nil }
+        } catch {
+            // Rollback on failure
+            updated.isAttending = true
+            updated.attendeeCount += 1
+            events[index] = updated
+        }
+    }
+
     // MARK: - Helpers
     private func loadMockData() {
         events = ParkEvent.events(for: parkID)

@@ -10,4 +10,10 @@ actor CalendarService {
         try await Task.sleep(nanoseconds: 250_000_000)
         return UUID().uuidString
     }
+
+    /// Simulates removing an event from user's calendar.
+    func removeEvent(identifier: String) async throws {
+        try await Task.sleep(nanoseconds: 150_000_000)
+        // noop
+    }
 } 

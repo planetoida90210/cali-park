@@ -13,11 +13,7 @@ struct EventListRow: View {
     @State private var joinedHighlight: Bool = false
 
     private var capacityText: String {
-        if let capacity = event.capacity {
-            return "\(event.attendeeCount)/\(capacity)"
-        } else {
-            return "\(event.attendeeCount)"
-        }
+        "\(event.attendeeCount)"
     }
 
     var body: some View {
@@ -36,7 +32,7 @@ struct EventListRow: View {
                     HStack(spacing: 4) {
                         Image(systemName: "person.3.fill")
                             .imageScale(.small)
-                        Text(capacityText)
+                        Text("\(capacityText) osób")
                     }
                     .font(.caption2)
                     .foregroundColor(.textSecondary)
