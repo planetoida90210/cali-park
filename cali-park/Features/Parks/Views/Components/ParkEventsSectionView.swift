@@ -27,8 +27,9 @@ struct ParkEventsSectionView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 6) {
+        VStack(alignment: .leading, spacing: 12) {
+            // Title Row
+            HStack(alignment: .center, spacing: 6) {
                 Text("Nadchodzące wydarzenia")
                     .font(.bodyMedium)
                     .foregroundColor(.textPrimary)
@@ -41,6 +42,21 @@ struct ParkEventsSectionView: View {
                         .foregroundColor(.black)
                         .clipShape(Capsule())
                         .transition(.scale)
+                }
+
+                Spacer()
+
+                if events.count > 1 {
+                    Button(action: { showList = true }) {
+                        HStack(spacing: 4) {
+                            Text("Wszystkie \(events.count)")
+                            Image(systemName: "chevron.right")
+                        }
+                        .font(.caption.weight(.semibold))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundColor(.accent)
+                    .accessibilityLabel("Pokaż wszystkie wydarzenia")
                 }
             }
 
@@ -83,17 +99,6 @@ struct ParkEventsSectionView: View {
                 .listStyle(.plain)
                 .scrollDisabled(true)
                 .padding(.trailing, 80)
-
-                if events.count > 1 {
-                    Button {
-                        showList = true
-                    } label: {
-                        Text("Pokaż wszystkie \(events.count)")
-                            .font(.caption.weight(.semibold))
-                            .foregroundColor(.accent)
-                    }
-                    .padding(.top, 2)
-                }
             } else {
                 emptyStateView
             }
