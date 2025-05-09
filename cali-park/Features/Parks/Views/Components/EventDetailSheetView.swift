@@ -131,10 +131,10 @@ struct EventDetailSheetView: View {
             if currentEvent.isAttending {
                 Label("Dołączono", systemImage: "checkmark.circle.fill")
                     .font(.caption.weight(.semibold))
-                    .padding(.horizontal, 18)
-                    .padding(.vertical, 8)
-                    .background(Color.green.opacity(0.2))
                     .foregroundColor(.green)
+                    .padding(.horizontal, 16)
+                    .frame(height: 32)
+                    .background(Color.green.opacity(0.2))
                     .clipShape(Capsule())
 
                 Button {
@@ -142,22 +142,22 @@ struct EventDetailSheetView: View {
                 } label: {
                     Text("Wypisz się")
                         .font(.caption.weight(.semibold))
-                        .frame(height: 36)
-                        .padding(.horizontal, 20)
+                        .foregroundColor(.red)
+                        .padding(.horizontal, 16)
+                        .frame(height: 32)
+                        .background(Color.red.opacity(0.2))
+                        .clipShape(Capsule())
                 }
-                .buttonStyle(.bordered)
-                .tint(.red)
-                .clipShape(Capsule())
             } else {
                 Button {
                     onJoin(); dismiss()
                 } label: {
                     Text("Dołącz")
                         .font(.caption.weight(.semibold))
-                        .frame(height: 36)
-                        .padding(.horizontal, 20)
-                        .background(Color.accent)
                         .foregroundColor(.black)
+                        .padding(.horizontal, 16)
+                        .frame(height: 32)
+                        .background(Color.accent)
                         .clipShape(Capsule())
                 }
             }
@@ -167,7 +167,7 @@ struct EventDetailSheetView: View {
                 Image(systemName: "square.and.arrow.up")
             }
             .font(.caption)
-            .frame(height: 36)
+            .frame(height: 32)
             .padding(.horizontal, 14)
             .background(Color.componentBackground)
             .foregroundColor(.textSecondary)
@@ -181,7 +181,7 @@ struct EventDetailSheetView: View {
                     Image(systemName: "bubble.left.and.bubble.right.fill")
                 }
                 .font(.caption)
-                .frame(height: 36)
+                .frame(height: 32)
                 .padding(.horizontal, 14)
                 .background(Color.componentBackground)
                 .foregroundColor(.accent)
