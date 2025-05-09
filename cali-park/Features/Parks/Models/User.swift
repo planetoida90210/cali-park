@@ -7,9 +7,10 @@ struct User: Identifiable, Codable, Equatable, Hashable {
     let id: UUID
     var name: String
     var avatarURL: URL?
+    var bio: String?
 
     // MARK: - Mock
     static var mock: User {
-        User(id: UUID(), name: "Anon", avatarURL: nil)
+        User(id: UUID(), name: "Anon", avatarURL: nil, bio: "Lubiący kalistenikę bywalec parków")
     }
 } 

@@ -74,7 +74,6 @@ struct ParkEventsSectionView: View {
         .sheet(isPresented: $showList) {
             EventsListSheetView(onJoin: { onJoin($0) })
                 .environmentObject(eventsVM)
-                .matchedGeometryEffect(id: events.first?.id ?? UUID(), in: cardNS)
                 .presentationDetents([.fraction(0.45), .large])
         }
         .sheet(item: $selectedEventForDetails) { event in

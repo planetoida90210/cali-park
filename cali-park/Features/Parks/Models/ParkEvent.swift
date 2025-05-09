@@ -27,6 +27,11 @@ struct ParkEvent: Identifiable, Codable, Equatable, Hashable {
     // Metadata
     var lastUpdated: Date
 
+    // Extended details
+    var description: String?
+    var organizer: User?
+    var requiredEquipment: [String]
+
     // MARK: Computed helpers
     var isFull: Bool {
         if let capacity { attendeeCount >= capacity } else { false }
@@ -50,6 +55,9 @@ struct ParkEvent: Identifiable, Codable, Equatable, Hashable {
          attendeeCount: Int = 0,
          capacity: Int? = nil,
          participants: [User] = [],
+         description: String? = nil,
+         organizer: User? = nil,
+         requiredEquipment: [String] = [],
          isAttending: Bool = false,
          calendarEventIdentifier: String? = nil,
          lastUpdated: Date = Date()) {
@@ -62,6 +70,9 @@ struct ParkEvent: Identifiable, Codable, Equatable, Hashable {
         self.attendeeCount = attendeeCount
         self.capacity = capacity
         self.participants = participants
+        self.description = description
+        self.organizer = organizer
+        self.requiredEquipment = requiredEquipment
         self.isAttending = isAttending
         self.calendarEventIdentifier = calendarEventIdentifier
         self.lastUpdated = lastUpdated
@@ -90,7 +101,11 @@ extension ParkEvent {
                 date: Calendar.current.date(byAdding: .day, value: 2, to: now) ?? now,
                 attendeeCount: 8,
                 capacity: 15,
-                participants: [.mock, .mock]
+                participants: [.mock, .mock],
+                description: "Intensywny circuit training oparty na ćwiczeniach z ciężarem własnego ciała. Idealny na rozruch dnia. Prowadzi trener Kuba.",
+                organizer: .mock,
+                requiredEquipment: [],
+                isAttending: true
             ),
             ParkEvent(
                 parkID: firstPark.id,
@@ -98,7 +113,11 @@ extension ParkEvent {
                 date: Calendar.current.date(byAdding: .day, value: 5, to: now) ?? now,
                 attendeeCount: 3,
                 capacity: 10,
-                participants: [.mock]
+                participants: [.mock],
+                description: "Sesja rozciągania i mobilizacji stawów dla każdego poziomu zaawansowania.",
+                organizer: .mock,
+                requiredEquipment: [],
+                isAttending: false
             )
         ]
     }
