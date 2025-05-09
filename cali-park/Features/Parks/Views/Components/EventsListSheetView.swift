@@ -3,12 +3,13 @@ import SwiftUI
 // MARK: - EventsListSheetView
 /// Bottom sheet presenting full list of events for a given park.
 struct EventsListSheetView: View {
-    let events: [ParkEvent]
     let onJoin: (ParkEvent) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @State private var isRefreshing = false
     @State private var detailItem: ParkEvent?
+    @EnvironmentObject private var eventsVM: ParkEventsViewModel
+
+    private var events: [ParkEvent] { eventsVM.events }
 
     var body: some View {
         NavigationStack {
@@ -23,10 +24,7 @@ struct EventsListSheetView: View {
             }
             .listStyle(.plain)
             .refreshable {
-                isRefreshing = true
-                // Simulate network refresh; in real impl hook into VM
-                try? await Task.sleep(nanoseconds: 1_000_000_000)
-                isRefreshing = false
+                await eventsVM.refresh()
             }
             .navigationTitle("Wydarzenia")
             .navigationBarTitleDisplayMode(.inline)
@@ -34,6 +32,7 @@ struct EventsListSheetView: View {
             .sheet(item: $detailItem) { event in
                 EventDetailSheetView(event: event, onJoin: { quickJoin(event) })
                     .presentationDetents([.fraction(0.5), .large])
+                    .environmentObject(eventsVM)
             }
         }
     }
@@ -45,6 +44,7 @@ struct EventsListSheetView: View {
 }
 
 #Preview {
-    EventsListSheetView(events: ParkEvent.mock, onJoin: { _ in })
+    EventsListSheetView(onJoin: { _ in })
+        .environmentObject(ParkEventsViewModel(parkID: Park.mock.first!.id))
         .preferredColorScheme(.dark)
 } 
