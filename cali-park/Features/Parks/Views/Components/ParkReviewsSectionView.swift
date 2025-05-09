@@ -13,8 +13,9 @@ struct ParkReviewsSectionView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            header
+            titleRow
             if isExpanded {
+                actionsRow
                 Divider().opacity(0.4)
                 reviewList
             }
@@ -23,35 +24,36 @@ struct ParkReviewsSectionView: View {
         .animation(.easeInOut, value: isExpanded)
     }
 
-    // MARK: - Header
-    private var header: some View {
-        HStack(alignment: .center, spacing: 8) {
+    // MARK: - Title Row
+    private var titleRow: some View {
+        HStack(spacing: 6) {
             Text("Opinie")
                 .font(.bodyMedium)
                 .foregroundColor(.textPrimary)
-                .onTapGesture { withAnimation { isExpanded.toggle() } }
             Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                 .font(.caption.weight(.semibold))
                 .foregroundColor(.textSecondary)
-                .onTapGesture { withAnimation { isExpanded.toggle() } }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture { withAnimation { isExpanded.toggle() } }
+    }
 
-            Spacer(minLength: 16)
-
+    // MARK: - Actions Row (stars + buttons)
+    private var actionsRow: some View {
+        HStack(spacing: 12) {
             RatingSummaryView(avg: viewModel.averageRating, count: viewModel.reviews.count)
-
             Spacer()
-
             Button(action: onAddEdit) {
                 Label(viewModel.userReview == nil ? "Dodaj" : "Edytuj", systemImage: viewModel.userReview == nil ? "plus" : "pencil")
             }
             .font(.caption)
-            .buttonStyle(.bordered) // neutral border, no fill
+            .buttonStyle(.bordered)
 
             Button(action: onShowAll) {
                 Text("Wszystkie")
+                    .font(.caption)
                     .foregroundColor(.textSecondary)
             }
-            .font(.caption)
             .buttonStyle(.plain)
         }
     }
