@@ -51,12 +51,17 @@ struct ParkReview: Identifiable, Codable, Equatable, Hashable {
 extension ParkReview {
     /// Returns deterministic mock reviews for previews / offline mode.
     static func mocks(for parkID: UUID) -> [ParkReview] {
-        let users = [User.mock, User.mock]
-        return [
-            ParkReview(parkID: parkID, userID: users[0].id, rating: 5,
-                        comment: "Świetny park! Dużo sprzętu i czystość na medal."),
-            ParkReview(parkID: parkID, userID: users[1].id, rating: 4,
-                        comment: "Fajnie, ale przydałoby się więcej drążków niskich dla początkujących.")
-        ]
+        var arr: [ParkReview] = []
+        for i in 1...15 {
+            let uid = UUID()
+            let rating = Int.random(in: 3...5)
+            let comment = i % 3 == 0 ? "" : "Przykładowy komentarz #\(i) do testu paginacji."
+            arr.append(ParkReview(parkID: parkID,
+                                 userID: uid,
+                                 rating: rating,
+                                 comment: comment,
+                                 createdAt: Calendar.current.date(byAdding: .day, value: -i, to: Date())!))
+        }
+        return arr
     }
 } 

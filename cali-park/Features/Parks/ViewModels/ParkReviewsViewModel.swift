@@ -11,6 +11,26 @@ final class ParkReviewsViewModel: ObservableObject {
     /// Local flag to drive loading states in UI.
     @Published var isBusy: Bool = false
 
+    // Pagination & filtering
+    @Published var showOnlyWithComment: Bool = false {
+        didSet { resetPagination() }
+    }
+    private let pageSize: Int = 5
+    @Published private(set) var currentPage: Int = 0
+
+    var filteredReviews: [ParkReview] {
+        showOnlyWithComment ? reviews.filter { !$0.comment.isEmpty } : reviews
+    }
+
+    var loadedReviews: [ParkReview] {
+        let end = min(filteredReviews.count, (currentPage + 1) * pageSize)
+        return Array(filteredReviews.prefix(end))
+    }
+
+    var hasMore: Bool {
+        (currentPage + 1) * pageSize < filteredReviews.count
+    }
+
     // MARK: Private
     private let parkID: UUID
     private let currentUserID: UUID
@@ -40,6 +60,7 @@ final class ParkReviewsViewModel: ObservableObject {
         do {
             reviews = try await service.fetchReviews(for: parkID)
             userReview = reviews.first(where: { $0.userID == currentUserID })
+            resetPagination()
         } catch {
             // TODO: handle error (e.g., via AlertPublisher) – UI-first skip for now
         }
@@ -65,5 +86,14 @@ final class ParkReviewsViewModel: ObservableObject {
         } catch {
             // TODO: error handling
         }
+    }
+
+    func loadMore() {
+        guard hasMore else { return }
+        currentPage += 1
+    }
+
+    private func resetPagination() {
+        currentPage = 0
     }
 } 

@@ -8,11 +8,27 @@ struct ReviewsListSheetView: View {
     var body: some View {
         NavigationStack {
             List {
-                ForEach(viewModel.reviews) { review in
+                // Filter toggle
+                Toggle(isOn: $viewModel.showOnlyWithComment) {
+                    Text("Tylko z komentarzem")
+                }
+                .toggleStyle(.switch)
+                .font(.caption)
+
+                ForEach(viewModel.loadedReviews) { review in
                     ReviewRowView(review: review)
                 }
+
+                if viewModel.hasMore {
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                            .onAppear { viewModel.loadMore() }
+                        Spacer()
+                    }
+                }
             }
-            .navigationTitle("Opinie (\(viewModel.reviews.count))")
+            .navigationTitle("Opinie (\(viewModel.filteredReviews.count))")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Zamknij") { dismiss() } }
             }

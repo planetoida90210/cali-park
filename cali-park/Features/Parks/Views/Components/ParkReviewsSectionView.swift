@@ -66,11 +66,21 @@ struct ParkReviewsSectionView: View {
                 .font(.caption)
                 .foregroundColor(.textSecondary)
         } else {
-            ForEach(viewModel.reviews.prefix(recentLimit)) { review in
+            ForEach(viewModel.loadedReviews.prefix(recentLimit)) { review in
                 ReviewRowView(review: review)
-                if review.id != viewModel.reviews.prefix(recentLimit).last?.id {
+                if review.id != viewModel.loadedReviews.prefix(recentLimit).last?.id {
                     Divider().opacity(0.1)
                 }
+            }
+            if viewModel.hasMore {
+                Button {
+                    viewModel.loadMore()
+                } label: {
+                    Text("Więcej...")
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.accent)
+                }
+                .padding(.top, 4)
             }
         }
     }
