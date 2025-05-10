@@ -1,6 +1,15 @@
 import Foundation
 import Combine
 
+// Sorting options for reviews
+enum ReviewSortOption: String, CaseIterable, Identifiable {
+    case newest = "Najnowsze"
+    case ratingHigh = "Najwyższa ocena"
+    case ratingLow = "Najniższa ocena"
+
+    var id: Self { self }
+}
+
 // MARK: - ParkReviewsViewModel
 @MainActor
 final class ParkReviewsViewModel: ObservableObject {
@@ -18,17 +27,33 @@ final class ParkReviewsViewModel: ObservableObject {
     private let pageSize: Int = 5
     @Published private(set) var currentPage: Int = 0
 
+    // Sorting
+    @Published var sortOption: ReviewSortOption = .newest {
+        didSet { resetPagination() }
+    }
+
     var filteredReviews: [ParkReview] {
         showOnlyWithComment ? reviews.filter { !$0.comment.isEmpty } : reviews
     }
 
+    private var sortedReviews: [ParkReview] {
+        switch sortOption {
+        case .newest:
+            return filteredReviews.sorted { $0.createdAt > $1.createdAt }
+        case .ratingHigh:
+            return filteredReviews.sorted { $0.rating > $1.rating }
+        case .ratingLow:
+            return filteredReviews.sorted { $0.rating < $1.rating }
+        }
+    }
+
     var loadedReviews: [ParkReview] {
-        let end = min(filteredReviews.count, (currentPage + 1) * pageSize)
-        return Array(filteredReviews.prefix(end))
+        let end = min(sortedReviews.count, (currentPage + 1) * pageSize)
+        return Array(sortedReviews.prefix(end))
     }
 
     var hasMore: Bool {
-        (currentPage + 1) * pageSize < filteredReviews.count
+        (currentPage + 1) * pageSize < sortedReviews.count
     }
 
     // MARK: Private

@@ -8,12 +8,22 @@ struct ReviewsListSheetView: View {
     var body: some View {
         NavigationStack {
             List {
-                // Filter toggle
-                Toggle(isOn: $viewModel.showOnlyWithComment) {
-                    Text("Tylko z komentarzem")
+                VStack(alignment: .leading, spacing: 6) {
+                    // Sorting Picker
+                    Picker("Sortuj", selection: $viewModel.sortOption) {
+                        ForEach(ReviewSortOption.allCases) { option in
+                            Text(option.rawValue).tag(option)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    // Filter toggle
+                    Toggle(isOn: $viewModel.showOnlyWithComment) {
+                        Text("Tylko z komentarzem")
+                    }
+                    .toggleStyle(.switch)
+                    .font(.caption)
                 }
-                .toggleStyle(.switch)
-                .font(.caption)
 
                 ForEach(viewModel.loadedReviews) { review in
                     ReviewRowView(review: review)
