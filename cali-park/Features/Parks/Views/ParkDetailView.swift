@@ -40,7 +40,7 @@ struct ParkDetailView: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 12) {
                     ParkHeroHeaderView(park: park,
                                        isPremiumUser: isPremiumUser,
                                        rating: reviewsVM.reviews.isEmpty ? park.rating : reviewsVM.averageRating,
@@ -67,7 +67,7 @@ struct ParkDetailView: View {
             if actionVM.showFAB {
                 ParkActionFAB(viewModel: actionVM)
                     .padding(.trailing, 24)
-                    .padding(.bottom, 24)
+                    .padding(.bottom, 32)
                     .transition(.scale.combined(with: .opacity))
             }
         }
