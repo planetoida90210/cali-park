@@ -276,6 +276,7 @@ private struct PhotoDetailItem: View {
         guard !trimmed.isEmpty else { return }
         vm.addComment(to: photo.id, text: trimmed)
         newComment = ""
+        commentFocus.wrappedValue = false
     }
 }
 
