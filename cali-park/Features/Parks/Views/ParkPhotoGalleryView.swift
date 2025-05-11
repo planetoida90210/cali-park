@@ -11,6 +11,7 @@ struct ParkPhotoGalleryView: View {
 
     @State private var currentIndex: Int
     @State private var showDeleteAlert = false
+    @State private var showCommentsSheet = false
 
     init(selected: CommunityPhoto, photos: [CommunityPhoto], isPremiumUser: Bool) {
         self.selected = selected
@@ -24,21 +25,8 @@ struct ParkPhotoGalleryView: View {
             TabView(selection: $currentIndex) {
                 ForEach(photos.indices, id: \.self) { idx in
                     let photo = photos[idx]
-                    AsyncImage(url: photo.imageURL) { phase in
-                        switch phase {
-                        case .success(let img):
-                            img.resizable().scaledToFit()
-                        case .failure(_):
-                            Color.gray
-                        default:
-                            ProgressView()
-                        }
-                    }
-                    .tag(idx)
-                    .ignoresSafeArea()
-                    .onLongPressGesture(minimumDuration: 0.6) {
-                        if isPremiumUser { showDeleteAlert = true }
-                    }
+                    PhotoDetailItem(photoID: photo.id, initialPhoto: photo, isOwner: photo.uploaderName == "Ty", onDeleteRequest: { showDeleteAlert = true }, onCommentsTap: { showCommentsSheet = true })
+                        .tag(idx)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
@@ -53,7 +41,160 @@ struct ParkPhotoGalleryView: View {
                 }
                 Button("Anuluj", role: .cancel) {}
             }
+            .sheet(isPresented: $showCommentsSheet) {
+                PhotoCommentsSheetView(photo: photos[currentIndex])
+                    .environmentObject(photosVM)
+            }
         }
+    }
+}
+
+// MARK: - PhotoDetailItem
+private struct PhotoDetailItem: View {
+    let photoID: UUID
+    let initialPhoto: CommunityPhoto // fallback for preview
+    let isOwner: Bool
+    let onDeleteRequest: () -> Void
+    let onCommentsTap: () -> Void
+
+    @EnvironmentObject private var vm: ParkPhotosViewModel
+    @State private var scale: CGFloat = 1
+    @State private var doubleTapAnim = false
+
+    private var photo: CommunityPhoto {
+        vm.photos.first(where: { $0.id == photoID }) ?? initialPhoto
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 8) {
+                header
+
+                // Image with gestures
+                ZStack {
+                    GeometryReader { geo in
+                        AsyncImage(url: photo.imageURL) { phase in
+                            switch phase {
+                            case .success(let img):
+                                img.resizable().scaledToFill()
+                                    .frame(width: geo.size.width, height: geo.size.width)
+                                    .clipped()
+                            case .failure(_):
+                                Color.gray
+                            default:
+                                ProgressView()
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .aspectRatio(1, contentMode: .fit)
+                    .scaleEffect(scale)
+                    .gesture(magnificationGesture)
+                    .highPriorityGesture(doubleTapGesture)
+                    .onLongPressGesture(minimumDuration: 0.6) { if isOwner { onDeleteRequest() } }
+
+                    if doubleTapAnim {
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: 100))
+                            .foregroundColor(.white.opacity(0.9))
+                            .scaleEffect(doubleTapAnim ? 1 : 0.4)
+                            .animation(.easeOut(duration: 0.5), value: doubleTapAnim)
+                    }
+                }
+
+                actionBar
+
+                Text("Liczba polubień: \(photo.likes)")
+                    .font(.bodyMedium)
+
+                if !photo.caption.isEmpty {
+                    Text("\(photo.uploaderName) \(photo.caption)")
+                        .font(.bodySmall)
+                }
+
+                if let count = vm.comments[photo.id]?.count, count > 0 {
+                    Button(action: onCommentsTap) {
+                        Text("Zobacz wszystkie komentarze: \(count)")
+                            .font(.bodySmall)
+                            .foregroundColor(.textSecondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                Text(photo.formattedDate)
+                    .font(.caption)
+                    .foregroundColor(.textSecondary)
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 32)
+        }
+    }
+
+    // MARK: Subviews
+    private var header: some View {
+        HStack(spacing: 8) {
+            Circle()
+                .fill(Color.accent)
+                .frame(width: 36, height: 36)
+                .overlay(Text(String(photo.uploaderName.prefix(1))).foregroundColor(.black))
+
+            Text(photo.uploaderName)
+                .font(.bodyMedium)
+
+            Spacer()
+
+            if isOwner {
+                Button(role: .destructive) { onDeleteRequest() } label: {
+                    Image(systemName: "trash")
+                }
+            }
+        }
+    }
+
+    private var actionBar: some View {
+        HStack(spacing: 20) {
+            Button(action: likeTapped) {
+                Image(systemName: photo.isLikedByMe ? "heart.fill" : "heart")
+            }
+
+            Button(action: onCommentsTap) {
+                Image(systemName: "bubble.right")
+            }
+
+            ShareLink(item: photo.imageURL) {
+                Image(systemName: "paperplane")
+                    .rotationEffect(.degrees(-45))
+            }
+        }
+        .font(.title3)
+        .foregroundColor(.textPrimary)
+    }
+
+    // MARK: Gestures
+    private var magnificationGesture: some Gesture {
+        MagnificationGesture()
+            .onChanged { value in
+                scale = max(1, min(value, 4))
+                if scale > 1.1 { /* nothing */ }
+            }
+            .onEnded { _ in
+                withAnimation(.spring()) {
+                    scale = 1
+                }
+            }
+    }
+
+    private var doubleTapGesture: some Gesture {
+        TapGesture(count: 2)
+            .onEnded {
+                likeTapped()
+                withAnimation { doubleTapAnim = true }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { doubleTapAnim = false }
+            }
+    }
+
+    private func likeTapped() {
+        vm.toggleLike(for: photo)
     }
 }
 

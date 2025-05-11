@@ -12,6 +12,19 @@ struct CommunityPhoto: Identifiable, Codable, Equatable, Hashable {
     /// Visibility scope of the photo (public for everyone or friends only)
     var visibility: Visibility = .public
 
+    /// Optional short text describing the photo (max 140 chars, validated on backend later).
+    var caption: String = "" {
+        didSet { caption = String(caption.prefix(140)) }
+    }
+
+    /// Total number of likes received from all users.
+    var likes: Int = 0 {
+        didSet { likes = max(0, likes) }
+    }
+
+    /// Convenience flag – did current (authenticated) user like this photo? Will be replaced by user-specific backend data later.
+    var isLikedByMe: Bool = false
+
     /// Short, human-readable date (e.g. "maj ‘25")
     var formattedDate: String {
         Self.dateFormatter.string(from: uploadDate)
@@ -35,13 +48,19 @@ struct CommunityPhoto: Identifiable, Codable, Equatable, Hashable {
          imageURL: URL,
          uploaderName: String,
          uploadDate: Date = .now,
-         visibility: Visibility = .public) {
+         visibility: Visibility = .public,
+         caption: String = "",
+         likes: Int = 0,
+         isLikedByMe: Bool = false) {
         self.id = id
         self.parkID = parkID
         self.imageURL = imageURL
         self.uploaderName = uploaderName
         self.uploadDate = uploadDate
         self.visibility = visibility
+        self.caption = caption
+        self.likes = likes
+        self.isLikedByMe = isLikedByMe
     }
 }
 
@@ -62,7 +81,9 @@ extension CommunityPhoto {
                 imageURL: url,
                 uploaderName: "Użytkownik \(index + 1)",
                 uploadDate: Calendar.current.date(byAdding: .day, value: -index * 3, to: .now) ?? .now,
-                visibility: .public
+                visibility: .public,
+                caption: index % 2 == 0 ? "Świetna sesja na świeżym powietrzu! #workout" : "",
+                likes: Int.random(in: 0...42)
             )
         }
     }

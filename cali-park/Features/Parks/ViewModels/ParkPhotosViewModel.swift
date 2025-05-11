@@ -11,6 +11,9 @@ final class ParkPhotosViewModel: ObservableObject {
     @Published var isUploading: Bool = false
     @Published var lastAdded: CommunityPhoto?
 
+    // Simple in-memory store of comments keyed by photo ID – prepared for backend swap.
+    @Published private(set) var comments: [UUID: [PhotoComment]] = [:]
+
     // MARK: Dependencies
     private let service: CommunityPhotoServiceProtocol
     private let parkID: UUID
@@ -55,6 +58,23 @@ final class ParkPhotosViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Likes
+    func toggleLike(for photo: CommunityPhoto) {
+        guard let idx = photos.firstIndex(where: { $0.id == photo.id }) else { return }
+        photos[idx].isLikedByMe.toggle()
+        photos[idx].likes += photos[idx].isLikedByMe ? 1 : -1
+        // TODO: send like/unlike to backend once available
+    }
+
+    // MARK: - Comments (local only for now)
+    func addComment(to photoID: UUID, text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        let comment = PhotoComment(id: UUID(), authorName: "Ty", text: trimmed, createdAt: .now)
+        comments[photoID, default: []].append(comment)
+        // TODO: upload comment to backend
+    }
+
     // MARK: - Private
     private func upload(photo: CommunityPhoto) async {
         do {
@@ -91,5 +111,19 @@ final class ParkPhotosViewModel: ObservableObject {
         } catch {
             errorMessage = "Nie udało się zapisać zdjęcia. Spróbuj ponownie."
         }
+    }
+}
+
+// MARK: - PhotoComment Model (local-only UI phase)
+struct PhotoComment: Identifiable, Equatable, Hashable {
+    let id: UUID
+    let authorName: String
+    let text: String
+    let createdAt: Date
+
+    var relativeDate: String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: createdAt, relativeTo: .now)
     }
 } 
