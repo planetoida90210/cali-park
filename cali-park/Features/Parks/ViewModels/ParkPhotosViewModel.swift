@@ -66,6 +66,13 @@ final class ParkPhotosViewModel: ObservableObject {
         // TODO: send like/unlike to backend once available
     }
 
+    // MARK: - Visibility
+    func toggleVisibility(for photo: CommunityPhoto) {
+        guard let idx = photos.firstIndex(where: { $0.id == photo.id }) else { return }
+        photos[idx].visibility = (photos[idx].visibility == .public) ? .friendsOnly : .public
+        // TODO: update visibility on backend
+    }
+
     // MARK: - Comments (local only for now)
     func addComment(to photoID: UUID, text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)

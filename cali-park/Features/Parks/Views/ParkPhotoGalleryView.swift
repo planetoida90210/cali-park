@@ -22,18 +22,26 @@ struct ParkPhotoGalleryView: View {
 
     var body: some View {
         NavigationStack {
-            TabView(selection: $currentIndex) {
-                ForEach(photos.indices, id: \.self) { idx in
-                    let photo = photos[idx]
-                    PhotoDetailItem(photoID: photo.id,
-                                   initialPhoto: photo,
-                                   isOwner: photo.uploaderName == "Ty",
-                                   onDeleteRequest: { showDeleteAlert = true },
-                                   commentFocus: $commentFieldFocused)
-                        .tag(idx)
+            ZStack(alignment: .bottom) {
+                TabView(selection: $currentIndex) {
+                    ForEach(photos.indices, id: \.self) { idx in
+                        let photo = photos[idx]
+                        PhotoDetailItem(photoID: photo.id,
+                                       initialPhoto: photo,
+                                       isOwner: photo.uploaderName == "Ty",
+                                       onDeleteRequest: { showDeleteAlert = true },
+                                       commentFocus: $commentFieldFocused)
+                            .tag(idx)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+
+                // Custom page indicator (hidden while writing comment)
+                if !commentFieldFocused {
+                    pageIndicator
+                        .padding(.bottom, 72)
                 }
             }
-            .tabViewStyle(.page(indexDisplayMode: commentFieldFocused ? .never : .always))
             .navigationTitle(photos[currentIndex].uploaderName)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Zamknij") { dismiss() } } }
@@ -46,6 +54,29 @@ struct ParkPhotoGalleryView: View {
                 Button("Anuluj", role: .cancel) {}
             }
             .onChange(of: currentIndex) { _ in commentFieldFocused = false }
+        }
+    }
+
+    // MARK: Page Indicator
+    private var pageIndicator: some View {
+        let total = photos.count
+        if total <= 8 {
+            return AnyView(HStack(spacing: 6) {
+                ForEach(0..<total, id: \..self) { idx in
+                    Circle()
+                        .fill(idx == currentIndex ? Color.accent : Color.white.opacity(0.3))
+                        .frame(width: 6, height: 6)
+                }
+            })
+        } else {
+            return AnyView(
+                Text("\(currentIndex + 1)/\(total)")
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.black.opacity(0.5))
+                    .clipShape(Capsule())
+            )
         }
     }
 }
@@ -62,6 +93,7 @@ private struct PhotoDetailItem: View {
     @State private var scale: CGFloat = 1
     @State private var doubleTapAnim = false
     @State private var newComment: String = ""
+    @State private var showActionSheet = false
 
     private var photo: CommunityPhoto {
         vm.photos.first(where: { $0.id == photoID }) ?? initialPhoto
@@ -125,8 +157,6 @@ private struct PhotoDetailItem: View {
                     }
                 }
 
-                commentInputBar
-
                 Text(photo.formattedDate)
                     .font(.caption)
                     .foregroundColor(.textSecondary)
@@ -135,14 +165,20 @@ private struct PhotoDetailItem: View {
             .padding(.bottom, 32)
         }
         .scrollDismissesKeyboard(.interactively)
-        // Extra bottom spacing when keyboard visible
-        .safeAreaInset(edge: .bottom) {
-            if commentFocus.wrappedValue {
-                Color.clear.frame(height: 280)
-            }
-        }
-        // Tap outside to dismiss
         .onTapGesture { commentFocus.wrappedValue = false }
+        .safeAreaInset(edge: .bottom) {
+            commentInputBar
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color.appBackground)
+        }
+        .confirmationDialog("Opcje zdjęcia", isPresented: $showActionSheet, titleVisibility: .visible) {
+            Button(photo.visibility == .public ? "Ustaw jako prywatne" : "Ustaw jako publiczne") {
+                vm.toggleVisibility(for: photo)
+            }
+            Button("Usuń", role: .destructive) { onDeleteRequest() }
+            Button("Anuluj", role: .cancel) {}
+        }
     }
 
     // MARK: Subviews
@@ -156,11 +192,19 @@ private struct PhotoDetailItem: View {
             Text(photo.uploaderName)
                 .font(.bodyMedium)
 
+            if photo.visibility == .friendsOnly {
+                Image(systemName: "lock.fill")
+                    .font(.caption)
+            }
+
             Spacer()
 
             if isOwner {
-                Button(role: .destructive) { onDeleteRequest() } label: {
-                    Image(systemName: "trash")
+                Button {
+                    showActionSheet = true
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .rotationEffect(.degrees(90))
                 }
             }
         }
