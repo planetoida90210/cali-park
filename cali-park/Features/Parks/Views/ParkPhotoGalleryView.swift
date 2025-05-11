@@ -11,7 +11,6 @@ struct ParkPhotoGalleryView: View {
 
     @State private var currentIndex: Int
     @State private var showDeleteAlert = false
-    @State private var showCommentsSheet = false
 
     init(selected: CommunityPhoto, photos: [CommunityPhoto], isPremiumUser: Bool) {
         self.selected = selected
@@ -25,7 +24,7 @@ struct ParkPhotoGalleryView: View {
             TabView(selection: $currentIndex) {
                 ForEach(photos.indices, id: \.self) { idx in
                     let photo = photos[idx]
-                    PhotoDetailItem(photoID: photo.id, initialPhoto: photo, isOwner: photo.uploaderName == "Ty", onDeleteRequest: { showDeleteAlert = true }, onCommentsTap: { showCommentsSheet = true })
+                    PhotoDetailItem(photoID: photo.id, initialPhoto: photo, isOwner: photo.uploaderName == "Ty", onDeleteRequest: { showDeleteAlert = true })
                         .tag(idx)
                 }
             }
@@ -41,10 +40,6 @@ struct ParkPhotoGalleryView: View {
                 }
                 Button("Anuluj", role: .cancel) {}
             }
-            .sheet(isPresented: $showCommentsSheet) {
-                PhotoCommentsSheetView(photo: photos[currentIndex])
-                    .environmentObject(photosVM)
-            }
         }
     }
 }
@@ -55,11 +50,12 @@ private struct PhotoDetailItem: View {
     let initialPhoto: CommunityPhoto // fallback for preview
     let isOwner: Bool
     let onDeleteRequest: () -> Void
-    let onCommentsTap: () -> Void
 
     @EnvironmentObject private var vm: ParkPhotosViewModel
     @State private var scale: CGFloat = 1
     @State private var doubleTapAnim = false
+    @State private var newComment: String = ""
+    @FocusState private var commentFieldFocused: Bool
 
     private var photo: CommunityPhoto {
         vm.photos.first(where: { $0.id == photoID }) ?? initialPhoto
@@ -112,14 +108,18 @@ private struct PhotoDetailItem: View {
                         .font(.bodySmall)
                 }
 
-                if let count = vm.comments[photo.id]?.count, count > 0 {
-                    Button(action: onCommentsTap) {
-                        Text("Zobacz wszystkie komentarze: \(count)")
-                            .font(.bodySmall)
-                            .foregroundColor(.textSecondary)
+                // Recent comments (show last 2)
+                if let list = vm.comments[photo.id], !list.isEmpty {
+                    ForEach(list.suffix(2)) { c in
+                        HStack {
+                            Text(c.authorName).font(.bodyMedium)
+                            Text(c.text).font(.bodySmall)
+                            Spacer()
+                        }
                     }
-                    .buttonStyle(.plain)
                 }
+
+                commentInputBar
 
                 Text(photo.formattedDate)
                     .font(.caption)
@@ -157,7 +157,7 @@ private struct PhotoDetailItem: View {
                 Image(systemName: photo.isLikedByMe ? "heart.fill" : "heart")
             }
 
-            Button(action: onCommentsTap) {
+            Button(action: { commentFieldFocused = true }) {
                 Image(systemName: "bubble.right")
             }
 
@@ -195,6 +195,28 @@ private struct PhotoDetailItem: View {
 
     private func likeTapped() {
         vm.toggleLike(for: photo)
+    }
+
+    // Input bar
+    private var commentInputBar: some View {
+        HStack {
+            TextField("Dodaj komentarz…", text: $newComment)
+                .focused($commentFieldFocused)
+                .textFieldStyle(.roundedBorder)
+
+            Button(action: sendComment) {
+                Image(systemName: "paperplane.fill")
+                    .rotationEffect(.degrees(45))
+            }
+            .disabled(newComment.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        }
+    }
+
+    private func sendComment() {
+        let trimmed = newComment.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        vm.addComment(to: photo.id, text: trimmed)
+        newComment = ""
     }
 }
 
