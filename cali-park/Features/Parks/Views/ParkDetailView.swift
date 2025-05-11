@@ -7,7 +7,7 @@ struct ParkDetailView: View {
     // Park przekazywany z listy
     let park: Park
     // Premium status – w przyszłości pobierzemy z konta użytkownika
-    var isPremiumUser: Bool = false
+    var isPremiumUser: Bool = true
 
     @EnvironmentObject private var parksVM: ParksViewModel
     @Environment(\.dismiss) private var dismiss
@@ -21,6 +21,7 @@ struct ParkDetailView: View {
     // Shared events & reviews ViewModels injected down the hierarchy
     @StateObject private var eventsVM: ParkEventsViewModel
     @StateObject private var reviewsVM: ParkReviewsViewModel
+    @StateObject private var photosVM: ParkPhotosViewModel
 
     // Global quick-join state – drives toast visibility
     @State private var joinedEventID: UUID?
@@ -30,11 +31,12 @@ struct ParkDetailView: View {
     @State private var showAllReviewsSheet = false
 
     // Custom init to create shared Events ViewModel
-    init(park: Park, isPremiumUser: Bool = false) {
+    init(park: Park, isPremiumUser: Bool = true) {
         self.park = park
         self.isPremiumUser = isPremiumUser
         _eventsVM = StateObject(wrappedValue: ParkEventsViewModel(parkID: park.id))
         _reviewsVM = StateObject(wrappedValue: ParkReviewsViewModel(parkID: park.id))
+        _photosVM = StateObject(wrappedValue: ParkPhotosViewModel(parkID: park.id))
     }
 
     var body: some View {
@@ -50,6 +52,8 @@ struct ParkDetailView: View {
                     equipmentSection
                     ParkEventsSectionView(park: park, isPremiumUser: isPremiumUser, onJoin: joinEvent)
                         .environmentObject(eventsVM)
+                    ParkPhotosSectionView(isPremiumUser: isPremiumUser)
+                        .environmentObject(photosVM)
                     ParkReviewsSectionView(
                         viewModel: reviewsVM,
                         onAddEdit: { showAddEditReviewSheet = true },
