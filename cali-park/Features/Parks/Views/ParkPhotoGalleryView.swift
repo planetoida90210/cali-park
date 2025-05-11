@@ -11,6 +11,7 @@ struct ParkPhotoGalleryView: View {
 
     @State private var currentIndex: Int
     @State private var showDeleteAlert = false
+    @FocusState private var commentFieldFocused: Bool
 
     init(selected: CommunityPhoto, photos: [CommunityPhoto], isPremiumUser: Bool) {
         self.selected = selected
@@ -24,11 +25,15 @@ struct ParkPhotoGalleryView: View {
             TabView(selection: $currentIndex) {
                 ForEach(photos.indices, id: \.self) { idx in
                     let photo = photos[idx]
-                    PhotoDetailItem(photoID: photo.id, initialPhoto: photo, isOwner: photo.uploaderName == "Ty", onDeleteRequest: { showDeleteAlert = true })
+                    PhotoDetailItem(photoID: photo.id,
+                                   initialPhoto: photo,
+                                   isOwner: photo.uploaderName == "Ty",
+                                   onDeleteRequest: { showDeleteAlert = true },
+                                   commentFocus: $commentFieldFocused)
                         .tag(idx)
                 }
             }
-            .tabViewStyle(.page(indexDisplayMode: .always))
+            .tabViewStyle(.page(indexDisplayMode: commentFieldFocused ? .never : .always))
             .navigationTitle(photos[currentIndex].uploaderName)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Zamknij") { dismiss() } } }
@@ -40,6 +45,7 @@ struct ParkPhotoGalleryView: View {
                 }
                 Button("Anuluj", role: .cancel) {}
             }
+            .onChange(of: currentIndex) { _ in commentFieldFocused = false }
         }
     }
 }
@@ -50,12 +56,12 @@ private struct PhotoDetailItem: View {
     let initialPhoto: CommunityPhoto // fallback for preview
     let isOwner: Bool
     let onDeleteRequest: () -> Void
+    var commentFocus: FocusState<Bool>.Binding
 
     @EnvironmentObject private var vm: ParkPhotosViewModel
     @State private var scale: CGFloat = 1
     @State private var doubleTapAnim = false
     @State private var newComment: String = ""
-    @FocusState private var commentFieldFocused: Bool
 
     private var photo: CommunityPhoto {
         vm.photos.first(where: { $0.id == photoID }) ?? initialPhoto
@@ -128,6 +134,15 @@ private struct PhotoDetailItem: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 32)
         }
+        .scrollDismissesKeyboard(.interactively)
+        // Extra bottom spacing when keyboard visible
+        .safeAreaInset(edge: .bottom) {
+            if commentFocus.wrappedValue {
+                Color.clear.frame(height: 280)
+            }
+        }
+        // Tap outside to dismiss
+        .onTapGesture { commentFocus.wrappedValue = false }
     }
 
     // MARK: Subviews
@@ -157,7 +172,7 @@ private struct PhotoDetailItem: View {
                 Image(systemName: photo.isLikedByMe ? "heart.fill" : "heart")
             }
 
-            Button(action: { commentFieldFocused = true }) {
+            Button(action: { commentFocus.wrappedValue = true }) {
                 Image(systemName: "bubble.right")
             }
 
@@ -201,7 +216,7 @@ private struct PhotoDetailItem: View {
     private var commentInputBar: some View {
         HStack {
             TextField("Dodaj komentarz…", text: $newComment)
-                .focused($commentFieldFocused)
+                .focused(commentFocus)
                 .textFieldStyle(.roundedBorder)
 
             Button(action: sendComment) {
