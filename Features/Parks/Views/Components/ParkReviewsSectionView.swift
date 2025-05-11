@@ -1,16 +1,12 @@
 import SwiftUI
 
-// MARK: - ParkReviewsSectionView
 struct ParkReviewsSectionView: View {
     @ObservedObject var viewModel: ParkReviewsViewModel
-    /// Callback used by parent to open add/edit sheet.
-    var onAddEdit: () -> Void
-    /// Callback used to show full list.
-    var onShowAll: () -> Void
-
-    private let recentLimit = 3
+    var onAddEdit: () -> Void = {}
+    var onShowAll: () -> Void = {}
     @State private var isExpanded: Bool = true
     @State private var showAll: Bool = false
+    private let recentLimit = 3
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -34,12 +30,21 @@ struct ParkReviewsSectionView: View {
             Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                 .font(.caption.weight(.semibold))
                 .foregroundColor(.textSecondary)
+            Spacer()
+            if isExpanded && showAll && viewModel.loadedReviews.count > recentLimit {
+                Button(action: { showAll = false }) {
+                    Text("Zwiń")
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.accent)
+                }
+                .buttonStyle(.plain)
+            }
         }
         .contentShape(Rectangle())
         .onTapGesture { withAnimation { isExpanded.toggle() } }
     }
 
-    // MARK: - Actions Row (stars + buttons)
+    // MARK: - Actions Row (bez gwiazdek)
     private var actionsRow: some View {
         HStack(spacing: 12) {
             Spacer()
@@ -83,17 +88,22 @@ struct ParkReviewsSectionView: View {
                         .foregroundColor(.accent)
                 }
                 .padding(.top, 4)
+            } else if showAll && viewModel.loadedReviews.count > recentLimit {
+                Button {
+                    showAll = false
+                } label: {
+                    Text("Zwiń")
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.accent)
+                }
+                .padding(.top, 4)
             }
         }
     }
 }
 
-// MARK: - Preview
-#Preview {
-    let vm = ParkReviewsViewModel(parkID: Park.mock.first!.id)
-    return VStack(alignment: .leading, spacing: 16) {
-        ParkReviewsSectionView(viewModel: vm, onAddEdit: {}, onShowAll: {})
-            .padding()
+struct ParkReviewsSectionView_Previews: PreviewProvider {
+    static var previews: some View {
+        ParkReviewsSectionView()
     }
-    .preferredColorScheme(.dark)
 } 
