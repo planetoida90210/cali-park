@@ -94,6 +94,7 @@ private struct PhotoDetailItem: View {
     @State private var doubleTapAnim = false
     @State private var newComment: String = ""
     @State private var showActionSheet = false
+    @State private var showAllComments: Bool = false
 
     private var photo: CommunityPhoto {
         vm.photos.first(where: { $0.id == photoID }) ?? initialPhoto
@@ -146,10 +147,22 @@ private struct PhotoDetailItem: View {
                         .font(.bodySmall)
                 }
 
-                // Recent comments (show last 2)
+                // Comments list – shows last 3 when collapsed, full when expanded
                 if let list = vm.comments[photo.id], !list.isEmpty {
-                    ForEach(list.suffix(2)) { c in
-                        HStack {
+                    // Collapsed list shows last 3 comments; expand via button
+                    if list.count > 3 && !showAllComments {
+                        Button {
+                            withAnimation { showAllComments = true }
+                        } label: {
+                            Text("Zobacz wszystkie komentarze (\(list.count))")
+                                .font(.caption)
+                                .foregroundColor(.textSecondary)
+                        }
+                    }
+
+                    let display = showAllComments ? list : Array(list.suffix(3))
+                    ForEach(display) { c in
+                        HStack(alignment: .top, spacing: 4) {
                             Text(c.authorName).font(.bodyMedium)
                             Text(c.text).font(.bodySmall)
                             Spacer()
