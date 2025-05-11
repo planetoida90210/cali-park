@@ -9,6 +9,7 @@ final class ParkPhotosViewModel: ObservableObject {
     @Published private(set) var photos: [CommunityPhoto] = []
     @Published var errorMessage: String?
     @Published var isUploading: Bool = false
+    @Published var lastAdded: CommunityPhoto?
 
     // MARK: Dependencies
     private let service: CommunityPhotoServiceProtocol
@@ -59,6 +60,7 @@ final class ParkPhotosViewModel: ObservableObject {
         do {
             let uploaded = try await service.uploadPhoto(photo)
             photos.insert(uploaded, at: 0)
+            lastAdded = uploaded
         } catch {
             errorMessage = "Nie udało się dodać zdjęcia. Spróbuj ponownie."
         }
@@ -84,6 +86,7 @@ final class ParkPhotosViewModel: ObservableObject {
             )
             // Optimistic insert
             photos.insert(newPhoto, at: 0)
+            lastAdded = newPhoto
             _ = try await service.uploadPhoto(newPhoto) // stub delay
         } catch {
             errorMessage = "Nie udało się zapisać zdjęcia. Spróbuj ponownie."

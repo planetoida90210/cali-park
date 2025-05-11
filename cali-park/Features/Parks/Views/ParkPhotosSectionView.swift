@@ -9,12 +9,25 @@ struct ParkPhotosSectionView: View {
     // Local UI state
     @State private var selectedPhoto: CommunityPhoto?
     @State private var showAddPhotoSheet = false
+    @State private var toastVisible = false
+    @State private var showPremiumAlert = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Zdjęcia z parku")
-                .font(.bodyMedium)
-                .foregroundColor(.textPrimary)
+            HStack(spacing: 6) {
+                Text("Zdjęcia z parku")
+                    .font(.bodyMedium)
+                    .foregroundColor(.textPrimary)
+                if !isPremiumUser {
+                    Text("Premium")
+                        .font(.caption2.weight(.bold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.accent.opacity(0.2))
+                        .foregroundColor(.accent)
+                        .clipShape(Capsule())
+                }
+            }
 
             HStack(spacing: 8) {
                 if isPremiumUser {
@@ -27,6 +40,11 @@ struct ParkPhotosSectionView: View {
                         ForEach(viewModel.photos) { photo in
                             ParkPhotoThumbnail(photo: photo)
                                 .onTapGesture { selectedPhoto = photo }
+                                .onLongPressGesture(minimumDuration: 0.5) {
+                                    if !isPremiumUser {
+                                        showPremiumAlert = true
+                                    }
+                                }
                         }
                     }
                 }
@@ -40,6 +58,24 @@ struct ParkPhotosSectionView: View {
         .sheet(isPresented: $showAddPhotoSheet) {
             AddParkPhotoSheetView()
                 .environmentObject(viewModel)
+        }
+        .overlay {
+            if toastVisible {
+                AddedToast()
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .padding(.bottom, 50)
+            }
+        }
+        .onReceive(viewModel.$lastAdded.compactMap { $0 }) { _ in
+            toastVisible = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                withAnimation { toastVisible = false }
+            }
+        }
+        .alert("Funkcja Premium", isPresented: $showPremiumAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Dodawanie i zarządzanie zdjęciami wymaga subskrypcji CaliPark Premium.")
         }
     }
 
@@ -111,4 +147,21 @@ struct ParkPhotosSectionView: View {
         .environmentObject(ParkPhotosViewModel(parkID: Park.mock.first!.id))
         .padding()
         .preferredColorScheme(.dark)
+}
+
+// MARK: - AddedToast
+private struct AddedToast: View {
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundColor(.black)
+            Text("Zdjęcie dodane")
+                .foregroundColor(.black)
+                .font(.caption.weight(.semibold))
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(Color.accent)
+        .clipShape(Capsule())
+    }
 } 
