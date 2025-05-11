@@ -8,6 +8,7 @@ struct ParkPhotosSectionView: View {
 
     // Local UI state
     @State private var selectedPhoto: CommunityPhoto?
+    @State private var showAddPhotoSheet = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -18,7 +19,7 @@ struct ParkPhotosSectionView: View {
             HStack(spacing: 8) {
                 if isPremiumUser {
                     AddPhotoCell {
-                        viewModel.addRandomMockPhoto()
+                        showAddPhotoSheet = true
                     }
                 }
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -35,6 +36,10 @@ struct ParkPhotosSectionView: View {
         }
         .fullScreenCover(item: $selectedPhoto) { photo in
             ParkPhotoGalleryView(selected: photo, photos: viewModel.photos, isPremiumUser: isPremiumUser)
+        }
+        .sheet(isPresented: $showAddPhotoSheet) {
+            AddParkPhotoSheetView()
+                .environmentObject(viewModel)
         }
     }
 

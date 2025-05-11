@@ -8,6 +8,7 @@ final class ParkPhotosViewModel: ObservableObject {
     // MARK: Published
     @Published private(set) var photos: [CommunityPhoto] = []
     @Published var errorMessage: String?
+    @Published var isUploading: Bool = false
 
     // MARK: Dependencies
     private let service: CommunityPhotoServiceProtocol
@@ -60,6 +61,32 @@ final class ParkPhotosViewModel: ObservableObject {
             photos.insert(uploaded, at: 0)
         } catch {
             errorMessage = "Nie udało się dodać zdjęcia. Spróbuj ponownie."
+        }
+    }
+
+    // MARK: - Add real photo
+    func add(imageData: Data, visibility: CommunityPhoto.Visibility) async {
+        isUploading = true
+        defer { isUploading = false }
+
+        // Save to caches directory so AsyncImage can load it immediately
+        let filename = UUID().uuidString + ".jpg"
+        let fileURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent(filename)
+        do {
+            try imageData.write(to: fileURL, options: .atomic)
+            let newPhoto = CommunityPhoto(
+                parkID: parkID,
+                imageURL: fileURL,
+                uploaderName: "Ty",
+                uploadDate: .now,
+                visibility: visibility
+            )
+            // Optimistic insert
+            photos.insert(newPhoto, at: 0)
+            _ = try await service.uploadPhoto(newPhoto) // stub delay
+        } catch {
+            errorMessage = "Nie udało się zapisać zdjęcia. Spróbuj ponownie."
         }
     }
 } 
