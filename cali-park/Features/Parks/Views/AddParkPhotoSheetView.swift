@@ -14,6 +14,9 @@ struct AddParkPhotoSheetView: View {
     // Visibility
     @State private var visibility: CommunityPhoto.Visibility = .public
 
+    // Camera
+    @State private var showCamera = false
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
@@ -55,6 +58,19 @@ struct AddParkPhotoSheetView: View {
 
                 Spacer()
 
+                Button {
+                    showCamera = true
+                } label: {
+                    Label("Zrób zdjęcie", systemImage: "camera")
+                        .font(.bodyMedium)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.accent.opacity(0.1))
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(photosVM.isUploading)
+
                 if photosVM.isUploading {
                     ProgressView("Dodawanie...")
                         .progressViewStyle(.circular)
@@ -77,6 +93,11 @@ struct AddParkPhotoSheetView: View {
                     }
                     .disabled(imageData == nil || photosVM.isUploading)
                 }
+            }
+        }
+        .sheet(isPresented: $showCamera) {
+            CameraPickerView { data in
+                imageData = data
             }
         }
     }
