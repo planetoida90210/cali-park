@@ -125,15 +125,17 @@ private struct PhotoDetailItem: View {
                     .aspectRatio(1, contentMode: .fit)
                     .scaleEffect(scale)
                     .gesture(magnificationGesture)
-                    .highPriorityGesture(doubleTapGesture)
-                    .onLongPressGesture(minimumDuration: 0.6) { if isOwner { onDeleteRequest() } }
-
-                    if doubleTapAnim {
-                        Image(systemName: "heart.fill")
-                            .font(.system(size: 100))
-                            .foregroundColor(.white.opacity(0.9))
-                            .scaleEffect(doubleTapAnim ? 1 : 0.4)
-                            .animation(.easeOut(duration: 0.5), value: doubleTapAnim)
+                    // Double-tap to like
+                    .onTapGesture(count: 2) {
+                        likeTapped()
+                        withAnimation { doubleTapAnim = true }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { doubleTapAnim = false }
+                    }
+                    // Single tap (owner only) opens options sheet
+                    .onTapGesture(count: 1) {
+                        if isOwner {
+                            showActionSheet = true
+                        }
                     }
                 }
 
@@ -206,8 +208,13 @@ private struct PhotoDetailItem: View {
                 .font(.bodyMedium)
 
             if photo.visibility == .friendsOnly {
-                Image(systemName: "lock.fill")
-                    .font(.caption)
+                HStack(spacing: 4) {
+                    Image(systemName: "lock.fill")
+                        .font(.caption)
+                    Text("Dla znajomych")
+                        .font(.caption)
+                        .foregroundColor(.textSecondary)
+                }
             }
 
             Spacer()
@@ -252,15 +259,6 @@ private struct PhotoDetailItem: View {
                 withAnimation(.spring()) {
                     scale = 1
                 }
-            }
-    }
-
-    private var doubleTapGesture: some Gesture {
-        TapGesture(count: 2)
-            .onEnded {
-                likeTapped()
-                withAnimation { doubleTapAnim = true }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { doubleTapAnim = false }
             }
     }
 
