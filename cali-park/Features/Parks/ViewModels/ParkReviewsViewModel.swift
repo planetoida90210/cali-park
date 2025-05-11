@@ -1,6 +1,15 @@
 import Foundation
 import Combine
 
+// Sorting options for reviews
+enum ReviewSortOption: String, CaseIterable, Identifiable {
+    case newest = "Najnowsze"
+    case ratingHigh = "Najwyższa ocena"
+    case ratingLow = "Najniższa ocena"
+
+    var id: Self { self }
+}
+
 // MARK: - ParkReviewsViewModel
 @MainActor
 final class ParkReviewsViewModel: ObservableObject {
@@ -10,6 +19,42 @@ final class ParkReviewsViewModel: ObservableObject {
     @Published private(set) var userReview: ParkReview?
     /// Local flag to drive loading states in UI.
     @Published var isBusy: Bool = false
+
+    // Pagination & filtering
+    @Published var showOnlyWithComment: Bool = false {
+        didSet { resetPagination() }
+    }
+    private let pageSize: Int = 5
+    @Published private(set) var currentPage: Int = 0
+
+    // Sorting
+    @Published var sortOption: ReviewSortOption = .newest {
+        didSet { resetPagination() }
+    }
+
+    var filteredReviews: [ParkReview] {
+        showOnlyWithComment ? reviews.filter { !$0.comment.isEmpty } : reviews
+    }
+
+    private var sortedReviews: [ParkReview] {
+        switch sortOption {
+        case .newest:
+            return filteredReviews.sorted { $0.createdAt > $1.createdAt }
+        case .ratingHigh:
+            return filteredReviews.sorted { $0.rating > $1.rating }
+        case .ratingLow:
+            return filteredReviews.sorted { $0.rating < $1.rating }
+        }
+    }
+
+    var loadedReviews: [ParkReview] {
+        let end = min(sortedReviews.count, (currentPage + 1) * pageSize)
+        return Array(sortedReviews.prefix(end))
+    }
+
+    var hasMore: Bool {
+        (currentPage + 1) * pageSize < sortedReviews.count
+    }
 
     // MARK: Private
     private let parkID: UUID
@@ -40,6 +85,7 @@ final class ParkReviewsViewModel: ObservableObject {
         do {
             reviews = try await service.fetchReviews(for: parkID)
             userReview = reviews.first(where: { $0.userID == currentUserID })
+            resetPagination()
         } catch {
             // TODO: handle error (e.g., via AlertPublisher) – UI-first skip for now
         }
@@ -65,5 +111,14 @@ final class ParkReviewsViewModel: ObservableObject {
         } catch {
             // TODO: error handling
         }
+    }
+
+    func loadMore() {
+        guard hasMore else { return }
+        currentPage += 1
+    }
+
+    private func resetPagination() {
+        currentPage = 0
     }
 } 
