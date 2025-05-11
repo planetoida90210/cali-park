@@ -9,8 +9,15 @@ struct ParkPhotoGalleryView: View {
     let photos: [CommunityPhoto]
     let isPremiumUser: Bool
 
-    @State private var currentIndex: Int = 0
+    @State private var currentIndex: Int
     @State private var showDeleteAlert = false
+
+    init(selected: CommunityPhoto, photos: [CommunityPhoto], isPremiumUser: Bool) {
+        self.selected = selected
+        self.photos = photos
+        self.isPremiumUser = isPremiumUser
+        _currentIndex = State(initialValue: photos.firstIndex(of: selected) ?? 0)
+    }
 
     var body: some View {
         NavigationStack {
@@ -20,15 +27,15 @@ struct ParkPhotoGalleryView: View {
                     AsyncImage(url: photo.imageURL) { phase in
                         switch phase {
                         case .success(let img):
-                            img.resizable().scaledToFit().tag(idx)
+                            img.resizable().scaledToFit()
                         case .failure(_):
-                            Color.gray.tag(idx)
+                            Color.gray
                         default:
-                            ProgressView().tag(idx)
+                            ProgressView()
                         }
                     }
+                    .tag(idx)
                     .ignoresSafeArea()
-                    .onAppear { currentIndex = idx }
                     .onLongPressGesture(minimumDuration: 0.6) {
                         if isPremiumUser { showDeleteAlert = true }
                     }

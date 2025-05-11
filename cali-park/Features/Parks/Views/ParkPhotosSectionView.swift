@@ -15,20 +15,22 @@ struct ParkPhotosSectionView: View {
                 .font(.bodyMedium)
                 .foregroundColor(.textPrimary)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    if isPremiumUser {
-                        AddPhotoCell {
-                            viewModel.addRandomMockPhoto()
-                        }
-                    }
-                    ForEach(viewModel.photos) { photo in
-                        ParkPhotoThumbnail(photo: photo)
-                            .onTapGesture { selectedPhoto = photo }
+            HStack(spacing: 8) {
+                if isPremiumUser {
+                    AddPhotoCell {
+                        viewModel.addRandomMockPhoto()
                     }
                 }
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(viewModel.photos) { photo in
+                            ParkPhotoThumbnail(photo: photo)
+                                .onTapGesture { selectedPhoto = photo }
+                        }
+                    }
+                }
+                .frame(height: 80)
             }
-            .frame(height: 80)
             .overlay(premiumOverlay)
         }
         .fullScreenCover(item: $selectedPhoto) { photo in
