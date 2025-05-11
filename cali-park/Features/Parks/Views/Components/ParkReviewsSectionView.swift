@@ -83,6 +83,15 @@ struct ParkReviewsSectionView: View {
                         .foregroundColor(.accent)
                 }
                 .padding(.top, 4)
+            } else if showAll && viewModel.loadedReviews.count > recentLimit {
+                Button {
+                    showAll = false
+                } label: {
+                    Text("Zwiń")
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.accent)
+                }
+                .padding(.top, 4)
             }
         }
     }
