@@ -19,57 +19,48 @@ struct AddParkPhotoSheetView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-                PhotosPicker(selection: $pickerItem, matching: .images, photoLibrary: .shared()) {
-                    if let imageData, let uiImage = UIImage(data: imageData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 220)
-                            .cornerRadius(12)
-                    } else {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color(uiColor: .secondarySystemBackground))
-                                .frame(height: 220)
-                            VStack {
-                                Image(systemName: "photo.on.rectangle")
-                                    .font(.system(size: 40))
-                                Text("Wybierz zdjęcie")
-                                    .font(.caption)
-                            }
-                            .foregroundColor(.textSecondary)
+            VStack(spacing: 24) {
+                if let imageData, let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 260)
+                        .cornerRadius(12)
+                } else {
+                    // Selection tiles
+                    HStack(spacing: 16) {
+                        // Camera Tile
+                        Button {
+                            showCamera = true
+                        } label: {
+                            SelectionTile(icon: "camera", title: "Aparat")
+                        }
+
+                        // Library Tile via PhotosPicker
+                        PhotosPicker(selection: $pickerItem, matching: .images, photoLibrary: .shared()) {
+                            SelectionTile(icon: "photo.on.rectangle", title: "Biblioteka")
                         }
                     }
-                }
-                .onChange(of: pickerItem) { newItem in
-                    Task {
-                        if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                            imageData = data
+                    .frame(maxHeight: 140)
+                    .onChange(of: pickerItem) { newItem in
+                        Task {
+                            if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                                imageData = data
+                            }
                         }
                     }
                 }
 
-                Picker("Widoczność", selection: $visibility) {
-                    Text("Publiczne").tag(CommunityPhoto.Visibility.public)
-                    Text("Tylko znajomi").tag(CommunityPhoto.Visibility.friendsOnly)
+                // Visibility picker appears once photo chosen
+                if imageData != nil {
+                    Picker("Widoczność", selection: $visibility) {
+                        Text("Publiczne").tag(CommunityPhoto.Visibility.public)
+                        Text("Tylko znajomi").tag(CommunityPhoto.Visibility.friendsOnly)
+                    }
+                    .pickerStyle(.segmented)
                 }
-                .pickerStyle(.segmented)
 
                 Spacer()
-
-                Button {
-                    showCamera = true
-                } label: {
-                    Label("Zrób zdjęcie", systemImage: "camera")
-                        .font(.bodyMedium)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color.accent.opacity(0.1))
-                        .clipShape(Capsule())
-                }
-                .buttonStyle(.plain)
-                .disabled(photosVM.isUploading)
 
                 if photosVM.isUploading {
                     ProgressView("Dodawanie...")
@@ -108,4 +99,25 @@ struct AddParkPhotoSheetView: View {
     AddParkPhotoSheetView()
         .environmentObject(ParkPhotosViewModel(parkID: Park.mock.first!.id))
         .preferredColorScheme(.dark)
+}
+
+// MARK: - SelectionTile
+private struct SelectionTile: View {
+    let icon: String
+    let title: String
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 34))
+            Text(title)
+                .font(.caption)
+        }
+        .foregroundColor(.accent)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(uiColor: .secondarySystemBackground))
+        )
+    }
 } 
