@@ -216,8 +216,7 @@ private struct PhotoDetailItem: View {
                 Button {
                     showActionSheet = true
                 } label: {
-                    Image(systemName: "ellipsis")
-                        .rotationEffect(.degrees(90))
+                    Image(systemName: "ellipsis") // horizontal three dots
                 }
             }
         }
