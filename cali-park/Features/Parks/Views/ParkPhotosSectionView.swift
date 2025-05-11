@@ -15,7 +15,7 @@ struct ParkPhotosSectionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                Text("Zdjęcia z parku")
+                Text("Zdjęcia użytkowników z parku")
                     .font(.bodyMedium)
                     .foregroundColor(.textPrimary)
                 if !isPremiumUser {
@@ -83,7 +83,7 @@ struct ParkPhotosSectionView: View {
     @ViewBuilder private var premiumOverlay: some View {
         if !isPremiumUser {
             ZStack {
-                Color.black.opacity(0.4).blur(radius: 0)
+                Color.appBackground.opacity(0.9)
                 VStack(spacing: 6) {
                     Image(systemName: "lock.fill")
                         .foregroundColor(.white)
