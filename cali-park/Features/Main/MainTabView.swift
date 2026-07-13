@@ -16,7 +16,7 @@ struct MainTabView: View {
             .tabItem { Label("Siłownie", systemImage: "mappin.and.ellipse") }
             .tag(1)
 
-            ExerciseLibraryView()
+            ExerciseLibraryView(environment: environment)
                 .tabItem { Label("Ćwiczenia", systemImage: "dumbbell.fill") }
                 .tag(2)
 

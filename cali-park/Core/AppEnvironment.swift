@@ -11,16 +11,19 @@ final class AppEnvironment: ObservableObject {
     let reviewsService: ReviewsServicing
     let calendarService: CalendarService
     let favoritesStore: FavoritesStoring
+    let workoutLogStore: WorkoutLogStoring
 
     // MARK: Init
     init(communityPhotoService: CommunityPhotoServiceProtocol = InMemoryCommunityPhotoService(),
          reviewsService: ReviewsServicing = ReviewsService(),
          calendarService: CalendarService = CalendarService(),
-         favoritesStore: FavoritesStoring = UserDefaultsFavoritesStore()) {
+         favoritesStore: FavoritesStoring = UserDefaultsFavoritesStore(),
+         workoutLogStore: WorkoutLogStoring = FileWorkoutLogStore()) {
         self.communityPhotoService = communityPhotoService
         self.reviewsService = reviewsService
         self.calendarService = calendarService
         self.favoritesStore = favoritesStore
+        self.workoutLogStore = workoutLogStore
     }
 
     // MARK: View Model Factories
@@ -39,6 +42,10 @@ final class AppEnvironment: ObservableObject {
 
     func makeEventsViewModel(parkID: UUID) -> ParkEventsViewModel {
         ParkEventsViewModel(parkID: parkID, calendarService: calendarService)
+    }
+
+    func makeExerciseLibraryViewModel() -> ExerciseLibraryViewModel {
+        ExerciseLibraryViewModel()
     }
 
     // MARK: Preview
