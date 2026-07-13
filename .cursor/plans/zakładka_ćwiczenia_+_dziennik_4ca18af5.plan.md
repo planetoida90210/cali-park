@@ -28,16 +28,16 @@ todos:
     status: completed
   - id: s3-setpad-input
     content: "S3: SetPadInput — czysty typ logiki licznika serii (+ / ⌫ / C)"
-    status: pending
+    status: completed
   - id: s3-setpad-view
     content: "S3: SetPadSheetView + WorkoutLogViewModel z alertem błędów, prezentacja sheet(item:) z detalu ćwiczenia"
-    status: pending
+    status: completed
   - id: s3-history
     content: "S3: Historia logów w zakładce Ćwiczenia (lista + swipe-to-delete)"
-    status: pending
+    status: completed
   - id: s3-tests
     content: "S3: Testy — sekwencje SetPadInput (parametryzowane), błędy VM, polska odmiana serii/powtórzeń"
-    status: pending
+    status: completed
   - id: s4-home-modules
     content: "S4: Podłączenie QuickLog/Streak/NextWorkout/HeroCard pod realne logi, usunięcie martwego dailyChallenge"
     status: pending

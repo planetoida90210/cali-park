@@ -19,8 +19,8 @@ Plan źródłowy: [.cursor/plans/zakładka_ćwiczenia_+_dziennik_4ca18af5.plan.m
 | Sprint | Zakres (skrót) | Status | Data |
 |---|---|---|---|
 | 1 | Fundament danych: modele, ExerciseCatalog, WorkoutLogStoring + store'y, testy warstwy danych | zakończony | 2026-07-14 |
-| 2 | Biblioteka ćwiczeń: ViewModel, lista + chips + szukanie, detal, ikony figure.*, DI w AppEnvironment | do weryfikacji | 2026-07-14 |
-| 3 | SetPad + dziennik: SetPadInput, SetPadSheetView, historia logów, testy sekwencji | oczekuje | — |
+| 2 | Biblioteka ćwiczeń: ViewModel, lista + chips + szukanie, detal, ikony figure.*, DI w AppEnvironment | zakończony | 2026-07-14 |
+| 3 | SetPad + dziennik: SetPadInput, SetPadSheetView, historia logów, testy sekwencji | do weryfikacji | 2026-07-14 |
 | 4 | Home + sprzątanie: Quick Log/streak/hero z realnych logów, Tab API, NavigationStack, AccentColor | oczekuje | — |
 
 Statusy: `oczekuje` → `w toku` → `do weryfikacji` → `zakończony` (ustawia użytkownik).
