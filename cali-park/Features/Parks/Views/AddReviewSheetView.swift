@@ -31,7 +31,7 @@ struct AddReviewSheetView: View {
                                 .foregroundColor(.textSecondary)
                                 .padding(4)
                         }
-                        .onChange(of: comment) { newValue in
+                        .onChange(of: comment) { _, newValue in
                             if newValue.count > 140 { comment = String(newValue.prefix(140)) }
                         }
                 }

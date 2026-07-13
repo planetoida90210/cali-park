@@ -17,13 +17,11 @@ protocol CommunityPhotoServiceProtocol {
 // MARK: - In-Memory Stub Implementation
 /// Simple in-memory storage used during UI-first phase.
 /// Replace with network implementation once backend is ready.
+/// A single instance is created and shared via `AppEnvironment` – no global singleton.
 @MainActor
 final class InMemoryCommunityPhotoService: CommunityPhotoServiceProtocol {
 
-    // Singleton keeps photos alive across views during preview / runtime.
-    static let shared = InMemoryCommunityPhotoService()
-
-    private init() {
+    init() {
         storage = CommunityPhoto.mock
     }
 

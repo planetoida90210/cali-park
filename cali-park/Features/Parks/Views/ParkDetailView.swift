@@ -6,8 +6,8 @@ import MapKit
 struct ParkDetailView: View {
     // Park przekazywany z listy
     let park: Park
-    // Premium status – w przyszłości pobierzemy z konta użytkownika
-    var isPremiumUser: Bool = true
+    // Premium status – derived from StoreKit/backend later, never a persisted flag.
+    var isPremiumUser: Bool = false
 
     @EnvironmentObject private var parksVM: ParksViewModel
     @Environment(\.dismiss) private var dismiss
@@ -30,13 +30,13 @@ struct ParkDetailView: View {
     @State private var showAddEditReviewSheet = false
     @State private var showAllReviewsSheet = false
 
-    // Custom init to create shared Events ViewModel
-    init(park: Park, isPremiumUser: Bool = true) {
+    // Custom init builds the shared child view models from the injected environment.
+    init(park: Park, environment: AppEnvironment, isPremiumUser: Bool = false) {
         self.park = park
         self.isPremiumUser = isPremiumUser
-        _eventsVM = StateObject(wrappedValue: ParkEventsViewModel(parkID: park.id))
-        _reviewsVM = StateObject(wrappedValue: ParkReviewsViewModel(parkID: park.id))
-        _photosVM = StateObject(wrappedValue: ParkPhotosViewModel(parkID: park.id))
+        _eventsVM = StateObject(wrappedValue: environment.makeEventsViewModel(parkID: park.id))
+        _reviewsVM = StateObject(wrappedValue: environment.makeReviewsViewModel(parkID: park.id))
+        _photosVM = StateObject(wrappedValue: environment.makePhotosViewModel(parkID: park.id))
     }
 
     var body: some View {
@@ -189,7 +189,7 @@ private struct ReportParkView: View {
 // MARK: - Preview
 #Preview {
     NavigationStack {
-        ParkDetailView(park: .mock.first!)
+        ParkDetailView(park: .mock.first!, environment: .preview)
             .environmentObject(ParksViewModel())
     }
     .preferredColorScheme(.dark)

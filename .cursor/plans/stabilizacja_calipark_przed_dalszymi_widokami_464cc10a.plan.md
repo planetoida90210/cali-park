@@ -7,25 +7,25 @@ todos:
     status: completed
   - id: premium-favorites
     content: Premium domyślnie false + persystencja ulubionych w UserDefaults
-    status: pending
+    status: completed
   - id: remove-template
     content: Usunąć szablon Xcode (ContentView, encja Item) i martwe widoki, konsolidacja mocków
-    status: pending
+    status: completed
   - id: app-environment
     content: AppEnvironment jako composition root, likwidacja singletonu serwisu zdjęć
-    status: pending
+    status: completed
   - id: surface-errors
-    content: Alerty błędów w photos i reviews ViewModelach
-    status: pending
+    content: Alerty błędów w photos i reviews ViewModelach + uchwyty zadań i anulowanie
+    status: completed
   - id: split-maintab
     content: Wydzielić placeholderowe zakładki z MainTabView do osobnych plików
-    status: pending
+    status: completed
   - id: config-fixes
     content: Privacy keys (lokalizacja, biblioteka zdjęć), AppIcon, poprawa deprecated onChange
-    status: pending
+    status: completed
   - id: first-tests
     content: "Testy: ParksViewModel, relacje park-wydarzenia-opinie, stany błędów"
-    status: pending
+    status: completed
 isProject: false
 ---
 
@@ -51,18 +51,19 @@ Architektura: zostajemy przy **MVVM (fit)** wg `references/mvvm.md` — Parks ju
 
 - **Composition root `AppEnvironment`** (nowy plik w `Core/`): tworzy serwisy i wstrzykuje przez `init` — likwidacja `InMemoryCommunityPhotoService.shared` ([CommunityPhotoService.swift](cali-park/Features/Parks/Services/CommunityPhotoService.swift) linia 24).
 - **Widoczne błędy**: `.alert` podpięty pod `errorMessage` w [ParkPhotosViewModel.swift](cali-park/Features/Parks/ViewModels/ParkPhotosViewModel.swift); dodanie `@Published errorMessage` do [ParkReviewsViewModel.swift](cali-park/Features/Parks/ViewModels/ParkReviewsViewModel.swift) (dziś puste `catch` w liniach 90 i 112).
-- Home bez refaktoru totalnego — tylko wydzielenie placeholderowych zakładek z `MainTabView.swift` do osobnych plików (plik ma 352 linie, limit soft 200).
+- **Uchwyty zadań + anulowanie** (swift-concurrency-pro): `Task { await load() }` w initach `ParkReviewsViewModel` i `ParkPhotosViewModel` bez uchwytu — trzymać `loadTask: Task<Void, Never>?`, anulować przed nowym żądaniem i w `deinit` (ochrona przed stale-overwrite po podpięciu prawdziwego backendu).
+- Home bez refaktoru totalnego — tylko wydzielenie placeholderowych zakładek z `MainTabView.swift` do osobnych plików (plik ma 352 linie, limit soft 200). Przy okazji wydzielania: usunąć blok `UITabBarAppearance`/`UIColor` z `onAppear` (UIKit zakazany w regułach projektu — zastąpić `.toolbarBackground`/`.tint`), zamienić `NavigationView` → `NavigationStack` i deprecated `.accentColor` → `.tint`.
 
 ## Etap D — konfiguracja i testy
 
 - **Privacy keys** w ustawieniach targetu: `NSLocationWhenInUseUsageDescription` (wymagane przez `MapUserLocationButton` w `MapSheetView`), `NSPhotoLibraryAddUsageDescription`.
 - **AppIcon**: dodać plik 1024×1024 (choćby tymczasowy) — dziś appiconset jest pusty.
 - **Deprecated `onChange`** (3 pliki: `AddParkPhotoSheetView`, `ParkPhotoGalleryView`, `AddReviewSheetView`) → wersja dwuargumentowa.
-- **Pierwsze testy** (Swift Testing, już skonfigurowane): filtr/sort/ulubione w `ParksViewModel`, relacja park→wydarzenia→opinie po stałych UUID, stany błędów w reviews VM.
+- **Pierwsze testy** (Swift Testing, już skonfigurowane): filtr/sort/ulubione w `ParksViewModel`, relacja park→wydarzenia→opinie po stałych UUID, stany błędów w reviews VM. Zasady (swift-testing-pro + concurrency): struktury nie klasy, `#expect`/`#require`, filtr/sort jako testy parametryzowane (`@Test(arguments:)`), **wstrzykiwane stuby przez continuation — nie seedowany `ReviewsService` z `Task.sleep`**; dodatkowo ścieżka anulowania (nowsze żądanie nie jest nadpisywane przez stalsze).
 
 ## Poza zakresem (świadomie)
 
-- Wybór backendu — osobna rozmowa po sprincie; protokoły serwisów będą gotowe na każdą opcję.
+- Wybór backendu — osobna rozmowa po sprincie; protokoły serwisów będą gotowe na każdą opcję. **Zasady bezpieczeństwa na tę chwilę** (swift-security-expert): tokeny/credentials wyłącznie w Keychain, nigdy w `UserDefaults`/`Info.plist`; status premium wyprowadzany ze StoreKit/backendu, nigdy jako persystowana flaga w `UserDefaults` (podrabialny plist). Ulubione parki to nie sekret — `UserDefaults` OK.
 - Nowe ekrany Ćwiczenia/Społeczność/Profil — wracamy do nich po stabilizacji („najpierw widoki" — ale na zdrowym fundamencie).
 
 Weryfikacja: build w Xcode + testy jednostkowe + ręczny smoke test detalu parku (wydarzenia i opinie muszą się pokazać).

@@ -10,19 +10,22 @@ import SwiftUI
 @main
 struct cali_parkApp: App {
     let persistenceController = PersistenceController.shared
+    /// Composition root – built once and injected down the view tree.
+    @StateObject private var environment = AppEnvironment()
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
-    
+
     var body: some Scene {
         WindowGroup {
-            if hasCompletedOnboarding {
-                MainTabView()
-                    .preferredColorScheme(.dark)
-                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
-            } else {
-                OnboardingView()
-                    .preferredColorScheme(.dark)
-                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            Group {
+                if hasCompletedOnboarding {
+                    MainTabView(environment: environment)
+                } else {
+                    OnboardingView()
+                }
             }
+            .preferredColorScheme(.dark)
+            .environmentObject(environment)
+            .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
 }
