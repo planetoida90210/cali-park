@@ -2,10 +2,17 @@ import SwiftUI
 
 struct ParksView: View {
     // MARK: - State & ViewModel
-    @StateObject private var viewModel = ParksViewModel()
+    private let environment: AppEnvironment
+    @StateObject private var viewModel: ParksViewModel
     @State private var showMapSheet: Bool = false
     @FocusState private var searchFocused: Bool
     @State private var selectedPark: Park?
+
+    // MARK: - Init
+    init(environment: AppEnvironment) {
+        self.environment = environment
+        _viewModel = StateObject(wrappedValue: environment.makeParksViewModel())
+    }
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -36,7 +43,7 @@ struct ParksView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onTapGesture { hideKeyboard() }
         .navigationDestination(item: $selectedPark) { park in
-            ParkDetailView(park: park)
+            ParkDetailView(park: park, environment: environment)
                 .environmentObject(viewModel)
         }
     }
@@ -179,10 +186,9 @@ struct ParksView: View {
 }
 
 // MARK: - Preview
-struct ParksView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            ParksView()
-        }
+#Preview {
+    NavigationStack {
+        ParksView(environment: .preview)
     }
+    .preferredColorScheme(.dark)
 } 

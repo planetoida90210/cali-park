@@ -42,7 +42,7 @@ struct AddParkPhotoSheetView: View {
                         }
                     }
                     .frame(maxHeight: 140)
-                    .onChange(of: pickerItem) { newItem in
+                    .onChange(of: pickerItem) { _, newItem in
                         Task {
                             if let data = try? await newItem?.loadTransferable(type: Data.self) {
                                 imageData = data

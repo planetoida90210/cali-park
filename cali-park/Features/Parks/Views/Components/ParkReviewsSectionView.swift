@@ -23,6 +23,19 @@ struct ParkReviewsSectionView: View {
         }
         .padding(.vertical, 4)
         .animation(.easeInOut, value: isExpanded)
+        .alert("Błąd", isPresented: errorBinding) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(viewModel.errorMessage ?? "")
+        }
+    }
+
+    // Bridges the optional `errorMessage` to a Bool binding for `.alert`.
+    private var errorBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        )
     }
 
     // MARK: - Title Row

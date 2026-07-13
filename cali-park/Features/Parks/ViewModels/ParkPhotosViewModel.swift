@@ -18,33 +18,40 @@ final class ParkPhotosViewModel: ObservableObject {
     private let service: CommunityPhotoServiceProtocol
     private let parkID: UUID
 
+    // Handle for the in-flight load so a superseding request can cancel the
+    // stale one (and teardown cancels it too) – avoids stale-overwrite once a
+    // real backend replaces the stub.
+    private var fetchTask: Task<Void, Never>?
+
     // MARK: Init
     init(parkID: UUID,
-         service: CommunityPhotoServiceProtocol = InMemoryCommunityPhotoService.shared) {
+         service: CommunityPhotoServiceProtocol = InMemoryCommunityPhotoService()) {
         self.parkID = parkID
         self.service = service
-        Task { await fetch() }
+        reload()
+    }
+
+    deinit {
+        fetchTask?.cancel()
     }
 
     // MARK: - Intentions
+    /// Cancels any in-flight load and starts a fresh one.
+    func reload() {
+        fetchTask?.cancel()
+        fetchTask = Task { [weak self] in await self?.fetch() }
+    }
+
     func fetch() async {
         do {
-            photos = try await service.fetchPhotos(for: parkID)
+            let fetched = try await service.fetchPhotos(for: parkID)
+            guard !Task.isCancelled else { return }
+            photos = fetched
+        } catch is CancellationError {
+            // Superseded by a newer request – ignore.
         } catch {
             errorMessage = "Błąd pobierania zdjęć: \(error.localizedDescription)"
         }
-    }
-
-    func addRandomMockPhoto() {
-        // For UI-first demo – random unsplash
-        guard let url = URL(string: "https://source.unsplash.com/random/200x200?sig=\(Int.random(in: 0...9999))") else { return }
-        let newPhoto = CommunityPhoto(
-            parkID: parkID,
-            imageURL: url,
-            uploaderName: "Ty",
-            visibility: .public
-        )
-        Task { await upload(photo: newPhoto) }
     }
 
     func delete(_ photo: CommunityPhoto) {

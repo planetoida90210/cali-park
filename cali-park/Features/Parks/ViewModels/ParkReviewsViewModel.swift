@@ -19,6 +19,8 @@ final class ParkReviewsViewModel: ObservableObject {
     @Published private(set) var userReview: ParkReview?
     /// Local flag to drive loading states in UI.
     @Published var isBusy: Bool = false
+    /// Non-nil when the last operation failed – surfaced via `.alert` in the UI.
+    @Published var errorMessage: String?
 
     // Pagination & filtering
     @Published var showOnlyWithComment: Bool = false {
@@ -61,6 +63,10 @@ final class ParkReviewsViewModel: ObservableObject {
     private let currentUserID: UUID
     private let service: ReviewsServicing
 
+    // Handle for the in-flight load so a newer request cancels the stale one
+    // (and teardown cancels it too), guarding against stale-overwrite.
+    private var loadTask: Task<Void, Never>?
+
     // MARK: Computed helpers
     var averageRating: Double {
         guard !reviews.isEmpty else { return 0 }
@@ -75,19 +81,33 @@ final class ParkReviewsViewModel: ObservableObject {
         self.parkID = parkID
         self.currentUserID = currentUserID
         self.service = service
-        Task { await load() }
+        reload()
+    }
+
+    deinit {
+        loadTask?.cancel()
     }
 
     // MARK: Public API
+    /// Cancels any in-flight load and starts a fresh one.
+    func reload() {
+        loadTask?.cancel()
+        loadTask = Task { [weak self] in await self?.load() }
+    }
+
     func load() async {
         isBusy = true
         defer { isBusy = false }
         do {
-            reviews = try await service.fetchReviews(for: parkID)
+            let fetched = try await service.fetchReviews(for: parkID)
+            guard !Task.isCancelled else { return }
+            reviews = fetched
             userReview = reviews.first(where: { $0.userID == currentUserID })
             resetPagination()
+        } catch is CancellationError {
+            // Superseded by a newer request – ignore.
         } catch {
-            // TODO: handle error (e.g., via AlertPublisher) – UI-first skip for now
+            errorMessage = "Nie udało się pobrać opinii: \(error.localizedDescription)"
         }
     }
 
@@ -108,8 +128,10 @@ final class ParkReviewsViewModel: ObservableObject {
             let refreshed = try await service.submit(review)
             reviews = refreshed
             userReview = reviews.first(where: { $0.userID == currentUserID })
+        } catch is CancellationError {
+            // Cancelled – nothing to surface.
         } catch {
-            // TODO: error handling
+            errorMessage = "Nie udało się zapisać opinii: \(error.localizedDescription)"
         }
     }
 

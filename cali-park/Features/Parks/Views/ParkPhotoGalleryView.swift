@@ -53,7 +53,7 @@ struct ParkPhotoGalleryView: View {
                 }
                 Button("Anuluj", role: .cancel) {}
             }
-            .onChange(of: currentIndex) { _ in commentFieldFocused = false }
+            .onChange(of: currentIndex) { _, _ in commentFieldFocused = false }
         }
     }
 

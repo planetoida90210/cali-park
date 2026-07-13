@@ -17,14 +17,21 @@ final class ParksViewModel: ObservableObject {
     // Computed list after filter & sort
     @Published private(set) var displayedParks: [Park] = []
 
-    // User location (mock for now)
-    private var userLocation: CLLocation = .init(latitude: 52.2297, longitude: 21.0122)
-
-    // Subscriptions
-    private var cancellables = Set<AnyCancellable>()
+    // MARK: Dependencies
+    /// Seed data source – replaced with networking later, injected for tests.
+    private let seedParks: [Park]
+    /// Favorite parks persistence (UserDefaults by default, in-memory in tests).
+    private let favoritesStore: FavoritesStoring
+    /// User location used for distance sorting (mock for now).
+    private let userLocation: CLLocation
 
     // MARK: Initialization
-    init() {
+    init(parks: [Park] = Park.mock,
+         favoritesStore: FavoritesStoring = UserDefaultsFavoritesStore(),
+         userLocation: CLLocation = CLLocation(latitude: 52.2297, longitude: 21.0122)) {
+        self.seedParks = parks
+        self.favoritesStore = favoritesStore
+        self.userLocation = userLocation
         loadParks()
     }
 
@@ -37,15 +44,33 @@ final class ParksViewModel: ObservableObject {
     func toggleFavorite(for park: Park) {
         guard let index = parks.firstIndex(where: { $0.id == park.id }) else { return }
         parks[index].isFavorite.toggle()
+        persistFavorites()
         applyFilters()
     }
 
     // MARK: Private Helpers
     private func loadParks() {
-        // Replace with networking later
-        parks = Park.mock
+        parks = seedParks
+        applyPersistedFavorites()
         computeDistances()
         applyFilters()
+    }
+
+    /// Restores favorite flags from persistence so `refresh()` no longer wipes them.
+    /// On first launch (nothing persisted) the seed defaults become the stored set.
+    private func applyPersistedFavorites() {
+        if let stored = favoritesStore.loadFavorites() {
+            for index in parks.indices {
+                parks[index].isFavorite = stored.contains(parks[index].id)
+            }
+        } else {
+            persistFavorites()
+        }
+    }
+
+    private func persistFavorites() {
+        let ids = Set(parks.filter(\.isFavorite).map(\.id))
+        favoritesStore.saveFavorites(ids)
     }
 
     private func computeDistances() {
