@@ -48,6 +48,14 @@ final class AppEnvironment: ObservableObject {
         ExerciseLibraryViewModel()
     }
 
+    func makeWorkoutLogViewModel(exercise: Exercise) -> WorkoutLogViewModel {
+        WorkoutLogViewModel(exercise: exercise, store: workoutLogStore)
+    }
+
+    func makeWorkoutHistoryViewModel() -> WorkoutHistoryViewModel {
+        WorkoutHistoryViewModel(store: workoutLogStore)
+    }
+
     // MARK: Preview
     static let preview = AppEnvironment()
 }

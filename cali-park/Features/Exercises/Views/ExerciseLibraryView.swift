@@ -7,7 +7,10 @@ struct ExerciseLibraryView: View {
     @State private var viewModel: ExerciseLibraryViewModel
     @FocusState private var searchFocused: Bool
 
+    private let environment: AppEnvironment
+
     init(environment: AppEnvironment) {
+        self.environment = environment
         _viewModel = State(initialValue: environment.makeExerciseLibraryViewModel())
     }
 
@@ -26,12 +29,29 @@ struct ExerciseLibraryView: View {
             .background(Color.appBackground.ignoresSafeArea())
             .navigationTitle("Ćwiczenia")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink(value: WorkoutHistoryDestination()) {
+                        Image(systemName: "clock.arrow.circlepath")
+                            .foregroundStyle(Color.accent)
+                    }
+                    .accessibilityLabel("Ostatnie treningi")
+                }
+            }
             .navigationDestination(for: Exercise.self) { exercise in
-                ExerciseDetailView(exercise: exercise)
+                ExerciseDetailView(exercise: exercise, environment: environment)
+            }
+            .navigationDestination(for: WorkoutHistoryDestination.self) { _ in
+                WorkoutHistoryView(viewModel: environment.makeWorkoutHistoryViewModel())
             }
         }
     }
 }
+
+// MARK: - WorkoutHistoryDestination
+/// Value-based navigation token for the workout history screen
+/// (keeps `navigationDestination(for:)` instead of an inline-destination link).
+private struct WorkoutHistoryDestination: Hashable {}
 
 // MARK: - ExerciseSearchField
 private struct ExerciseSearchField: View {

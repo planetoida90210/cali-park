@@ -2,10 +2,15 @@ import SwiftUI
 
 // MARK: - ExerciseDetailView
 /// Detail screen for a catalog exercise: Watch-style icon, description,
-/// muscle groups, equipment and step-by-step instructions.
-/// The "Dodaj serię" entry point arrives in Sprint 3.
+/// muscle groups, equipment, step-by-step instructions and the
+/// "Dodaj serię" entry point into the SetPad.
 struct ExerciseDetailView: View {
     let exercise: Exercise
+    let environment: AppEnvironment
+
+    /// Payload-driven presentation: the sheet opens only when an exercise
+    /// is set (never a bare `Bool` + separate state).
+    @State private var loggingExercise: Exercise?
 
     var body: some View {
         ScrollView {
@@ -25,6 +30,25 @@ struct ExerciseDetailView: View {
         .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle(exercise.name)
         .navigationBarTitleDisplayMode(.inline)
+        .safeAreaInset(edge: .bottom) {
+            Button {
+                loggingExercise = exercise
+            } label: {
+                Text("Dodaj serię")
+                    .font(.buttonLarge)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.accent)
+                    .foregroundStyle(Color.black)
+                    .clipShape(.rect(cornerRadius: 12))
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 8)
+            .background(Color.appBackground.opacity(0.9))
+        }
+        .sheet(item: $loggingExercise) { exercise in
+            SetPadSheetView(viewModel: environment.makeWorkoutLogViewModel(exercise: exercise))
+        }
     }
 }
 
@@ -150,7 +174,7 @@ private struct ExerciseInstructionRow: View {
 // MARK: - Preview
 #Preview {
     NavigationStack {
-        ExerciseDetailView(exercise: ExerciseCatalog.all[0])
+        ExerciseDetailView(exercise: ExerciseCatalog.all[0], environment: .preview)
     }
     .preferredColorScheme(.dark)
 }
