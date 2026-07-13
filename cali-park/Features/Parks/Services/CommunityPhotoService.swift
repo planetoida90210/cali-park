@@ -18,8 +18,9 @@ protocol CommunityPhotoServiceProtocol {
 /// Simple in-memory storage used during UI-first phase.
 /// Replace with network implementation once backend is ready.
 /// A single instance is created and shared via `AppEnvironment` – no global singleton.
-@MainActor
-final class InMemoryCommunityPhotoService: CommunityPhotoServiceProtocol {
+/// Modeled as an `actor` so the mutable store is thread-safe and constructible
+/// from any isolation (e.g. as a default argument / composition root).
+actor InMemoryCommunityPhotoService: CommunityPhotoServiceProtocol {
 
     init() {
         storage = CommunityPhoto.mock
