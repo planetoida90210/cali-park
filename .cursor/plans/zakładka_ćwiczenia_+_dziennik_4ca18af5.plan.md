@@ -16,16 +16,16 @@ todos:
     status: completed
   - id: s2-library-vm-view
     content: "S2: ExerciseLibraryViewModel (@Observable) + przebudowa ExerciseLibraryView (lista, chips, szukanie, navigationDestination)"
-    status: pending
+    status: completed
   - id: s2-detail
     content: "S2: ExerciseDetailView (opis, grupy, instrukcje, ikona figure.*)"
-    status: pending
+    status: completed
   - id: s2-app-env
     content: "S2: Rejestracja workoutLogStore i fabryk w AppEnvironment + DI do ExerciseLibraryView w MainTabView"
-    status: pending
+    status: completed
   - id: s2-tests
     content: "S2: Testy — filtr kategorii i szukanie jako testy parametryzowane"
-    status: pending
+    status: completed
   - id: s3-setpad-input
     content: "S3: SetPadInput — czysty typ logiki licznika serii (+ / ⌫ / C)"
     status: pending
