@@ -10,7 +10,12 @@ struct User: Identifiable, Codable, Equatable, Hashable {
     var bio: String?
 
     // MARK: - Mock
-    static var mock: User {
-        User(id: UUID(), name: "Anon", avatarURL: nil, bio: "Lubiący kalistenikę bywalec parków")
-    }
+    /// Stable identity — a computed property returned a new UUID on every access,
+    /// which broke "current user" matching (e.g. finding own review by `userID`).
+    static let mock = User(
+        id: UUID(uuidString: "B2000000-0000-4000-8000-000000000001")!,
+        name: "Anon",
+        avatarURL: nil,
+        bio: "Lubiący kalistenikę bywalec parków"
+    )
 } 

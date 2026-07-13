@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# Xcode user state
+xcuserdata/
+*.xcuserstate
+
+# Build artifacts
+build/
+DerivedData/
+
+# Local agent skills & lockfile (not shared via repo)
+.agents/
+skills-lock.json

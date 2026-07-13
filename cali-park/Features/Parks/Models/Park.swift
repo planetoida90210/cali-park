@@ -96,9 +96,14 @@ struct Park: Identifiable, Codable, Equatable, Hashable {
 
 // MARK: - Mock Data
 extension Park {
+    /// Stable identifiers so relations (events, reviews, photos keyed by `parkID`)
+    /// survive app restarts and are deterministic in tests/previews.
+    static let mockParkID1 = UUID(uuidString: "A1000000-0000-4000-8000-000000000001")!
+    static let mockParkID2 = UUID(uuidString: "A1000000-0000-4000-8000-000000000002")!
+
     static let mock: [Park] = [
         Park(
-            id: UUID(),
+            id: mockParkID1,
             name: "Street Workout Park",
             city: "Warsaw",
             coordinate: CLLocationCoordinate2D(latitude: 52.2297, longitude: 21.0122),
@@ -115,7 +120,7 @@ extension Park {
             tags: [.shade, .light, .water]
         ),
         Park(
-            id: UUID(),
+            id: mockParkID2,
             name: "Green Gym",
             city: "Kraków",
             coordinate: CLLocationCoordinate2D(latitude: 50.0647, longitude: 19.9450),
