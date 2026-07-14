@@ -14,6 +14,9 @@ final class AppEnvironment: ObservableObject {
     let workoutLogStore: WorkoutLogStoring
     /// Persists reusable, scheduled workout plans (planner feature).
     let workoutPlanStore: WorkoutPlanStoring
+    /// Schedules local reminders for scheduled plans. No UI consumer yet — the
+    /// planner UI wires it in (Sprint 2 of the profile/reminders plan).
+    let reminderScheduler: WorkoutReminderScheduling
 
     // MARK: Init
     init(communityPhotoService: CommunityPhotoServiceProtocol = InMemoryCommunityPhotoService(),
@@ -21,13 +24,15 @@ final class AppEnvironment: ObservableObject {
          calendarService: CalendarService = CalendarService(),
          favoritesStore: FavoritesStoring = UserDefaultsFavoritesStore(),
          workoutLogStore: WorkoutLogStoring = FileWorkoutLogStore(),
-         workoutPlanStore: WorkoutPlanStoring = FileWorkoutPlanStore()) {
+         workoutPlanStore: WorkoutPlanStoring = FileWorkoutPlanStore(),
+         reminderScheduler: WorkoutReminderScheduling = NotificationCenterReminderScheduler()) {
         self.communityPhotoService = communityPhotoService
         self.reviewsService = reviewsService
         self.calendarService = calendarService
         self.favoritesStore = favoritesStore
         self.workoutLogStore = workoutLogStore
         self.workoutPlanStore = workoutPlanStore
+        self.reminderScheduler = reminderScheduler
     }
 
     // MARK: View Model Factories

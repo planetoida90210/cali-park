@@ -25,7 +25,7 @@ Plan źródłowy: [.cursor/plans/zakładka_ćwiczenia_+_dziennik_4ca18af5.plan.m
 | 5 | „Szybki trening": sesja z dowolnych ćwiczeń (sessionID + batch append), reużywalny SetPadEntryView, ExercisePickerSheet, wejścia z Home i Ćwiczeń, grupowanie sesji w historii | zakończony | 2026-07-14 |
 | 6 | Planer — fundament danych: Weekday, WorkoutSchedule (+ nextOccurrence), PlannedExercise, WorkoutPlan, WorkoutPlanStoring + store'y, workoutPlanStore w AppEnvironment, testy (bez UI) | zakończony | 2026-07-14 |
 | 7 | Planer — UI: lista planów + kreator/edytor (nazwa, ćwiczenia, harmonogram), fabryki w AppEnvironment, wejście z zakładki Ćwiczenia | zakończony | 2026-07-14 |
-| 8 | Planer — Home: „Nast. trening" = najbliższy zaplanowany trening + „Rozpocznij" (prefill sesji z planu) | do weryfikacji | 2026-07-14 |
+| 8 | Planer — Home: „Nast. trening" = najbliższy zaplanowany trening + „Rozpocznij" (prefill sesji z planu) | zakończony | 2026-07-14 |
 
 Statusy: `oczekuje` → `w toku` → `do weryfikacji` → `zakończony` (ustawia użytkownik).
 
@@ -390,3 +390,19 @@ Uwaga wstępna: Sprint 7 miał status `do weryfikacji`, ale użytkownik potwierd
 - Smoke test B (pasek akcji): górny prawy przycisk pokazuje nazwę planu zamiast „Nast. trening" i uruchamia tę samą sesję z prefillem.
 - Smoke test C (brak planu): usuń wszystkie plany → moduł „Następny trening" wraca do propozycji heurystycznej; przy pustym dzienniku — stan pusty.
 - Po pozytywnej weryfikacji: zmień status Sprintu 8 w tabeli na `zakończony`.
+
+---
+
+### Zamknięcie planu — 2026-07-14, agent (dziewiąty)
+
+Użytkownik potwierdził, że build Sprintu 8 przeszedł bez błędów — oznaczyłem Sprint 8 jako `zakończony`. **Cały plan „Zakładka Ćwiczenia + dziennik" (Sprinty 1–8) jest UKOŃCZONY.** Nie ma Sprintu 9 — nic w tym planie nie zostało do zrobienia. Working tree czysty, wszystko na `main`.
+
+**Stan feature'u (co działa):** biblioteka ćwiczeń (19 ćwiczeń, filtr/szukanie/detal) → SetPad (licznik serii) → dziennik z historią i grupowaniem sesji → „Szybki trening" (sesja z wielu ćwiczeń) → planer treningów (lista + edytor + harmonogram) → Home ożywione realnymi danymi (hero, streak, ostatni trening, najbliższy zaplanowany trening z „Rozpocznij" + prefill). Cała persystencja lokalna za protokołami (`WorkoutLogStoring`, `WorkoutPlanStoring`) — gotowa pod podmianę na backend.
+
+**Następne duże tematy (POZA tym planem — wymagają nowego planu/decyzji użytkownika, nie startuj bez potwierdzenia):**
+1. **HealthKit + Apple Watch** (użytkownik zainteresowany) — architektura gotowa: `QuickWorkoutViewModel.finish()` tworzy komplet wpisów z jednym `sessionID` → naturalne miejsce na równoległy zapis `HKWorkout` (dekorator na `WorkoutLogStoring` lub drugi store). Nasze powtórzenia idą do własnego store, a czas/kalorie do `HKWorkout` — standardowy układ, da się połączyć z Apple Fitness/zegarkiem. **App Store / Uwaga:** HealthKit wymaga `NSHealthShareUsageDescription` + `NSHealthUpdateUsageDescription` w Info.plist + capability HealthKit w Xcode; Watch = osobny target aplikacji watchOS. NIE dodane (Review odrzuca uprawnienia bez realnego użycia — dodać dopiero z kodem).
+2. **Zakładka Profil** — onboarding + statystyki z logów (`HomeDashboardViewModel.weeklyPullUps`, `WorkoutStreak` gotowe do reużycia).
+3. **Backend** (Supabase/Firebase) — czysta podmiana implementacji store'ów.
+4. **Powiadomienia lokalne** dla harmonogramu — `WorkoutSchedule.nextOccurrence` daje datę do `UNCalendarNotificationTrigger`; wymaga uprawnień + capability.
+
+**Drobne TODO zostawione świadomie (nie blokują):** UI `targetSets`/`targetReps` w `PlanEditorView` (model gotowy, prefill sesji rozwinie się sam); `MockDailyChallenge`/`dailyChallenge` w `MockData.swift` nieużywane (do sprzątnięcia); reorder ćwiczeń w planie; edycja serii już dodanej pozycji w sesji.
