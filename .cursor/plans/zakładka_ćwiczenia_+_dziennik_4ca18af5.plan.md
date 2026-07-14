@@ -85,10 +85,10 @@ todos:
     status: completed
   - id: s8-home
     content: "S8: Home — zamiana „Nast. trening\" na plan (najbliższy zaplanowany trening) + „Rozpocznij\" prefill sesji z planu"
-    status: pending
+    status: completed
   - id: s8-tests
     content: "S8: Testy — wybór najbliższego planu z wielu, prefill DraftItem z PlannedExercise"
-    status: pending
+    status: completed
 isProject: false
 ---
 

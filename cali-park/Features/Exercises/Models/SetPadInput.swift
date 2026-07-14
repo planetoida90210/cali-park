@@ -12,6 +12,13 @@ struct SetPadInput: Equatable {
     private(set) var committedSets: [Int] = []
     private(set) var currentEntry: String = ""
 
+    // MARK: Init
+    /// Starts empty, or seeded with already-known sets (e.g. a plan's targets
+    /// or an item being edited) so they show as committed reps.
+    init(committedSets: [Int] = []) {
+        self.committedSets = committedSets
+    }
+
     // MARK: Derived state
 
     /// The number being typed, or `nil` when the entry is empty.

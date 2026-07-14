@@ -9,6 +9,7 @@ struct PrimaryActionRailView: View {
 
     @State private var showingQuickWorkout = false
     @State private var loggingExercise: Exercise?
+    @State private var startingPlan: WorkoutPlan?
 
     private let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
 
@@ -19,12 +20,14 @@ struct PrimaryActionRailView: View {
                 showingQuickWorkout = true
             }
 
-            actionButton(iconName: "calendar", title: "Nast. trening", isPrimary: false) {
+            actionButton(iconName: "calendar", title: nextTitle, isPrimary: false) {
                 impactFeedback.impactOccurred()
-                if let suggested = dashboard.suggestedExercise {
+                if let planned = dashboard.nextPlannedWorkout {
+                    startingPlan = planned.plan
+                } else if let suggested = dashboard.suggestedExercise {
                     loggingExercise = suggested
                 } else {
-                    // Nothing suggested yet (empty journal) — start a workout.
+                    // Nothing planned or suggested yet — start a workout.
                     showingQuickWorkout = true
                 }
             }
@@ -39,6 +42,17 @@ struct PrimaryActionRailView: View {
         .sheet(item: $loggingExercise, onDismiss: { dashboard.reload() }) { exercise in
             SetPadSheetView(viewModel: dashboard.makeWorkoutLogViewModel(exercise: exercise))
         }
+        .sheet(item: $startingPlan, onDismiss: { dashboard.reload() }) { plan in
+            QuickWorkoutView(
+                viewModel: dashboard.makeQuickWorkoutViewModel(plan: plan),
+                onFinish: { dashboard.reload() }
+            )
+        }
+    }
+
+    /// The next-action label reflects a scheduled plan when one is due.
+    private var nextTitle: String {
+        dashboard.nextPlannedWorkout?.plan.name ?? "Nast. trening"
     }
 
     private func actionButton(
