@@ -8,8 +8,8 @@ struct PrimaryActionRailView: View {
     let dashboard: HomeDashboardViewModel
 
     @State private var showingQuickWorkout = false
-    @State private var loggingExercise: Exercise?
     @State private var startingPlan: WorkoutPlan?
+    @State private var showingPlanEditor = false
 
     private let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
 
@@ -20,15 +20,13 @@ struct PrimaryActionRailView: View {
                 showingQuickWorkout = true
             }
 
-            actionButton(iconName: "calendar", title: nextTitle, isPrimary: false) {
+            actionButton(iconName: "calendar", title: plannerTitle, isPrimary: false) {
                 impactFeedback.impactOccurred()
                 if let planned = dashboard.nextPlannedWorkout {
                     startingPlan = planned.plan
-                } else if let suggested = dashboard.suggestedExercise {
-                    loggingExercise = suggested
                 } else {
-                    // Nothing planned or suggested yet — start a workout.
-                    showingQuickWorkout = true
+                    // Nothing scheduled yet — go plan one.
+                    showingPlanEditor = true
                 }
             }
         }
@@ -39,20 +37,24 @@ struct PrimaryActionRailView: View {
                 onFinish: { dashboard.reload() }
             )
         }
-        .sheet(item: $loggingExercise, onDismiss: { dashboard.reload() }) { exercise in
-            SetPadSheetView(viewModel: dashboard.makeWorkoutLogViewModel(exercise: exercise))
-        }
         .sheet(item: $startingPlan, onDismiss: { dashboard.reload() }) { plan in
             QuickWorkoutView(
                 viewModel: dashboard.makeQuickWorkoutViewModel(plan: plan),
                 onFinish: { dashboard.reload() }
             )
         }
+        .sheet(isPresented: $showingPlanEditor, onDismiss: { dashboard.reload() }) {
+            PlanEditorView(
+                viewModel: dashboard.makePlanEditorViewModel(),
+                onSave: { dashboard.reload() }
+            )
+        }
     }
 
-    /// The next-action label reflects a scheduled plan when one is due.
-    private var nextTitle: String {
-        dashboard.nextPlannedWorkout?.plan.name ?? "Nast. trening"
+    /// Shows the scheduled plan's name when one is due, otherwise invites the
+    /// user to create a plan.
+    private var plannerTitle: String {
+        dashboard.nextPlannedWorkout?.plan.name ?? "Zaplanuj trening"
     }
 
     private func actionButton(

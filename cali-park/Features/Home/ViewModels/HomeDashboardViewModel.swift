@@ -50,6 +50,12 @@ final class HomeDashboardViewModel {
         QuickWorkoutViewModel(store: store, plan: plan)
     }
 
+    /// Editor for a brand-new plan, started straight from Home when nothing is
+    /// scheduled yet ("Zaplanuj trening").
+    func makePlanEditorViewModel() -> PlanEditorViewModel {
+        PlanEditorViewModel(plan: nil, store: planStore)
+    }
+
     // MARK: Last workout
     var latestEntry: WorkoutLogEntry? {
         entries.first
