@@ -12,18 +12,23 @@ final class AppEnvironment: ObservableObject {
     let calendarService: CalendarService
     let favoritesStore: FavoritesStoring
     let workoutLogStore: WorkoutLogStoring
+    /// Persists reusable, scheduled workout plans (planner feature).
+    /// No view-model factories yet — those arrive with the planner UI (S7).
+    let workoutPlanStore: WorkoutPlanStoring
 
     // MARK: Init
     init(communityPhotoService: CommunityPhotoServiceProtocol = InMemoryCommunityPhotoService(),
          reviewsService: ReviewsServicing = ReviewsService(),
          calendarService: CalendarService = CalendarService(),
          favoritesStore: FavoritesStoring = UserDefaultsFavoritesStore(),
-         workoutLogStore: WorkoutLogStoring = FileWorkoutLogStore()) {
+         workoutLogStore: WorkoutLogStoring = FileWorkoutLogStore(),
+         workoutPlanStore: WorkoutPlanStoring = FileWorkoutPlanStore()) {
         self.communityPhotoService = communityPhotoService
         self.reviewsService = reviewsService
         self.calendarService = calendarService
         self.favoritesStore = favoritesStore
         self.workoutLogStore = workoutLogStore
+        self.workoutPlanStore = workoutPlanStore
     }
 
     // MARK: View Model Factories
