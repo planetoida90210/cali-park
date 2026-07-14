@@ -21,9 +21,12 @@ Plan źródłowy: [.cursor/plans/zakładka_ćwiczenia_+_dziennik_4ca18af5.plan.m
 | 1 | Fundament danych: modele, ExerciseCatalog, WorkoutLogStoring + store'y, testy warstwy danych | zakończony | 2026-07-14 |
 | 2 | Biblioteka ćwiczeń: ViewModel, lista + chips + szukanie, detal, ikony figure.*, DI w AppEnvironment | zakończony | 2026-07-14 |
 | 3 | SetPad + dziennik: SetPadInput, SetPadSheetView, historia logów, testy sekwencji | zakończony | 2026-07-14 |
-| 4 | Home + sprzątanie: Quick Log/streak/hero z realnych logów, Tab API, NavigationStack, AccentColor | do weryfikacji | 2026-07-14 |
+| 4 | Home + sprzątanie: Quick Log/streak/hero z realnych logów, Tab API, NavigationStack, AccentColor | zakończony | 2026-07-14 |
+| 5 | „Szybki trening": sesja z dowolnych ćwiczeń (sessionID + batch append), reużywalny SetPadEntryView, ExercisePickerSheet, wejścia z Home i Ćwiczeń, grupowanie sesji w historii | do weryfikacji | 2026-07-14 |
 
 Statusy: `oczekuje` → `w toku` → `do weryfikacji` → `zakończony` (ustawia użytkownik).
+
+> Uwaga: plan pierwotnie miał 4 sprinty; Sprint 5 dodano po ich ukończeniu na prośbę użytkownika (logowanie sprawiało wrażenie „tylko podciągnięcia"). Definicja Sprintu 5 w pliku planu.
 
 ## Dziennik sprintów
 
@@ -188,3 +191,53 @@ Uwaga wstępna: Sprint 3 miał status „do weryfikacji", ale użytkownik potwie
 - Smoke test: zaloguj serię w zakładce Ćwiczenia → przełącz na Home → hero pokazuje podciągnięcia z tego tygodnia → rozwiń moduł Quick Log: widać ostatni zapis, „Dodaj serię" otwiera SetPad i po zapisie moduł się odświeża → moduł Streak pokazuje „1 dzień" i zaznaczony dzisiejszy dzień w kalendarzu → moduł „Następny trening" proponuje ćwiczenie z najdawniej nietrenowanej grupy.
 - Tint/AccentColor: sprawdź, czy wypełnienie AccentColor (#D1FF00) niczego nie przebarwiło nieoczekiwanie (wcześniej colorset był pusty).
 - Po pozytywnej weryfikacji: zmień status Sprintu 4 w tabeli na `zakończony`.
+
+---
+
+### Sprint 5 — 2026-07-14, agent (piąty)
+
+Uwaga wstępna: plan 4-sprintowy był ukończony. Użytkownik potwierdził, że build Sprintu 4 przeszedł bez błędów — oznaczyłem Sprint 4 jako `zakończony`. Sprint 5 to nowy zakres dodany na prośbę użytkownika: logowanie sprawiało wrażenie „tylko podciągnięcia", brakowało szybkiego zalogowania całego treningu z dowolnych ćwiczeń. Kształt („pełna sesja") wybrany przez użytkownika.
+
+**Zrobione:**
+- `cali-park/Features/Exercises/Models/WorkoutLogEntry.swift` — dodany opcjonalny `sessionID: UUID?` (grupuje ćwiczenia jednej sesji). Wstecznie zgodny: syntetyzowany Codable używa `decodeIfPresent` dla opcjonali, więc stare logi (bez klucza) dekodują się z `nil`.
+- `cali-park/Features/Exercises/Services/WorkoutLogStore.swift` — nowa metoda protokołu `append(contentsOf:)` z domyślną implementacją w extension (pętla, dla `InMemory`/stubów) oraz atomowym override w `FileWorkoutLogStore` (jeden zapis pliku = sesja all-or-nothing).
+- `cali-park/Features/Exercises/Views/Components/SetPadEntryView.swift` (NOWY) — wydzielony reużywalny keypad (nagłówek + wyświetlacz `6 + 6 + 8` + klawiatura + przycisk zapisu), sterowany `Binding<SetPadInput>` + `onSave`. Zawiera haptic i logikę jednorazowej podpowiedzi. `SetPadHeader` internal (współdzielony), reszta podwidoków private.
+- `cali-park/Features/Exercises/Views/SetPadSheetView.swift` — odchudzony: korzysta z `SetPadEntryView`, zachowuje dotychczasowe zachowanie (persystencja przez `WorkoutLogViewModel` + alert błędu + auto-dismiss po zapisie). Przeniesione `SetPadDisplay/Keypad/Key/Header` do `SetPadEntryView.swift`.
+- `cali-park/Features/Exercises/ViewModels/QuickWorkoutViewModel.swift` (NOWY) — `@Observable @MainActor`; `DraftItem` (ćwiczenie + serie), `addExercise` (ignoruje puste), `remove`, `finish()` zapisuje wszystkie pozycje jako jedną sesję (wspólny `sessionID` + jeden `Date.now`) przez `append(contentsOf:)`; błąd → `errorMessage`, sukces → `didFinish`.
+- `cali-park/Features/Exercises/Views/ExercisePickerSheet.swift` (NOWY) — szybki wybór dowolnego ćwiczenia; reużywa `ExerciseLibraryViewModel` (szukanie + chips), wiersze to przyciski wołające `onPick`. „Anuluj" w toolbarze.
+- `cali-park/Features/Exercises/Views/QuickWorkoutView.swift` (NOWY) — ekran „Szybki trening": lista dodanych ćwiczeń (swipe-to-delete, stopka z podsumowaniem), stan pusty, dolny „Dodaj ćwiczenie", toolbar „Anuluj"/„Zakończ" (disabled gdy pusto). Łańcuch pod-sheetów przez jeden enum `ActiveSheet` (`.picker`/`.setPad(Exercise)`) — nigdy dwa sheety naraz. `SessionSetPadSheet` (private) używa `SetPadEntryView` bez persystencji (oddaje serie do VM).
+- `cali-park/Features/Exercises/Views/WorkoutHistoryView.swift` + `.../ViewModels/WorkoutHistoryViewModel.swift` — historia grupuje wpisy po `sessionID` (`WorkoutHistorySection`): sesja (2+ wpisy) = jedna sekcja z nagłówkiem (data + „N ćwiczeń · M powtórzeń"); pojedyncze wpisy (nil) = osobne wiersze; kolejność malejąco po dacie. Wiersz sesji ukrywa datę (jest w nagłówku).
+- `cali-park/Features/Exercises/Views/ExerciseLibraryView.swift` — dolny akcentowy przycisk „Szybki trening" (`safeAreaInset`) + prezentacja `QuickWorkoutView`.
+- `cali-park/Features/Home/Views/Components/QuickLogModuleContent.swift` — **konsolidacja z Quick Logiem** (na prośbę użytkownika): moduł to teraz w całości „Szybki trening" — jeden przycisk otwiera sesję + „Ostatni zapis" jako podgląd. Usunięty redundantny przycisk „Dodaj serię — {ostatnie}" (jednotapowa powtórka i tak jest w detalu ćwiczenia); `onFinish` → `reload`.
+- `cali-park/Models/ModuleDefinition.swift` — moduł `id: "log"` przemianowany „Quick Log" → **„Szybki trening"** (ikona `bolt.fill`, opis „Zaloguj trening z dowolnych ćwiczeń"). `id` bez zmian, więc `enabledModules` w UserDefaults nie wymaga migracji. `HomeDashboardViewModel.quickLogExercise` nie jest już używane w UI (zostaje jako pomocnicze — bez ostrzeżeń).
+- `cali-park/Core/AppEnvironment.swift` + `cali-park/Features/Home/ViewModels/HomeDashboardViewModel.swift` — fabryki `makeQuickWorkoutViewModel()`.
+- `cali-park/Core/Extensions/PolishPlural.swift` — dodana odmiana `exercises` („1 ćwiczenie / 2 ćwiczenia / 5 ćwiczeń").
+- `cali-parkTests/QuickWorkoutTests.swift` (NOWY) — Codable roundtrip + wsteczna zgodność (legacy JSON bez `sessionID` → nil), `QuickWorkoutViewModel` (akumulacja, pusty no-op, `finish` = jeden sessionID + jeden timestamp, błąd przez `FailingWorkoutLogStore`), batch append (InMemory + `FileWorkoutLogStore` na temp dir), grupowanie historii (sesja zwija się, pojedyncze zostają osobno nawet tego samego dnia, sortowanie).
+
+**Odstępstwa od planu:** brak (Sprint 5 nie był w pierwotnym planie). Doprecyzowania kształtu: (1) sesja akumuluje w pamięci i zapisuje na końcu (all-or-nothing) zamiast persystować każde ćwiczenie od razu — brak wpisów-sierot przy porzuceniu sesji; (2) łańcuch picker→SetPad przez jeden enum-binding zamiast dwóch osobnych `sheet` (unika kolizji dwóch sheetów); (3) w module Quick Log zostawiłem „Dodaj serię — {ostatnie}" jako szybkie powtórzenie obok „Szybki trening" — nie tracimy jednym tapem powtórki.
+
+**Decyzje podjęte w trakcie:**
+- `append(contentsOf:)` jako wymóg protokołu + default w extension → `FileWorkoutLogStore` daje atomowy override widoczny przez referencję protokołu (dynamic dispatch), a `InMemory` i stub testowy nie wymagają zmian.
+- `SetPadEntryView` jako jedno źródło UI keypada dla obu ścieżek — pojedyncze ćwiczenie (VM persystuje) i sesja (akumulacja). `onSave` jako domknięcie: parent decyduje co zrobić z seriami.
+- Sesja z jednym ćwiczeniem renderuje się w historii jak zwykły wiersz (kryterium karty sesji: `entries.count > 1`) — mniej zaskoczeń wizualnych.
+- Grupowanie tylko po niepustym `sessionID`; dwa pojedyncze logi tego samego dnia (nil) NIE łączą się.
+
+**Znane problemy / TODO:**
+- Sesja nie ma pola ciężaru/notatki ani czasu trwania (świadome cięcie — spójne z SetPadem; model `LoggedSet.weight`/`WorkoutLogEntry.note` gotowe).
+- Edycja pozycji w trakcie sesji: można usunąć (swipe) i dodać ponownie; brak edycji serii już dodanej pozycji (kandydat na później).
+- Brak nazwy/typu treningu (np. „Push/Pull") — sesja to na razie po prostu zbiór ćwiczeń z jednym znacznikiem czasu.
+- HealthKit/Watch nadal nietknięte (jak w notatce Sprintu 4) — `append(contentsOf:)` i `sessionID` ułatwią późniejsze mapowanie sesji na `HKWorkout`.
+
+**Wskazówki dla następnego agenta:**
+- Nowe pliki leżą w katalogach synchronized groups — podpinają się same (4 nowe pliki app + 1 plik testów).
+- Punkt zapisu sesji do HealthKit: `QuickWorkoutViewModel.finish()` — tam powstaje komplet wpisów z jednym `sessionID`; naturalne miejsce na równoległy zapis `HKWorkout` (dekorator na `WorkoutLogStoring` lub drugi store).
+- Jeśli dojdzie nazwa/typ treningu: dodać pole do `WorkoutLogEntry` (opcjonalne, wstecznie zgodne) i nagłówek sesji w historii.
+- ZANIM zaczniesz kolejny duży temat (Profil / HealthKit / backend): sprawdź, czy Sprint 5 ma status `zakończony` (użytkownik weryfikuje build).
+
+**Do ręcznej weryfikacji przez użytkownika:**
+- Build w Xcode (4 nowe pliki app: `SetPadEntryView`, `QuickWorkoutViewModel`, `ExercisePickerSheet`, `QuickWorkoutView` + 1 plik testów `QuickWorkoutTests`; zmienione: `WorkoutLogEntry`, `WorkoutLogStore`, `SetPadSheetView`, `WorkoutHistoryView(Model)`, `ExerciseLibraryView`, `QuickLogModuleContent`, `AppEnvironment`, `HomeDashboardViewModel`, `PolishPlural`).
+- Testy: `QuickWorkoutTests` (+ wszystkie poprzednie — stare testy bez zmian; `SetPadTests`/`WorkoutHistoryViewModelTests` powinny nadal przechodzić mimo refaktoru).
+- Smoke test A (zakładka Ćwiczenia): dolny „Szybki trening" → „Dodaj ćwiczenie" → wybierz Podciągnięcia → `6 + 6 + 8` → „Dodaj do treningu" → wróć do listy sesji → „Dodaj ćwiczenie" → Pompki → `10 + 10` → „Zakończ" → otwórz historię (zegar) → jedna karta sesji z 2 ćwiczeniami i podsumowaniem.
+- Smoke test B (Home): moduł nazywa się teraz „Szybki trening" (ikona `bolt.fill`) → rozwiń → jeden przycisk „Szybki trening" otwiera sesję jak wyżej, po „Zakończ" moduł się odświeża (ostatni zapis, streak, hero).
+- Smoke test C (regres pojedynczego logowania): detal ćwiczenia → „Dodaj serię" → zapis → wpis w historii jako pojedynczy wiersz (nie karta sesji).
+- Po pozytywnej weryfikacji: zmień status Sprintu 5 w tabeli na `zakończony`.

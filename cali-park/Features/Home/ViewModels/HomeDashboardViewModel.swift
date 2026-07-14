@@ -30,6 +30,11 @@ final class HomeDashboardViewModel {
         WorkoutLogViewModel(exercise: exercise, store: store)
     }
 
+    /// Quick workout session started from Home (Quick Log).
+    func makeQuickWorkoutViewModel() -> QuickWorkoutViewModel {
+        QuickWorkoutViewModel(store: store)
+    }
+
     // MARK: Quick Log
     var latestEntry: WorkoutLogEntry? {
         entries.first

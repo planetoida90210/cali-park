@@ -11,8 +11,23 @@ protocol WorkoutLogStoring {
     /// Persists a new entry.
     func append(_ entry: WorkoutLogEntry) throws
 
+    /// Persists several entries at once — used to save a whole quick-workout
+    /// session in a single write so it is all-or-nothing.
+    func append(contentsOf entries: [WorkoutLogEntry]) throws
+
     /// Removes the entry with the given identifier; no-op if absent.
     func delete(id: UUID) throws
+}
+
+// MARK: - Default batch append
+extension WorkoutLogStoring {
+    /// Fallback batch append for stores without an optimized version.
+    /// Not atomic — conformers that can write once should override this.
+    func append(contentsOf entries: [WorkoutLogEntry]) throws {
+        for entry in entries {
+            try append(entry)
+        }
+    }
 }
 
 // MARK: - FileWorkoutLogStore
@@ -34,6 +49,15 @@ struct FileWorkoutLogStore: WorkoutLogStoring {
     func append(_ entry: WorkoutLogEntry) throws {
         var entries = load()
         entries.append(entry)
+        try save(entries)
+    }
+
+    /// One atomic write for the whole session — no partial persistence if the
+    /// write fails midway.
+    func append(contentsOf newEntries: [WorkoutLogEntry]) throws {
+        guard !newEntries.isEmpty else { return }
+        var entries = load()
+        entries.append(contentsOf: newEntries)
         try save(entries)
     }
 
