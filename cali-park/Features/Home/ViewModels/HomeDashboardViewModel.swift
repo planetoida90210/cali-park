@@ -35,13 +35,37 @@ final class HomeDashboardViewModel {
         QuickWorkoutViewModel(store: store)
     }
 
-    // MARK: Quick Log
+    // MARK: Last workout
     var latestEntry: WorkoutLogEntry? {
         entries.first
     }
 
     func exercise(for entry: WorkoutLogEntry) -> Exercise? {
         ExerciseCatalog.exercise(withID: entry.exerciseID)
+    }
+
+    /// The most recent workout for the Home preview: a whole session when the
+    /// latest entry belongs to one, otherwise the single standalone entry.
+    struct LatestWorkout {
+        let date: Date
+        let entries: [WorkoutLogEntry]
+
+        var isSession: Bool { entries.count > 1 }
+        var totalReps: Int { entries.reduce(0) { $0 + $1.totalReps } }
+    }
+
+    var latestWorkout: LatestWorkout? {
+        guard let latest = entries.first else { return nil }
+
+        if let sessionID = latest.sessionID {
+            let sessionEntries = entries.filter { $0.sessionID == sessionID }
+            return LatestWorkout(
+                date: sessionEntries.map(\.date).max() ?? latest.date,
+                entries: sessionEntries
+            )
+        }
+
+        return LatestWorkout(date: latest.date, entries: [latest])
     }
 
     /// The exercise Quick Log should open: the last logged one,

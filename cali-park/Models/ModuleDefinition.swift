@@ -10,9 +10,9 @@ struct ModuleDefinition: Identifiable, Codable, Equatable {
     static let allModules: [ModuleDefinition] = [
         ModuleDefinition(
             id: "log",
-            name: "Szybki trening",
-            iconName: "bolt.fill",
-            description: "Zaloguj trening z dowolnych ćwiczeń"
+            name: "Ostatni trening",
+            iconName: "clock.arrow.circlepath",
+            description: "Twój ostatni zapisany trening"
         ),
         ModuleDefinition(
             id: "next",
