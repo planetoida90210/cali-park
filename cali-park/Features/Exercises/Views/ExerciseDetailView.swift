@@ -132,8 +132,8 @@ private struct ExerciseInstructionsCard: View {
                 .textCase(.uppercase)
 
             VStack(spacing: 0) {
-                ForEach(steps.enumerated(), id: \.offset) { index, step in
-                    ExerciseInstructionRow(number: index + 1, text: step)
+                ForEach(steps.indices, id: \.self) { index in
+                    ExerciseInstructionRow(number: index + 1, text: steps[index])
 
                     if index < steps.count - 1 {
                         Divider()
