@@ -113,7 +113,7 @@ final class ParkReviewsViewModel: ObservableObject {
 
     /// Adds new or updates existing review for the current user.
     func submit(rating: Int, comment: String) async {
-        var review = ParkReview(
+        let review = ParkReview(
             parkID: parkID,
             userID: currentUserID,
             rating: rating,
