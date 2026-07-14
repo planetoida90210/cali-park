@@ -13,7 +13,6 @@ final class AppEnvironment: ObservableObject {
     let favoritesStore: FavoritesStoring
     let workoutLogStore: WorkoutLogStoring
     /// Persists reusable, scheduled workout plans (planner feature).
-    /// No view-model factories yet — those arrive with the planner UI (S7).
     let workoutPlanStore: WorkoutPlanStoring
 
     // MARK: Init
@@ -67,6 +66,15 @@ final class AppEnvironment: ObservableObject {
 
     func makeHomeDashboardViewModel() -> HomeDashboardViewModel {
         HomeDashboardViewModel(store: workoutLogStore)
+    }
+
+    func makeWorkoutPlansViewModel() -> WorkoutPlansViewModel {
+        WorkoutPlansViewModel(store: workoutPlanStore)
+    }
+
+    /// `plan == nil` starts a new plan; pass an existing plan to edit it.
+    func makePlanEditorViewModel(plan: WorkoutPlan? = nil) -> PlanEditorViewModel {
+        PlanEditorViewModel(plan: plan, store: workoutPlanStore)
     }
 
     // MARK: Preview
