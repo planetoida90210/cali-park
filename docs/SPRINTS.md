@@ -22,11 +22,14 @@ Plan źródłowy: [.cursor/plans/zakładka_ćwiczenia_+_dziennik_4ca18af5.plan.m
 | 2 | Biblioteka ćwiczeń: ViewModel, lista + chips + szukanie, detal, ikony figure.*, DI w AppEnvironment | zakończony | 2026-07-14 |
 | 3 | SetPad + dziennik: SetPadInput, SetPadSheetView, historia logów, testy sekwencji | zakończony | 2026-07-14 |
 | 4 | Home + sprzątanie: Quick Log/streak/hero z realnych logów, Tab API, NavigationStack, AccentColor | zakończony | 2026-07-14 |
-| 5 | „Szybki trening": sesja z dowolnych ćwiczeń (sessionID + batch append), reużywalny SetPadEntryView, ExercisePickerSheet, wejścia z Home i Ćwiczeń, grupowanie sesji w historii | do weryfikacji | 2026-07-14 |
+| 5 | „Szybki trening": sesja z dowolnych ćwiczeń (sessionID + batch append), reużywalny SetPadEntryView, ExercisePickerSheet, wejścia z Home i Ćwiczeń, grupowanie sesji w historii | zakończony | 2026-07-14 |
+| 6 | Planer — fundament danych: Weekday, WorkoutSchedule (+ nextOccurrence), PlannedExercise, WorkoutPlan, WorkoutPlanStoring + store'y, workoutPlanStore w AppEnvironment, testy (bez UI) | do weryfikacji | 2026-07-14 |
+| 7 | Planer — UI: lista planów + kreator/edytor (nazwa, ćwiczenia, harmonogram), fabryki w AppEnvironment, wejście z zakładki Ćwiczenia | oczekuje | — |
+| 8 | Planer — Home: „Nast. trening" = najbliższy zaplanowany trening + „Rozpocznij" (prefill sesji z planu) | oczekuje | — |
 
 Statusy: `oczekuje` → `w toku` → `do weryfikacji` → `zakończony` (ustawia użytkownik).
 
-> Uwaga: plan pierwotnie miał 4 sprinty; Sprint 5 dodano po ich ukończeniu na prośbę użytkownika (logowanie sprawiało wrażenie „tylko podciągnięcia"). Definicja Sprintu 5 w pliku planu.
+> Uwaga: plan pierwotnie miał 4 sprinty; Sprint 5 dodano po ich ukończeniu na prośbę użytkownika (logowanie sprawiało wrażenie „tylko podciągnięcia"). Sprinty 6–8 to mini-plan „Planer treningów / Zaplanuj trening" dodany po Sprincie 5 (na Home „Szybki trening" i „Nast. trening" prowadziły do tego samego — logowania). Definicje w pliku planu.
 
 ## Dziennik sprintów
 
@@ -249,3 +252,47 @@ Uwaga wstępna: plan 4-sprintowy był ukończony. Użytkownik potwierdził, że 
 - Smoke test B (Home): górny pasek → „Szybki trening" otwiera sesję; „Nast. trening" otwiera SetPad proponowanego ćwiczenia. Po zapisie/„Zakończ" Home się odświeża (hero, streak). Moduł „Ostatni trening" (ikona zegara, read-only) pokazuje ostatnią sesję jako „N ćwiczeń · M powtórzeń" + nazwy ćwiczeń, a pojedynczy log jako „{nazwa} · serie".
 - Smoke test C (regres pojedynczego logowania): detal ćwiczenia → „Dodaj serię" → zapis → wpis w historii jako pojedynczy wiersz (nie karta sesji).
 - Po pozytywnej weryfikacji: zmień status Sprintu 5 w tabeli na `zakończony`.
+
+---
+
+### Sprint 6 — 2026-07-14, agent (szósty)
+
+Uwaga wstępna: plan 5-sprintowy był ukończony. Użytkownik potwierdził, że build Sprintu 5 przeszedł bez błędów — oznaczyłem Sprint 5 jako `zakończony`. Sprint 6 rozpoczyna nowy mini-plan „Planer treningów / Zaplanuj trening" (Sprinty 6–8), dodany na prośbę użytkownika: na Home „Szybki trening" i „Nast. trening" prowadziły do tego samego (logowania) — brakowało zaplanowanego, powtarzalnego treningu (np. „co tydzień w poniedziałek"). Sprint 6 to sam fundament danych (bez UI) — analogicznie do Sprintu 1.
+
+**Zrobione:**
+- `cali-park/Features/Planner/Models/Weekday.swift` (NOWY) — enum `Int` z rawValue = `Calendar` `.weekday` (niedziela = 1 … sobota = 7), polskie `displayName`/`shortName`, `ordered(for:)` (kolejność dni wg `firstWeekday` locale — dla pickera w S7).
+- `cali-park/Features/Planner/Models/WorkoutSchedule.swift` (NOWY) — enum `Codable`: `once(Date?)`, `weekly(Set<Weekday>)`, `everyNDays(Int, from: Date)`; czysta `nextOccurrence(onOrAfter:calendar:)` (granulacja dzienna przez `startOfDay`, ignoruje porę dnia), `isRecurring`.
+- `cali-park/Features/Planner/Models/PlannedExercise.swift` (NOWY) — `id`, `exerciseID` (z `ExerciseCatalog`), opcjonalne `targetSets`/`targetReps`.
+- `cali-park/Features/Planner/Models/WorkoutPlan.swift` (NOWY) — `id`, `name`, `exercises`, `schedule`, `isActive`, `createdAt`; `nextOccurrence(...)` respektuje `isActive`; `exerciseCount`, `totalTargetSets`; `hash` po `id`.
+- `cali-park/Features/Planner/Services/WorkoutPlanStore.swift` (NOWY) — `WorkoutPlanStoring` (`load` / `save` = upsert po `id` / `delete(id:)`) + `FileWorkoutPlanStore` (`workout-plans.json` w `URL.documentsDirectory`, zapis atomowy, ISO 8601) + `InMemoryWorkoutPlanStore`.
+- `cali-park/Core/AppEnvironment.swift` — dodane `workoutPlanStore: WorkoutPlanStoring` (domyślnie `FileWorkoutPlanStore()`). BEZ fabryk VM (typy VM powstają w S7 — inaczej nie skompiluje).
+- `cali-parkTests/WorkoutPlanTests.swift` (NOWY) — Swift Testing: `Weekday.rawValue` vs `Calendar` (parametryzowane) + `ordered`; `WorkoutSchedule.nextOccurrence` (weekly/everyNDays/once — parametryzowane, deterministyczny kalendarz UTC, kotwica na epoce = czwartek); `isRecurring`; `WorkoutPlan` (isActive gate, `totalTargetSets`); Codable roundtrip per wariant harmonogramu; store (InMemory upsert/delete, FileStore temp-dir między instancjami, pusty load).
+
+**Odstępstwa od planu:** brak (Sprint 6 nie był w pierwotnym 5-sprintowym planie; definicja mini-planu Planera dopisana w pliku planu w tej samej sesji).
+
+**Decyzje podjęte w trakcie:**
+- `Weekday.rawValue` celowo = indeks `Calendar` (nie 0-based, nie angielskie stringi) — dzięki temu `Weekday(rawValue: calendar.component(.weekday, from:))` mapuje datę wprost na dzień, bez tabel przeliczeń. Polskie nazwy w `displayName` (jak `MuscleGroup`).
+- `WorkoutSchedule` jako enum (nie struct z polami) — trzy warianty pokrywają „co tydzień w wybrane dni", „co N dni", „jednorazowo/szkic". Pora dnia i powiadomienia świadomie pominięte (osobny temat, wymaga uprawnień — patrz notatki S4/S5); granulacja dzienna wystarcza do „co tydzień w poniedziałek".
+- `nextOccurrence(onOrAfter:)` liczy DZIEŃ WŁĄCZNIE (jeśli dziś pasuje — zwraca dziś). S8 zdecyduje, czy na Home pokazać „dziś" czy „następny".
+- `everyNDays` niesie kotwicę (`from: Date`) w samym wariancie — harmonogram jest samowystarczalny (nie potrzebuje `createdAt` planu do policzenia wystąpienia).
+- `save` = upsert po `id` (jeden protokół na tworzenie i edycję) — spójne z tym, jak S7 będzie zapisywać edytowany plan.
+- Nowy katalog `cali-park/Features/Planner/` — projekt używa `PBXFileSystemSynchronizedRootGroup` na `cali-park` i `cali-parkTests` (zweryfikowane w `project.pbxproj`), więc nowy podkatalog i pliki podpinają się do targetu same.
+
+**Znane problemy / TODO:**
+- Brak UI — planów nie da się jeszcze utworzyć z aplikacji (to S7). `workoutPlanStore` jest w `AppEnvironment`, ale nikt z niego jeszcze nie czyta (jak `workoutLogStore` po S1/S2).
+- Brak pory dnia / powiadomień lokalnych i nazwy „typu" treningu — świadome cięcia (App Store: powiadomienia dopiero z realnym kodem + uprawnieniami).
+- `PlannedExercise.targetSets/targetReps` w modelu, ale UI ich użycia (prefill SetPada) dochodzi w S8.
+
+**Wskazówki dla następnego agenta (Sprint 7):**
+- Zbuduj `WorkoutPlansViewModel` (`@Observable`, lista z `workoutPlanStore.load()`, delete) + `WorkoutPlansView`, oraz `PlanEditorViewModel`/`PlanEditorView` (nazwa, ćwiczenia przez reużyty `ExercisePickerSheet`, harmonogram). Zapis edytowanego planu przez `store.save(plan)` (upsert).
+- Dodaj fabryki w `AppEnvironment`: `makeWorkoutPlansViewModel()`, `makePlanEditorViewModel(plan:)` (plan opcjonalny = nowy).
+- Wybór dni tygodnia: użyj `Weekday.ordered(for:)` do kolejności; harmonogram to POJEDYNCZY stan wyboru (segment „Co tydzień" / „Co N dni" / „Jednorazowo"), nie kilka niezależnych toggle (patrz swiftui-design-principles: „Mutually exclusive options").
+- Opis harmonogramu po polsku (np. „Co tydzień: Pon, Czw") licz w VM/warstwie prezentacji, nie w modelu (writing-for-interfaces); do odmiany dni jest już `PolishPlural.days`.
+- Kolory tylko z `AppTheme` (`Color.accent`/`.appBackground`/`.componentBackground`/`.textPrimary/.textSecondary`), siatka spacingu 4/8, `clipShape(.rect(cornerRadius:))`, przyciski jako `Button` (nie `onTapGesture`).
+- ZANIM zaczniesz: sprawdź, czy Sprint 6 ma status `zakończony` (użytkownik weryfikuje build).
+
+**Do ręcznej weryfikacji przez użytkownika:**
+- Build w Xcode (5 nowych plików app: `Weekday`, `WorkoutSchedule`, `PlannedExercise`, `WorkoutPlan`, `WorkoutPlanStore` + 1 plik testów `WorkoutPlanTests`; zmieniony: `AppEnvironment`). Pliki w `Features/Planner/` podpną się same (synchronized groups).
+- Testy: `WeekdayTests`, `WorkoutScheduleTests`, `WorkoutPlanTests`, `WorkoutPlanCodableTests`, `WorkoutPlanStoreTests` (+ wszystkie poprzednie — nic w starym kodzie nie zmieniano poza dodaniem pola w `AppEnvironment`).
+- Brak smoke testu UI (Sprint bez UI). Ewentualnie: aplikacja nadal buduje się i działa jak po Sprincie 5 (planer jeszcze niewidoczny).
+- Po pozytywnej weryfikacji: zmień status Sprintu 6 w tabeli na `zakończony`.

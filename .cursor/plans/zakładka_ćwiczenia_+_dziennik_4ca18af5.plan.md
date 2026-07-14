@@ -62,6 +62,33 @@ todos:
   - id: s5-tests
     content: "S5: Testy — QuickWorkoutViewModel, batch append, grupowanie historii, wsteczna zgodność Codable sessionID"
     status: completed
+  - id: s6-models
+    content: "S6: Modele planera — Weekday, WorkoutSchedule (+ nextOccurrence), PlannedExercise, WorkoutPlan (Codable, stałe UUID)"
+    status: completed
+  - id: s6-store
+    content: "S6: WorkoutPlanStoring + FileWorkoutPlanStore (JSON w documentsDirectory, upsert) + InMemoryWorkoutPlanStore"
+    status: completed
+  - id: s6-env
+    content: "S6: Rejestracja workoutPlanStore w AppEnvironment (bez konsumenta — VM/UI w S7)"
+    status: completed
+  - id: s6-tests
+    content: "S6: Testy — WorkoutSchedule.nextOccurrence (parametryzowane), roundtrip store, Codable/Weekday↔Calendar"
+    status: completed
+  - id: s7-editor
+    content: "S7: WorkoutPlansViewModel + PlanEditorViewModel/PlanEditorView (nazwa, ćwiczenia przez ExercisePickerSheet, harmonogram) + lista planów"
+    status: pending
+  - id: s7-di
+    content: "S7: Fabryki planera w AppEnvironment + wejście do listy planów (zakładka Ćwiczenia)"
+    status: pending
+  - id: s7-tests
+    content: "S7: Testy — VM edytora (walidacja, dodawanie/usuwanie ćwiczeń, wybór harmonogramu)"
+    status: pending
+  - id: s8-home
+    content: "S8: Home — zamiana „Nast. trening\" na plan (najbliższy zaplanowany trening) + „Rozpocznij\" prefill sesji z planu"
+    status: pending
+  - id: s8-tests
+    content: "S8: Testy — wybór najbliższego planu z wielu, prefill DraftItem z PlannedExercise"
+    status: pending
 isProject: false
 ---
 
@@ -143,6 +170,46 @@ Powód: użytkownik zgłosił, że logowanie sprawia wrażenie „tylko podciąg
 - **Testy**: `QuickWorkoutViewModel` (akumulacja, pusty no-op, `finish` = jeden sessionID + jeden timestamp, błąd przez `FailingWorkoutLogStore`), batch append (InMemory + FileStore temp dir), grupowanie historii, roundtrip + wsteczna zgodność `sessionID` w Codable.
 
 **Definition of done:** „Szybki trening" z Home i z zakładki Ćwiczenia → dodaj kilka różnych ćwiczeń → Zakończ → sesja widoczna jako jedna karta w historii; pojedyncze logowanie ćwiczenia działa jak dotąd; testy przechodzą.
+
+---
+
+## Planer treningów — „Zaplanuj trening" (mini-plan, Sprinty 6–8, dodany po Sprincie 5)
+
+Powód: użytkownik zauważył, że na Home „Szybki trening" i „Nast. trening" prowadzą do tego samego (logowanie). Zamiast drugiego przycisku-do-logowania potrzebny jest **plan treningu**: budujesz trening (zestaw ćwiczeń) i zapisujesz, jak często chcesz go wykonywać (np. co tydzień w poniedziałek). Docelowo rozbudowywalne. Feature żyje w nowym katalogu `cali-park/Features/Planner/`.
+
+Świadome cięcia całego mini-planu (zgodnie z „szybko do App Store"): brak powiadomień lokalnych (osobny temat — wymaga uprawnień, dodać dopiero z realnym kodem), brak pory dnia w harmonogramie (na razie granulacja dzienna), brak integracji HealthKit/Watch (architektura gotowa — patrz notatki S4/S5).
+
+### Sprint 6 — fundament danych planera (bez UI) ✅ zrobione
+
+- **Modele** w `cali-park/Features/Planner/Models/`:
+  - **`Weekday`** — enum `Int` (rawValue = `Calendar` `.weekday`: niedziela = 1 … sobota = 7), `Codable`, `CaseIterable`, polskie `displayName`/`shortName`.
+  - **`WorkoutSchedule`** — enum `Codable`: `once(Date?)` (jednorazowy / szkic bez daty), `weekly(Set<Weekday>)` (co tydzień w wybrane dni), `everyNDays(Int, from: Date)` (co N dni od kotwicy). Czysta, testowalna funkcja `nextOccurrence(onOrAfter:calendar:)` — liczy najbliższy dzień wystąpienia (granulacja dzienna, `startOfDay`).
+  - **`PlannedExercise`** — `id: UUID`, `exerciseID: UUID` (z `ExerciseCatalog`), opcjonalne `targetSets`/`targetReps`. `Codable`.
+  - **`WorkoutPlan`** — `id: UUID`, `name`, `exercises: [PlannedExercise]`, `schedule`, `isActive`, `createdAt`. `Codable`. `nextOccurrence(...)` respektuje `isActive`.
+- **Warstwa danych** w `cali-park/Features/Planner/Services/`: `WorkoutPlanStoring` (`load`, `save` = upsert po `id`, `delete(id:)`) + `FileWorkoutPlanStore` (JSON `workout-plans.json` w `URL.documentsDirectory`, ISO 8601) + `InMemoryWorkoutPlanStore`. Analogia do `WorkoutLogStore`.
+- **AppEnvironment**: `workoutPlanStore: WorkoutPlanStoring = FileWorkoutPlanStore()` (bez fabryk VM — te dochodzą w S7, wraz z typami VM).
+- **Testy**: `WorkoutSchedule.nextOccurrence` parametryzowane (weekly/interval/once, deterministyczny kalendarz UTC), roundtrip store (InMemory + File temp dir, upsert, delete), Codable per wariant harmonogramu, zgodność `Weekday.rawValue` z `Calendar`.
+
+**Definition of done:** modele + harmonogram + store istnieją, testy przechodzą (weryfikuje użytkownik), zero zmian w UI.
+
+### Sprint 7 — UI planera (lista + kreator/edytor)
+
+- `WorkoutPlansViewModel` (`@Observable`) + `WorkoutPlansView` — lista planów (nazwa, podsumowanie harmonogramu, liczba ćwiczeń), swipe-to-delete, wejście do edytora.
+- `PlanEditorViewModel` + `PlanEditorView` — nazwa planu, dodawanie ćwiczeń (reużyj `ExercisePickerSheet`), wybór harmonogramu (dni tygodnia jako pojedynczy stan wyboru — nie osobne toggle; „co N dni" jako alternatywa). Walidacja: nazwa niepusta + ≥1 ćwiczenie.
+- Fabryki w `AppEnvironment` (`makeWorkoutPlansViewModel`, `makePlanEditorViewModel(plan:)`).
+- Wejście: przycisk/pozycja „Plany treningowe" w zakładce Ćwiczenia (toolbar lub nad `QuickWorkoutButton`).
+- Kolory z AppTheme, siatka spacingu 4/8, harmonogram jako czytelny opis PL (writing-for-interfaces), `Weekday` w kolejności zależnej od locale w UI.
+
+**Definition of done:** utworzenie planu (nazwa + ćwiczenia + „co tydzień w poniedziałek") → zapis → widoczny na liście; edycja i usuwanie działają; testy VM przechodzą.
+
+### Sprint 8 — Home: najbliższy zaplanowany trening + start z planu
+
+- W `HomeDashboardViewModel`: `nextPlannedWorkout` — z `workoutPlanStore` wybiera plan z najbliższym `nextOccurrence` (aktywne plany).
+- `PrimaryActionRailView` / moduł „next": „Nast. trening" pokazuje najbliższy **zaplanowany** trening (nazwa + kiedy) i „Rozpocznij" → `QuickWorkoutView` z prefillem `DraftItem` z `PlannedExercise` (użytkownik zatwierdza serie na SetPadzie); przy braku planów — uczciwy fallback (obecne zachowanie / propozycja heurystyczna).
+- `HomeDashboardViewModel` dostaje `workoutPlanStore` (drugi store) — DI jak dotąd.
+- **Testy**: wybór najbliższego z wielu planów (deterministyczny kalendarz), prefill DraftItem z targetSets/targetReps.
+
+**Definition of done:** plan „co tydzień w poniedziałek" pojawia się na Home jako najbliższy trening; „Rozpocznij" otwiera sesję z ćwiczeniami z planu; zapis trafia do historii jak sesja.
 
 ---
 
