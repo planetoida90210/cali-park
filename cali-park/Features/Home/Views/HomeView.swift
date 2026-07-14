@@ -51,7 +51,7 @@ struct HomeView: View {
                             .padding(.bottom, 16)
 
                             // B. Primary Action Rail
-                            PrimaryActionRailView()
+                            PrimaryActionRailView(dashboard: dashboard)
                                 .padding(.bottom, 16)
 
                             // C. Smart Stack (Modules)

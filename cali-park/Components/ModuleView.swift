@@ -138,7 +138,7 @@ struct ModuleView: View {
     private var moduleContent: some View {
         switch moduleId {
         case "log":
-            QuickLogModuleContent(dashboard: dashboard)
+            LastWorkoutModuleContent(dashboard: dashboard)
         case "next":
             NextWorkoutModuleContent(dashboard: dashboard)
         case "parks":
