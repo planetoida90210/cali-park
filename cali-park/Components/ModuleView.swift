@@ -3,30 +3,33 @@ import SwiftUI
 struct ModuleView: View {
     // Identyfikator modułu
     let moduleId: String
-    
+
+    // Realne dane dziennika dla modułów Quick Log / streak / następny trening
+    let dashboard: HomeDashboardViewModel
+
     // Obsługa rozwijania/zwijania
     @State private var isExpanded: Bool = false
-    
+
     // Tryb edycji
     @Environment(\.editMode) private var editMode
     @EnvironmentObject private var modulePreferences: ModulePreferences
-    
+
     // Namespace for matched geometry effect
     @Namespace private var animation
-    
+
     // Pobranie definicji modułu
     private var module: ModuleDefinition? {
         ModuleDefinition.getModule(byId: moduleId)
     }
-    
+
     // Impact feedback generator
     private let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-    
+
     // Czy pokazać własny uchwyt (hamburger); przy przestawianiu w List chcemy go ukryć
     var showGrabber: Bool = true
     // Callback dla rodzica – powiadamia o kliknięciu (np. aby przewinąć widok)
     var onToggle: ((String) -> Void)? = nil
-    
+
     var body: some View {
         if let module = module {
             VStack(spacing: 0) {
@@ -46,26 +49,25 @@ struct ModuleView: View {
                         HStack {
                             // Ikona modułu
                             Image(systemName: module.iconName)
-                                .foregroundColor(.accent)
+                                .foregroundStyle(Color.accent)
                                 .font(.title3)
                                 .padding(.leading, editMode?.wrappedValue.isEditing == true ? 20 : 0) // Dodajemy padding dla ikony gdy jesteśmy w trybie edycji
-                            
+
                             Text(module.name)
                                 .font(.title3)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.textPrimary)
-                            
+                                .foregroundStyle(Color.textPrimary)
+
                             Spacer()
-                            
+
                             // W trybie edycji - przycisk grabber
                             if editMode?.wrappedValue.isEditing == true && showGrabber {
                                 Image(systemName: "line.3.horizontal")
-                                    .foregroundColor(.textSecondary)
+                                    .foregroundStyle(Color.textSecondary)
                                     .font(.bodyMedium)
                             } else {
                                 // Standardowo - ikona rozwijania/zwijania
                                 Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                                    .foregroundColor(.textSecondary)
+                                    .foregroundStyle(Color.textSecondary)
                                     .font(.bodyMedium)
                             }
                         }
@@ -87,21 +89,22 @@ struct ModuleView: View {
                                             .fill(Color.red)
                                             .frame(width: 24, height: 24)
                                             .shadow(color: Color.black.opacity(0.3), radius: 2, x: 0, y: 1)
-                                        
+
                                         Image(systemName: "minus")
-                                            .font(.system(size: 12, weight: .bold))
-                                            .foregroundColor(.white)
+                                            .font(.caption.bold())
+                                            .foregroundStyle(Color.white)
                                     }
                                 }
+                                .accessibilityLabel("Usuń moduł \(module.name)")
                                 .position(x: 12, y: 12)
                                 .zIndex(1) // Upewniamy się, że przycisk usunięcia jest zawsze na wierzchu
                             }
                         }
                     )
                 }
-                .buttonStyle(PlainButtonStyle())
+                .buttonStyle(.plain)
                 .background(Color.glassBackground.blur(radius: 30))
-                .cornerRadius(12)
+                .clipShape(.rect(cornerRadius: 12))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(
@@ -114,7 +117,7 @@ struct ModuleView: View {
                         )
                 )
                 .matchedGeometryEffect(id: "moduleCard_\(moduleId)", in: animation, isSource: true)
-                
+
                 // Zawartość modułu (rozwinięta)
                 if isExpanded && editMode?.wrappedValue.isEditing != true {
                     moduleContent
@@ -122,26 +125,26 @@ struct ModuleView: View {
                         .matchedGeometryEffect(id: "moduleContent_\(moduleId)", in: animation, isSource: false)
                 }
             }
-            .padding(.vertical, 5)
+            .padding(.vertical, 4)
             .padding(.horizontal, 16)
-            .padding(.top, editMode?.wrappedValue.isEditing == true ? 10 : 0) // Dodajemy dodatkowy padding na górze w trybie edycji
+            .padding(.top, editMode?.wrappedValue.isEditing == true ? 12 : 0) // Dodajemy dodatkowy padding na górze w trybie edycji
             .background(Color.appBackground)
             .editModeStyle()
         }
     }
-    
+
     // Zawartość modułu w zależności od jego typu
     @ViewBuilder
     private var moduleContent: some View {
         switch moduleId {
         case "log":
-            QuickLogModuleContent()
+            QuickLogModuleContent(dashboard: dashboard)
         case "next":
-            NextWorkoutModuleContent()
+            NextWorkoutModuleContent(dashboard: dashboard)
         case "parks":
             ParksModuleContent()
         case "streak":
-            StreakModuleContent()
+            StreakModuleContent(streak: dashboard.streak)
         case "friends":
             LeaderboardModuleContent()
         case "feed":
@@ -154,24 +157,20 @@ struct ModuleView: View {
     }
 }
 
-// MARK: - Przykładowe implementacje zawartości modułów
-
 // MARK: - Preview
 
-struct ModuleView_Previews: PreviewProvider {
-    static var previews: some View {
-        ZStack {
-            Color.appBackground.edgesIgnoringSafeArea(.all)
-            
-            ScrollView {
-                VStack(spacing: 0) {
-                    ModuleView(moduleId: "log")
-                    ModuleView(moduleId: "next")
-                    ModuleView(moduleId: "parks")
-                }
+#Preview {
+    ZStack {
+        Color.appBackground.ignoresSafeArea()
+
+        ScrollView {
+            VStack(spacing: 0) {
+                ModuleView(moduleId: "log", dashboard: AppEnvironment.preview.makeHomeDashboardViewModel())
+                ModuleView(moduleId: "next", dashboard: AppEnvironment.preview.makeHomeDashboardViewModel())
+                ModuleView(moduleId: "streak", dashboard: AppEnvironment.preview.makeHomeDashboardViewModel())
             }
         }
-        .preferredColorScheme(.dark)
-        .environmentObject(ModulePreferences())
     }
-} 
+    .preferredColorScheme(.dark)
+    .environmentObject(ModulePreferences())
+}

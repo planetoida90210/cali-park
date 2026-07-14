@@ -6,27 +6,27 @@ struct MainTabView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            HomeView()
-                .tabItem { Label("Home", systemImage: "house.fill") }
-                .tag(0)
-
-            NavigationStack {
-                ParksView(environment: environment)
+            Tab("Home", systemImage: "house.fill", value: 0) {
+                HomeView(environment: environment)
             }
-            .tabItem { Label("Siłownie", systemImage: "mappin.and.ellipse") }
-            .tag(1)
 
-            ExerciseLibraryView(environment: environment)
-                .tabItem { Label("Ćwiczenia", systemImage: "dumbbell.fill") }
-                .tag(2)
+            Tab("Siłownie", systemImage: "mappin.and.ellipse", value: 1) {
+                NavigationStack {
+                    ParksView(environment: environment)
+                }
+            }
 
-            CommunityView()
-                .tabItem { Label("Społeczność", systemImage: "person.3.fill") }
-                .tag(3)
+            Tab("Ćwiczenia", systemImage: "dumbbell.fill", value: 2) {
+                ExerciseLibraryView(environment: environment)
+            }
 
-            ProfileView()
-                .tabItem { Label("Profil", systemImage: "person.fill") }
-                .tag(4)
+            Tab("Społeczność", systemImage: "person.3.fill", value: 3) {
+                CommunityView()
+            }
+
+            Tab("Profil", systemImage: "person.fill", value: 4) {
+                ProfileView()
+            }
         }
         .tint(Color.accent)
     }

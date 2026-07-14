@@ -56,6 +56,10 @@ final class AppEnvironment: ObservableObject {
         WorkoutHistoryViewModel(store: workoutLogStore)
     }
 
+    func makeHomeDashboardViewModel() -> HomeDashboardViewModel {
+        HomeDashboardViewModel(store: workoutLogStore)
+    }
+
     // MARK: Preview
     static let preview = AppEnvironment()
 }
