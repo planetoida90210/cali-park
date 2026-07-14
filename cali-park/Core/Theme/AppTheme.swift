@@ -4,7 +4,9 @@ import SwiftUI
 extension Color {
     static let appBackground = Color(hex: "#121212")
     static let componentBackground = Color(hex: "#1E1E1E")
-    static let accent = Color(hex: "#D1FF00")  // Updated neon-lime with reduced luminance
+    // `Color.accent` (#D1FF00, neon-lime) is NOT declared here: it comes from
+    // the generated asset symbol for AccentColor.colorset — declaring it again
+    // would be an invalid redeclaration.
     
     // Glass effect background
     static let glassBackground = Color.black.opacity(0.7)
