@@ -13,19 +13,25 @@ struct WorkoutPlan: Identifiable, Codable, Equatable, Hashable {
     /// When `false` the plan is kept but excluded from scheduling.
     var isActive: Bool
     let createdAt: Date
+    /// Time of day (hour + minute) for a local reminder, or `nil` for none.
+    /// The schedule stays day-granular; this adds the notification's clock time.
+    /// Optional so plans saved before reminders existed decode as `nil`.
+    var reminderTime: DateComponents?
 
     init(id: UUID = UUID(),
          name: String,
          exercises: [PlannedExercise] = [],
          schedule: WorkoutSchedule = .once(nil),
          isActive: Bool = true,
-         createdAt: Date = .now) {
+         createdAt: Date = .now,
+         reminderTime: DateComponents? = nil) {
         self.id = id
         self.name = name
         self.exercises = exercises
         self.schedule = schedule
         self.isActive = isActive
         self.createdAt = createdAt
+        self.reminderTime = reminderTime
     }
 
     var exerciseCount: Int { exercises.count }
