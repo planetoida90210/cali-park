@@ -17,19 +17,28 @@ struct WorkoutHistoryView: View {
                 WorkoutHistoryEmptyState()
             } else {
                 List {
-                    ForEach(viewModel.entries) { entry in
-                        WorkoutHistoryRow(
-                            entry: entry,
-                            exercise: viewModel.exercise(for: entry)
-                        )
-                        .listRowBackground(Color.componentBackground)
-                        .listRowSeparatorTint(Color.divider)
-                    }
-                    .onDelete { offsets in
-                        // Resolve entries up front — deleting shifts indices.
-                        let doomed = offsets.map { viewModel.entries[$0] }
-                        for entry in doomed {
-                            viewModel.delete(entry)
+                    ForEach(viewModel.sections) { section in
+                        Section {
+                            ForEach(section.entries) { entry in
+                                WorkoutHistoryRow(
+                                    entry: entry,
+                                    exercise: viewModel.exercise(for: entry),
+                                    showsDate: !section.isSession
+                                )
+                                .listRowBackground(Color.componentBackground)
+                                .listRowSeparatorTint(Color.divider)
+                            }
+                            .onDelete { offsets in
+                                // Resolve entries up front — deleting shifts indices.
+                                let doomed = offsets.map { section.entries[$0] }
+                                for entry in doomed {
+                                    viewModel.delete(entry)
+                                }
+                            }
+                        } header: {
+                            if section.isSession {
+                                WorkoutSessionHeader(section: section)
+                            }
                         }
                     }
                 }
@@ -57,10 +66,33 @@ struct WorkoutHistoryView: View {
     }
 }
 
+// MARK: - WorkoutSessionHeader
+/// Header for a grouped quick-workout session: when it happened plus a summary.
+private struct WorkoutSessionHeader: View {
+    let section: WorkoutHistorySection
+
+    var body: some View {
+        HStack {
+            Text(section.date, format: .dateTime.day().month().hour().minute())
+
+            Spacer()
+
+            Text("\(PolishPlural.exercises(section.entries.count)) · \(PolishPlural.reps(section.totalReps))")
+        }
+        .font(.bodySmall)
+        .foregroundStyle(Color.textSecondary)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Trening, \(PolishPlural.exercises(section.entries.count)), \(PolishPlural.reps(section.totalReps))")
+    }
+}
+
 // MARK: - WorkoutHistoryRow
 private struct WorkoutHistoryRow: View {
     let entry: WorkoutLogEntry
     let exercise: Exercise?
+    /// Standalone rows show their own date; rows inside a session get it from
+    /// the section header instead.
+    var showsDate = true
 
     var body: some View {
         HStack(spacing: 12) {
@@ -83,9 +115,11 @@ private struct WorkoutHistoryRow: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 4) {
-                Text(entry.date, format: .dateTime.day().month())
-                    .font(.bodySmall)
-                    .foregroundStyle(Color.textSecondary)
+                if showsDate {
+                    Text(entry.date, format: .dateTime.day().month())
+                        .font(.bodySmall)
+                        .foregroundStyle(Color.textSecondary)
+                }
 
                 Text(PolishPlural.reps(entry.totalReps))
                     .font(.bodySmall)

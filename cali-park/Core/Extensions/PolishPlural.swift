@@ -38,4 +38,9 @@ enum PolishPlural {
     static func pullUps(_ count: Int) -> String {
         "\(count) \(form(for: count, one: "podciągnięcie", few: "podciągnięcia", many: "podciągnięć"))"
     }
+
+    /// "1 ćwiczenie", "3 ćwiczenia", "5 ćwiczeń".
+    static func exercises(_ count: Int) -> String {
+        "\(count) \(form(for: count, one: "ćwiczenie", few: "ćwiczenia", many: "ćwiczeń"))"
+    }
 }

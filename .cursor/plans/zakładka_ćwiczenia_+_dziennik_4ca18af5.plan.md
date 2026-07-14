@@ -47,6 +47,21 @@ todos:
   - id: s4-tests
     content: "S4: Testy — logika streak (dziś, wczoraj, przerwa) jako testy parametryzowane"
     status: completed
+  - id: s5-model
+    content: "S5: sessionID (opcjonalny) w WorkoutLogEntry + batch append w WorkoutLogStoring (atomowy zapis sesji)"
+    status: completed
+  - id: s5-setpad-reuse
+    content: "S5: Wydzielenie SetPadEntryView (reużywalny keypad) — SetPadSheetView korzysta z niego bez zmiany zachowania"
+    status: completed
+  - id: s5-session
+    content: "S5: QuickWorkoutViewModel + QuickWorkoutView (Szybki trening: dodaj dowolne ćwiczenia → Zakończ) + ExercisePickerSheet"
+    status: completed
+  - id: s5-entrypoints
+    content: "S5: Wejścia — przycisk Szybki trening w zakładce Ćwiczenia i w module Quick Log (Home); grupowanie sesji w historii"
+    status: completed
+  - id: s5-tests
+    content: "S5: Testy — QuickWorkoutViewModel, batch append, grupowanie historii, wsteczna zgodność Codable sessionID"
+    status: completed
 isProject: false
 ---
 
@@ -115,6 +130,19 @@ Wzorzec: **MVVM (fit)** jak w Parks — protokoły serwisów, DI przez [cali-par
 - **Testy**: logika streak (dziś, wczoraj, przerwa) jako testy parametryzowane.
 
 **Definition of done:** Quick Log, streak i hero na Home pokazują realne dane z dziennika, zero deprecated API w dotykanych plikach.
+
+## Sprint 5 — „Szybki trening" (dodane po ukończeniu planu 4-sprintowego)
+
+Powód: użytkownik zgłosił, że logowanie sprawia wrażenie „tylko podciągnięcia" — oba wejścia (Home Quick Log domyślnie podciągnięcia; zakładka Ćwiczenia wymusza wejście w detal jednego ćwiczenia) prowadzą do jednego ćwiczenia. Brakuje szybkiego zalogowania całego treningu z dowolnych ćwiczeń.
+
+- **Model**: opcjonalny `sessionID: UUID?` w `WorkoutLogEntry` (wstecznie zgodny — stare logi dekodują się z `nil`). Batch `append(contentsOf:)` w `WorkoutLogStoring` (default w extension + atomowy override w `FileWorkoutLogStore`) — sesja zapisuje się jednym zapisem, all-or-nothing.
+- **Reużycie SetPada**: wydzielony `SetPadEntryView` (nagłówek + wyświetlacz + keypad + przycisk zapisu, sterowany `Binding<SetPadInput>` + `onSave`). `SetPadSheetView` (pojedyncze ćwiczenie, persystencja przez VM + alert) korzysta z niego bez zmiany zachowania; sesja używa go z akumulacją w pamięci.
+- **Sesja**: `QuickWorkoutViewModel` (`@Observable`) — akumuluje pozycje (`DraftItem`: ćwiczenie + serie), `finish()` zapisuje wszystko jako jedną sesję. `QuickWorkoutView` — lista dodanych ćwiczeń, „Dodaj ćwiczenie" → `ExercisePickerSheet` (reużywa `ExerciseLibraryViewModel` do szukania/filtrów) → SetPad → pozycja dołącza do listy → „Zakończ". Łańcuch pod-sheetów przez jeden enum `ActiveSheet` (nigdy dwa naraz).
+- **Wejścia**: przycisk „Szybki trening" (akcent, `safeAreaInset` dolny) w zakładce Ćwiczenia; w module Quick Log na Home „Szybki trening" jako akcja główna + „Dodaj serię — {ostatnie}" jako akcja pomocnicza (tylko gdy jest ostatni wpis).
+- **Historia**: wpisy z tym samym `sessionID` grupują się w jedną kartę sesji (nagłówek: data + „N ćwiczeń · M powtórzeń"); pojedyncze wpisy (nil) zostają osobnymi wierszami; kolejność chronologiczna.
+- **Testy**: `QuickWorkoutViewModel` (akumulacja, pusty no-op, `finish` = jeden sessionID + jeden timestamp, błąd przez `FailingWorkoutLogStore`), batch append (InMemory + FileStore temp dir), grupowanie historii, roundtrip + wsteczna zgodność `sessionID` w Codable.
+
+**Definition of done:** „Szybki trening" z Home i z zakładki Ćwiczenia → dodaj kilka różnych ćwiczeń → Zakończ → sesja widoczna jako jedna karta w historii; pojedyncze logowanie ćwiczenia działa jak dotąd; testy przechodzą.
 
 ---
 

@@ -56,6 +56,10 @@ final class AppEnvironment: ObservableObject {
         WorkoutHistoryViewModel(store: workoutLogStore)
     }
 
+    func makeQuickWorkoutViewModel() -> QuickWorkoutViewModel {
+        QuickWorkoutViewModel(store: workoutLogStore)
+    }
+
     func makeHomeDashboardViewModel() -> HomeDashboardViewModel {
         HomeDashboardViewModel(store: workoutLogStore)
     }

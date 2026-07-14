@@ -5,6 +5,7 @@ import SwiftUI
 /// catalog. Rows navigate to `ExerciseDetailView` via `navigationDestination`.
 struct ExerciseLibraryView: View {
     @State private var viewModel: ExerciseLibraryViewModel
+    @State private var showingQuickWorkout = false
     @FocusState private var searchFocused: Bool
 
     private let environment: AppEnvironment
@@ -29,6 +30,9 @@ struct ExerciseLibraryView: View {
             .background(Color.appBackground.ignoresSafeArea())
             .navigationTitle("Ćwiczenia")
             .navigationBarTitleDisplayMode(.inline)
+            .safeAreaInset(edge: .bottom) {
+                QuickWorkoutButton { showingQuickWorkout = true }
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink(value: WorkoutHistoryDestination()) {
@@ -44,7 +48,30 @@ struct ExerciseLibraryView: View {
             .navigationDestination(for: WorkoutHistoryDestination.self) { _ in
                 WorkoutHistoryView(viewModel: environment.makeWorkoutHistoryViewModel())
             }
+            .sheet(isPresented: $showingQuickWorkout) {
+                QuickWorkoutView(viewModel: environment.makeQuickWorkoutViewModel())
+            }
         }
+    }
+}
+
+// MARK: - QuickWorkoutButton
+/// Primary "log a whole workout" action, pinned above the tab bar.
+private struct QuickWorkoutButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label("Szybki trening", systemImage: "bolt.fill")
+                .font(.buttonLarge)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(Color.accent)
+                .foregroundStyle(Color.black)
+                .clipShape(.rect(cornerRadius: 12))
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
     }
 }
 
