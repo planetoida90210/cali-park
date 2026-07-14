@@ -28,4 +28,14 @@ enum PolishPlural {
     static func reps(_ count: Int) -> String {
         "\(count) \(form(for: count, one: "powtórzenie", few: "powtórzenia", many: "powtórzeń"))"
     }
+
+    /// "1 dzień", "3 dni", "5 dni".
+    static func days(_ count: Int) -> String {
+        "\(count) \(form(for: count, one: "dzień", few: "dni", many: "dni"))"
+    }
+
+    /// "1 podciągnięcie", "3 podciągnięcia", "5 podciągnięć".
+    static func pullUps(_ count: Int) -> String {
+        "\(count) \(form(for: count, one: "podciągnięcie", few: "podciągnięcia", many: "podciągnięć"))"
+    }
 }

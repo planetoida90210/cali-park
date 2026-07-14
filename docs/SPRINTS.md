@@ -20,8 +20,8 @@ Plan źródłowy: [.cursor/plans/zakładka_ćwiczenia_+_dziennik_4ca18af5.plan.m
 |---|---|---|---|
 | 1 | Fundament danych: modele, ExerciseCatalog, WorkoutLogStoring + store'y, testy warstwy danych | zakończony | 2026-07-14 |
 | 2 | Biblioteka ćwiczeń: ViewModel, lista + chips + szukanie, detal, ikony figure.*, DI w AppEnvironment | zakończony | 2026-07-14 |
-| 3 | SetPad + dziennik: SetPadInput, SetPadSheetView, historia logów, testy sekwencji | do weryfikacji | 2026-07-14 |
-| 4 | Home + sprzątanie: Quick Log/streak/hero z realnych logów, Tab API, NavigationStack, AccentColor | oczekuje | — |
+| 3 | SetPad + dziennik: SetPadInput, SetPadSheetView, historia logów, testy sekwencji | zakończony | 2026-07-14 |
+| 4 | Home + sprzątanie: Quick Log/streak/hero z realnych logów, Tab API, NavigationStack, AccentColor | do weryfikacji | 2026-07-14 |
 
 Statusy: `oczekuje` → `w toku` → `do weryfikacji` → `zakończony` (ustawia użytkownik).
 
@@ -119,3 +119,71 @@ Szablon wpisu (kopiuj i wypełnij):
 - Testy: `ExerciseLibraryViewModelTests` (+ istniejące bez zmian).
 - Smoke test: zakładka Ćwiczenia → lista 19 ćwiczeń → chip „Ekspert" filtruje do 5 → szukanie „podciag" znajduje 2 → tap w ćwiczenie otwiera detal z ikoną, opisem, grupami i instrukcjami → powrót działa.
 - Po pozytywnej weryfikacji: zmień status Sprintu 2 w tabeli na `zakończony`.
+
+---
+
+### Sprint 3 — 2026-07-14, agent (wpis zrekonstruowany przez agenta Sprintu 4)
+
+Agent Sprintu 3 nie zostawił wpisu w dzienniku — poniżej rekonstrukcja z commita `4499f33` i stanu kodu. Użytkownik potwierdził, że build Sprintu 3 przeszedł bez błędów, więc status zmieniony na „zakończony".
+
+**Zrobione:**
+- `cali-park/Features/Exercises/Models/SetPadInput.swift` — czysta logika licznika serii (cyfry, `+` zatwierdza, `⌫` kasuje cyfrę / cofa serię, `C` czyści, limit 3 cyfr, blokada zera wiodącego); niezapisany wpis liczy się przy zapisie (`setsForSaving`).
+- `cali-park/Features/Exercises/ViewModels/WorkoutLogViewModel.swift` — `@Observable @MainActor`; zapis przez `WorkoutLogStoring`, błąd → `errorMessage` (alert), sukces → `didSave` (sheet sam się zamyka).
+- `cali-park/Features/Exercises/ViewModels/WorkoutHistoryViewModel.swift` — lista wpisów (najnowsze pierwsze), delete z obsługą błędu, `exercise(for:)` przez katalog.
+- `cali-park/Features/Exercises/Views/SetPadSheetView.swift` — SetPad w stylu kalkulatora (Grid 4×3, akcent tylko na `+` i „Zapisz"), medium detent, `sensoryFeedback` na `+`, jednorazowa podpowiedź „Każdy + to nowa seria" (`@AppStorage`), etykiety dostępności.
+- `cali-park/Features/Exercises/Views/WorkoutHistoryView.swift` — „Ostatnie treningi": lista z ikoną/nazwą/seriami/datą, swipe-to-delete, stan pusty.
+- `cali-park/Features/Exercises/Views/ExerciseDetailView.swift` — przycisk „Dodaj serię" (safeAreaInset) + `sheet(item:)` z payloadem ćwiczenia.
+- `cali-park/Features/Exercises/Views/ExerciseLibraryView.swift` — wejście do historii z toolbara (ikona zegara) przez `navigationDestination`.
+- `cali-park/Core/Extensions/PolishPlural.swift` — odmiana „seria/serie/serii", „powtórzenie/powtórzenia/powtórzeń" (z wyjątkiem nastek).
+- `cali-park/Core/AppEnvironment.swift` — fabryki `makeWorkoutLogViewModel(exercise:)` i `makeWorkoutHistoryViewModel()`.
+- `cali-parkTests/SetPadTests.swift` — parametryzowane sekwencje klawiszy, testy VM (w tym `FailingWorkoutLogStore`), testy odmiany.
+
+**Do ręcznej weryfikacji przez użytkownika:** zweryfikowane — build przeszedł (potwierdzone w rozmowie), status „zakończony".
+
+---
+
+### Sprint 4 — 2026-07-14, agent
+
+Uwaga wstępna: Sprint 3 miał status „do weryfikacji", ale użytkownik potwierdził, że build przeszedł bez błędów — dlatego oznaczyłem Sprint 3 jako „zakończony" i wykonałem Sprint 4.
+
+**Zrobione:**
+- `cali-park/Features/Home/Models/WorkoutStreak.swift` (NOWY) — czysta, testowalna logika streaka: `current` (trening wczoraj utrzymuje streak przy braku dzisiejszego), `longest` (najdłuższa seria w historii), `trainedDays` (dni znormalizowane do początku dnia — dla kalendarza). Wstrzykiwany `Calendar` i `today` dla deterministycznych testów.
+- `cali-park/Features/Home/ViewModels/HomeDashboardViewModel.swift` (NOWY) — `@Observable @MainActor` VM zasilający moduły Home z tego samego `WorkoutLogStoring`, do którego pisze zakładka Ćwiczenia: `latestEntry`, `quickLogExercise` (ostatnio logowane, fallback: podciągnięcia), `streak`, `weeklyPullUps` (podciągnięcia w bieżącym tygodniu kalendarzowym), `suggestedExercise` (heurystyka: najdawniej nietrenowana grupa mięśniowa → podstawowe ćwiczenie na tę grupę; `nil` przy pustym dzienniku), fabryka `makeWorkoutLogViewModel(exercise:)` dla SetPada z Home.
+- `cali-park/Core/AppEnvironment.swift` — dodana fabryka `makeHomeDashboardViewModel()`.
+- `cali-park/Core/Extensions/PolishPlural.swift` — dodane odmiany `days` („1 dzień / 2 dni / 5 dni") i `pullUps` („1 podciągnięcie / 2 podciągnięcia / 5 podciągnięć").
+- `cali-park/Features/Main/MainTabView.swift` — migracja `tabItem` → nowe **Tab API** (`Tab(_:systemImage:value:)`); `HomeView` dostaje `environment` (DI).
+- `cali-park/Features/Home/Views/HomeView.swift` — `NavigationView` → `NavigationStack`; DI przez `init(environment:)` + `@State` dashboard; hero z realnych danych (`weeklyPullUps`, progress = logi/`weeklyGoal` z mocka); usunięte martwe `dailyChallenge`; `DispatchQueue.main.asyncAfter` → `Task` + `Task.sleep(for:)`; `presentationMode` → `dismiss` w `ModuleSelectionView`; toggle modułów przez natywny `Toggle` z etykietą (koniec `labelsHidden`); `reload()` w `onAppear` (wpisy z zakładki Ćwiczenia widoczne po przełączeniu taba); deprecated modifiery wyczyszczone (`foregroundColor`/`cornerRadius`/`edgesIgnoringSafeArea`).
+- `cali-park/Components/ModuleView.swift` — przyjmuje `dashboard: HomeDashboardViewModel` i przekazuje go do QuickLog/NextWorkout/Streak; deprecated modifiery wyczyszczone; etykieta dostępności na przycisku usuwania modułu.
+- `cali-park/Features/Home/Views/Components/QuickLogModuleContent.swift` — przebudowa: przycisk „Dodaj serię — {ćwiczenie}" otwiera `SetPadSheetView` (`sheet(item:)` z payloadem, `onDismiss` → reload); „Ostatni zapis" z realnego dziennika („Podciągnięcia · 6 + 6 + 8" + data); uczciwy stan pusty.
+- `cali-park/Features/Home/Views/Components/StreakModuleContent.swift` — przebudowa: streak i rekord z `WorkoutStreak`; kalendarz bieżącego miesiąca z realnymi dniami treningowymi (koniec hardkodu „Lipiec 2023" — tytuł przez `Text(.now, format:)`); dzisiejszy dzień z obwódką; stan pusty przy braku wpisów.
+- `cali-park/Features/Home/Views/Components/NextWorkoutModuleContent.swift` — przebudowa: propozycja z heurystyki (ikona + nazwa + „Najdłużej nietrenowane: …"), przycisk „Zaloguj serię" otwiera SetPad; stan pusty przy pustym dzienniku (koniec fikcyjnego „Trening Push, Dziś 19:00").
+- `cali-park/Features/Home/Views/Components/HeroCardView.swift` — realne tygodniowe podciągnięcia z poprawną odmianą, procent przez `Text(_, format: .percent)` (bez C-style), `contentTransition(.numericText())`, deprecated modifiery wyczyszczone.
+- `cali-park/Resources/Assets.xcassets/AccentColor.colorset/Contents.json` — wypełniony #D1FF00 (sRGB 0xD1/0xFF/0x00).
+- `cali-parkTests/WorkoutStreakTests.swift` (NOWY) — testy parametryzowane streaka (dziś / wczoraj / przerwa / luka w środku / pusty dziennik / dwa wpisy jednego dnia) na stałym zegarze i kalendarzu UTC + normalizacja `trainedDays` + odmiany `days`/`pullUps`.
+
+**Odstępstwa od planu:** brak. Doprecyzowania: (1) przycisk w NextWorkout otwiera SetPad dla proponowanego ćwiczenia (realna akcja zamiast martwego „Rozpocznij teraz"); (2) `weeklyGoal` (75) i imię zostają z mocka — zgodnie z planem czekają na sprint Profil; (3) „✓ Gotowe" w toolbarze skrócone do „Gotowe", a „Zapisz" w selektorze modułów zmienione na „Gotowe" (nic nie zapisywał — przełączniki działają natychmiast).
+
+**Decyzje podjęte w trakcie:**
+- Streak liczony na `Calendar.current` w VM; w testach wstrzykiwany kalendarz UTC + stałe „dziś" — testy nie zależą od momentu uruchomienia.
+- `HomeDashboardViewModel` ma własną fabrykę `makeWorkoutLogViewModel` (ma już store), żeby moduły nie potrzebowały całego `AppEnvironment`.
+- Moduły Quick Log i NextWorkout mają własne `sheet(item:)` + `onDismiss: reload` — wpis zalogowany z Home od razu odświeża streak/hero/ostatni zapis.
+- Heurystyka „następne ćwiczenie": grupy sortowane po dacie ostatniego treningu (nigdy nietrenowane wygrywają), preferowane ćwiczenie podstawowe z tą grupą jako pierwszą; przy pustym dzienniku uczciwy stan pusty zamiast zmyślonej propozycji.
+- `ParksModuleContent`, `Leaderboard`, `Feed`, `Achievements` NIE ruszane (zostają na mockach — poza zakresem), mimo że mają deprecated modifiery; `PrimaryActionRailView` też nietknięty (martwe przyciski to temat na później, nie ten sprint).
+
+**Znane problemy / TODO:**
+- `MockDailyChallenge`/`dailyChallenge` w `MockData.swift` są teraz całkiem nieużywane — do usunięcia przy sprzątaniu MockData (plik poza zakresem sprintu).
+- `PrimaryActionRailView` ma trzy przyciski bez akcji (haptic i nic więcej) — kandydat do podpięcia pod SetPad/planner w przyszłym sprincie.
+- Kalendarz streaka pokazuje dni 1–N bieżącego miesiąca bez wyrównania do dni tygodnia (tak jak poprzedni mock) — świadome uproszczenie.
+- `ModulePreferences` zostaje na `ObservableObject` (poza zakresem — zgodnie z planem).
+
+**Wskazówki dla następnego agenta:**
+- Plan 4-sprintowy jest UKOŃCZONY. Następne duże tematy wg planu: zakładka Profil (onboarding + statystyki z logów — `HomeDashboardViewModel.weeklyPullUps` i `WorkoutStreak` gotowe do reużycia), backend (`WorkoutLogStoring` gotowy do podmiany), HealthKit/Watch (patrz niżej).
+- Użytkownik planuje HealthKit + Apple Watch: architektura jest na to gotowa — logowanie przechodzi przez protokół `WorkoutLogStoring`, więc zapis sesji do HealthKit można dodać jako dekorator/drugi store bez ruszania UI. Apple Fitness liczy czas/kalorie (HKWorkout), a nasze powtórzenia mogą iść równolegle do własnego store — to standardowy układ. Uwaga App Store: HealthKit wymaga `NSHealthShareUsageDescription`/`NSHealthUpdateUsageDescription` w Info.plist + capability w Xcode — NIE dodane (nie było w zakresie tego sprintu; dodać dopiero razem z realnym kodem HealthKit, bo Review odrzuca uprawnienia bez użycia).
+- Nowe pliki (`WorkoutStreak`, `HomeDashboardViewModel`, `WorkoutStreakTests`) leżą w katalogach synchronized groups — podpinają się same.
+
+**Do ręcznej weryfikacji przez użytkownika:**
+- Build w Xcode (3 nowe pliki + 8 zmienionych).
+- Testy: `WorkoutStreakTests`, `PolishPluralHomeTests` (+ wszystkie poprzednie — bez zmian w starych testach).
+- Smoke test: zaloguj serię w zakładce Ćwiczenia → przełącz na Home → hero pokazuje podciągnięcia z tego tygodnia → rozwiń moduł Quick Log: widać ostatni zapis, „Dodaj serię" otwiera SetPad i po zapisie moduł się odświeża → moduł Streak pokazuje „1 dzień" i zaznaczony dzisiejszy dzień w kalendarzu → moduł „Następny trening" proponuje ćwiczenie z najdawniej nietrenowanej grupy.
+- Tint/AccentColor: sprawdź, czy wypełnienie AccentColor (#D1FF00) niczego nie przebarwiło nieoczekiwanie (wcześniej colorset był pusty).
+- Po pozytywnej weryfikacji: zmień status Sprintu 4 w tabeli na `zakończony`.

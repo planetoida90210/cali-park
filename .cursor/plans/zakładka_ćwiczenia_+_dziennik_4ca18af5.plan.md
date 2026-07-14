@@ -40,13 +40,13 @@ todos:
     status: completed
   - id: s4-home-modules
     content: "S4: Podłączenie QuickLog/Streak/NextWorkout/HeroCard pod realne logi, usunięcie martwego dailyChallenge"
-    status: pending
+    status: completed
   - id: s4-cleanup
     content: "S4: Tab API w MainTabView, NavigationStack w HomeView, deprecated modifiery w dotykanych plikach, wypełnienie pustego AccentColor.colorset (#D1FF00)"
-    status: pending
+    status: completed
   - id: s4-tests
     content: "S4: Testy — logika streak (dziś, wczoraj, przerwa) jako testy parametryzowane"
-    status: pending
+    status: completed
 isProject: false
 ---
 
