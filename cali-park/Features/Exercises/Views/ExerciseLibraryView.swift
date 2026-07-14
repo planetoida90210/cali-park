@@ -34,6 +34,13 @@ struct ExerciseLibraryView: View {
                 QuickWorkoutButton { showingQuickWorkout = true }
             }
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    NavigationLink(value: WorkoutPlansDestination()) {
+                        Image(systemName: "calendar")
+                            .foregroundStyle(Color.accent)
+                    }
+                    .accessibilityLabel("Plany treningowe")
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink(value: WorkoutHistoryDestination()) {
                         Image(systemName: "clock.arrow.circlepath")
@@ -47,6 +54,9 @@ struct ExerciseLibraryView: View {
             }
             .navigationDestination(for: WorkoutHistoryDestination.self) { _ in
                 WorkoutHistoryView(viewModel: environment.makeWorkoutHistoryViewModel())
+            }
+            .navigationDestination(for: WorkoutPlansDestination.self) { _ in
+                WorkoutPlansView(environment: environment)
             }
             .sheet(isPresented: $showingQuickWorkout) {
                 QuickWorkoutView(viewModel: environment.makeQuickWorkoutViewModel())
@@ -79,6 +89,10 @@ private struct QuickWorkoutButton: View {
 /// Value-based navigation token for the workout history screen
 /// (keeps `navigationDestination(for:)` instead of an inline-destination link).
 private struct WorkoutHistoryDestination: Hashable {}
+
+// MARK: - WorkoutPlansDestination
+/// Value-based navigation token for the workout plans list.
+private struct WorkoutPlansDestination: Hashable {}
 
 // MARK: - ExerciseSearchField
 private struct ExerciseSearchField: View {

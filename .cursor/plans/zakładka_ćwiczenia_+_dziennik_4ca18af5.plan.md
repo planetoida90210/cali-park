@@ -76,13 +76,13 @@ todos:
     status: completed
   - id: s7-editor
     content: "S7: WorkoutPlansViewModel + PlanEditorViewModel/PlanEditorView (nazwa, ćwiczenia przez ExercisePickerSheet, harmonogram) + lista planów"
-    status: pending
+    status: completed
   - id: s7-di
     content: "S7: Fabryki planera w AppEnvironment + wejście do listy planów (zakładka Ćwiczenia)"
-    status: pending
+    status: completed
   - id: s7-tests
     content: "S7: Testy — VM edytora (walidacja, dodawanie/usuwanie ćwiczeń, wybór harmonogramu)"
-    status: pending
+    status: completed
   - id: s8-home
     content: "S8: Home — zamiana „Nast. trening\" na plan (najbliższy zaplanowany trening) + „Rozpocznij\" prefill sesji z planu"
     status: pending

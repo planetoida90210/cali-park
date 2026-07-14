@@ -23,8 +23,8 @@ Plan źródłowy: [.cursor/plans/zakładka_ćwiczenia_+_dziennik_4ca18af5.plan.m
 | 3 | SetPad + dziennik: SetPadInput, SetPadSheetView, historia logów, testy sekwencji | zakończony | 2026-07-14 |
 | 4 | Home + sprzątanie: Quick Log/streak/hero z realnych logów, Tab API, NavigationStack, AccentColor | zakończony | 2026-07-14 |
 | 5 | „Szybki trening": sesja z dowolnych ćwiczeń (sessionID + batch append), reużywalny SetPadEntryView, ExercisePickerSheet, wejścia z Home i Ćwiczeń, grupowanie sesji w historii | zakończony | 2026-07-14 |
-| 6 | Planer — fundament danych: Weekday, WorkoutSchedule (+ nextOccurrence), PlannedExercise, WorkoutPlan, WorkoutPlanStoring + store'y, workoutPlanStore w AppEnvironment, testy (bez UI) | do weryfikacji | 2026-07-14 |
-| 7 | Planer — UI: lista planów + kreator/edytor (nazwa, ćwiczenia, harmonogram), fabryki w AppEnvironment, wejście z zakładki Ćwiczenia | oczekuje | — |
+| 6 | Planer — fundament danych: Weekday, WorkoutSchedule (+ nextOccurrence), PlannedExercise, WorkoutPlan, WorkoutPlanStoring + store'y, workoutPlanStore w AppEnvironment, testy (bez UI) | zakończony | 2026-07-14 |
+| 7 | Planer — UI: lista planów + kreator/edytor (nazwa, ćwiczenia, harmonogram), fabryki w AppEnvironment, wejście z zakładki Ćwiczenia | do weryfikacji | 2026-07-14 |
 | 8 | Planer — Home: „Nast. trening" = najbliższy zaplanowany trening + „Rozpocznij" (prefill sesji z planu) | oczekuje | — |
 
 Statusy: `oczekuje` → `w toku` → `do weryfikacji` → `zakończony` (ustawia użytkownik).
@@ -296,3 +296,51 @@ Uwaga wstępna: plan 5-sprintowy był ukończony. Użytkownik potwierdził, że 
 - Testy: `WeekdayTests`, `WorkoutScheduleTests`, `WorkoutPlanTests`, `WorkoutPlanCodableTests`, `WorkoutPlanStoreTests` (+ wszystkie poprzednie — nic w starym kodzie nie zmieniano poza dodaniem pola w `AppEnvironment`).
 - Brak smoke testu UI (Sprint bez UI). Ewentualnie: aplikacja nadal buduje się i działa jak po Sprincie 5 (planer jeszcze niewidoczny).
 - Po pozytywnej weryfikacji: zmień status Sprintu 6 w tabeli na `zakończony`.
+
+---
+
+### Sprint 7 — 2026-07-14, agent (siódmy)
+
+Uwaga wstępna: Sprint 6 miał status `do weryfikacji`, ale użytkownik potwierdził, że build Sprintu 6 przeszedł bez błędów — oznaczyłem Sprint 6 jako `zakończony` i wykonałem Sprint 7 (UI planera: lista planów + kreator/edytor). Fundament danych planera (modele + store + `workoutPlanStore` w `AppEnvironment`) był gotowy z S6 — S7 dokłada tylko warstwę VM/UI + wejście.
+
+**Zrobione:**
+- `cali-park/Features/Planner/ViewModels/WorkoutScheduleFormatter.swift` (NOWY) — współdzielony helper prezentacji: `summary(_:)` zamienia `WorkoutSchedule` na krótki polski opis („Co tydzień · Pon, Czw", „Co 3 dni", „Codziennie", „Jednorazowo · 20 lip", „Bez terminu"). Dni w kolejności locale (`Weekday.ordered`). Logika opisu poza modelem (writing-for-interfaces).
+- `cali-park/Features/Planner/ViewModels/PlanEditorViewModel.swift` (NOWY) — `@Observable @MainActor`; tworzenie i edycja planu. Pola: `name`, `exercises: [PlannedExercise]`, `scheduleMode` (enum `weekly`/`everyNDays`/`once` — POJEDYNCZY stan wyboru), `selectedWeekdays`, `interval`, `onceDate`. `schedule` składany z trybu; `canSave` = nazwa (trim) niepusta + ≥1 ćwiczenie + poprawny harmonogram. Intencje: `addExercise` (bez duplikatów po `exerciseID`), `remove`, `toggle(weekday)`, `save()` (upsert przez `store.save`, błąd → `errorMessage`, sukces → `didSave`). Edycja preloaduje pola z istniejącego planu i zachowuje `id`/`createdAt`/`isActive`/kotwicę `everyNDays`.
+- `cali-park/Features/Planner/ViewModels/WorkoutPlansViewModel.swift` (NOWY) — `@Observable @MainActor`; `plans` (od najnowszego po `createdAt`), `reload()`, `delete(_:)` (błąd → alert), `scheduleSummary(for:)` przez formatter.
+- `cali-park/Features/Planner/Views/PlanEditorView.swift` (NOWY) — `Form` (styl natywny, ciemny motyw): sekcja Nazwa (`TextField`), Ćwiczenia (lista + swipe-to-delete + „Dodaj ćwiczenie" → `ExercisePickerSheet`), Harmonogram (segmented `Picker` trybu + `WeekdaySelector`/`Stepper`/`DatePicker` zależnie od trybu, stopka z opisem PL). Toolbar „Anuluj"/„Zapisz" (Zapisz disabled dopóki `!canSave`). Prezentowany jako sheet z własnym `NavigationStack`. Podwidoki jako osobne `private struct` (wydajność `@Observable`).
+- `cali-park/Features/Planner/Views/WorkoutPlansView.swift` (NOWY) — lista planów (nazwa + opis harmonogramu + liczba ćwiczeń), swipe-to-delete, stan pusty z CTA, toolbar „+". Tap w wiersz = edycja, „+" = nowy — oba przez `sheet(item: PlanEditorRoute)` (`.new`/`.edit(plan)`), reload po zapisie. Pushowany z zakładki Ćwiczenia (bez własnego `NavigationStack`).
+- `cali-park/Core/AppEnvironment.swift` — fabryki `makeWorkoutPlansViewModel()` i `makePlanEditorViewModel(plan:)` (plan opcjonalny = nowy); usunięta nieaktualna notatka „bez fabryk (S7)".
+- `cali-park/Features/Exercises/Views/ExerciseLibraryView.swift` — wejście do planera: przycisk `calendar` w toolbarze (leading) + `navigationDestination(for: WorkoutPlansDestination.self)` → `WorkoutPlansView(environment:)`.
+- `cali-parkTests/PlanEditorViewModelTests.swift` (NOWY) — Swift Testing (`@MainActor`): walidacja (nazwa/ćwiczenia/dni weekly), duplikaty ignorowane, remove (offset + wartość), toggle dni, `schedule` per tryb, `save` upsert (stały `id`, edycja nie duplikuje), no-op bez pól, błąd przez `FailingWorkoutPlanStore`, preload przy edycji; `WorkoutPlansViewModelTests` (sort najnowsze-first, delete); `WorkoutScheduleFormatterTests` (kolejność dni locale, pusty weekly, codziennie/Co N dni, szkic bez terminu).
+
+**Odstępstwa od planu:** brak istotnych. Doprecyzowanie: dodałem do `canSave` warunek „poprawny harmonogram" (weekly wymaga ≥1 dnia, interval > 0) ponad plan „nazwa niepusta + ≥1 ćwiczenie" — bez tego dałoby się zapisać plan tygodniowy bez żadnego dnia (harmonogram nigdy by nie wystąpił). Tryb `once` zawsze poprawny (data domyślnie dziś).
+
+**Decyzje podjęte w trakcie:**
+- Harmonogram jako `scheduleMode` (segmented `Picker`) — jeden aktywny tryb, nie kilka niezależnych toggle (swiftui-design-principles: „Mutually exclusive options"). W trybie `weekly` wybór wielu dni to naturalny `Set<Weekday>` (chipsy `WeekdaySelector`).
+- Edytor jako `Form` (natywne sekcje, keyboard handling) z `.scrollContentBackground(.hidden)` + `Color.appBackground` i `.listRowBackground(Color.componentBackground)` — spójne z ciemnym motywem, mniej custom kodu.
+- Editor prezentowany jako sheet (`PlanEditorRoute` przez `sheet(item:)`, nie `Bool` + osobny stan) — payload decyduje o trybie nowy/edycja; `WorkoutPlansView` pushowany (dziedziczy `NavigationStack` zakładki).
+- `WorkoutScheduleFormatter` jako osobny typ współdzielony przez oba VM (lista + stopka edytora) — jedno źródło opisu PL.
+- Usunąłem `.onMove`/`move(...)` (reorder) — brak wejścia w tryb edycji (EditButton), więc byłby to martwy afford; swipe-delete wystarcza. Do dodania z EditButton, jeśli zajdzie potrzeba.
+- Wejście przez ikonę `calendar` w toolbarze (leading), obok istniejącej ikony historii (trailing) — bez zaśmiecania dolnego paska (tam jest akcentowy „Szybki trening").
+
+**Znane problemy / TODO:**
+- Brak edycji `targetSets`/`targetReps` w UI — `PlannedExercise` ma te pola (dla prefill SetPada w S8), ale edytor dodaje ćwiczenie bez targetów (świadome cięcie; S8 użyje prefill nawet przy `nil`).
+- Brak reorderu ćwiczeń w planie (patrz wyżej) i przełącznika `isActive` w UI (nowe plany są aktywne; model gotowy).
+- `once`/`everyNDays` są w pełni wspierane w edytorze, choć DoD skupia się na „co tydzień" — trzymają się modelu z S6, więc bez martwych ścieżek.
+- Planer nadal NIE jest podłączony do Home — to zakres S8 (`nextPlannedWorkout` + „Rozpocznij" z prefillem sesji z planu).
+
+**Wskazówki dla następnego agenta (Sprint 8):**
+- W `HomeDashboardViewModel` dodaj `workoutPlanStore` (drugi store — DI jak `workoutLogStore`) i `nextPlannedWorkout`: z `store.load()` wybierz aktywny plan z najbliższym `plan.nextOccurrence(...)` (deterministyczny kalendarz w testach). `nextOccurrence` liczy dzień WŁĄCZNIE (dziś się liczy) — zdecyduj na Home, czy „dziś" czy „następny".
+- „Nast. trening" na Home (`PrimaryActionRailView` / moduł „next"): pokaż nazwę planu + kiedy (`WorkoutScheduleFormatter` gotowy do reużycia albo `Text(date, format:)`), „Rozpocznij" → `QuickWorkoutView` z prefillem `DraftItem` z `PlannedExercise` (użytkownik zatwierdza serie na SetPadzie). Przy braku planów — obecny fallback (heurystyka `suggestedExercise`).
+- Prefill sesji: `QuickWorkoutViewModel` obecnie dostaje pozycje przez `addExercise(_:sets:)`. Na S8 rozważ init z listą wstępnych `DraftItem` (z `targetSets`/`targetReps` → puste serie do uzupełnienia) LUB seed z planu; `finish()` już zapisuje jako jedną sesję.
+- Fabryka `makePlanEditorViewModel(plan:)` i `makeWorkoutPlansViewModel()` są w `AppEnvironment`; `makeHomeDashboardViewModel()` trzeba będzie rozszerzyć o `workoutPlanStore`.
+- Nowe pliki leżą w `Features/Planner/` (synchronized groups — podpinają się same): 3 VM + 2 View + 1 plik testów.
+- Kolory z `AppTheme`, siatka 4/8, `clipShape(.rect(cornerRadius:))`, przyciski jako `Button` — utrzymane.
+- ZANIM zaczniesz: sprawdź, czy Sprint 7 ma status `zakończony` (użytkownik weryfikuje build).
+
+**Do ręcznej weryfikacji przez użytkownika:**
+- Build w Xcode (5 nowych plików app: `WorkoutScheduleFormatter`, `PlanEditorViewModel`, `WorkoutPlansViewModel`, `PlanEditorView`, `WorkoutPlansView` + 1 plik testów `PlanEditorViewModelTests`; zmienione: `AppEnvironment`, `ExerciseLibraryView`). Pliki w `Features/Planner/` podpną się same (synchronized groups).
+- Testy: `PlanEditorViewModelTests`, `WorkoutPlansViewModelTests`, `WorkoutScheduleFormatterTests` (+ wszystkie poprzednie — nic w starym kodzie nie zmieniano poza `AppEnvironment`/`ExerciseLibraryView`).
+- Smoke test: zakładka Ćwiczenia → ikona kalendarza (lewy górny róg) → „Plany treningowe" (pusty stan) → „Nowy plan" → wpisz nazwę „Pull" → „Dodaj ćwiczenie" → wybierz Podciągnięcia i Dipy → tryb „Co tydzień" → zaznacz Pon → stopka pokazuje „Co tydzień · Pon" → „Zapisz" → plan na liście (nazwa + „Co tydzień · Pon" + „2 ćwiczenia"). Tap w plan → edycja (pola wczytane) → zmień na Pon+Czw → Zapisz → opis się aktualizuje. Swipe w lewo → usuń.
+- Sprawdź, że „Zapisz" jest nieaktywny dopóki brak nazwy LUB brak ćwiczeń LUB (tryb „Co tydzień" bez żadnego dnia).
+- Po pozytywnej weryfikacji: zmień status Sprintu 7 w tabeli na `zakończony`.
