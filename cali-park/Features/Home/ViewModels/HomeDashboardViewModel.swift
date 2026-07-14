@@ -10,19 +10,28 @@ import Observation
 final class HomeDashboardViewModel {
     // MARK: State
     private(set) var entries: [WorkoutLogEntry] = []
+    /// Saved workout plans, used to surface the next scheduled workout.
+    private(set) var plans: [WorkoutPlan] = []
 
     // MARK: Dependencies
     private let store: WorkoutLogStoring
+    private let planStore: WorkoutPlanStoring
+    private let calendar: Calendar
 
     // MARK: Init
-    init(store: WorkoutLogStoring) {
+    init(store: WorkoutLogStoring,
+         planStore: WorkoutPlanStoring,
+         calendar: Calendar = .current) {
         self.store = store
+        self.planStore = planStore
+        self.calendar = calendar
         reload()
     }
 
     // MARK: Intentions
     func reload() {
         entries = store.load().sorted { $0.date > $1.date }
+        plans = planStore.load()
     }
 
     /// SetPad session for logging straight from Home (Quick Log).
@@ -33,6 +42,12 @@ final class HomeDashboardViewModel {
     /// Quick workout session started from Home (Quick Log).
     func makeQuickWorkoutViewModel() -> QuickWorkoutViewModel {
         QuickWorkoutViewModel(store: store)
+    }
+
+    /// Quick workout session seeded with a plan's exercises; the user confirms
+    /// each exercise's sets on the SetPad before finishing.
+    func makeQuickWorkoutViewModel(plan: WorkoutPlan) -> QuickWorkoutViewModel {
+        QuickWorkoutViewModel(store: store, plan: plan)
     }
 
     // MARK: Last workout
@@ -124,5 +139,30 @@ final class HomeDashboardViewModel {
             }
         }
         return nil
+    }
+
+    // MARK: Next planned workout
+    /// The soonest scheduled workout: an active plan paired with its next day.
+    struct PlannedWorkout: Equatable {
+        let plan: WorkoutPlan
+        let date: Date
+    }
+
+    /// The active plan whose next occurrence is soonest, or `nil` when no plan
+    /// is scheduled. Ties break on creation order for a stable result.
+    var nextPlannedWorkout: PlannedWorkout? {
+        nextPlannedWorkout(asOf: .now)
+    }
+
+    /// Testable core of `nextPlannedWorkout` with an explicit reference date.
+    func nextPlannedWorkout(asOf reference: Date) -> PlannedWorkout? {
+        plans
+            .compactMap { plan -> PlannedWorkout? in
+                guard let date = plan.nextOccurrence(onOrAfter: reference, calendar: calendar) else { return nil }
+                return PlannedWorkout(plan: plan, date: date)
+            }
+            .min {
+                $0.date != $1.date ? $0.date < $1.date : $0.plan.createdAt < $1.plan.createdAt
+            }
     }
 }

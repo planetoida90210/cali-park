@@ -49,8 +49,13 @@ struct QuickWorkoutView: View {
                         activeSheet = .setPad(exercise)
                     }
                 case .setPad(let exercise):
-                    SessionSetPadSheet(exercise: exercise) { sets in
+                    SessionSetPadSheet(exercise: exercise, initialSets: []) { sets in
                         viewModel.addExercise(exercise, sets: sets)
+                        activeSheet = nil
+                    }
+                case .editItem(let item):
+                    SessionSetPadSheet(exercise: item.exercise, initialSets: item.sets) { sets in
+                        viewModel.updateSets(itemID: item.id, sets: sets)
                         activeSheet = nil
                     }
                 }
@@ -74,9 +79,14 @@ struct QuickWorkoutView: View {
         List {
             Section {
                 ForEach(viewModel.items) { item in
-                    QuickWorkoutItemRow(item: item)
-                        .listRowBackground(Color.componentBackground)
-                        .listRowSeparatorTint(Color.divider)
+                    Button {
+                        activeSheet = .editItem(item)
+                    } label: {
+                        QuickWorkoutItemRow(item: item)
+                    }
+                    .buttonStyle(.plain)
+                    .listRowBackground(Color.componentBackground)
+                    .listRowSeparatorTint(Color.divider)
                 }
                 .onDelete { offsets in
                     let doomed = offsets.map { viewModel.items[$0] }
@@ -124,11 +134,13 @@ struct QuickWorkoutView: View {
 private enum ActiveSheet: Identifiable {
     case picker
     case setPad(Exercise)
+    case editItem(QuickWorkoutViewModel.DraftItem)
 
     var id: String {
         switch self {
         case .picker: "picker"
-        case .setPad(let exercise): exercise.id.uuidString
+        case .setPad(let exercise): "add-\(exercise.id.uuidString)"
+        case .editItem(let item): "edit-\(item.id.uuidString)"
         }
     }
 }
@@ -136,12 +148,21 @@ private enum ActiveSheet: Identifiable {
 // MARK: - SessionSetPadSheet
 /// SetPad tuned for a session: logs sets for one exercise and hands them back
 /// to the session (no persistence here — the session saves everything at once).
+/// Seeds the keypad with `initialSets` when confirming a prefilled plan item.
 private struct SessionSetPadSheet: View {
     let exercise: Exercise
-    let onAdd: ([LoggedSet]) -> Void
+    let initialSets: [LoggedSet]
+    let onSave: ([LoggedSet]) -> Void
 
-    @State private var input = SetPadInput()
+    @State private var input: SetPadInput
     @Environment(\.dismiss) private var dismiss
+
+    init(exercise: Exercise, initialSets: [LoggedSet], onSave: @escaping ([LoggedSet]) -> Void) {
+        self.exercise = exercise
+        self.initialSets = initialSets
+        self.onSave = onSave
+        _input = State(initialValue: SetPadInput(committedSets: initialSets.map(\.reps)))
+    }
 
     var body: some View {
         SetPadEntryView(
@@ -149,7 +170,7 @@ private struct SessionSetPadSheet: View {
             input: $input,
             saveTitle: "Dodaj do treningu"
         ) {
-            onAdd(input.setsForSaving.map { LoggedSet(reps: $0) })
+            onSave(input.setsForSaving.map { LoggedSet(reps: $0) })
         }
         .padding(.horizontal, 16)
         .padding(.top, 24)
@@ -173,20 +194,33 @@ private struct QuickWorkoutItemRow: View {
                     .font(.bodyLarge)
                     .foregroundStyle(Color.textPrimary)
 
-                Text(item.sets.map { String($0.reps) }.joined(separator: " + "))
-                    .font(.bodySmall)
-                    .monospacedDigit()
-                    .foregroundStyle(Color.textSecondary)
+                if item.isPending {
+                    Text("Dotknij, aby dodać serie")
+                        .font(.bodySmall)
+                        .foregroundStyle(Color.accent)
+                } else {
+                    Text(item.sets.map { String($0.reps) }.joined(separator: " + "))
+                        .font(.bodySmall)
+                        .monospacedDigit()
+                        .foregroundStyle(Color.textSecondary)
+                }
             }
 
             Spacer()
 
-            Text(PolishPlural.reps(item.totalReps))
-                .font(.bodySmall)
-                .foregroundStyle(Color.textSecondary)
+            if item.isPending {
+                Image(systemName: "plus.circle")
+                    .foregroundStyle(Color.accent)
+            } else {
+                Text(PolishPlural.reps(item.totalReps))
+                    .font(.bodySmall)
+                    .foregroundStyle(Color.textSecondary)
+            }
         }
         .padding(.vertical, 4)
+        .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
+        .accessibilityHint(item.isPending ? "Dotknij, aby dodać serie" : "Dotknij, aby edytować serie")
     }
 }
 

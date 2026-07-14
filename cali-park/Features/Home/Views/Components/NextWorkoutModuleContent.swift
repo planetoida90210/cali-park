@@ -1,18 +1,23 @@
 import SwiftUI
 
 // MARK: - Next Workout Module
-/// Suggests the next exercise: a basic movement for the muscle group that has
-/// gone untrained the longest. Empty journal — honest empty state instead of
-/// a fake schedule.
+/// Shows what to train next. A scheduled plan wins (name, when, and a
+/// "Rozpocznij" that opens the session prefilled from the plan); otherwise it
+/// falls back to the untrained-group suggestion, then an honest empty state.
 struct NextWorkoutModuleContent: View {
     let dashboard: HomeDashboardViewModel
 
-    /// Payload-driven sheet — set only when logging starts.
+    /// Payload-driven sheets — set only when an action starts.
     @State private var loggingExercise: Exercise?
+    @State private var startingPlan: WorkoutPlan?
 
     var body: some View {
         Group {
-            if let suggestion = dashboard.suggestedExercise {
+            if let planned = dashboard.nextPlannedWorkout {
+                PlannedWorkoutContent(planned: planned) {
+                    startingPlan = planned.plan
+                }
+            } else if let suggestion = dashboard.suggestedExercise {
                 SuggestionContent(exercise: suggestion) {
                     loggingExercise = suggestion
                 }
@@ -25,6 +30,53 @@ struct NextWorkoutModuleContent: View {
         .clipShape(.rect(cornerRadius: 12))
         .sheet(item: $loggingExercise, onDismiss: { dashboard.reload() }) { exercise in
             SetPadSheetView(viewModel: dashboard.makeWorkoutLogViewModel(exercise: exercise))
+        }
+        .sheet(item: $startingPlan, onDismiss: { dashboard.reload() }) { plan in
+            QuickWorkoutView(
+                viewModel: dashboard.makeQuickWorkoutViewModel(plan: plan),
+                onFinish: { dashboard.reload() }
+            )
+        }
+    }
+}
+
+// MARK: - PlannedWorkoutContent
+private struct PlannedWorkoutContent: View {
+    let planned: HomeDashboardViewModel.PlannedWorkout
+    let onStart: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                Image(systemName: "calendar")
+                    .font(.title3)
+                    .foregroundStyle(Color.black)
+                    .frame(width: 44, height: 44)
+                    .background(Color.accent)
+                    .clipShape(.rect(cornerRadius: 12))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(planned.plan.name)
+                        .font(.bodyLarge)
+                        .foregroundStyle(Color.textPrimary)
+
+                    Text("\(WorkoutScheduleFormatter.dayLabel(planned.date)) · \(PolishPlural.exercises(planned.plan.exerciseCount))")
+                        .font(.bodySmall)
+                        .foregroundStyle(Color.textSecondary)
+                }
+
+                Spacer()
+            }
+
+            Button(action: onStart) {
+                Text("Rozpocznij")
+                    .font(.buttonMedium)
+                    .foregroundStyle(Color.black)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.accent)
+                    .clipShape(.rect(cornerRadius: 8))
+            }
         }
     }
 }
@@ -77,7 +129,7 @@ private struct NextWorkoutEmptyState: View {
                 .font(.bodyMedium)
                 .foregroundStyle(Color.textPrimary)
 
-            Text("Zaloguj pierwszy trening, a zaproponujemy kolejny.")
+            Text("Zaloguj pierwszy trening lub zaplanuj kolejny.")
                 .font(.bodySmall)
                 .foregroundStyle(Color.textSecondary)
                 .multilineTextAlignment(.center)

@@ -24,8 +24,8 @@ Plan źródłowy: [.cursor/plans/zakładka_ćwiczenia_+_dziennik_4ca18af5.plan.m
 | 4 | Home + sprzątanie: Quick Log/streak/hero z realnych logów, Tab API, NavigationStack, AccentColor | zakończony | 2026-07-14 |
 | 5 | „Szybki trening": sesja z dowolnych ćwiczeń (sessionID + batch append), reużywalny SetPadEntryView, ExercisePickerSheet, wejścia z Home i Ćwiczeń, grupowanie sesji w historii | zakończony | 2026-07-14 |
 | 6 | Planer — fundament danych: Weekday, WorkoutSchedule (+ nextOccurrence), PlannedExercise, WorkoutPlan, WorkoutPlanStoring + store'y, workoutPlanStore w AppEnvironment, testy (bez UI) | zakończony | 2026-07-14 |
-| 7 | Planer — UI: lista planów + kreator/edytor (nazwa, ćwiczenia, harmonogram), fabryki w AppEnvironment, wejście z zakładki Ćwiczenia | do weryfikacji | 2026-07-14 |
-| 8 | Planer — Home: „Nast. trening" = najbliższy zaplanowany trening + „Rozpocznij" (prefill sesji z planu) | oczekuje | — |
+| 7 | Planer — UI: lista planów + kreator/edytor (nazwa, ćwiczenia, harmonogram), fabryki w AppEnvironment, wejście z zakładki Ćwiczenia | zakończony | 2026-07-14 |
+| 8 | Planer — Home: „Nast. trening" = najbliższy zaplanowany trening + „Rozpocznij" (prefill sesji z planu) | do weryfikacji | 2026-07-14 |
 
 Statusy: `oczekuje` → `w toku` → `do weryfikacji` → `zakończony` (ustawia użytkownik).
 
@@ -344,3 +344,48 @@ Uwaga wstępna: Sprint 6 miał status `do weryfikacji`, ale użytkownik potwierd
 - Smoke test: zakładka Ćwiczenia → ikona kalendarza (lewy górny róg) → „Plany treningowe" (pusty stan) → „Nowy plan" → wpisz nazwę „Pull" → „Dodaj ćwiczenie" → wybierz Podciągnięcia i Dipy → tryb „Co tydzień" → zaznacz Pon → stopka pokazuje „Co tydzień · Pon" → „Zapisz" → plan na liście (nazwa + „Co tydzień · Pon" + „2 ćwiczenia"). Tap w plan → edycja (pola wczytane) → zmień na Pon+Czw → Zapisz → opis się aktualizuje. Swipe w lewo → usuń.
 - Sprawdź, że „Zapisz" jest nieaktywny dopóki brak nazwy LUB brak ćwiczeń LUB (tryb „Co tydzień" bez żadnego dnia).
 - Po pozytywnej weryfikacji: zmień status Sprintu 7 w tabeli na `zakończony`.
+
+---
+
+### Sprint 8 — 2026-07-14, agent (ósmy)
+
+Uwaga wstępna: Sprint 7 miał status `do weryfikacji`, ale użytkownik potwierdził, że build Sprintu 7 przeszedł bez błędów — oznaczyłem Sprint 7 jako `zakończony` i wykonałem Sprint 8 (ostatni sprint mini-planu Planera). S8 podłącza istniejący `workoutPlanStore` (z S6) i UI planera (z S7) do ekranu Home: „Nast. trening" pokazuje teraz najbliższy **zaplanowany** trening i uruchamia sesję z prefillem ćwiczeń z planu.
+
+**Zrobione:**
+- `cali-park/Features/Home/ViewModels/HomeDashboardViewModel.swift` — drugi store `workoutPlanStore` + wstrzykiwany `calendar` (DI jak `workoutLogStore`); `reload()` ładuje też `plans`; `PlannedWorkout` (plan + data) i `nextPlannedWorkout` — z aktywnych planów wybiera ten z najbliższym `nextOccurrence` (remis → starszy `createdAt`). Testowalny rdzeń `nextPlannedWorkout(asOf:)` z jawną datą odniesienia. Nowa fabryka `makeQuickWorkoutViewModel(plan:)`.
+- `cali-park/Features/Exercises/ViewModels/QuickWorkoutViewModel.swift` — `DraftItem.sets` z `let` na `var` + `isPending` (puste serie = pozycja do uzupełnienia); `convenience init(store:plan:)` seeduje sesję z ćwiczeń planu; czyste, statyczne `draftItem(from:)` i `prefilledSets(from:)` (targetSets×targetReps → konkretne serie; brak/zero targetów → pending). `updateSets(itemID:sets:)` (zatwierdzenie/edycja serii na SetPadzie). `canFinish` = min. jedna niepusta pozycja; `finish()` zapisuje tylko niepuste (pending pomijane), dalej jako jedna sesja (`sessionID`).
+- `cali-park/Features/Exercises/Models/SetPadInput.swift` — `init(committedSets:)` do seedowania keypada znanymi seriami (prefill z targetów planu / edycja pozycji).
+- `cali-park/Features/Exercises/Views/QuickWorkoutView.swift` — pozycje sesji są teraz klikalne (`Button` → SetPad z prefillem bieżących serii, `ActiveSheet.editItem`); pozycje pending pokazują „Dotknij, aby dodać serie" + ikonę `plus.circle`; `SessionSetPadSheet` przyjmuje `initialSets` i seeduje `SetPadInput`.
+- `cali-park/Features/Home/Views/Components/NextWorkoutModuleContent.swift` — priorytet dla zaplanowanego treningu: karta z nazwą planu + „kiedy" (`WorkoutScheduleFormatter.dayLabel`) + liczbą ćwiczeń + „Rozpocznij" (otwiera `QuickWorkoutView` z prefillem). Brak planu → dotychczasowa heurystyka `suggestedExercise`; pusto → uczciwy stan pusty (copy zaktualizowane: „Zaloguj pierwszy trening lub zaplanuj kolejny.").
+- `cali-park/Features/Home/Views/Components/PrimaryActionRailView.swift` — drugi przycisk pokazuje nazwę planu, gdy jest zaplanowany („Nast. trening" jako fallback) i uruchamia sesję z prefillem planu; przy braku planu → dotychczasowe zachowanie (`suggestedExercise` → SetPad, pusty dziennik → Szybki trening).
+- `cali-park/Features/Planner/ViewModels/WorkoutScheduleFormatter.swift` — nowy `dayLabel(_:asOf:calendar:)`: „Dziś"/„Jutro"/nazwa dnia tygodnia (do 7 dni)/data (dalej).
+- `cali-park/Core/AppEnvironment.swift` — `makeHomeDashboardViewModel()` przekazuje `workoutPlanStore`.
+- `cali-parkTests/HomePlannerTests.swift` (NOWY) — Swift Testing: wybór najbliższego planu z wielu (deterministyczny kalendarz UTC + jawna data odniesienia), pomijanie planów nieaktywnych, remis po `createdAt`, brak planu → nil; prefill `DraftItem` (targety → serie, brak → pending, niekompletne/zero targetów → puste — parametryzowane, nieznane ID → nil); sesja z planu (seed, canFinish, totalSets), pending nie da się zakończyć dopóki nie zalogujesz serii, `finish()` zapisuje tylko zatwierdzone pod jednym `sessionID`; `dayLabel` (Dziś/Jutro/dzień tygodnia).
+
+**Odstępstwa od planu:** brak istotnych. Doprecyzowania: (1) „prefill DraftItem z PlannedExercise" zrealizowany tak, że pozycje z targetami dostają gotowe serie (do potwierdzenia/edycji), a bez targetów (obecne plany z S7 nie mają targetów) są **pending** — użytkownik zatwierdza serie na SetPadzie (zgodnie z „użytkownik zatwierdza serie na SetPadzie"); `finish()` pomija pending, więc nigdy nie zapisze pustej pozycji. (2) Bogaty widok „nazwa + kiedy + Rozpocznij" trafił do modułu „Następny trening" (ma miejsce), a kompaktowy pasek akcji tylko pokazuje nazwę planu i uruchamia sesję — oba wejścia spójne.
+
+**Decyzje podjęte w trakcie:**
+- `nextPlannedWorkout(asOf:)` jako osobna, testowalna metoda z jawną datą; computed property woła ją z `.now`. Kalendarz wstrzykiwany do VM (jak w `WorkoutStreak`).
+- Pozycje sesji edytowalne przez tap (`ActiveSheet.editItem`) zamiast osobnego trybu edycji — reużywa istniejący `SetPadEntryView`; pending i „gotowe" pozycje mają ten sam ekran.
+- Remis najbliższych planów rozstrzygany po `createdAt` (stabilny, deterministyczny wynik w testach).
+- `canFinish`/`finish()` liczone po niepustych pozycjach — wstecznie zgodne z S5 (tam wszystkie pozycje mają serie, więc zachowanie bez zmian).
+
+**Znane problemy / TODO:**
+- Edytor planu (S7) nadal nie ustawia `targetSets`/`targetReps` — więc realne plany seedują się jako pending (użytkownik loguje serie ręcznie). Prefill konkretnych serii zadziała od razu, gdy dojdzie UI targetów w edytorze (model gotowy).
+- Brak „dziś vs następny" rozróżnienia w akcji — `nextOccurrence` liczy dzień włącznie, więc plan zaplanowany na dziś pokazuje „Dziś" i startuje normalnie (świadome, proste).
+- HealthKit/Watch nadal nietknięte (jak w notatkach S4/S5) — `finish()` z jednym `sessionID` to naturalne miejsce na mapowanie sesji na `HKWorkout`.
+- Mini-plan Planera (S6–S8) UKOŃCZONY. Kolejne duże tematy: zakładka Profil (statystyki z logów), backend (`WorkoutLogStoring`/`WorkoutPlanStoring` gotowe do podmiany), HealthKit/Watch, ewentualnie powiadomienia lokalne dla harmonogramu (wymaga uprawnień — dodać z realnym kodem, inaczej App Store Review odrzuca).
+
+**Wskazówki dla następnego agenta:**
+- Nowe pliki (`HomePlannerTests`) leżą w `cali-parkTests/` (synchronized groups — podpina się samo). Reszta to modyfikacje istniejących plików.
+- Jeśli dojdą powiadomienia lokalne: `WorkoutSchedule.nextOccurrence` daje datę do zaplanowania `UNCalendarNotificationTrigger`; pamiętać o `NSUserNotificationsUsageDescription`/uprawnieniach + capability.
+- Prefill targetów: dodaj UI `targetSets`/`targetReps` w `PlanEditorView` → `QuickWorkoutViewModel.prefilledSets(from:)` już to rozwinie w gotowe serie (bez zmian w sesji).
+- ZANIM zaczniesz kolejny temat: sprawdź, czy Sprint 8 ma status `zakończony` (użytkownik weryfikuje build).
+
+**Do ręcznej weryfikacji przez użytkownika:**
+- Build w Xcode (1 nowy plik testów `HomePlannerTests`; zmienione: `HomeDashboardViewModel`, `QuickWorkoutViewModel`, `SetPadInput`, `QuickWorkoutView`, `NextWorkoutModuleContent`, `PrimaryActionRailView`, `WorkoutScheduleFormatter`, `AppEnvironment`).
+- Testy: `HomePlannerTests` (`NextPlannedWorkoutTests`, `QuickWorkoutPrefillTests`, `WorkoutScheduleDayLabelTests`) + wszystkie poprzednie (stare testy `QuickWorkoutTests`/`SetPadTests` powinny nadal przechodzić — sygnatury publiczne zachowane).
+- Smoke test A (plan → Home): zakładka Ćwiczenia → kalendarz → utwórz plan „Pull" (Podciągnięcia + Dipy, „Co tydzień · <dziś/najbliższy dzień>") → wróć na Home → moduł „Następny trening" pokazuje „Pull", „<Dziś/Jutro/dzień>" i „N ćwiczeń" → „Rozpocznij" otwiera sesję z 2 pozycjami pending („Dotknij, aby dodać serie") → dotknij Podciągnięcia → `6 + 6 + 8` → Dodaj do treningu → „Zakończ" aktywne → Zakończ → w historii jedna karta sesji (Dipy pominięte, bo bez serii).
+- Smoke test B (pasek akcji): górny prawy przycisk pokazuje nazwę planu zamiast „Nast. trening" i uruchamia tę samą sesję z prefillem.
+- Smoke test C (brak planu): usuń wszystkie plany → moduł „Następny trening" wraca do propozycji heurystycznej; przy pustym dzienniku — stan pusty.
+- Po pozytywnej weryfikacji: zmień status Sprintu 8 w tabeli na `zakończony`.
