@@ -161,7 +161,9 @@ private struct SessionSetPadSheet: View {
         self.exercise = exercise
         self.initialSets = initialSets
         self.onSave = onSave
-        _input = State(initialValue: SetPadInput(committedSets: initialSets.map(\.reps)))
+        _input = State(initialValue: SetPadInput(
+            committedSets: initialSets.map { $0.padValue(for: exercise.measurement) }
+        ))
     }
 
     var body: some View {
@@ -170,7 +172,7 @@ private struct SessionSetPadSheet: View {
             input: $input,
             saveTitle: "Dodaj do treningu"
         ) {
-            onSave(input.setsForSaving.map { LoggedSet(reps: $0) })
+            onSave(input.setsForSaving.map { LoggedSet(value: $0, measurement: exercise.measurement) })
         }
         .padding(.horizontal, 16)
         .padding(.top, 24)
@@ -199,7 +201,7 @@ private struct QuickWorkoutItemRow: View {
                         .font(.bodySmall)
                         .foregroundStyle(Color.accent)
                 } else {
-                    Text(item.sets.map { String($0.reps) }.joined(separator: " + "))
+                    Text(SetLogFormat.breakdown(of: item.sets))
                         .font(.bodySmall)
                         .monospacedDigit()
                         .foregroundStyle(Color.textSecondary)
@@ -212,7 +214,7 @@ private struct QuickWorkoutItemRow: View {
                 Image(systemName: "plus.circle")
                     .foregroundStyle(Color.accent)
             } else {
-                Text(PolishPlural.reps(item.totalReps))
+                Text(SetLogFormat.total(of: item.sets))
                     .font(.bodySmall)
                     .foregroundStyle(Color.textSecondary)
             }

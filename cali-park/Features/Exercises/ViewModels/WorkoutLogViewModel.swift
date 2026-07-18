@@ -33,7 +33,7 @@ final class WorkoutLogViewModel {
 
         let entry = WorkoutLogEntry(
             exerciseID: exercise.id,
-            sets: sets.map { LoggedSet(reps: $0) }
+            sets: sets.map { LoggedSet(value: $0, measurement: exercise.measurement) }
         )
 
         do {

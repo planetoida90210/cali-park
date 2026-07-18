@@ -34,6 +34,12 @@ enum PolishPlural {
         "\(count) \(form(for: count, one: "dzień", few: "dni", many: "dni"))"
     }
 
+    /// "1 sekunda", "3 sekundy", "5 sekund" — spelled out for VoiceOver, where
+    /// the on-screen unit stays the invariant symbol "s".
+    static func seconds(_ count: Int) -> String {
+        "\(count) \(form(for: count, one: "sekunda", few: "sekundy", many: "sekund"))"
+    }
+
     /// "1 podciągnięcie", "3 podciągnięcia", "5 podciągnięć".
     static func pullUps(_ count: Int) -> String {
         "\(count) \(form(for: count, one: "podciągnięcie", few: "podciągnięcia", many: "podciągnięć"))"

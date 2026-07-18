@@ -41,9 +41,22 @@ struct WorkoutLogEntry: Identifiable, Codable, Equatable, Hashable {
         self.planID = planID
     }
 
-    /// Total repetitions across all sets.
+    /// Total repetitions across the rep-based sets. Timed (isometric) sets are
+    /// excluded — their work is measured in `totalSeconds`, never mixed in here.
     var totalReps: Int {
-        sets.reduce(0) { $0 + $1.reps }
+        sets.reduce(0) { $0 + ($1.isTimed ? 0 : $1.reps) }
+    }
+
+    /// Total seconds held across the timed (isometric) sets; `0` when the entry
+    /// holds none.
+    var totalSeconds: Int {
+        sets.reduce(0) { $0 + ($1.durationSeconds ?? 0) }
+    }
+
+    /// Whether every set in this entry is a timed hold, so its work reads in
+    /// seconds rather than repetitions.
+    var isTimed: Bool {
+        !sets.isEmpty && sets.allSatisfy(\.isTimed)
     }
 
     func hash(into hasher: inout Hasher) {

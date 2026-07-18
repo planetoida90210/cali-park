@@ -12,6 +12,7 @@ struct WorkoutHistorySection: Identifiable {
     /// A session card when it holds more than one exercise.
     var isSession: Bool { entries.count > 1 }
     var totalReps: Int { entries.reduce(0) { $0 + $1.totalReps } }
+    var totalSeconds: Int { entries.reduce(0) { $0 + $1.totalSeconds } }
 }
 
 // MARK: - WorkoutHistoryViewModel
