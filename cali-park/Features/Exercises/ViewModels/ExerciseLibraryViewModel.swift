@@ -13,7 +13,9 @@ final class ExerciseLibraryViewModel {
     var selectedCategory: ExerciseCategory?
 
     // MARK: Dependencies
-    /// Catalog snapshot — injected for tests, `ExerciseCatalog.all` in production.
+    /// Catalog snapshot — injected for tests, `ExerciseCatalog.all` in
+    /// production. Progression variants are filtered out below, so the library
+    /// only ever lists main movements.
     private let exercises: [Exercise]
 
     // MARK: Init
@@ -22,11 +24,12 @@ final class ExerciseLibraryViewModel {
     }
 
     // MARK: Output
-    /// Exercises matching the current category and search filters, in catalog
-    /// order (basic → expert). Search is case- and diacritic-insensitive,
-    /// so "podciagniecia" finds "Podciągnięcia".
+    /// Main movements matching the current category and search filters, in
+    /// catalog order (basic → expert). Progression variants (`variantOf != nil`)
+    /// never appear here — they live on the skill ladders. Search is case- and
+    /// diacritic-insensitive, so "podciagniecia" finds "Podciągnięcia".
     var displayedExercises: [Exercise] {
-        var list = exercises
+        var list = exercises.filter { $0.variantOf == nil }
 
         if let selectedCategory {
             list = list.filter { $0.category == selectedCategory }
