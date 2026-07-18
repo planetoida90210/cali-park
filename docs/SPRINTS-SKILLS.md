@@ -25,8 +25,8 @@ Poprzednie trackery (kontekst, zamknięte): [docs/SPRINTS.md](SPRINTS.md) (Ćwic
 | SK1 | Baza progresji: `docs/PROGRESSIONS.md` ze źródłami (RR / Overcoming Gravity / poradniki), rozszerzenie ExerciseCatalog (~40–50 wariacji, `measurement`, `variantOf`), filtr biblioteki na ruchy główne, modele ProgressionPath/Step/Criterion + ProgressionCatalog, testy integralności | do weryfikacji | 2026-07-18 |
 | SK2 | Sekundy w dzienniku: `LoggedSet.durationSeconds` (wstecznie zgodny), SetPad w trybie sekund wg `exercise.measurement`, historia/podsumowania „3 × 20 s", testy Codable back-compat + odmiana PL | zakończony | 2026-07-18 |
 | SK3 | Silnik + placement (bez UI): ProgressionEngine (stany ścieżek z logów + deklaracji, ścieżki w pełni niezależne), SkillPlacement + PlacementStoring, XP/poziomy wstecz z historii, odznaki, SkillProgressStore, testy parametryzowane | zakończony | 2026-07-18 |
-| SK4 | Placement UI: przebudowa strony poziomu w OnboardingView na placement per ścieżka (pytania liczbowe + skille + guma), arkusz kalibracji w apce, testy mapowania odpowiedzi → szczeble | do weryfikacji | 2026-07-18 |
-| SK5 | Zakładka Skille zamiast Społeczności: SkillPathsView (poziom + XP + karty ścieżek), PathDetailView (drabina, bez kłódek), StepDetailSheetView (kryterium + postęp + CTA Trenuj), sekcja „Progresje" w detalu ruchu, drill-in wariantów w pickerze, previews, testy VM | oczekuje | — |
+| SK4 | Placement UI: przebudowa strony poziomu w OnboardingView na placement per ścieżka (pytania liczbowe + skille + guma), arkusz kalibracji w apce, testy mapowania odpowiedzi → szczeble | zakończony | 2026-07-18 |
+| SK5 | Zakładka Skille zamiast Społeczności: SkillPathsView (poziom + XP + karty ścieżek), PathDetailView (drabina, bez kłódek), StepDetailSheetView (kryterium + postęp + CTA Trenuj), sekcja „Progresje" w detalu ruchu, drill-in wariantów w pickerze, previews, testy VM | do weryfikacji | 2026-07-18 |
 | SK6 | Pętla nagrody + Home: celebracja awansu (raz, kolejka, Reduce Motion), XP toast, sekcja odznak, realny moduł osiągnięć, podpowiedź progresji w hero, wyłączenie atrap leaderboard/feed, bramka jakości App Store | oczekuje | — |
 
 Statusy: `oczekuje` → `w toku` → `do weryfikacji` → `zakończony` (ustawia użytkownik).
@@ -256,3 +256,62 @@ Szablon wpisu (kopiuj i wypełnij):
 - Testy: `PlacementCalibrationTests` (wszystkie suity) + regresja `ProgressionEngineTests` (`declarationsNeverGrantXP`), `ProgressionCatalogTests`, `SetSecondsTests`, `ExercisesDataTests`, `HomeHeroStateTests`.
 - Smoke (świeży użytkownik): onboarding → strona „Co już potrafisz?" → zaznacz np. podciąganie „9+", muscle-up, „Mam gumę oporową" → „Rozpocznij" → w `skill-placement.json` (documents) zapisany placement (pullUp=6, muscleUp=3, guma). (Zakładka Skille pokaże właściwe szczeble dopiero po SK5.)
 - Smoke (regres onboardingu): strony Witaj / Cele / Lokalizacja wyglądają jak przed sprintem; Dynamic Type nie psuje hero-ikon (skalują się).
+
+---
+
+### Sprint SK5 — 2026-07-18, agent
+
+**Zrobione:**
+- `cali-park/Features/Skills/Models/SkillPathSummary.swift` — model prezentacji: `ProgressionPath` + wyliczony `PathState` w jednej wartości (`currentStep`, `currentProgress`); `Identifiable`/`Equatable`/`Sendable`, wyłącznie derived (nieperystowany).
+- `cali-park/Features/Skills/Services/ProgressionFormat.swift` — czysty formatter copy: `criterion` („3 × 8", „3 × 20 s", markery „pierwsze czyste" / „pierwsze 5 s"), `best`, `progressLine` („3 × 8 — Twoje najlepsze: 3 × 6"), `equipment` („Masa ciała" gdy brak), `spokenCriterion` (VoiceOver: „3 serie po 20 sekund"). Symbol „s" niezmienny, pełna odmiana tylko dla VoiceOver.
+- `cali-park/Features/Skills/Services/ProgressionCatalog.swift` — nowy lookup `paths(containing:)` (ścieżki zawierające dany ruch — link „Progresje" w detalu ruchu).
+- `cali-park/Features/Exercises/Services/ExerciseCatalog.swift` — nowy `variants(of:)` (warianty ruchu w kolejności katalogu, drill-in w pickerze).
+- `cali-park/Features/Skills/ViewModels/SkillPathsViewModel.swift` — `@Observable @MainActor`: `summaries` (13 ścieżek z `ProgressionEngine.pathStates`), `level` (`playerLevel`), `hasPlacement`, `recentlyAdvancedPaths` (diff conquered między loadami — hook dla SK6), `summary(for:)`, `rungProgress(for:)`; ładowanie synchroniczne (store'y synchroniczne, jak `HomeDashboardViewModel`).
+- `cali-park/Features/Skills/Views/SkillPathsView.swift` — przegląd: nagłówek poziomu + pasek XP (`contentTransition(.numericText())`), siatka kart ścieżek (`LazyVGrid` 2 kol.), prompt kalibracji przy pierwszym kontakcie bez placementu (auto-sheet raz + banner + toolbar „Ustaw poziom"), `navigationDestination(for: ProgressionPathID.self)`. 3 previews (świeżak / placement średni / weteran).
+- `cali-park/Features/Skills/Views/PathDetailView.swift` — pionowa drabina (`RungRail` timeline: marker + ciągła linia, ring postępu na aktualnym), stany zaliczony/aktualny/przyszły BEZ kłódek (przyszłe przygaszone, ale tapowalne), niewiążąca notka bazy (`recommendedBase`), „Ustaw poziom". Reload po zamknięciu sheetu treningu/kalibracji.
+- `cali-park/Features/Skills/Views/StepDetailSheetView.swift` — detal szczebla: ikona + opis, „Cel" + `progressLine`, sprzęt, „Jak wykonać" (technika z katalogu), CTA **„Trenuj"** → `SetPadSheetView` (miara reps/sekundy wg `exercise.measurement` z SK2).
+- `cali-park/Features/Main/MainTabView.swift` — zakładka `Społeczność` → **`Skille`** (`trophy.fill`, nowe Tab API); `CommunityView` zostaje w repo, znika z tab bara.
+- `cali-park/Core/AppEnvironment.swift` — `makeSkillPathsViewModel()` + preview `skillsVeteran` (kilka drabin dynamicznych zaliczonych z logów + front lever w połowie).
+- `cali-park/Features/Exercises/Views/ExerciseDetailView.swift` — zwięzła sekcja „Progresje" (link do drabiny ścieżki przez `ProgressionPathID`, nie lista wariantów inline).
+- `cali-park/Features/Exercises/Views/ExerciseLibraryView.swift` — `navigationDestination(for: ProgressionPathID.self)` → `PathDetailView` (wejście z detalu ruchu).
+- `cali-park/Features/Exercises/Views/ExercisePickerSheet.swift` — wiersz ruchu z wariantami dostaje disclosure → `VariantPickerView` (drill-in konkretnego wariantu); ruchy bez wariantów wybierają się jednym tapnięciem jak dotąd.
+- `cali-parkTests/SkillPathsViewModelTests.swift` — testy: `ProgressionFormat` (kryteria/best/progressLine/sprzęt/VoiceOver), `advances(from:to:)` (pierwszy load nie świętuje, wzrost conquered = awans, brak zmian = brak), mapowanie VM (świeżak od dołu, placement ustawia szczebel, logi awansują + poziom, `rungProgress` per szczebel, reload po treningu wykrywa świeży awans).
+
+**Zastosowane skille:**
+- `swiftui-design-principles` — siatka 4/8/12/16/24, kolory semantyczne z AppTheme, karty `componentBackground` + `clipShape(.rect(cornerRadius: 12))`, ring aktualnego szczebla ma tę samą grubość tła i wypełnienia (3 pt), zero GeometryReader/stałych ramek (drabina przez layout HStack/VStack + rozciągana linia rail, `contentTransition(.numericText())` na poziomie i XP). `ProgressView(value:)` zamiast ręcznego rysowania paska. Restraint: jedna informacja na wiersz.
+- `writing-for-interfaces` — copy stanów szczebla („Zaliczone", „Trenujesz teraz"), kryterium z realnym postępem („3 × 8 — Twoje najlepsze: 3 × 6"), CTA „Trenuj"/„Ustaw poziom" (spójny wzorzec z SK4), notka bazy jako neutralna adnotacja (info.circle, nigdy warunek), „Zaloguj serię, aby zmierzyć postęp" gdy brak zapisów; zero żargonu poza terms of art; brak em-dash w UI poza „—" łączącym cel z najlepszym (celowo, czytelny separator).
+- `swift-concurrency-pro` — `load()` synchroniczne, bo store'y są synchroniczne (JSON/InMemory) — brak async I/O, więc brak `Task`/anulowania (spójne z `HomeDashboardViewModel`); silnik to czyste funkcje statyczne; `advances(from:to:)` czysta funkcja statyczna, deterministyczna; zero `DispatchQueue`. Świadomie NIE dodawałem uchwytów zadań tam, gdzie nie ma zadań.
+- `swift-testing-pro` — struktury nie klasy, `#expect`/`#require`, `@MainActor` na suitach dotykających VM, store'y InMemory jako stuby, zero timingu; `ProgressionFormat` testowany bez `@MainActor` (czysty).
+- `swift-architecture-skill` — MVVM/DI jak w całym projekcie: VM za fabryką w `AppEnvironment`, widoki tworzą VM przez `@State` + `environment.make…`, formatter/summary jako czyste warstwy; jeden VM (`SkillPathsViewModel`) obsługuje przegląd i detal (bez mnożenia typów), reużyty przez oba wejścia (Skille + detal ruchu).
+
+**Odstępstwa od planu:**
+- Detal ścieżki reużywa `SkillPathsViewModel` (świeża instancja per ekran) zamiast osobnego `PathDetailViewModel` — plan nazwał tylko `SkillPathsViewModel`; jeden VM liczy wszystkie ścieżki tanio, a detal bierze `summary(for:)`/`rungProgress(for:)`. Działa z obu wejść (zakładka Skille + „Progresje" w detalu ruchu bez instancji z zakładki).
+- „Świeże awanse" zrealizowane jako czysty diff `conquered` między dwoma snapshotami (`advances(from:to:)`), bez persystencji „uczczonych" — to należy do SK6 (kolejka celebracji + `SkillProgressStore`). SK5 daje tylko hook + test.
+
+**Decyzje podjęte w trakcie:**
+- Ikona zakładki: `trophy.fill` (skille + docelowo odznaki z SK6).
+- Rail drabiny: marker (checkmark/ring/okrąg) + ciągła linia z dwóch rozciąganych prostokątów — bez GeometryReader; kolor linii akcent do zaliczonych, `divider` dalej.
+- Pierwszy kontakt bez placementu: auto-sheet raz na cykl życia widoku (`hasOfferedCalibration`) + trwały banner i przycisk w toolbarze — nie nagabuje po anulowaniu, ale zostaje łatwo dostępny.
+- Copy poziomu: „Poziom N" + „X XP do poziomu N+1" (krzywa bez maksimum, więc zawsze jest następny poziom).
+- Drill-in wariantów: disclosure (chevron) tylko dla ruchów z wariantami; ruch bez wariantów = jeden tap (jak dotąd) — „jeden dodatkowy krok tylko dla tych, którzy go potrzebują".
+
+**Znane problemy / TODO:**
+- Celebracja awansu, XP toast, sekcja odznak, realny moduł osiągnięć na Home, hero-kontekst i wyłączenie atrap leaderboard/feed — całość SK6. `recentlyAdvancedPaths` czeka jako hook; `skillProgressStore` (SK3) nadal bez konsumenta.
+- `AchievementsModuleContent` (Home) nadal hardkoduje „12/30" — do podmiany w SK6.
+- `CommunityView` pozostaje w repo (poza tab barem) — wróci z backendem.
+- Detal ścieżki i przegląd liczą stan niezależnie (dwie instancje VM); po SK6 warto rozważyć wspólny strumień, jeśli celebracja ma reagować natychmiast między ekranami.
+
+**Wskazówki dla następnego agenta (SK6):**
+- Hook awansów: `SkillPathsViewModel.recentlyAdvancedPaths` (diff po `load()`); do idempotencji użyj `skillProgressStore` (SK3, `RungReference`/`celebratedLevel`) — celebruj tylko awanse z LOGÓW, nie z deklaracji (placement nie rusza XP ani odznak — patrz `ProgressionEngine`).
+- Odznaki: `ProgressionEngine.earnedBadges(from:calendar:today:)` + `Badge` (copy/symbole gotowe) — sekcję wepnij w `SkillPathsView`.
+- Poziom/XP do Home: `ProgressionEngine.playerLevel(for:)`; `AchievementsModuleContent` podmień na realne dane, tap → zakładka Skille (indeks 3 w `MainTabView`).
+- Nie ruszaj miary SetPada — `StepDetailSheetView` CTA „Trenuj" już wybiera reps/sekundy wg `exercise.measurement`.
+- Reduce Motion i idempotencja celebracji (jeden strumień zdarzeń, nie rozproszone boole) — patrz `swift-concurrency-pro`.
+
+**Do ręcznej weryfikacji przez użytkownika:**
+- Build + testy w Xcode (nowe pliki w `Features/Skills/{Models,ViewModels,Services,Views}` i `cali-parkTests/SkillPathsViewModelTests.swift` — synchronized groups powinny podpiąć automatycznie; jeśli nie, dodać ręcznie).
+- Testy: `SkillPathsViewModelTests` (wszystkie suity) + regresja `ProgressionEngineTests`, `ProgressionCatalogTests`, `PlacementCalibrationTests`, `SetSecondsTests`, `ExercisesDataTests`, `ExerciseLibraryViewModelTests`, `HomeHeroStateTests`.
+- Smoke (świeżak): zakładka **Skille** → auto-sheet „Ustaw poziom" → zadeklaruj np. podciąganie „9+" → karty pokazują właściwe szczeble; wejdź w Podciąganie → drabina bez kłódek, aktualny szczebel z ringiem; tap na szczebel → detal → „Trenuj" → zaloguj 3×8 → po powrocie drabina i XP zaktualizowane.
+- Smoke (statyka sekundowa): wejdź np. w Front lever → szczebel „Tuck front lever" → „Trenuj" → SetPad w trybie sekund („Liczysz sekundy utrzymania").
+- Smoke (warianty bez bałaganu): zakładka Ćwiczenia nadal 19 ruchów; detal np. Podciągnięcia → sekcja „Progresje" prowadzi do drabiny; „Szybki trening" → picker → przy ruchu z wariantami chevron → lista wariantów (np. „Negatywy podciągnięć") → wybór loguje wariant.
+- Dostępność: VoiceOver czyta karty i szczeble („… Cel: 3 serie po 8 powtórzeń"); brak ikon kłódek; Dynamic Type nie łamie układu.

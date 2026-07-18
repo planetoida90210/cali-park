@@ -96,6 +96,13 @@ enum ExerciseCatalog {
     /// so the library stays the same size the catalog grows.
     static let mainMovements: [Exercise] = all.filter { $0.variantOf == nil }
 
+    /// The progression variants of a main movement, in catalog order (roughly
+    /// easiest to hardest). Empty for a movement without variants, or when
+    /// called with a variant's own ID (the hierarchy is flat, one level).
+    static func variants(of movementID: UUID) -> [Exercise] {
+        all.filter { $0.variantOf == movementID }
+    }
+
     // MARK: Catalog
     static let all: [Exercise] = [
         // MARK: Podstawowe

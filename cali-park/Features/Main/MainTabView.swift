@@ -20,8 +20,8 @@ struct MainTabView: View {
                 ExerciseLibraryView(environment: environment)
             }
 
-            Tab("Społeczność", systemImage: "person.3.fill", value: 3) {
-                CommunityView()
+            Tab("Skille", systemImage: "trophy.fill", value: 3) {
+                SkillPathsView(environment: environment)
             }
 
             Tab("Profil", systemImage: "person.fill", value: 4) {

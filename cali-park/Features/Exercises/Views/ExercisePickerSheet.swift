@@ -32,6 +32,9 @@ struct ExercisePickerSheet: View {
                         .foregroundStyle(Color.accent)
                 }
             }
+            .navigationDestination(for: VariantPickerDestination.self) { destination in
+                VariantPickerView(movementID: destination.movementID, onPick: pick)
+            }
         }
     }
 
@@ -131,11 +134,7 @@ private struct ExercisePickerList: View {
         } else {
             LazyVStack(spacing: 12) {
                 ForEach(exercises) { exercise in
-                    Button {
-                        onPick(exercise)
-                    } label: {
-                        ExercisePickerRow(exercise: exercise)
-                    }
+                    ExercisePickerRow(exercise: exercise, onPick: onPick)
                 }
             }
         }
@@ -143,31 +142,110 @@ private struct ExercisePickerList: View {
 }
 
 // MARK: - ExercisePickerRow
+/// A pickable main movement. Tapping the row picks it straight away; movements
+/// with progression variants gain a trailing disclosure that drills into the
+/// variant list — one extra step, only for those who need a specific variant.
 private struct ExercisePickerRow: View {
     let exercise: Exercise
+    let onPick: (Exercise) -> Void
+
+    private var variants: [Exercise] {
+        ExerciseCatalog.variants(of: exercise.id)
+    }
 
     var body: some View {
         HStack(spacing: 12) {
-            ExerciseIconView(symbolName: exercise.symbolName, size: .row)
+            Button {
+                onPick(exercise)
+            } label: {
+                HStack(spacing: 12) {
+                    ExerciseIconView(symbolName: exercise.symbolName, size: .row)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(exercise.name)
-                    .font(.bodyLarge)
-                    .foregroundStyle(Color.textPrimary)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(exercise.name)
+                            .font(.bodyLarge)
+                            .foregroundStyle(Color.textPrimary)
 
-                Text(exercise.muscleGroups.map(\.displayName).joined(separator: " · "))
-                    .font(.bodySmall)
-                    .foregroundStyle(Color.textSecondary)
+                        Text(exercise.muscleGroups.map(\.displayName).joined(separator: " · "))
+                            .font(.bodySmall)
+                            .foregroundStyle(Color.textSecondary)
+                    }
+
+                    Spacer()
+                }
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
 
-            Spacer()
-
-            Image(systemName: "plus.circle.fill")
-                .foregroundStyle(Color.accent)
+            if variants.isEmpty {
+                Image(systemName: "plus.circle.fill")
+                    .foregroundStyle(Color.accent)
+                    .accessibilityHidden(true)
+            } else {
+                NavigationLink(value: VariantPickerDestination(movementID: exercise.id)) {
+                    Image(systemName: "chevron.right")
+                        .font(.bodySmall)
+                        .foregroundStyle(Color.textSecondary)
+                }
+                .accessibilityLabel("Warianty: \(exercise.name)")
+            }
         }
         .padding(12)
         .background(Color.componentBackground)
         .clipShape(.rect(cornerRadius: 12))
+    }
+}
+
+// MARK: - VariantPickerDestination
+/// Value-based navigation token for a movement's variant list.
+private struct VariantPickerDestination: Hashable {
+    let movementID: UUID
+}
+
+// MARK: - VariantPickerView
+/// The progression variants of one movement, each pickable. Reached from the
+/// picker's disclosure so the main list stays lean.
+private struct VariantPickerView: View {
+    let movementID: UUID
+    let onPick: (Exercise) -> Void
+
+    private var variants: [Exercise] {
+        ExerciseCatalog.variants(of: movementID)
+    }
+
+    var body: some View {
+        ScrollView {
+            LazyVStack(spacing: 12) {
+                ForEach(variants) { variant in
+                    Button {
+                        onPick(variant)
+                    } label: {
+                        HStack(spacing: 12) {
+                            ExerciseIconView(symbolName: variant.symbolName, size: .row)
+
+                            Text(variant.name)
+                                .font(.bodyLarge)
+                                .foregroundStyle(Color.textPrimary)
+
+                            Spacer()
+
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundStyle(Color.accent)
+                                .accessibilityHidden(true)
+                        }
+                        .padding(12)
+                        .background(Color.componentBackground)
+                        .clipShape(.rect(cornerRadius: 12))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+        }
+        .background(Color.appBackground.ignoresSafeArea())
+        .navigationTitle("Warianty")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
