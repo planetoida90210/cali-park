@@ -74,3 +74,46 @@ Szablon wpisu (kopiuj i wypełnij):
 - Build w Xcode. Zmienione: `WorkoutLogEntry`, `QuickWorkoutViewModel`, `HomeDashboardViewModel`. Nowe: `HomeHeroState.swift`, `HomeHeroStateTests.swift`.
 - Testy: `HomeHeroStateTests` (`HomeHeroStateResolutionTests` — parametryzowane + szczegółowe, `WorkoutLogEntryPlanIDCodableTests`, `QuickWorkoutPlanIDTests`) + wszystkie poprzednie (stare `QuickWorkoutTests`/`HomePlannerTests` powinny przejść bez zmian — sygnatury publiczne zachowane, dodane tylko opcjonalne pole/parametr).
 - Po pozytywnej weryfikacji: zmień status H1 w tabeli na `zakończony`.
+
+---
+
+### Sprint H2 — 2026-07-18, agent (drugi z H1–H3)
+
+**Zrobione:** (wszystko NOWE, w `cali-park/Features/Home/Views/Components/Hero/` — synchronized group, podpina się samo do targetu; `HeroCardView` celowo nietknięty)
+- `ContextualHeroView.swift` — „głupi” kontener: dostaje `HomeHeroState` + `name`, `weeklyReps`, `weeklyProgress`, `now` (wstrzykiwana data pod deterministyczne previews) + closury akcji (`onStartPlan(WorkoutPlan)`, `onQuickWorkout`, `onPlanWorkout`). Jedna wspólna rama karty (`componentBackground`, `clipShape(.rect(cornerRadius: 12))`), `switch` po case'ach → osobny widok. Zawiera komplet `#Preview` (patrz niżej).
+- `HeroPlanTodayView.swift` — plan na dziś, niezrobiony: nazwa planu jako nagłówek, „Plan na dziś · N ćwiczeń”, ewentualny progres („Zaczęte dziś: …”), duże CTA **„Rozpocznij”** z pulsującą ikoną `play.fill` (PhaseAnimator, wyłączany przy Reduce Motion).
+- `HeroCompletedTodayView.swift` — trening dziś zrobiony: „Zrobione na dziś” + podsumowanie sesji + `HeroStreakLabel` + drugorzędny `HeroWeeklyRingView`. Bez CTA (robota skończona).
+- `HeroRestDayView.swift` — dzień przerwy: „Dziś odpoczywasz” + „Następny trening: <Jutro/Pon> · <plan>” (przez `WorkoutScheduleFormatter.dayLabel(_,asOf:)`), streak + mini-ring. Bez CTA.
+- `HeroFreeModeView.swift` — wolny tryb (brak planów, jest historia): „Trenuj po swojemu” + ostatni trening + sugestia ćwiczenia; CTA **„Szybki trening”** (primary) + **„Zaplanuj trening”** (secondary), streak + mini-ring.
+- `HeroFirstRunView.swift` — pierwszy start (pusto): zaproszenie + **„Zaplanuj trening”** / **„Szybki trening”**.
+- `HeroHeaderView.swift` — wspólne powitanie wg pory dnia („Dzień dobry” 5–12 / „Siema” 12–18 / „Dobry wieczór” reszta) + imię; `now` wstrzykiwana.
+- `HeroWeeklyRingView.swift` — drugorzędna linia: mini-ring celu tygodnia (%) + „N podciągnięć w tym tygodniu”. Ring animowany (Reduce Motion respektowany), `contentTransition(.numericText())`.
+- `HeroStreakLabel.swift` — wspólna linijka streaka (płomień + dni), numericText.
+- `HeroWorkoutSummary.swift` — czysty helper: `LatestWorkout` → jedna linijka (sesja: „3 ćwiczenia · 68 powtórzeń”, pojedyncze: „Podciągnięcia · 6 + 6 + 8”); nazwy z `ExerciseCatalog`, więc widoki są bezstanowe.
+- `HeroButtonStyles.swift` — `HeroPrimaryButtonStyle` (accent fill) / `HeroSecondaryButtonStyle` (accent ghost) na `clipShape`/`foregroundStyle` (zero deprecated API), full-width.
+
+**Odstępstwa od planu:** brak co do zakresu. Dołożone (poza wyliczanką plików w planie) drobne wspólne widoki/helpery, żeby uniknąć duplikacji i nie pakować wielu typów do jednego pliku: `HeroHeaderView`, `HeroWeeklyRingView`, `HeroStreakLabel`, `HeroWorkoutSummary`, `HeroButtonStyles`.
+
+**Decyzje podjęte w trakcie:**
+- Copy PL (writing-for-interfaces, nagłówek niesie sedno): planToday → „Rozpocznij”; completedToday → „Zrobione na dziś”; restDay → „Dziś odpoczywasz”; freeMode → „Trenuj po swojemu” + „Szybki trening”/„Zaplanuj trening”; firstRun → „Zacznij swoją serię”. „Rozpocznij” spójne z istniejącym `NextWorkoutModuleContent`.
+- Widok „głupi”: `weeklyReps`/`weeklyProgress`/`name`/`now` podawane wprost (nie z enuma ani nie z VM) — integracja z `dashboard`/`ActiveSheet` to H3.
+- Animacja przejść: identyfikator `stateID` (Int per case) + `.transition` + `.animation(value: stateID)` — zmiana *stanu* animuje się przejściem, a zmiana liczb wewnątrz tego samego case'a (np. reps) idzie przez `numericText`, nie przeładowuje karty.
+- Reduce Motion: puls CTA, ring i przejścia stanów wyłączane przy `accessibilityReduceMotion`.
+- `onStartPlan` bierze `WorkoutPlan` (kontener woła `onStartPlan(plan)`) — gotowe pod `sheet(item:)`/`ActiveSheet` w H3.
+- Rama karty: `componentBackground` + róg 12 (spójnie z resztą modułów Home), zamiast czarnego tła starego `HeroCardView`.
+
+**Znane problemy / TODO:**
+- `HeroCardView` nadal w drzewie i używany w `HomeView` — usunięcie i podmiana to H3 (DoD H2: apka działa jak przed sprintem, widoki niezintegrowane).
+- `weeklyPullUps` w VM wciąż liczone po `Calendar.current`/`.now` (uwaga z H1). Do seedowanych previews całego Home (H3) rozważ `weeklyPullUps(asOf:)`, jeśli potrzebny determinizm.
+- Nazwy ćwiczeń w podsumowaniu czytane z `ExerciseCatalog` (statyczny), świadomie — bez wstrzykiwania VM do „głupiego” widoku.
+
+**Wskazówki dla następnego agenta (H3):**
+- Podmień `HeroCardView` na `ContextualHeroView` w `HomeView`; `state:` bierz z `dashboard.heroState()`, `weeklyReps: dashboard.weeklyPullUps`, `weeklyProgress:` jak dotychczasowe `weeklyProgress`, `name: userProfile.name`.
+- Akcje: `onStartPlan` → sheet szybkiego treningu z planu (`makeQuickWorkoutViewModel(plan:)`), `onQuickWorkout` → `makeQuickWorkoutViewModel()`, `onPlanWorkout` → edytor planu (`makePlanEditorViewModel()`); wszystko przez jeden `ActiveSheet` + `sheet(item:)`, `onDismiss` → `dashboard.reload()`.
+- Style przycisków i mini-ring są gotowe do reużycia; nie duplikuj.
+- Rail: drugi przycisk na stałe wejście „Plany” (zakres H3).
+
+**Do ręcznej weryfikacji przez użytkownika:**
+- Build w Xcode. Same NOWE pliki w `Features/Home/Views/Components/Hero/` — nic istniejącego nie zmienione, więc reszta apki bez zmian.
+- Xcode Previews (Canvas): `ContextualHeroView` — „Plan dziś”, „Zrobione dziś”, „Dzień przerwy”, „Wolny tryb”, „Pierwszy start”, „Galeria stanów”, „Przejścia stanów” (tapnij „Następny stan”, by zobaczyć animowane przejścia). Sprawdź też pod Reduce Motion (puls/ring/przejścia mają zniknąć) i przy dużym Dynamic Type (layout nie powinien się łamać).
+- Po pozytywnej weryfikacji: zmień status H2 w tabeli na `zakończony`.
