@@ -13,13 +13,13 @@ todos:
     status: completed
   - id: h2-hero-views
     content: "H2: ContextualHeroView + osobne widoki per stan (Views/Components/Hero/) z powitaniem wg pory dnia"
-    status: pending
+    status: completed
   - id: h2-motion
     content: "H2: Animacje — przejścia stanów, numericText, animowany ring, puls CTA (PhaseAnimator), Reduce Motion respektowane"
-    status: pending
+    status: completed
   - id: h2-previews
     content: "H2: Previews per stan + galeria wszystkich stanów (widok głupi — stany podawane wprost)"
-    status: pending
+    status: completed
   - id: h3-wiring
     content: "H3: Integracja w HomeView (sheety przez ActiveSheet) + rail: drugi przycisk jako stałe wejście Plany"
     status: pending
