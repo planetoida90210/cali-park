@@ -20,6 +20,7 @@ struct SetPadEntryView: View {
 
             SetPadDisplay(
                 input: input,
+                measurement: exercise.measurement,
                 showsHint: !hasSeenSetPadHint,
                 onClear: { input.clear() }
             )
@@ -54,9 +55,17 @@ struct SetPadHeader: View {
         HStack(spacing: 12) {
             ExerciseIconView(symbolName: exercise.symbolName, size: .row)
 
-            Text(exercise.name)
-                .font(.title3)
-                .foregroundStyle(Color.textPrimary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(exercise.name)
+                    .font(.title3)
+                    .foregroundStyle(Color.textPrimary)
+
+                if exercise.measurement == .seconds {
+                    Text("Liczysz sekundy utrzymania")
+                        .font(.bodySmall)
+                        .foregroundStyle(Color.textSecondary)
+                }
+            }
 
             Spacer()
         }
@@ -66,6 +75,7 @@ struct SetPadHeader: View {
 // MARK: - SetPadDisplay
 private struct SetPadDisplay: View {
     let input: SetPadInput
+    let measurement: ExerciseMeasurement
     let showsHint: Bool
     let onClear: () -> Void
 
@@ -88,6 +98,12 @@ private struct SetPadDisplay: View {
                     .foregroundStyle(Color.textPrimary)
                     .lineLimit(1)
                     .truncationMode(.head)
+
+                if measurement == .seconds {
+                    Text("s")
+                        .font(.title3)
+                        .foregroundStyle(Color.textSecondary)
+                }
             }
 
             Text(summaryText)
@@ -100,15 +116,25 @@ private struct SetPadDisplay: View {
         .background(Color.componentBackground)
         .clipShape(.rect(cornerRadius: 12))
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Serie: \(input.displayText). \(summaryText)")
+        .accessibilityLabel(accessibilityLabel)
+    }
+
+    /// Sets typed so far, read in the unit the exercise uses (reps or seconds).
+    private var loggedSets: [LoggedSet] {
+        input.setsForSaving.map { LoggedSet(value: $0, measurement: measurement) }
     }
 
     private var summaryText: String {
         if showsHint && input.setsForSaving.isEmpty {
-            return "Każdy + to nowa seria"
+            return measurement == .seconds ? "Każdy + to nowe utrzymanie" : "Każdy + to nowa seria"
         }
         let sets = input.setsForSaving.count
-        return "\(PolishPlural.sets(sets)) · \(PolishPlural.reps(input.totalReps))"
+        return "\(PolishPlural.sets(sets)) · \(SetLogFormat.total(of: loggedSets))"
+    }
+
+    private var accessibilityLabel: String {
+        let title = measurement == .seconds ? "Utrzymania" : "Serie"
+        return "\(title): \(input.displayText). \(summaryText)"
     }
 }
 

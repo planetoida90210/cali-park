@@ -13,10 +13,10 @@ todos:
     status: completed
   - id: sk2-loggedset
     content: "SK2: LoggedSet.durationSeconds (wstecznie zgodny Codable) + tryb sekund w SetPad wg Exercise.measurement"
-    status: pending
+    status: completed
   - id: sk2-history
     content: "SK2: Historia i podsumowania pokazują zapisy czasowe (3 × 20 s) + testy Codable back-compat i odmiany PL"
-    status: pending
+    status: completed
   - id: sk3-engine
     content: "SK3: ProgressionEngine — stan ścieżki (szczebel, zaliczone, postęp do kryterium) z logów + deklaracji; XP/poziom wstecz; odznaki"
     status: pending

@@ -50,15 +50,15 @@ struct LastWorkoutModuleContent: View {
         .clipShape(.rect(cornerRadius: 12))
     }
 
-    /// Session: "3 ćwiczenia · 68 powtórzeń". Single: "Podciągnięcia · 6 + 6 + 8".
+    /// Session: "3 ćwiczenia · 68 powtórzeń". Single: "Podciągnięcia · 6 + 6 + 8"
+    /// (or "Front lever · 3 × 20 s" for a timed exercise).
     private func headline(for workout: HomeDashboardViewModel.LatestWorkout) -> String {
         if workout.isSession {
-            return "\(PolishPlural.exercises(workout.entries.count)) · \(PolishPlural.reps(workout.totalReps))"
+            return "\(PolishPlural.exercises(workout.entries.count)) · \(SetLogFormat.totals(reps: workout.totalReps, seconds: workout.totalSeconds))"
         }
         let entry = workout.entries[0]
         let name = dashboard.exercise(for: entry)?.name ?? "Ćwiczenie"
-        let sets = entry.sets.map { String($0.reps) }.joined(separator: " + ")
-        return "\(name) · \(sets)"
+        return "\(name) · \(SetLogFormat.breakdown(of: entry.sets))"
     }
 
     /// For a session, the exercises it contained; otherwise nothing.

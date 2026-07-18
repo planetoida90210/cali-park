@@ -23,7 +23,7 @@ Poprzednie trackery (kontekst, zamknięte): [docs/SPRINTS.md](SPRINTS.md) (Ćwic
 | Sprint | Zakres (skrót) | Status | Data |
 |---|---|---|---|
 | SK1 | Baza progresji: `docs/PROGRESSIONS.md` ze źródłami (RR / Overcoming Gravity / poradniki), rozszerzenie ExerciseCatalog (~40–50 wariacji, `measurement`, `variantOf`), filtr biblioteki na ruchy główne, modele ProgressionPath/Step/Criterion + ProgressionCatalog, testy integralności | do weryfikacji | 2026-07-18 |
-| SK2 | Sekundy w dzienniku: `LoggedSet.durationSeconds` (wstecznie zgodny), SetPad w trybie sekund wg `exercise.measurement`, historia/podsumowania „3 × 20 s", testy Codable back-compat + odmiana PL | oczekuje | — |
+| SK2 | Sekundy w dzienniku: `LoggedSet.durationSeconds` (wstecznie zgodny), SetPad w trybie sekund wg `exercise.measurement`, historia/podsumowania „3 × 20 s", testy Codable back-compat + odmiana PL | do weryfikacji | 2026-07-18 |
 | SK3 | Silnik + placement (bez UI): ProgressionEngine (stany ścieżek z logów + deklaracji, ścieżki w pełni niezależne), SkillPlacement + PlacementStoring, XP/poziomy wstecz z historii, odznaki, SkillProgressStore, testy parametryzowane | oczekuje | — |
 | SK4 | Placement UI: przebudowa strony poziomu w OnboardingView na placement per ścieżka (pytania liczbowe + skille + guma), arkusz kalibracji w apce, testy mapowania odpowiedzi → szczeble | oczekuje | — |
 | SK5 | Zakładka Skille zamiast Społeczności: SkillPathsView (poziom + XP + karty ścieżek), PathDetailView (drabina, bez kłódek), StepDetailSheetView (kryterium + postęp + CTA Trenuj), sekcja „Progresje" w detalu ruchu, drill-in wariantów w pickerze, previews, testy VM | oczekuje | — |
@@ -104,3 +104,50 @@ Szablon wpisu (kopiuj i wypełnij):
 - Build + testy w Xcode (nowy plik `ProgressionCatalogTests.swift` w targecie testowym — synchronized groups powinny podpiąć automatycznie; jeśli nie, dodać ręcznie).
 - Smoke: zakładka Ćwiczenia wygląda identycznie jak przed sprintem (19 ruchów, ten sam picker w szybkim treningu i edytorze planu).
 - Testy: `ExerciseCatalogTests`, `ExerciseLibraryViewModelTests`, `ProgressionCatalogTests`, `AdvancementCriterionTests` (+ regresja pozostałych — logi, plany, hero).
+
+---
+
+### Sprint SK2 — 2026-07-18, agent
+
+**Zrobione:**
+- `cali-park/Features/Exercises/Models/LoggedSet.swift` — nowe pole `durationSeconds: Int?` (opcjonalne → syntezowany `Codable` dekoduje brak klucza do `nil`, wstecznie zgodne jak `sessionID`); `init(value:measurement:)` (buduje serię z jednej wartości SetPada — reps albo sekundy, przy sekundach `reps = 1` jako techniczny znacznik jednego utrzymania); `isTimed`; `padValue(for:)` (wartość zwracana do SetPada przy edycji).
+- `cali-park/Features/Exercises/Models/WorkoutLogEntry.swift` — `totalReps` liczy TYLKO serie repowe (utrzymania wykluczone), nowe `totalSeconds` i `isTimed` — sumy nie mieszają powtórzeń z sekundami.
+- `cali-park/Features/Exercises/Models/SetLogFormat.swift` — nowy formatter: `breakdown(of:)` („6 + 6 + 8" / „3 × 20 s" przy równych / „20 + 15 + 20 s" przy różnych), `total(of:)` („20 powtórzeń" / „60 s"), `totals(reps:seconds:)` (łączy tylko obecne miary), `spokenBreakdown(of:)` (VoiceOver: „3 serie po 20 sekund").
+- `cali-park/Core/Extensions/PolishPlural.swift` — `seconds(_:)` (odmiana „sekunda/sekundy/sekund" dla VoiceOver; na ekranie zostaje symbol „s").
+- `cali-park/Features/Exercises/ViewModels/WorkoutLogViewModel.swift` + `SessionSetPadSheet` (w `QuickWorkoutView.swift`) — zapis serii przez `LoggedSet(value:measurement:)`; seed edycji przez `padValue(for:)`.
+- `cali-park/Features/Exercises/Views/Components/SetPadEntryView.swift` — tryb sekund wg `exercise.measurement`: podtytuł „Liczysz sekundy utrzymania", sufiks „s" przy dużym wyświetlaczu, podsumowanie i etykieta dostępności zależne od miary; keypad i `SetPadInput` bez zmian.
+- `cali-park/Features/Exercises/Views/WorkoutHistoryView.swift` + `WorkoutHistoryViewModel.swift` (`WorkoutHistorySection.totalSeconds`) — wiersze i nagłówek sesji przez `SetLogFormat`.
+- `cali-park/Features/Home/…` — `HomeDashboardViewModel.LatestWorkout.totalSeconds`, `LastWorkoutModuleContent`, `HeroWorkoutSummary` przez `SetLogFormat` (sesja i pojedynczy wpis).
+- `cali-parkTests/SetSecondsTests.swift` — nowy plik: konstrukcja repy/sekundy, back-compat Codable (`{"reps":6}` → `nil`), sumy repy/sekundy, `SetLogFormat` (parametryzowane), `PolishPlural.seconds`, oraz zapis „front lever 3 × 15 s" z `WorkoutLogViewModel` (sekundy, nie repy).
+
+**Zastosowane skille:**
+- `swift-api-design-guidelines-skill` — `init(value:measurement:)` zamiast fabryki `make…` (inicjalizator = „co tworzy"); `isTimed` jako asercja boolowska; `padValue(for:)` z etykietą przyimkową; komentarze dokumentacyjne przy każdej nowej deklaracji; `SetLogFormat` z jasnymi nazwami w miejscu użycia (`breakdown(of:)`, `total(of:)`, `totals(reps:seconds:)`).
+- `swiftui-design-principles` — restraint: dołożyłem tylko podtytuł + sufiks „s" i podsumowanie, siatka 4/8 SetPada nietknięta; kolory semantyczne z AppTheme; bez `.font(.system(size:))` (jedyny istniejący `.system(.largeTitle, design:)` zostaje — to skala Dynamic Type, nie stały rozmiar); zero GeometryReader/stałych ramek.
+- `writing-for-interfaces` — jednostka komunikowana jasno („s", „Liczysz sekundy utrzymania", „Każdy + to nowe utrzymanie"); dynamiczne stringi obsługują 0/1/wiele („0 powtórzeń", „3 × 20 s"); brak żargonu; symbol „s" niezmienny (jak „kg"), pełna odmiana tylko dla VoiceOver.
+- `swift-testing-pro` — struktury nie klasy, `#expect`/`#require`, `@Test(arguments:)` dla form PL, formatów i `padValue`; stub `InMemoryWorkoutLogStore`; zero timingu (sekundy to dane, nie realny czas).
+- `swift-architecture-skill` — MVVM zachowane: konwersja wartość→`LoggedSet` w VM/warstwie widoku z wstrzykniętym `store`; `SetLogFormat`/`PolishPlural` jako czyste, bezstanowe helpery; zero nowych zależności i singletonów; `SetPadInput` pozostaje czystym licznikiem liczb (zgodnie z planem).
+
+**Odstępstwa od planu:**
+- Formatowanie sekund realizuję prostym, deterministycznym „\(n) s" + `PolishPlural.seconds` dla VoiceOver, zamiast `Duration.UnitsFormatStyle`. Powód: `Duration` jest zależne od locale (kruche testy) i dawało „20 sek"/„20 s" niespójnie; plan dopuszczał „Text(_, format:) / Duration" jako sugestię, a wymagał dokładnego copy „20 s" / „3 × 20 s". Nadal ZERO formatów C-style.
+- Zmieniłem semantykę `WorkoutLogEntry.totalReps` (teraz wyklucza utrzymania). Wstecznie bezpieczne: brak danych czasowych przed SK2, wszystkie istniejące testy (repy) przechodzą; regresja H1 nietknięta (`heroState`/`loggedTodayReps` bez zmian sygnatur).
+
+**Decyzje podjęte w trakcie:**
+- Kolaps „3 × 20 s" tylko gdy wszystkie utrzymania równe; różne → „20 + 15 + 20 s". Repy nadal zawsze „6 + 6 + 8" (brak kolapsu — identyczny wygląd jak przed sprintem).
+- Sesja mieszana (repy + sekundy) w nagłówku i na Home: „N ćwiczeń · 40 powtórzeń · 60 s" (uczciwy rozdział miar).
+- Timed set: `reps = 1` techniczne + `durationSeconds` = prawda. Dzięki temu liczba serii/utrzymań wynika z liczby elementów, a `totalReps` ich nie liczy.
+
+**Znane problemy / TODO:**
+- Plany (`PlannedExercise`) nie mają jeszcze celów w sekundach — `prefilledSets` dla ćwiczeń czasowych zostaje repowy (poza zakresem SK2; integracja planera to osobny plan). Seed edycji w sesji już respektuje miarę przez `padValue(for:)`.
+- Hero „Zaczęte dziś: X powtórzeń" pokazuje tylko repy (plany są dziś repowe); dzień wyłącznie czasowy → linia ukryta. Do rozważenia w SK6 wraz z hero-kontekstem.
+- `QuickWorkoutViewModel.DraftItem.totalReps` pozostaje (nieużywane po przejściu wiersza na `SetLogFormat`) — zostawione świadomie, bez zmiany zachowania modelu.
+
+**Wskazówki dla następnego agenta (SK3):**
+- Zliczając wolumen/XP z logów rozdzielaj miary: `WorkoutLogEntry.totalReps` (repy) vs `totalSeconds` (utrzymania) vs `isTimed`. Kryteria z `docs/PROGRESSIONS.md`: `.setsOfReps` porównuj z seriami repowymi, `.setsOfHold` z `durationSeconds`.
+- `AdvancementCriterion` (SK1) już niesie `measurement`/`sets` — zestaw z `LoggedSet` per szczebel.
+- Nie ruszaj `SetPadInput` (czysty licznik) ani UUID-ów katalogu; miara wynika z `Exercise.measurement`.
+
+**Do ręcznej weryfikacji przez użytkownika:**
+- Build + testy w Xcode (nowy plik `SetSecondsTests.swift` — synchronized groups powinny podpiąć automatycznie; jeśli nie, dodać do targetu testowego ręcznie).
+- Smoke: otwórz statykę (np. Front lever / Plank) → SetPad pokazuje „Liczysz sekundy utrzymania" i sufiks „s" → zaloguj 15, +, 15, +, 15 → w historii widnieje „3 × 15 s", a nie „3 powtórzenia".
+- Smoke: ćwiczenia repowe (Podciągnięcia) wyglądają i logują się identycznie jak przed sprintem („6 + 6 + 8", „20 powtórzeń").
+- Regresja: `SetPadTests`, `QuickWorkoutTests`, `HomeHeroStateTests`, `ExercisesDataTests` (`totalRepsSumsAllSets` = 32) — bez zmian.
