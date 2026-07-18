@@ -17,6 +17,12 @@ final class AppEnvironment: ObservableObject {
     /// Schedules local reminders for scheduled plans. No UI consumer yet — the
     /// planner UI wires it in (Sprint 2 of the profile/reminders plan).
     let reminderScheduler: WorkoutReminderScheduling
+    /// Persists the athlete's self-declared skill placement. Consumed by the
+    /// onboarding calibration (SK4) and the Skills tab (SK5).
+    let placementStore: PlacementStoring
+    /// Persists which rewards have already been celebrated, so the reward loop
+    /// (SK6) stays idempotent. No UI consumer yet.
+    let skillProgressStore: SkillProgressStoring
 
     // MARK: Init
     init(communityPhotoService: CommunityPhotoServiceProtocol = InMemoryCommunityPhotoService(),
@@ -25,7 +31,9 @@ final class AppEnvironment: ObservableObject {
          favoritesStore: FavoritesStoring = UserDefaultsFavoritesStore(),
          workoutLogStore: WorkoutLogStoring = FileWorkoutLogStore(),
          workoutPlanStore: WorkoutPlanStoring = FileWorkoutPlanStore(),
-         reminderScheduler: WorkoutReminderScheduling = NotificationCenterReminderScheduler()) {
+         reminderScheduler: WorkoutReminderScheduling = NotificationCenterReminderScheduler(),
+         placementStore: PlacementStoring = FileSkillPlacementStore(),
+         skillProgressStore: SkillProgressStoring = FileSkillProgressStore()) {
         self.communityPhotoService = communityPhotoService
         self.reviewsService = reviewsService
         self.calendarService = calendarService
@@ -33,6 +41,8 @@ final class AppEnvironment: ObservableObject {
         self.workoutLogStore = workoutLogStore
         self.workoutPlanStore = workoutPlanStore
         self.reminderScheduler = reminderScheduler
+        self.placementStore = placementStore
+        self.skillProgressStore = skillProgressStore
     }
 
     // MARK: View Model Factories
@@ -92,10 +102,13 @@ extension AppEnvironment {
     /// logs and plans, so the whole `HomeView` can be eyeballed in each hero
     /// state without touching disk.
     static func seeded(logs: [WorkoutLogEntry] = [],
-                       plans: [WorkoutPlan] = []) -> AppEnvironment {
+                       plans: [WorkoutPlan] = [],
+                       placement: SkillPlacement? = nil) -> AppEnvironment {
         AppEnvironment(
             workoutLogStore: InMemoryWorkoutLogStore(initial: logs),
-            workoutPlanStore: InMemoryWorkoutPlanStore(initial: plans)
+            workoutPlanStore: InMemoryWorkoutPlanStore(initial: plans),
+            placementStore: InMemorySkillPlacementStore(initial: placement),
+            skillProgressStore: InMemorySkillProgressStore()
         )
     }
 

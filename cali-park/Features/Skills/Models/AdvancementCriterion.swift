@@ -20,6 +20,16 @@ enum AdvancementCriterion: Codable, Equatable, Hashable, Sendable {
         }
     }
 
+    /// The value each qualifying set must reach: reps for a rep criterion,
+    /// seconds held for a hold criterion. The engine (SK3) compares a logged
+    /// set's reps or `durationSeconds` against this.
+    var targetValue: Int {
+        switch self {
+        case let .setsOfReps(_, reps): reps
+        case let .setsOfHold(_, seconds): seconds
+        }
+    }
+
     /// The measurement the criterion is scored in. A step's exercise must use
     /// the matching `ExerciseMeasurement` (reps criteria on rep movements,
     /// hold criteria on second-based holds).
