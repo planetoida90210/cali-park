@@ -19,10 +19,10 @@ todos:
     status: completed
   - id: sk3-engine
     content: "SK3: ProgressionEngine — stan ścieżki (szczebel, zaliczone, postęp do kryterium) z logów + deklaracji; XP/poziom wstecz; odznaki"
-    status: pending
+    status: completed
   - id: sk3-placement-store
     content: "SK3: SkillPlacement model + PlacementStoring (File/InMemory) + rejestracja w AppEnvironment + testy parametryzowane"
-    status: pending
+    status: completed
   - id: sk4-onboarding
     content: "SK4: Przebudowa welcome boardu — placement per ścieżka (pytania o liczby powtórzeń/umiane skille/gumę) zamiast 3 abstrakcyjnych poziomów"
     status: pending

@@ -23,8 +23,8 @@ Poprzednie trackery (kontekst, zamknięte): [docs/SPRINTS.md](SPRINTS.md) (Ćwic
 | Sprint | Zakres (skrót) | Status | Data |
 |---|---|---|---|
 | SK1 | Baza progresji: `docs/PROGRESSIONS.md` ze źródłami (RR / Overcoming Gravity / poradniki), rozszerzenie ExerciseCatalog (~40–50 wariacji, `measurement`, `variantOf`), filtr biblioteki na ruchy główne, modele ProgressionPath/Step/Criterion + ProgressionCatalog, testy integralności | do weryfikacji | 2026-07-18 |
-| SK2 | Sekundy w dzienniku: `LoggedSet.durationSeconds` (wstecznie zgodny), SetPad w trybie sekund wg `exercise.measurement`, historia/podsumowania „3 × 20 s", testy Codable back-compat + odmiana PL | do weryfikacji | 2026-07-18 |
-| SK3 | Silnik + placement (bez UI): ProgressionEngine (stany ścieżek z logów + deklaracji, ścieżki w pełni niezależne), SkillPlacement + PlacementStoring, XP/poziomy wstecz z historii, odznaki, SkillProgressStore, testy parametryzowane | oczekuje | — |
+| SK2 | Sekundy w dzienniku: `LoggedSet.durationSeconds` (wstecznie zgodny), SetPad w trybie sekund wg `exercise.measurement`, historia/podsumowania „3 × 20 s", testy Codable back-compat + odmiana PL | zakończony | 2026-07-18 |
+| SK3 | Silnik + placement (bez UI): ProgressionEngine (stany ścieżek z logów + deklaracji, ścieżki w pełni niezależne), SkillPlacement + PlacementStoring, XP/poziomy wstecz z historii, odznaki, SkillProgressStore, testy parametryzowane | do weryfikacji | 2026-07-18 |
 | SK4 | Placement UI: przebudowa strony poziomu w OnboardingView na placement per ścieżka (pytania liczbowe + skille + guma), arkusz kalibracji w apce, testy mapowania odpowiedzi → szczeble | oczekuje | — |
 | SK5 | Zakładka Skille zamiast Społeczności: SkillPathsView (poziom + XP + karty ścieżek), PathDetailView (drabina, bez kłódek), StepDetailSheetView (kryterium + postęp + CTA Trenuj), sekcja „Progresje" w detalu ruchu, drill-in wariantów w pickerze, previews, testy VM | oczekuje | — |
 | SK6 | Pętla nagrody + Home: celebracja awansu (raz, kolejka, Reduce Motion), XP toast, sekcja odznak, realny moduł osiągnięć, podpowiedź progresji w hero, wyłączenie atrap leaderboard/feed, bramka jakości App Store | oczekuje | — |
@@ -151,3 +151,55 @@ Szablon wpisu (kopiuj i wypełnij):
 - Smoke: otwórz statykę (np. Front lever / Plank) → SetPad pokazuje „Liczysz sekundy utrzymania" i sufiks „s" → zaloguj 15, +, 15, +, 15 → w historii widnieje „3 × 15 s", a nie „3 powtórzenia".
 - Smoke: ćwiczenia repowe (Podciągnięcia) wyglądają i logują się identycznie jak przed sprintem („6 + 6 + 8", „20 powtórzeń").
 - Regresja: `SetPadTests`, `QuickWorkoutTests`, `HomeHeroStateTests`, `ExercisesDataTests` (`totalRepsSumsAllSets` = 32) — bez zmian.
+
+---
+
+### Sprint SK3 — 2026-07-18, agent
+
+**Zrobione:**
+- `cali-park/Features/Skills/Models/SkillPlacement.swift` — deklarowany szczebel startowy per ścieżka (`declaredRungByPath: [ProgressionPathID: Int]`) + posiadany sprzęt + `declaredAt`; helpery `declaredRung(for:)`, `ownsEquipment(_:)`, `.empty`. `Codable`/`Sendable`.
+- `cali-park/Features/Skills/Models/RungProgress.swift` — postęp do kryterium jednego szczebla (`bestValue` = najsłabsza z najlepszych `sets` serii w jednej sesji), `isMet`, `fractionComplete`, `targetSets`/`targetValue`.
+- `cali-park/Features/Skills/Models/PathState.swift` — wyliczony stan ścieżki (rungCount, currentRungIndex, conqueredRungCount, currentProgress), `isComplete`, `isConquered(rungAt:)`, `isCurrent(rungAt:)`.
+- `cali-park/Features/Skills/Models/PlayerLevel.swift` — poziom z XP (krzywa `500·(L-1)²`), `forXP(_:)`, `threshold(forLevel:)`, `xpToNextLevel`, `progressToNextLevel`.
+- `cali-park/Features/Skills/Models/Badge.swift` — enum 6 odznak (statyczne copy PL: tytuł, wymaganie, `symbolName` w stylu Watch): `firstWorkout`, `tenTrainingDays`, `weekStreak`, `firstSkill`, `threeSkills`, `thousandReps`.
+- `cali-park/Features/Skills/Models/RungReference.swift` + `SkillProgress.swift` — trwałe „uczczone" awanse (`Set<RungReference>` + `celebratedLevel`) dla idempotentnej celebracji (SK6).
+- `cali-park/Features/Skills/Services/ProgressionEngine.swift` — czyste, deterministyczne funkcje statyczne: `pathStates(logs:placement:)`, `pathState(for:logs:placement:)`, `rungProgress(for:in:)`, `experiencePoints(for:)`, `playerLevel(for:)`, `earnedBadges(from:calendar:today:)`.
+- `cali-park/Features/Skills/Services/SkillPlacementStore.swift` — `PlacementStoring` + `FileSkillPlacementStore` (JSON w `documentsDirectory`) + `InMemorySkillPlacementStore`.
+- `cali-park/Features/Skills/Services/SkillProgressStore.swift` — `SkillProgressStoring` + File/InMemory.
+- `cali-park/Features/Skills/Models/AdvancementCriterion.swift` — dodane `targetValue` (reps/sekundy, additive; silnik porównuje z nim `reps`/`durationSeconds`).
+- `cali-park/Core/AppEnvironment.swift` — rejestracja `placementStore` i `skillProgressStore` (domyślnie File; `seeded(…, placement:)` wstrzykuje InMemory dla previews/SK5).
+- `cali-parkTests/ProgressionEngineTests.swift` — testy: szczebel z logów (3×8 w jednej sesji vs rozbite), postęp do kryterium, kryteria czasowe (3×20 s vs 3×15 s), ukończenie ścieżki, max(deklaracja, logi) w obie strony, niezależność ścieżek („70 podciągnięć, zero muscle-upa"), XP wstecz (wolumen + bonus za szczeble), brak XP z deklaracji, progi poziomów (parametryzowane), odznaki (kalendarz UTC), roundtripy store'ów (JSON + File + InMemory).
+
+**Zastosowane skille:**
+- `swift-concurrency-pro` — silnik to czyste funkcje statyczne na typach wartościowych (zero stanu współdzielonego, zero wyścigów); da/kalendarz wstrzykiwane do `earnedBadges` dla determinizmu (wzorzec z `WorkoutStreak`); zero `DispatchQueue`. Store'y trzymają istniejący wzorzec projektu (`struct` File + `final class` InMemory za protokołem, dostęp przez `@MainActor AppEnvironment`) zamiast dodawać `actor` — spójność ze `WorkoutLogStore`/`WorkoutPlanStore`; brak asynchronicznego I/O, więc `actor` byłby niespójną nadmiarowością.
+- `swift-security-expert` (bramka storage) — placement/progres/XP to NIE sekrety: JSON w `documentsDirectory` jest OK (świadoma decyzja). ZERO tokenów/credentials/kluczy w tych plikach i ZERO w UserDefaults; żadnych flag „premium" persystowanych lokalnie. Keychain niepotrzebny (brak sekretów w zakresie). Gdy wejdzie backend — tokeny wyłącznie Keychain (poza tym planem).
+- `swift-api-design-guidelines-skill` — nazwy jasne w miejscu użycia (`pathStates(logs:placement:)`, `experiencePoints(for:)`, `earnedBadges(from:calendar:today:)`, `threshold(forLevel:)`, `declaredRung(for:)`); boole jako asercje (`isMet`, `isComplete`, `isConquered(rungAt:)`); komentarze dokumentacyjne przy każdej nowej deklaracji; `targetValue` dodane do kryterium jako naturalne, additive API.
+- `swift-testing-pro` — struktury nie klasy, `#expect`/`try #require`, testy parametryzowane `@Test(arguments:)` (progi poziomów), fikstury bez timingu, kalendarz UTC + stałe „dziś" (odznaki streak deterministyczne), File store na unikatowym katalogu tymczasowym z `defer` cleanup.
+- `core-data-expert` (bramka persystencji) — świadomie ZERO Core Data/SwiftData: statyczny katalog + JSON w plikach, progres liczony z logów. `PersistenceController` nietknięty. Bez STOP-a (bramka przeszła).
+- `swift-architecture-skill` — MVVM/DI zachowane: nowe store'y za protokołami wstrzykiwane przez `AppEnvironment` (composition root), silnik bezstanowy jak `WorkoutStreak`/katalogi (nie wchodzi do DI, bo nie ma stanu), zero singletonów i nowych zależności.
+
+**Odstępstwa od planu:**
+- `earnedBadges` ma sygnaturę `(from:calendar:today:)`, nie planowane `(logs:pathStates:)`. Powód: odznaki muszą wynikać WYŁĄCZNIE z logów (deklaracja nie daje nagród), więc silnik sam liczy stany log-only (`placement: nil`) wewnątrz — brak ryzyka podania „napompowanych" placementem `pathStates`. Ta sama zasada co „placement nie daje XP".
+- „Okno ostatnich sesji" z planu realizuję jako **najlepszą sesję z całej historii** (bez okna czasowego). Powód: zaliczony szczebel nie może się cofać po słabym tygodniu (plan wprost: „rekalibracja w dół nie kasuje szczebli zaliczonych z logów"), a to eliminuje zależność od kalendarza w `pathStates` → pełny determinizm. Kryterium nadal wymaga kompletu serii w JEDNEJ sesji (3×8 rozbite na 3 sesje = niezaliczone).
+
+**Decyzje podjęte w trakcie:**
+- Model XP: 10 XP/powtórzenie, 1 XP/sekunda holdu (holdy nabijają dużo sekund, więc niższa stawka), +100 XP za każdy szczebel zaliczony z logów. Krzywa poziomów: próg poziomu L = `500·(L-1)²` (L2=500, L3=2000, L4=4500 — szybkie wczesne poziomy, rosnące później). Stałe są `static let` w silniku/`PlayerLevel` — łatwe do strojenia w SK6.
+- „Zaliczony przez logi" = najwyższy szczebel, którego kryterium spełniono w jednej sesji; wszystko poniżej liczy się jako zaliczone (jeśli robisz pełne podciągnięcia 3×8, negatywy masz z głowy — nie trzeba ich logować). `current = max(deklaracja, logi) + 1`, przycięte do szczytu.
+- Postęp częściowy: gdy w sesji jest mniej serii niż wymaga kryterium, `bestValue = 0` (nie ma „3×coś" z 2 serii). Świadome i testowane.
+- `SkillProgress` trzyma `Set<RungReference>` zamiast słownika enum→Set (czytelniejszy, type-safe roundtrip JSON).
+
+**Znane problemy / TODO:**
+- Bez placementu near-miss na ćwiczeniu wyższego szczebla (np. podciągnięcia 8/6/7 u świeżaka) pokazuje szczebel bazowy (dead hang), bo niższych szczebli nie zalogowano — to zamierzone: placement (SK4) ustawia punkt startowy, potem logujesz na swoim szczeblu. Test `currentRungProgress…` używa placementu, by to udokumentować.
+- Silnik NIE jest jeszcze konsumowany przez UI (SK5) ani przez pętlę celebracji (SK6). `skillProgressStore` zarejestrowany, ale bez konsumenta (jak `reminderScheduler`).
+- `Badge` niesie docelowe copy PL i symbole — SK6 renderuje sekcję odznak; kolejność/priorytet wyświetlania do ustalenia w SK6.
+
+**Wskazówki dla następnego agenta (SK4):**
+- Placement zapisujesz przez `AppEnvironment.placementStore` (`PlacementStoring`); mapowanie odpowiedzi liczbowych → indeks szczebla to `SkillPlacement.declaredRungByPath[pathID] = index` (0-based w `ProgressionPath.steps`). „Mam gumę" → `ownedEquipment.insert("Resistance bands")` (spójne z `Park.equipments`).
+- Regresja do sprawdzenia w SK4: deklaracja NIE daje XP — `ProgressionEngine.experiencePoints(for:)` nie przyjmuje placementu (strukturalnie niemożliwe), jest test `declarationsNeverGrantXP`.
+- „Ustaw poziom" w dół nie może kasować szczebli z logów — silnik już to gwarantuje (`max(deklaracja, logi)`), więc UI po prostu zapisuje nową deklarację.
+- Indeksy szczebli są 0-based i stabilne (kolejność `ProgressionCatalog` = kolejność `docs/PROGRESSIONS.md`); mapowania w SK4 opieraj na `ProgressionCatalog.path(withID:)?.steps`.
+
+**Do ręcznej weryfikacji przez użytkownika:**
+- Build + testy w Xcode (nowy plik `ProgressionEngineTests.swift` w targecie testowym — synchronized groups powinny podpiąć automatycznie; jeśli nie, dodać ręcznie). Nowe pliki źródłowe w `Features/Skills/{Models,Services}` powinny podpiąć się same.
+- Testy: `ProgressionEngineTests` (wszystkie suity) + regresja `ProgressionCatalogTests`/`AdvancementCriterionTests` (dodane `targetValue` nie zmienia istniejących), `SetSecondsTests`, `ExercisesDataTests`, `HomeHeroStateTests`.
+- Zero zmian w UI (DoD SK3) — apka wygląda i działa jak po SK2; `AppEnvironment` ma dwa nowe store'y bez konsumentów.
