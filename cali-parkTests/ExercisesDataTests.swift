@@ -14,8 +14,48 @@ import Testing
 
 struct ExerciseCatalogTests {
     @Test
-    func catalogHasExpectedSize() {
-        #expect((15...20).contains(ExerciseCatalog.all.count))
+    func catalogHoldsMainMovementsAndVariants() {
+        // The original 19 stay the library; variants are appended on top.
+        #expect(ExerciseCatalog.mainMovements.count == 19)
+        #expect(ExerciseCatalog.all.count >= 60)
+    }
+
+    @Test
+    func libraryShowsOnlyMainMovements() {
+        #expect(ExerciseCatalog.mainMovements.allSatisfy { $0.variantOf == nil })
+    }
+
+    @Test
+    func firstTwoCatalogEntriesAreStable() {
+        // Many tests and views reference `all[0]`/`all[1]`; variants must be
+        // appended, never inserted, so these indices never shift.
+        #expect(ExerciseCatalog.all[0].id == ExerciseCatalog.pullUpsID)
+        #expect(ExerciseCatalog.all[1].id == ExerciseCatalog.pushUpsID)
+    }
+
+    @Test
+    func originalNineteenIdentifiersAreUnchanged() {
+        let original: [UUID] = [
+            ExerciseCatalog.pullUpsID, ExerciseCatalog.pushUpsID, ExerciseCatalog.dipsID,
+            ExerciseCatalog.squatsID, ExerciseCatalog.lungesID, ExerciseCatalog.plankID,
+            ExerciseCatalog.australianPullUpsID, ExerciseCatalog.hangingLegRaisesID,
+            ExerciseCatalog.pistolSquatsID, ExerciseCatalog.wallHandstandPushUpsID,
+            ExerciseCatalog.lSitID, ExerciseCatalog.archerPullUpsID, ExerciseCatalog.ringDipsID,
+            ExerciseCatalog.bridgeID, ExerciseCatalog.muscleUpID, ExerciseCatalog.frontLeverID,
+            ExerciseCatalog.humanFlagID, ExerciseCatalog.plancheID, ExerciseCatalog.backLeverID
+        ]
+        #expect(Set(original) == Set(ExerciseCatalog.mainMovements.map(\.id)))
+    }
+
+    @Test
+    func everyVariantPointsAtAMainMovement() {
+        let mainIDs = Set(ExerciseCatalog.mainMovements.map(\.id))
+        for exercise in ExerciseCatalog.all {
+            guard let parent = exercise.variantOf else { continue }
+            // Flat, one-level hierarchy: a variant's parent is always a main
+            // movement, never another variant.
+            #expect(mainIDs.contains(parent))
+        }
     }
 
     @Test
@@ -62,6 +102,39 @@ struct ExerciseCatalogTests {
         let data = try JSONEncoder().encode(original)
         let decoded = try JSONDecoder().decode([Exercise].self, from: data)
         #expect(decoded == original)
+    }
+
+    @Test
+    func decodingWithoutNewFieldsUsesDefaults() throws {
+        // Payload shaped like a catalog snapshot encoded before `measurement`
+        // and `variantOf` existed — both must decode to their defaults.
+        let json = """
+        {
+            "id": "E0000000-0000-4000-8000-000000000001",
+            "name": "Podciągnięcia",
+            "category": "basic",
+            "muscleGroups": ["back", "arms"],
+            "description": "Test",
+            "instructions": ["a", "b", "c"],
+            "symbolName": "figure.climbing"
+        }
+        """
+        let decoded = try JSONDecoder().decode(Exercise.self, from: Data(json.utf8))
+        #expect(decoded.measurement == .reps)
+        #expect(decoded.variantOf == nil)
+        #expect(decoded.equipment.isEmpty)
+    }
+
+    @Test
+    func isometricHoldsAreMeasuredInSeconds() {
+        // Statics must be second-based so the SetPad (SK2) logs holds correctly.
+        let holdIDs: [UUID] = [
+            ExerciseCatalog.plankID, ExerciseCatalog.lSitID, ExerciseCatalog.frontLeverID,
+            ExerciseCatalog.backLeverID, ExerciseCatalog.plancheID, ExerciseCatalog.humanFlagID
+        ]
+        for id in holdIDs {
+            #expect(ExerciseCatalog.exercise(withID: id)?.measurement == .seconds)
+        }
     }
 }
 

@@ -121,6 +121,24 @@ struct ExerciseLibraryViewModelTests {
     @Test
     func productionCatalogIsTheDefaultSource() {
         let viewModel = ExerciseLibraryViewModel()
-        #expect(viewModel.displayedExercises == ExerciseCatalog.all)
+        #expect(viewModel.displayedExercises == ExerciseCatalog.mainMovements)
+    }
+
+    @Test
+    func variantsAreHiddenFromTheLibrary() {
+        // A variant injected alongside main movements must not surface — the
+        // library only lists movements with `variantOf == nil`.
+        let variant = Exercise(
+            id: UUID(uuidString: "F0000000-0000-4000-8000-0000000000FF")!,
+            name: "Negatywy podciągnięć",
+            category: .basic,
+            muscleGroups: [.back],
+            description: "Test",
+            instructions: ["a", "b", "c"],
+            symbolName: "figure.climbing",
+            variantOf: Self.fixtures[0].id
+        )
+        let viewModel = ExerciseLibraryViewModel(exercises: Self.fixtures + [variant])
+        #expect(viewModel.displayedExercises == Self.fixtures)
     }
 }
