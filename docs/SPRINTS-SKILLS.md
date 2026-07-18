@@ -24,8 +24,8 @@ Poprzednie trackery (kontekst, zamknięte): [docs/SPRINTS.md](SPRINTS.md) (Ćwic
 |---|---|---|---|
 | SK1 | Baza progresji: `docs/PROGRESSIONS.md` ze źródłami (RR / Overcoming Gravity / poradniki), rozszerzenie ExerciseCatalog (~40–50 wariacji, `measurement`, `variantOf`), filtr biblioteki na ruchy główne, modele ProgressionPath/Step/Criterion + ProgressionCatalog, testy integralności | do weryfikacji | 2026-07-18 |
 | SK2 | Sekundy w dzienniku: `LoggedSet.durationSeconds` (wstecznie zgodny), SetPad w trybie sekund wg `exercise.measurement`, historia/podsumowania „3 × 20 s", testy Codable back-compat + odmiana PL | zakończony | 2026-07-18 |
-| SK3 | Silnik + placement (bez UI): ProgressionEngine (stany ścieżek z logów + deklaracji, ścieżki w pełni niezależne), SkillPlacement + PlacementStoring, XP/poziomy wstecz z historii, odznaki, SkillProgressStore, testy parametryzowane | do weryfikacji | 2026-07-18 |
-| SK4 | Placement UI: przebudowa strony poziomu w OnboardingView na placement per ścieżka (pytania liczbowe + skille + guma), arkusz kalibracji w apce, testy mapowania odpowiedzi → szczeble | oczekuje | — |
+| SK3 | Silnik + placement (bez UI): ProgressionEngine (stany ścieżek z logów + deklaracji, ścieżki w pełni niezależne), SkillPlacement + PlacementStoring, XP/poziomy wstecz z historii, odznaki, SkillProgressStore, testy parametryzowane | zakończony | 2026-07-18 |
+| SK4 | Placement UI: przebudowa strony poziomu w OnboardingView na placement per ścieżka (pytania liczbowe + skille + guma), arkusz kalibracji w apce, testy mapowania odpowiedzi → szczeble | do weryfikacji | 2026-07-18 |
 | SK5 | Zakładka Skille zamiast Społeczności: SkillPathsView (poziom + XP + karty ścieżek), PathDetailView (drabina, bez kłódek), StepDetailSheetView (kryterium + postęp + CTA Trenuj), sekcja „Progresje" w detalu ruchu, drill-in wariantów w pickerze, previews, testy VM | oczekuje | — |
 | SK6 | Pętla nagrody + Home: celebracja awansu (raz, kolejka, Reduce Motion), XP toast, sekcja odznak, realny moduł osiągnięć, podpowiedź progresji w hero, wyłączenie atrap leaderboard/feed, bramka jakości App Store | oczekuje | — |
 
@@ -203,3 +203,56 @@ Szablon wpisu (kopiuj i wypełnij):
 - Build + testy w Xcode (nowy plik `ProgressionEngineTests.swift` w targecie testowym — synchronized groups powinny podpiąć automatycznie; jeśli nie, dodać ręcznie). Nowe pliki źródłowe w `Features/Skills/{Models,Services}` powinny podpiąć się same.
 - Testy: `ProgressionEngineTests` (wszystkie suity) + regresja `ProgressionCatalogTests`/`AdvancementCriterionTests` (dodane `targetValue` nie zmienia istniejących), `SetSecondsTests`, `ExercisesDataTests`, `HomeHeroStateTests`.
 - Zero zmian w UI (DoD SK3) — apka wygląda i działa jak po SK2; `AppEnvironment` ma dwa nowe store'y bez konsumentów.
+
+---
+
+### Sprint SK4 — 2026-07-18, agent
+
+**Zrobione:**
+- `cali-park/Features/Skills/Models/RepCountBucket.swift` — enum kubełków samooceny (`none`/`few`/`several`/`many`) z etykietami realnych liczb ("0", "1–4", "5–8", "9+"); ulotny input UI, nieperystowany.
+- `cali-park/Features/Skills/Models/RepCountQuestion.swift` — model pytania liczbowego (1 na ścieżkę repową): `path`, `prompt`, `rungForBucket` (kubełek → szczebel 0-based) + `rung(for:)`.
+- `cali-park/Features/Skills/Models/SkillQuestion.swift` — model checkboxa skilla: `id`, `path`, `label`, `rung` (>0, żeby deklaracja realnie przesuwała start).
+- `cali-park/Features/Skills/Services/PlacementCalibration.swift` — **jedyne źródło mapowania** (współdzielone przez onboarding i sheet): 4 pytania repowe (podciąganie/pompki/dipy/przysiady) + 3 checkboxy (muscle-up, pełny L-sit, pistolet) + guma; reduktor `placement(repAnswers:masteredSkills:ownsBand:declaredAt:)` bierze **max szczebla per ścieżka** i odrzuca deklaracje rung-0 (no-op).
+- `cali-park/Features/Skills/ViewModels/PlacementCalibrationViewModel.swift` — `@Observable @MainActor`: stan odpowiedzi, `select/toggleMastery`, `placement` (computed), `save()` przez `PlacementStoring`; wstrzykiwana data (`now:`) dla determinizmu; preload `ownsBand` z istniejącej deklaracji.
+- `cali-park/Features/Skills/Views/PlacementFormView.swift` — reużywalny formularz (sekcje pytań repowych jako single-select, checkboxy skilli, toggle gumy); bez własnego ScrollView (kontener daje konsument), semantyczne kolory AppTheme, siatka 8/12/32, `clipShape(.rect(cornerRadius:))`, etykiety dostępności + `.isSelected`.
+- `cali-park/Features/Skills/Views/PlacementCalibrationSheet.swift` — sheet kalibracji (NavigationStack + Anuluj/Zapisz + alert błędu + dismiss po zapisie). Punkty wejścia (pierwszy kontakt ze Skillami, „Ustaw poziom" w detalu ścieżki) podepnie SK5.
+- `cali-park/Features/Onboarding/OnboardingView.swift` — strona „Jaki jest Twój poziom?" (3 atrapy, odpowiedź wyrzucana) → **„Co już potrafisz?"** z `PlacementFormView`; `init(environment:)` buduje VM; „Rozpocznij" zapisuje placement. Wyczyszczone deprecated API: `foregroundColor`→`foregroundStyle`, `cornerRadius`→`clipShape(.rect(cornerRadius:))`, `PageTabViewStyle`→`.page`, `SwitchToggleStyle(tint:)`→`.tint`, `PreviewProvider`→`#Preview`, `edgesIgnoringSafeArea`→`ignoresSafeArea`; hero-ikony na `@ScaledMetric` (Dynamic Type).
+- `cali-park/Core/AppEnvironment.swift` — `makePlacementCalibrationViewModel()`.
+- `cali-park/App/cali_parkApp.swift` — `OnboardingView(environment:)`.
+- `cali-parkTests/PlacementCalibrationTests.swift` — mapowanie repowe (parametryzowane, 16 przypadków), skille, max-per-path (pistolet vs przysiady), guma, integralność (każdy szczebel = poprawny indeks; skille rung>0), save/load przez VM + preload gumy + błąd zapisu, regresja SK3 (deklaracja = 0 XP).
+
+**Zastosowane skille:**
+- `writing-for-interfaces` — pytania placementu to najważniejsze copy: jedna myśl na pytanie, realne liczby jako opcje ("0/1–4/5–8/9+"), zero żargonu w pytaniach ("Ile pełnych podciągnięć…"); tytuł strony „Co już potrafisz?" + jednozdaniowe „Zaczniesz od właściwego szczebla, nie od zera." (front-loaded benefit); komunikat błędu konkretny i bez „Ups". Odrzucone: em-dash w podtytule (skill: dashes przerywają skan) — rozbite na krótkie zdanie.
+- `swiftui-design-principles` — restraint: single-select przez jeden stan (nie 4 toggle), pojedynczy boolean gumy jako `Toggle` z widoczną etykietą (nie `.labelsHidden()`); siatka 8/12/16/24/32; semantyczne kolory AppTheme; `clipShape(.rect(cornerRadius: 12))` (10–12 pt); zero GeometryReader/stałych ramek; `@ScaledMetric` zamiast twardego `.font(.system(size: 80))` na hero-ikonach; formularz bez własnego ScrollView (konsument = jeden kontener, brak zagnieżdżonego scrolla).
+- `swift-testing-pro` — struktury nie klasy, `#expect`/`try #require`, parametryzacja przez `@Test(arguments:)` z nazwanym `RepCase: Sendable` (uniknięcie kruchej inferencji krotek z `Int?`), stub `FailingPlacementStore`, wstrzyknięta stała data (zero timingu).
+- `swift-security-expert` (bramka storage) — potwierdzone: placement to dane treningowe, NIE sekrety. Zero tokenów/credentials/flag „premium" w plikach i UserDefaults; guma trzymana jako string sprzętu (`Resistance bands`), nie flaga uprawnień. Keychain niepotrzebny (brak sekretów w zakresie). Reużyto istniejący `FileSkillPlacementStore` (SK3) — brak nowego I/O.
+- `swift-architecture-skill` — MVVM/DI jak w całym projekcie: VM `@Observable @MainActor` z wstrzykniętym `PlacementStoring`, fabryka w `AppEnvironment` (composition root), mapowanie jako czysta, bezstanowa warstwa (`PlacementCalibration`); zero singletonów i nowych zależności; `OnboardingView(environment:)` spójne z `MainTabView`.
+
+**Odstępstwa od planu:**
+- Plan wymieniał „tuck front lever" jako przykładowy checkbox skilla. Świadomie zastąpiony **pistoletem**: tuck front lever to szczebel 0 ścieżki `frontLever`, a deklaracja rung-0 jest w silniku tożsama z brakiem deklaracji (`max(0, logi)`) — byłaby no-opem. Wybrałem 3 checkboxy o realnym efekcie (rung>0): muscle-up (3), pełny L-sit (3), pistolet (5, czyli szczyt `legs`, którego pytanie o przysiady celowo nie kredytuje). Egzekwuje to test integralności (`rung > 0`).
+- Onboarding pyta o kilka ścieżek (4 repowe + 3 skille), reszta ścieżek zostaje bez deklaracji i startuje od dołu — zgodnie z modelem (`SkillPlacement`: brak ścieżki = brak deklaracji), plan dopuszczał „kilka szybkich pytań".
+
+**Decyzje podjęte w trakcie:**
+- Mapowanie kubełków → szczeble (1:1 z `docs/PROGRESSIONS.md`, wszystko udokumentowane w `PlacementCalibration`): podciąganie none→2(negatywy)/few→4(pełne)/several→5(L-pull)/many→6(archer); pompki 2/3/4/5; dipy 1/2/2/3; przysiady 0/1/2/3 (pistolet celowo tylko z checkboxa, nie z liczby przysiadów dwunożnych).
+- Reduktor bierze **max per ścieżka** gdy kilka odpowiedzi celuje w tę samą ścieżkę (pistolet vs przysiady → `legs`); spójne z zasadą silnika „wszystko poniżej aktualnego = zaliczone".
+- Deklaracje rung-0 odrzucane w reduktorze (minimalna, sensowna mapa; identyczny efekt jak brak wpisu).
+- Rekalibracja: sheet **zapisuje nową deklarację** (nie merge z poprzednią) — plan chroni tylko szczeble z LOGÓW (silnik `max(deklaracja, logi)`), a „rekalibracja w dół" jest zamierzona. Preload z poprzedniej deklaracji ograniczony do gumy (jednoznaczny); kubełki/skille nie są rekonstruowane (rung→kubełek jest niejednoznaczne) — świadomie, patrz TODO.
+- Copy: „Ustaw poziom" jako nazwa sheetu i (docelowo) CTA w detalu ścieżki — jeden wzorzec językowy dla kalibracji.
+
+**Znane problemy / TODO:**
+- Sheet kalibracji przy rekalibracji nie prezaznacza wcześniejszych odpowiedzi repowych/skilli (tylko gumę). Świadomie — mapowanie rung→kubełek jest stratne. Jeśli SK5/SK6 zechce prezaznaczać, dodać czysty `PlacementCalibration.selection(from:)` (odwrotne, deterministyczne dopasowanie po dokładnym szczeblu) + testy.
+- „Ustaw poziom" per ścieżka (detal ścieżki) i „pierwszy kontakt ze Skillami bez placementu" — sheet gotowy i reużywalny, ale **punkty wejścia podpina SK5** (zakładka Skille jeszcze nie istnieje — to Społeczność do SK5). Nie ruszałem `MainTabView`.
+- Strona celów onboardingu nadal nie persystuje wyboru (jak przed planem) — poza zakresem SK4; plan mówił „strona celów zostaje".
+- `PlacementCalibrationSheet` i `PlacementFormView` nie mają jeszcze konsumenta w runtime poza onboardingiem (previews działają) — SK5 je zamontuje.
+
+**Wskazówki dla następnego agenta (SK5):**
+- Placement czytasz/piszesz przez `AppEnvironment.placementStore`; VM buduj `environment.makePlacementCalibrationViewModel()`. Do kalibracji w apce prezentuj `PlacementCalibrationSheet(viewModel:)`.
+- Pierwszy kontakt ze Skillami bez placementu: `placementStore.load() == nil` → pokaż sheet (istniejący użytkownicy nie przechodzą onboardingu ponownie). „Ustaw poziom" w `PathDetailView` → ten sam sheet.
+- Stany ścieżek do UI bierz z `ProgressionEngine.pathStates(logs:placement:)` (SK3); po zapisie placementu odśwież stan (przeładuj z `placementStore`).
+- Kolejność/etykiety pytań i mapowanie są w `PlacementCalibration` (jedno źródło) — nie duplikuj w UI.
+
+**Do ręcznej weryfikacji przez użytkownika:**
+- Build + testy w Xcode (nowe pliki w `Features/Skills/{Models,ViewModels,Services,Views}` i `cali-parkTests/PlacementCalibrationTests.swift` — synchronized groups powinny podpiąć automatycznie; jeśli nie, dodać ręcznie).
+- Testy: `PlacementCalibrationTests` (wszystkie suity) + regresja `ProgressionEngineTests` (`declarationsNeverGrantXP`), `ProgressionCatalogTests`, `SetSecondsTests`, `ExercisesDataTests`, `HomeHeroStateTests`.
+- Smoke (świeży użytkownik): onboarding → strona „Co już potrafisz?" → zaznacz np. podciąganie „9+", muscle-up, „Mam gumę oporową" → „Rozpocznij" → w `skill-placement.json` (documents) zapisany placement (pullUp=6, muscleUp=3, guma). (Zakładka Skille pokaże właściwe szczeble dopiero po SK5.)
+- Smoke (regres onboardingu): strony Witaj / Cele / Lokalizacja wyglądają jak przed sprintem; Dynamic Type nie psuje hero-ikon (skalują się).

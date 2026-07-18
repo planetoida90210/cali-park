@@ -25,10 +25,10 @@ todos:
     status: completed
   - id: sk4-onboarding
     content: "SK4: Przebudowa welcome boardu — placement per ścieżka (pytania o liczby powtórzeń/umiane skille/gumę) zamiast 3 abstrakcyjnych poziomów"
-    status: pending
+    status: completed
   - id: sk4-calibration
     content: "SK4: Arkusz kalibracji w apce (istniejący użytkownik + 'Ustaw poziom' per ścieżka) + testy mapowania odpowiedzi na szczeble"
-    status: pending
+    status: completed
   - id: sk5-skills-tab
     content: "SK5: Zakładka Skille zamiast Społeczności — lista ścieżek, drabina ścieżki, detal szczebla z CTA Trenuj (SetPad reps/sekundy)"
     status: pending

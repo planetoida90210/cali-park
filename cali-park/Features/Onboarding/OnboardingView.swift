@@ -1,178 +1,161 @@
 import SwiftUI
 
+// MARK: - OnboardingView
+/// First-run flow: welcome, placement (where the athlete already is on each
+/// progression path), goals, and location permission.
+///
+/// The placement page replaces the old three-card "fitness level" question,
+/// whose answer was thrown away. Its answers are saved through `PlacementStoring`
+/// via `PlacementCalibrationViewModel`, so a strong athlete starts partway up
+/// each ladder instead of from the bottom.
 struct OnboardingView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
-    
+
     @State private var currentPage = 0
-    @State private var fitnessLevel = 1
+    @State private var calibration: PlacementCalibrationViewModel
     @State private var selectedGoals: [String] = []
     @State private var locationPermission = false
-    
+
+    /// Scales the hero glyphs with Dynamic Type while keeping their base size.
+    @ScaledMetric private var heroIconSize: CGFloat = 80
+
     private let goals = [
-        "Zwiększenie siły", 
-        "Budowa masy mięśniowej", 
-        "Poprawa wytrzymałości", 
-        "Redukcja tkanki tłuszczowej", 
+        "Zwiększenie siły",
+        "Budowa masy mięśniowej",
+        "Poprawa wytrzymałości",
+        "Redukcja tkanki tłuszczowej",
         "Nauka nowych umiejętności",
         "Przygotowanie do zawodów"
     ]
-    
+
+    private let pageCount = 4
+
+    init(environment: AppEnvironment) {
+        _calibration = State(initialValue: environment.makePlacementCalibrationViewModel())
+    }
+
     var body: some View {
         ZStack {
-            Color.appBackground.edgesIgnoringSafeArea(.all)
-            
+            Color.appBackground.ignoresSafeArea()
+
             VStack {
                 TabView(selection: $currentPage) {
-                    // Welcome page
-                    welcomeView
-                        .tag(0)
-                    
-                    // Fitness level page
-                    fitnessLevelView
-                        .tag(1)
-                    
-                    // Goals page
-                    goalsView
-                        .tag(2)
-                    
-                    // Location permissions page
-                    locationPermissionView
-                        .tag(3)
+                    welcomeView.tag(0)
+                    placementView.tag(1)
+                    goalsView.tag(2)
+                    locationPermissionView.tag(3)
                 }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                
-                // Progress and navigation
+                .tabViewStyle(.page(indexDisplayMode: .never))
+
                 VStack {
-                    // Page indicators
-                    HStack {
-                        ForEach(0..<4) { index in
-                            Circle()
-                                .fill(currentPage == index ? Color.accent : Color.gray.opacity(0.3))
-                                .frame(width: 10, height: 10)
-                        }
-                    }
-                    .padding(.bottom, 20)
-                    
-                    // Navigation buttons
-                    HStack {
-                        if currentPage > 0 {
-                            Button("Wróć") {
-                                withAnimation {
-                                    currentPage -= 1
-                                }
-                            }
-                            .buttonStyle(SecondaryButtonStyle())
-                        }
-                        
-                        Spacer()
-                        
-                        Button(currentPage == 3 ? "Rozpocznij" : "Dalej") {
-                            if currentPage < 3 {
-                                withAnimation {
-                                    currentPage += 1
-                                }
-                            } else {
-                                // Complete onboarding
-                                hasCompletedOnboarding = true
-                            }
-                        }
-                        .buttonStyle(PrimaryButtonStyle())
-                    }
+                    pageIndicators
+                        .padding(.bottom, 20)
+
+                    navigationButtons
                 }
                 .padding(.horizontal)
-                .padding(.bottom, 30)
+                .padding(.bottom, 32)
             }
             .padding()
         }
     }
-    
-    // MARK: - Subviews
-    
-    private var welcomeView: some View {
-        VStack(spacing: 30) {
+
+    // MARK: - Navigation chrome
+
+    private var pageIndicators: some View {
+        HStack {
+            ForEach(0..<pageCount, id: \.self) { index in
+                Circle()
+                    .fill(currentPage == index ? Color.accent : Color.gray.opacity(0.3))
+                    .frame(width: 10, height: 10)
+            }
+        }
+        .accessibilityHidden(true)
+    }
+
+    private var navigationButtons: some View {
+        HStack {
+            if currentPage > 0 {
+                Button("Wróć") {
+                    withAnimation { currentPage -= 1 }
+                }
+                .buttonStyle(SecondaryButtonStyle())
+            }
+
             Spacer()
-            
+
+            let isLastPage = currentPage == pageCount - 1
+            Button(isLastPage ? "Rozpocznij" : "Dalej") {
+                if isLastPage {
+                    finish()
+                } else {
+                    withAnimation { currentPage += 1 }
+                }
+            }
+            .buttonStyle(PrimaryButtonStyle())
+        }
+    }
+
+    private func finish() {
+        calibration.save()
+        hasCompletedOnboarding = true
+    }
+
+    // MARK: - Pages
+
+    private var welcomeView: some View {
+        VStack(spacing: 32) {
+            Spacer()
+
             Image(systemName: "figure.gymnastics")
-                .font(.system(size: 80))
-                .foregroundColor(.accent)
-            
+                .font(.system(size: heroIconSize))
+                .foregroundStyle(Color.accent)
+
             Text("Witaj w CaliPark")
                 .font(.largeTitle)
-                .foregroundColor(.textPrimary)
+                .foregroundStyle(Color.textPrimary)
                 .multilineTextAlignment(.center)
-            
-            Text("Twoja podróż po świecie kalisteniki zaczyna się tutaj! Przygotujmy wszystko, aby dopasować aplikację do Twoich potrzeb.")
+
+            Text("Twoja podróż po świecie kalisteniki zaczyna się tutaj. Przygotujmy wszystko, aby dopasować aplikację do Twoich potrzeb.")
                 .font(.bodyLarge)
-                .foregroundColor(.textSecondary)
+                .foregroundStyle(Color.textSecondary)
                 .multilineTextAlignment(.center)
-            
+
             Spacer()
         }
         .padding()
     }
-    
-    private var fitnessLevelView: some View {
-        VStack(spacing: 30) {
-            Text("Jaki jest Twój poziom zaawansowania?")
-                .font(.title2)
-                .foregroundColor(.textPrimary)
-                .multilineTextAlignment(.center)
-            
-            VStack(spacing: 15) {
-                fitnessLevelCard(level: 1, title: "Początkujący", description: "Dopiero zaczynasz przygodę z kalisteniką")
-                fitnessLevelCard(level: 2, title: "Średniozaawansowany", description: "Znasz podstawowe ćwiczenia i techniki")
-                fitnessLevelCard(level: 3, title: "Zaawansowany", description: "Wykonujesz zaawansowane ćwiczenia i triki")
-            }
-            
-            Spacer()
-        }
-        .padding()
-    }
-    
-    private func fitnessLevelCard(level: Int, title: String, description: String) -> some View {
-        Button(action: {
-            fitnessLevel = level
-        }) {
-            HStack {
-                VStack(alignment: .leading) {
-                    Text(title)
-                        .font(.bodyLarge)
-                        .foregroundColor(.textPrimary)
-                    
-                    Text(description)
-                        .font(.bodySmall)
-                        .foregroundColor(.textSecondary)
+
+    private var placementView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Co już potrafisz?")
+                        .font(.title2)
+                        .foregroundStyle(Color.textPrimary)
+
+                    Text("Zaczniesz od właściwego szczebla, nie od zera.")
+                        .font(.bodyMedium)
+                        .foregroundStyle(Color.textSecondary)
                 }
-                
-                Spacer()
-                
-                if fitnessLevel == level {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.accent)
-                        .font(.title3)
-                }
+
+                PlacementFormView(viewModel: calibration)
             }
-            .padding()
-            .background(Color.componentBackground)
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(fitnessLevel == level ? Color.accent : Color.clear, lineWidth: 2)
-            )
+            .padding(.vertical, 8)
         }
     }
-    
+
     private var goalsView: some View {
         VStack(spacing: 20) {
             Text("Jakie są Twoje cele treningowe?")
                 .font(.title2)
-                .foregroundColor(.textPrimary)
+                .foregroundStyle(Color.textPrimary)
                 .multilineTextAlignment(.center)
-            
-            Text("Wybierz wszystkie, które Cię interesują")
+
+            Text("Wybierz wszystkie, które Cię interesują.")
                 .font(.bodyMedium)
-                .foregroundColor(.textSecondary)
-            
+                .foregroundStyle(Color.textSecondary)
+
             ScrollView {
                 VStack(spacing: 12) {
                     ForEach(goals, id: \.self) { goal in
@@ -180,73 +163,77 @@ struct OnboardingView: View {
                     }
                 }
             }
-            
+
             Spacer()
         }
         .padding()
     }
-    
+
     private func goalRow(goal: String) -> some View {
         let isSelected = selectedGoals.contains(goal)
-        
-        return Button(action: {
+
+        return Button {
             if isSelected {
                 selectedGoals.removeAll { $0 == goal }
             } else {
                 selectedGoals.append(goal)
             }
-        }) {
+        } label: {
             HStack {
                 Text(goal)
                     .font(.bodyLarge)
-                    .foregroundColor(.textPrimary)
-                
+                    .foregroundStyle(Color.textPrimary)
+
                 Spacer()
-                
+
                 Image(systemName: isSelected ? "checkmark.square.fill" : "square")
-                    .foregroundColor(isSelected ? .accent : .gray)
+                    .foregroundStyle(isSelected ? Color.accent : Color.textTertiary)
                     .font(.title3)
             }
             .padding()
             .background(Color.componentBackground)
-            .cornerRadius(12)
+            .clipShape(.rect(cornerRadius: 12))
         }
+        .accessibilityLabel(goal)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
-    
+
     private var locationPermissionView: some View {
-        VStack(spacing: 30) {
+        VStack(spacing: 32) {
             Spacer()
-            
+
             Image(systemName: "location.circle.fill")
-                .font(.system(size: 80))
-                .foregroundColor(.accent)
-            
+                .font(.system(size: heroIconSize))
+                .foregroundStyle(Color.accent)
+
             Text("Dostęp do lokalizacji")
                 .font(.title2)
-                .foregroundColor(.textPrimary)
+                .foregroundStyle(Color.textPrimary)
                 .multilineTextAlignment(.center)
-            
-            Text("Aby znaleźć siłownie kalisteniki w pobliżu, potrzebujemy dostępu do Twojej lokalizacji. Możesz zarządzać tym później w ustawieniach.")
+
+            Text("Aby znaleźć siłownie kalisteniki w pobliżu, potrzebujemy dostępu do Twojej lokalizacji. Możesz zmienić to później w ustawieniach.")
                 .font(.bodyLarge)
-                .foregroundColor(.textSecondary)
+                .foregroundStyle(Color.textSecondary)
                 .multilineTextAlignment(.center)
-            
-            Toggle("Zezwól na dostęp do lokalizacji", isOn: $locationPermission)
-                .foregroundColor(.textPrimary)
-                .padding()
-                .background(Color.componentBackground)
-                .cornerRadius(12)
-                .toggleStyle(SwitchToggleStyle(tint: Color.accent))
-            
+
+            Toggle(isOn: $locationPermission) {
+                Text("Zezwól na dostęp do lokalizacji")
+                    .font(.bodyLarge)
+                    .foregroundStyle(Color.textPrimary)
+            }
+            .tint(Color.accent)
+            .padding()
+            .background(Color.componentBackground)
+            .clipShape(.rect(cornerRadius: 12))
+
             Spacer()
         }
         .padding()
     }
 }
 
-struct OnboardingView_Previews: PreviewProvider {
-    static var previews: some View {
-        OnboardingView()
-            .preferredColorScheme(.dark)
-    }
-} 
+// MARK: - Preview
+#Preview {
+    OnboardingView(environment: .preview)
+        .preferredColorScheme(.dark)
+}
