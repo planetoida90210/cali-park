@@ -1,52 +1,33 @@
 import SwiftUI
 
 // MARK: - HeroFirstRunView
-/// A fresh start: no plans, empty journal. The hero is an invitation — plan the
-/// first workout, or just start one now. Both CTAs do real work.
+/// A fresh start: no plans, empty journal. The hero is a short invitation; the
+/// two permanent actions ("Szybki trening" / "Plany") live in the rail right
+/// below, so it points there instead of repeating the same buttons.
 struct HeroFirstRunView: View {
     let name: String
     var now: Date = .now
-    let onPlanWorkout: () -> Void
-    let onQuickWorkout: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 4) {
-                HeroHeaderView(name: name, now: now)
+        VStack(alignment: .leading, spacing: 4) {
+            HeroHeaderView(name: name, now: now)
 
-                Text("Zacznij swoją serię")
-                    .font(.title2)
-                    .foregroundStyle(Color.textPrimary)
+            Text("Zacznij swoją serię")
+                .font(.title2)
+                .foregroundStyle(Color.textPrimary)
 
-                Text("Zaplanuj pierwszy trening albo od razu zaloguj serię.")
-                    .font(.bodySmall)
-                    .foregroundStyle(Color.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .accessibilityElement(children: .combine)
-
-            VStack(spacing: 8) {
-                Button(action: onPlanWorkout) {
-                    Text("Zaplanuj trening")
-                }
-                .buttonStyle(HeroPrimaryButtonStyle())
-
-                Button(action: onQuickWorkout) {
-                    Text("Szybki trening")
-                }
-                .buttonStyle(HeroSecondaryButtonStyle())
-            }
+            Text("Wybierz poniżej szybki trening albo ułóż swój pierwszy plan.")
+                .font(.bodySmall)
+                .foregroundStyle(Color.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
+        .accessibilityElement(children: .combine)
     }
 }
 
 // MARK: - Preview
 #Preview("Pierwszy start") {
-    HeroFirstRunView(
-        name: "Michał",
-        onPlanWorkout: {},
-        onQuickWorkout: {}
-    )
+    HeroFirstRunView(name: "Michał")
     .padding(20)
     .background(Color.componentBackground)
     .clipShape(.rect(cornerRadius: 12))

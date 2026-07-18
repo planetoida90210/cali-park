@@ -1,5 +1,12 @@
 import SwiftUI
 
+// MARK: - HomeRoute
+/// Push destinations from Home. The primary action rail's "Plany" button
+/// resolves to `.plans`; kept type-safe via `navigationDestination(for:)`.
+enum HomeRoute: Hashable {
+    case plans
+}
+
 struct HomeView: View {
     // Real workout data for hero + modules; name stays mocked until the
     // Profile sprint delivers a real user profile.
@@ -9,19 +16,22 @@ struct HomeView: View {
     // Module preferences
     @StateObject private var modulePreferences = ModulePreferences()
 
-    // Edit mode state
-    @State private var editMode: EditMode = .inactive
-
     // Selected module ID for auto-scrolling
     @State private var selectedModuleId: String? = nil
 
-    // Dragging state for reordering
+    // Dragging state for reordering (drag straight on Home, no edit mode)
     @State private var draggingModuleId: String? = nil
 
     // Module selector state
     @State private var showModuleSelector = false
 
+    // The plan the hero's "Rozpocznij" is starting; presents its quick workout.
+    @State private var startingPlan: WorkoutPlan?
+
+    private let environment: AppEnvironment
+
     init(environment: AppEnvironment) {
+        self.environment = environment
         _dashboard = State(initialValue: environment.makeHomeDashboardViewModel())
     }
 
@@ -31,23 +41,18 @@ struct HomeView: View {
                 // Main background
                 Color.appBackground.ignoresSafeArea()
 
-                // Blur overlay when in edit mode
-                if editMode.isEditing {
-                    Color.black.opacity(0.1)
-                        .ignoresSafeArea()
-                        .transition(.opacity)
-                }
-
-                // Main content (zawsze jeden ScrollView – również w trybie edycji)
                 ScrollViewReader { scrollProxy in
                     ScrollView {
                         VStack(spacing: 0) {
-                            // A. Hero Card - edge to edge
-                            HeroCardView(
+                            // A. Contextual hero — reacts to today's plan/logs.
+                            ContextualHeroView(
+                                state: dashboard.heroState(),
                                 name: userProfile.name,
                                 weeklyReps: dashboard.weeklyPullUps,
-                                progress: weeklyProgress
+                                weeklyProgress: weeklyProgress,
+                                onStartPlan: { startingPlan = $0 }
                             )
+                            .padding(.horizontal, 16)
                             .padding(.bottom, 16)
 
                             // B. Primary Action Rail
@@ -81,50 +86,30 @@ struct HomeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    if modulePreferences.enabledModules.isEmpty {
-                        // Gdy brak modułów – przycisk dodania
-                        Button {
-                            showModuleSelector = true
-                        } label: {
-                            Image(systemName: "plus.circle")
-                                .font(.title3)
-                                .foregroundStyle(Color.accent)
-                        }
-                    } else {
-                        // Edit mode toggle button
-                        Button {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                editMode = editMode.isEditing ? .inactive : .active
-                            }
-                        } label: {
-                            if editMode.isEditing {
-                                Text("Gotowe")
-                                    .foregroundStyle(Color.accent)
-                                    .font(.buttonMedium)
-                            } else {
-                                Image(systemName: "slider.horizontal.3")
-                                    .font(.title3)
-                                    .foregroundStyle(Color.textPrimary)
-                            }
-                        }
+                    // One entry point to customize modules (add / remove / toggle).
+                    Button {
+                        showModuleSelector = true
+                    } label: {
+                        Image(systemName: modulePreferences.enabledModules.isEmpty ? "plus.circle" : "slider.horizontal.3")
+                            .font(.title3)
+                            .foregroundStyle(Color.accent)
                     }
+                    .accessibilityLabel("Dostosuj moduły")
                 }
             }
-            .sheet(isPresented: $showModuleSelector, onDismiss: {
-                // Automatycznie wyjdź z trybu edycji po zamknięciu selektora modułów
-                if modulePreferences.enabledModules.isEmpty == false {
-                    withAnimation {
-                        editMode = .inactive
-                    }
-                }
-            }) {
+            .sheet(isPresented: $showModuleSelector) {
                 ModuleSelectionView(modulePreferences: modulePreferences)
             }
-            .environment(\.editMode, $editMode)
-            .onChange(of: modulePreferences.enabledModules) { _, newValue in
-                if newValue.isEmpty {
-                    // Automatycznie wyłącz tryb edycji gdy nie ma już modułów
-                    editMode = .inactive
+            .sheet(item: $startingPlan, onDismiss: { dashboard.reload() }) { plan in
+                QuickWorkoutView(
+                    viewModel: dashboard.makeQuickWorkoutViewModel(plan: plan),
+                    onFinish: { dashboard.reload() }
+                )
+            }
+            .navigationDestination(for: HomeRoute.self) { route in
+                switch route {
+                case .plans:
+                    WorkoutPlansView(environment: environment)
                 }
             }
             .onAppear {
@@ -156,10 +141,6 @@ struct HomeView: View {
                         Color.clear.frame(width: 1, height: 1)
                     })
                     .onDrop(of: [.text], delegate: ModuleDropDelegate(item: moduleId, draggingItem: $draggingModuleId, prefs: modulePreferences))
-            }
-
-            if !modulePreferences.enabledModules.isEmpty {
-                addMoreModulesButton
             }
         }
     }
@@ -198,27 +179,6 @@ struct HomeView: View {
         .padding(.vertical, 60)
         .padding(.horizontal, 16)
     }
-
-    // Add more modules button for normal mode (not edit mode)
-    private var addMoreModulesButton: some View {
-        Button {
-            showModuleSelector = true
-        } label: {
-            HStack {
-                Image(systemName: "plus.circle.fill")
-                    .font(.body)
-
-                Text("Dostosuj moduły")
-                    .font(.bodyMedium)
-            }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 20)
-            .foregroundStyle(Color.accent)
-            .background(Color.glassBackground.opacity(0.5))
-            .clipShape(.rect(cornerRadius: 12))
-            .padding(.top, 8)
-        }
-    }
 }
 
 // MARK: - Module Selection View
@@ -236,7 +196,7 @@ struct ModuleSelectionView: View {
                 } header: {
                     Text("Dostępne moduły")
                 } footer: {
-                    Text("Włączone moduły będą widoczne na ekranie głównym. Możesz zmieniać ich kolejność na ekranie głównym w trybie edycji.")
+                    Text("Włączone moduły będą widoczne na ekranie głównym. Kolejność zmienisz, przeciągając moduł na ekranie głównym.")
                 }
             }
             .listStyle(.insetGrouped)
@@ -292,7 +252,17 @@ struct ModuleSelectionView: View {
 }
 
 // MARK: - Preview
-#Preview {
-    HomeView(environment: .preview)
+#Preview("Plan na dziś") {
+    HomeView(environment: .previewPlanToday)
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Trening zrobiony dziś") {
+    HomeView(environment: .previewCompletedToday)
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Pusty start") {
+    HomeView(environment: .previewEmpty)
         .preferredColorScheme(.dark)
 }

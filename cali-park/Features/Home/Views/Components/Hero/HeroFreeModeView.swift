@@ -3,8 +3,8 @@ import SwiftUI
 // MARK: - HeroFreeModeView
 /// No plans, but a history to build on. The hero recalls the last workout,
 /// keeps the streak in view, and — when the heuristic has one — suggests what
-/// to train next behind a real "Szybki trening". "Zaplanuj trening" turns the
-/// free rhythm into a schedule.
+/// to train next. Acting on it is one tap away in the permanent rail below
+/// ("Szybki trening" / "Plany"), so the card informs rather than repeats it.
 struct HeroFreeModeView: View {
     let lastWorkout: HomeDashboardViewModel.LatestWorkout
     let suggestion: Exercise?
@@ -13,8 +13,6 @@ struct HeroFreeModeView: View {
     let weeklyReps: Int
     let weeklyProgress: Double
     var now: Date = .now
-    let onQuickWorkout: () -> Void
-    let onPlanWorkout: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -41,18 +39,6 @@ struct HeroFreeModeView: View {
 
             HeroStreakLabel(streak: streak)
 
-            VStack(spacing: 8) {
-                Button(action: onQuickWorkout) {
-                    Text("Szybki trening")
-                }
-                .buttonStyle(HeroPrimaryButtonStyle())
-
-                Button(action: onPlanWorkout) {
-                    Text("Zaplanuj trening")
-                }
-                .buttonStyle(HeroSecondaryButtonStyle())
-            }
-
             Divider().overlay(Color.divider)
 
             HeroWeeklyRingView(weeklyReps: weeklyReps, progress: weeklyProgress)
@@ -71,9 +57,7 @@ struct HeroFreeModeView: View {
         streak: WorkoutStreak(current: 0, longest: 6, trainedDays: []),
         name: "Michał",
         weeklyReps: 15,
-        weeklyProgress: 0.25,
-        onQuickWorkout: {},
-        onPlanWorkout: {}
+        weeklyProgress: 0.25
     )
     .padding(20)
     .background(Color.componentBackground)

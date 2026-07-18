@@ -22,13 +22,13 @@ todos:
     status: completed
   - id: h3-wiring
     content: "H3: Integracja w HomeView (sheety przez ActiveSheet) + rail: drugi przycisk jako stałe wejście Plany"
-    status: pending
+    status: completed
   - id: h3-env-previews
     content: "H3: Seedowane warianty AppEnvironment.preview (plan dziś / sesja dziś / pusty) dla całego HomeView"
-    status: pending
+    status: completed
   - id: h3-quality-gate
     content: "H3: Bramka jakości pod App Store — dostępność, Dynamic Type, copy PL, zero deprecated API w dotykanych plikach"
-    status: pending
+    status: completed
 isProject: false
 ---
 
