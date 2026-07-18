@@ -52,6 +52,9 @@ struct ExerciseLibraryView: View {
             .navigationDestination(for: Exercise.self) { exercise in
                 ExerciseDetailView(exercise: exercise, environment: environment)
             }
+            .navigationDestination(for: ProgressionPathID.self) { pathID in
+                PathDetailView(environment: environment, pathID: pathID)
+            }
             .navigationDestination(for: WorkoutHistoryDestination.self) { _ in
                 WorkoutHistoryView(viewModel: environment.makeWorkoutHistoryViewModel())
             }

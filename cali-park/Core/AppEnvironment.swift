@@ -72,6 +72,11 @@ final class AppEnvironment: ObservableObject {
         PlacementCalibrationViewModel(store: placementStore)
     }
 
+    /// Skills tab: per-path progress from logs and placement.
+    func makeSkillPathsViewModel() -> SkillPathsViewModel {
+        SkillPathsViewModel(logStore: workoutLogStore, placementStore: placementStore)
+    }
+
     func makeWorkoutLogViewModel(exercise: Exercise) -> WorkoutLogViewModel {
         WorkoutLogViewModel(exercise: exercise, store: workoutLogStore)
     }
@@ -150,4 +155,27 @@ extension AppEnvironment {
 
     /// No plans and an empty journal → hero invites the first workout.
     static var previewEmpty: AppEnvironment { seeded() }
+
+    /// A seasoned athlete for the Skills tab: several dynamic ladders finished
+    /// through logs, plus a mid-ladder static (front lever conquered through the
+    /// advanced tuck). Exercises the conquered / current / future rung states.
+    static var skillsVeteran: AppEnvironment {
+        func timed(_ id: UUID, seconds: Int, holds: Int = 3) -> WorkoutLogEntry {
+            WorkoutLogEntry(exerciseID: id, sets: Array(repeating: LoggedSet(reps: 1, durationSeconds: seconds), count: holds))
+        }
+        func reps(_ id: UUID, reps: Int, sets: Int = 3) -> WorkoutLogEntry {
+            WorkoutLogEntry(exerciseID: id, sets: Array(repeating: LoggedSet(reps: reps), count: sets))
+        }
+        return seeded(
+            logs: [
+                reps(ExerciseCatalog.archerPullUpsID, reps: 5),
+                reps(ExerciseCatalog.pseudoPlanchePushUpsID, reps: 8),
+                reps(ExerciseCatalog.ringDipsID, reps: 8),
+                timed(ExerciseCatalog.tuckFrontLeverID, seconds: 20),
+                timed(ExerciseCatalog.advancedTuckFrontLeverID, seconds: 20),
+                timed(ExerciseCatalog.straddleFrontLeverID, seconds: 12)
+            ],
+            placement: SkillPlacement(declaredRungByPath: [.core: 2, .legs: 3])
+        )
+    }
 }

@@ -31,6 +31,13 @@ enum ProgressionCatalog {
         byID[id]
     }
 
+    /// Every path whose ladder includes the given exercise as a rung — used to
+    /// link a movement's detail screen to the progressions it belongs to.
+    /// Usually one path; empty for an exercise no ladder references.
+    static func paths(containing exerciseID: UUID) -> [ProgressionPath] {
+        all.filter { path in path.steps.contains { $0.exerciseID == exerciseID } }
+    }
+
     private static let byID: [ProgressionPathID: ProgressionPath] = Dictionary(
         uniqueKeysWithValues: all.map { ($0.id, $0) }
     )

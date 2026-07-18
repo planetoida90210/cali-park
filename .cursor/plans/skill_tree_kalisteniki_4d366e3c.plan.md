@@ -31,10 +31,10 @@ todos:
     status: completed
   - id: sk5-skills-tab
     content: "SK5: Zakładka Skille zamiast Społeczności — lista ścieżek, drabina ścieżki, detal szczebla z CTA Trenuj (SetPad reps/sekundy)"
-    status: pending
+    status: completed
   - id: sk5-previews
     content: "SK5: Previews seedowanych wariantów (świeżak / placement średni / weteran) + testy VM"
-    status: pending
+    status: completed
   - id: sk6-reward
     content: "SK6: Celebracja awansu szczebla/poziomu (raz, kolejka, Reduce Motion) + XP toast + sekcja odznak"
     status: pending
