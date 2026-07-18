@@ -85,3 +85,51 @@ final class AppEnvironment: ObservableObject {
     // MARK: Preview
     static let preview = AppEnvironment()
 }
+
+// MARK: - Seeded preview environments
+extension AppEnvironment {
+    /// A preview environment backed by in-memory stores seeded with the given
+    /// logs and plans, so the whole `HomeView` can be eyeballed in each hero
+    /// state without touching disk.
+    static func seeded(logs: [WorkoutLogEntry] = [],
+                       plans: [WorkoutPlan] = []) -> AppEnvironment {
+        AppEnvironment(
+            workoutLogStore: InMemoryWorkoutLogStore(initial: logs),
+            workoutPlanStore: InMemoryWorkoutPlanStore(initial: plans)
+        )
+    }
+
+    /// Plan scheduled for today, nothing logged yet → hero shows "Rozpocznij".
+    static var previewPlanToday: AppEnvironment {
+        seeded(plans: [
+            WorkoutPlan(
+                name: "Push Day",
+                exercises: [
+                    PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID, targetSets: 3, targetReps: 12),
+                    PlannedExercise(exerciseID: ExerciseCatalog.dipsID, targetSets: 3, targetReps: 10)
+                ],
+                schedule: .once(.now)
+            )
+        ])
+    }
+
+    /// A whole session logged today → hero shows the day's summary.
+    static var previewCompletedToday: AppEnvironment {
+        let session = UUID()
+        return seeded(logs: [
+            WorkoutLogEntry(
+                exerciseID: ExerciseCatalog.pullUpsID,
+                sets: [LoggedSet(reps: 8), LoggedSet(reps: 6)],
+                sessionID: session
+            ),
+            WorkoutLogEntry(
+                exerciseID: ExerciseCatalog.dipsID,
+                sets: [LoggedSet(reps: 12)],
+                sessionID: session
+            )
+        ])
+    }
+
+    /// No plans and an empty journal → hero invites the first workout.
+    static var previewEmpty: AppEnvironment { seeded() }
+}

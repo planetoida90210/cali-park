@@ -1,33 +1,29 @@
 import SwiftUI
 
 // MARK: - PrimaryActionRailView
-/// The two headline actions on Home: start a quick workout, or jump straight
-/// into logging the suggested next exercise. Both write through the same
-/// dashboard store, so Home refreshes as soon as a sheet closes.
+/// The two headline actions on Home: start a spontaneous quick workout, or open
+/// the plans library. Contextual "start today's plan" now lives in the hero, so
+/// the second slot is a permanent entry into "Plany" (push `WorkoutPlansView`,
+/// which handles its own empty state). Quick workout writes through the same
+/// dashboard store, so Home refreshes as soon as the sheet closes.
 struct PrimaryActionRailView: View {
     let dashboard: HomeDashboardViewModel
 
     @State private var showingQuickWorkout = false
-    @State private var startingPlan: WorkoutPlan?
-    @State private var showingPlanEditor = false
 
     private let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
 
     var body: some View {
         HStack(spacing: 8) {
-            actionButton(iconName: "bolt.fill", title: "Szybki trening", isPrimary: true) {
+            Button {
                 impactFeedback.impactOccurred()
                 showingQuickWorkout = true
+            } label: {
+                railLabel(iconName: "bolt.fill", title: "Szybki trening", isPrimary: true)
             }
 
-            actionButton(iconName: "calendar", title: plannerTitle, isPrimary: false) {
-                impactFeedback.impactOccurred()
-                if let planned = dashboard.nextPlannedWorkout {
-                    startingPlan = planned.plan
-                } else {
-                    // Nothing scheduled yet — go plan one.
-                    showingPlanEditor = true
-                }
+            NavigationLink(value: HomeRoute.plans) {
+                railLabel(iconName: "calendar", title: "Plany", isPrimary: false)
             }
         }
         .padding(.horizontal, 16)
@@ -37,58 +33,41 @@ struct PrimaryActionRailView: View {
                 onFinish: { dashboard.reload() }
             )
         }
-        .sheet(item: $startingPlan, onDismiss: { dashboard.reload() }) { plan in
-            QuickWorkoutView(
-                viewModel: dashboard.makeQuickWorkoutViewModel(plan: plan),
-                onFinish: { dashboard.reload() }
-            )
-        }
-        .sheet(isPresented: $showingPlanEditor, onDismiss: { dashboard.reload() }) {
-            PlanEditorView(
-                viewModel: dashboard.makePlanEditorViewModel(),
-                onSave: { dashboard.reload() }
-            )
-        }
     }
 
-    /// Shows the scheduled plan's name when one is due, otherwise invites the
-    /// user to create a plan.
-    private var plannerTitle: String {
-        dashboard.nextPlannedWorkout?.plan.name ?? "Zaplanuj trening"
-    }
-
-    private func actionButton(
+    private func railLabel(
         iconName: String,
         title: String,
-        isPrimary: Bool,
-        action: @escaping () -> Void
+        isPrimary: Bool
     ) -> some View {
-        Button(action: action) {
-            VStack(spacing: 6) {
-                Image(systemName: iconName)
-                    .font(.title3)
+        VStack(spacing: 6) {
+            Image(systemName: iconName)
+                .font(.title3)
+                .accessibilityHidden(true)
 
-                Text(title)
-                    .font(.bodySmall)
-                    .lineLimit(1)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(isPrimary ? Color.accent : Color.componentBackground)
-            .foregroundStyle(isPrimary ? Color.black : Color.accent)
-            .clipShape(.rect(cornerRadius: 12))
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.accent.opacity(isPrimary ? 0 : 0.3), lineWidth: 1)
-            )
+            Text(title)
+                .font(.bodySmall)
+                .lineLimit(1)
         }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
+        .background(isPrimary ? Color.accent : Color.componentBackground)
+        .foregroundStyle(isPrimary ? Color.black : Color.accent)
+        .clipShape(.rect(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.accent.opacity(isPrimary ? 0 : 0.3), lineWidth: 1)
+        )
     }
 }
 
 // MARK: - Preview
 #Preview {
-    PrimaryActionRailView(dashboard: AppEnvironment.preview.makeHomeDashboardViewModel())
-        .padding()
-        .background(Color.appBackground)
-        .preferredColorScheme(.dark)
+    NavigationStack {
+        PrimaryActionRailView(dashboard: AppEnvironment.preview.makeHomeDashboardViewModel())
+            .padding()
+            .frame(maxHeight: .infinity)
+            .background(Color.appBackground)
+    }
+    .preferredColorScheme(.dark)
 }

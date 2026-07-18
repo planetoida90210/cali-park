@@ -17,9 +17,10 @@ struct ContextualHeroView: View {
     let weeklyProgress: Double
     var now: Date = .now
 
+    /// Only the contextual "start today's plan" is a hero action. The
+    /// spontaneous quick workout and plan management live permanently in the
+    /// rail below, so the hero doesn't duplicate them.
     var onStartPlan: (WorkoutPlan) -> Void = { _ in }
-    var onQuickWorkout: () -> Void = {}
-    var onPlanWorkout: () -> Void = {}
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -75,18 +76,11 @@ struct ContextualHeroView: View {
                 name: name,
                 weeklyReps: weeklyReps,
                 weeklyProgress: weeklyProgress,
-                now: now,
-                onQuickWorkout: onQuickWorkout,
-                onPlanWorkout: onPlanWorkout
+                now: now
             )
 
         case .firstRun:
-            HeroFirstRunView(
-                name: name,
-                now: now,
-                onPlanWorkout: onPlanWorkout,
-                onQuickWorkout: onQuickWorkout
-            )
+            HeroFirstRunView(name: name, now: now)
         }
     }
 

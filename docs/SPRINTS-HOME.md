@@ -23,7 +23,7 @@ Poprzedni tracker (kontekst Sprintów 1–8, zamknięty): [docs/SPRINTS.md](SPRI
 |---|---|---|---|
 | H1 | Fundament stanu (bez UI): planID w WorkoutLogEntry, HomeHeroState, heroState(asOf:) w HomeDashboardViewModel, testy parametryzowane | do weryfikacji | 2026-07-18 |
 | H2 | Widoki hero: ContextualHeroView + widoki per stan (Views/Components/Hero/), animacje + Reduce Motion, copy PL, previews per stan + galeria (bez integracji z HomeView) | do weryfikacji | 2026-07-18 |
-| H3 | Integracja: ContextualHeroView w HomeView (ActiveSheet), rail z wejściem „Plany", seedowane previews AppEnvironment, bramka jakości App Store, testy akcji | oczekuje | — |
+| H3 | Integracja: ContextualHeroView w HomeView (ActiveSheet), rail z wejściem „Plany", seedowane previews AppEnvironment, bramka jakości App Store, testy akcji | do weryfikacji | 2026-07-18 |
 
 Statusy: `oczekuje` → `w toku` → `do weryfikacji` → `zakończony` (ustawia użytkownik).
 
@@ -117,3 +117,51 @@ Szablon wpisu (kopiuj i wypełnij):
 - Build w Xcode. Same NOWE pliki w `Features/Home/Views/Components/Hero/` — nic istniejącego nie zmienione, więc reszta apki bez zmian.
 - Xcode Previews (Canvas): `ContextualHeroView` — „Plan dziś”, „Zrobione dziś”, „Dzień przerwy”, „Wolny tryb”, „Pierwszy start”, „Galeria stanów”, „Przejścia stanów” (tapnij „Następny stan”, by zobaczyć animowane przejścia). Sprawdź też pod Reduce Motion (puls/ring/przejścia mają zniknąć) i przy dużym Dynamic Type (layout nie powinien się łamać).
 - Po pozytywnej weryfikacji: zmień status H2 w tabeli na `zakończony`.
+
+---
+
+### Sprint H3 — 2026-07-18, agent (trzeci z H1–H3)
+
+**Zrobione:**
+- `cali-park/Features/Home/Views/HomeView.swift` — podmiana `HeroCardView` na `ContextualHeroView` (stan z `dashboard.heroState()`, `weeklyReps`/`weeklyProgress`/`name` jak dotąd). Dodane dwa typy na poziomie pliku: `HomeRoute` (`.plans`, do `navigationDestination(for:)`) i prywatny `ActiveSheet` (`.startPlan(WorkoutPlan)` / `.quickWorkout` / `.planEditor`, `Identifiable` po payloadzie — wzorzec S5, jeden sheet naraz). Akcje hero mapują na `activeSheet`; jeden `sheet(item:)` z `onDismiss → dashboard.reload()` prezentuje `QuickWorkoutView(plan:)` / `QuickWorkoutView()` / `PlanEditorView()`. `HomeView` trzyma teraz `environment` (potrzebny do push `WorkoutPlansView`). Previews rozbite na 3 seedowane warianty.
+- `cali-park/Features/Home/Views/Components/PrimaryActionRailView.swift` — drugi przycisk to teraz stałe wejście „Plany": `NavigationLink(value: HomeRoute.plans)` (push `WorkoutPlansView`). „Szybki trening" bez zmian (własny `sheet(isPresented:)`). Usunięte: `startingPlan`/`showingPlanEditor` i ich sheety oraz `plannerTitle` (kontekstowy start planu przejął hero). Dekoracyjna ikona `accessibilityHidden(true)`. Preview owinięty w `NavigationStack`.
+- `cali-park/Features/Home/Views/Components/HeroCardView.swift` — USUNIĘTY (zastąpiony przez `ContextualHeroView`).
+- `cali-park/Core/AppEnvironment.swift` — nowe seedowane środowiska podglądu: `seeded(logs:plans:)` (InMemory stores) + `previewPlanToday` (plan `.once(.now)`, brak logów → planToday), `previewCompletedToday` (sesja dziś → completedToday), `previewEmpty` (firstRun). Bez zmian w istniejącym `preview`.
+- `cali-parkTests/HomeHeroActionsTests.swift` (NOWY) — Swift Testing, `@MainActor`: (1) planToday → `makeQuickWorkoutViewModel(plan:)` + `finish()` + `reload()` stempluje `planID` i przełącza hero na completedToday; (2) firstRun → `makeQuickWorkoutViewModel()` + wolna sesja → completedToday (log bez `planID`); (3) wolny log przy planie na dziś zostaje progresem — hero trzyma się planToday z `loggedTodayReps`.
+
+**Odstępstwa od planu:**
+- Rail „Plany" ZAWSZE pushuje `WorkoutPlansView` (bez osobnej gałęzi „edytor gdy brak planów"). Powód: `WorkoutPlansView` ma własny empty state z CTA „Nowy plan", więc osobna gałąź byłaby duplikacją i tworzyła niespójne wejście. „Zaplanuj trening" z pustego dziennika obsługuje hero (`onPlanWorkout → PlanEditorView`). Efekt zgodny z „stałe wejście Plany", bez martwych ścieżek.
+- Testy akcji celują w szwy VM/model (te same fabryki i `reload()`, których używa widok), a nie w warstwę SwiftUI — w projekcie nie ma ViewInspector, więc test widoku byłby kruchy. Zamiast tego testy dowodzą realnego skutku każdego CTA (stan hero reaguje na akcję).
+
+**Decyzje podjęte w trakcie:**
+- Nawigacja przez `NavigationLink(value:)` + `navigationDestination(for: HomeRoute.self)` (type-safe, zgodne z regułą projektu — bez inline-destination `NavigationLink`).
+- Hero jako rounded card (`componentBackground`, róg 12) dostaje `.padding(.horizontal, 16)` — wyrównanie do raila i modułów (stary `HeroCardView` był czarny, edge-to-edge; nowy pasuje do reszty Home).
+- `ActiveSheet` obsługuje TYLKO akcje hero; selektor modułów zostaje na osobnym `sheet(isPresented:)`, a rail trzyma własny sheet szybkiego treningu — wyzwalane z rozłącznych miejsc, nigdy równocześnie.
+- Seed „plan dziś" = `WorkoutSchedule.once(.now)` (najprościej daje `nextOccurrence` = dziś, bez zależności od dnia tygodnia).
+
+**Bramka jakości pod App Store (odhaczone):**
+- Dostępność: hero i rail w pełni na `Button`/`NavigationLink` z etykietami tekstowymi; dekoracyjne ikony `accessibilityHidden(true)`; bloki tekstu hero łączone przez `accessibilityElement(children: .combine)` (H2); animacje (puls CTA, ring, przejścia) respektują `accessibilityReduceMotion`.
+- Dynamic Type: brak `.font(.system(size:))` w dotkniętych plikach — style z AppTheme (`.title2`, `.bodySmall`, `.buttonMedium`); layout hero to VStacki bez fixed frames/GeometryReader.
+- Zero deprecated API w dotkniętych plikach (`HomeView`, `PrimaryActionRailView`, `AppEnvironment`, hero z H2): `foregroundStyle`, `clipShape(.rect(cornerRadius:))`, dwuargumentowy `onChange`, `NavigationStack`.
+- Każdy CTA robi realną rzecz (start planu / szybki trening / edytor planu / push Plany). Zero nowych uprawnień/entitlements.
+- Copy PL spójne z resztą apki (nagłówki/CTA zdefiniowane w H2).
+
+**Znane problemy / TODO:**
+- Deprecated API POZA zakresem H3: moduły Home (`ParksModuleContent`, `LeaderboardModuleContent`, `FeedModuleContent`, `AchievementsModuleContent`) wciąż używają `foregroundColor()`/`cornerRadius()`. Świadomie NIE ruszane (spoza sprintu, żeby nie ryzykować builda) — kandydat na osobne porządki.
+- `weeklyPullUps` w VM nadal liczone po `Calendar.current`/`.now` (uwaga z H1/H2). Seedowane previews `HomeView` pokazują je poprawnie dla „dziś", ale determinizmu do testów całego Home brak — w razie potrzeby dołożyć `weeklyPullUps(asOf:)`.
+- Imię z `MockDataProvider.userProfile` (profil realny → sprint Profil, zgodnie z planem).
+
+**Wskazówki dla następnego agenta:**
+- Plan H1–H3 domknięty. Kolejne prace nad Home: realny profil (imię/cel tygodnia), ewentualny determinizm `weeklyPullUps`, oraz sprzątanie deprecated API w modułach (osobny plan).
+
+**Do ręcznej weryfikacji przez użytkownika:**
+- Build w Xcode. Zmienione: `HomeView.swift`, `PrimaryActionRailView.swift`, `AppEnvironment.swift`. Usunięte: `HeroCardView.swift`. Nowe: `HomeHeroActionsTests.swift`.
+- Testy: `HomeHeroActionsTests` + wszystkie poprzednie (`HomeHeroStateTests` z H1 muszą przejść bez zmian — sygnatury zachowane).
+- Smoke test w symulatorze: (1) utwórz plan na dziś → hero pokazuje „Rozpocznij" → wykonaj sesję → po zamknięciu hero przechodzi w „Zrobione na dziś"; (2) pusty stan → „Zaplanuj trening"/„Szybki trening" działają; (3) rail „Plany" pushuje listę planów (a pusta lista ma własne CTA „Nowy plan"). Sprawdź Reduce Motion i duży Dynamic Type na `HomeView` (previews: „Plan na dziś" / „Trening zrobiony dziś" / „Pusty start").
+- Po pozytywnej weryfikacji: zmień status H3 w tabeli na `zakończony`.
+
+**Poprawki po weryfikacji (2026-07-18) — usunięcie powtórzeń:**
+- Hero w stanach `firstRun`/`freeMode` NIE ma już przycisków „Zaplanuj trening"/„Szybki trening" — to było powtórzenie stałego raila poniżej. Hero tylko informuje/zaprasza, akcje robi rail. `planToday` zachowuje „Rozpocznij" (kontekstowy start konkretnego planu, nie duplikat). `ContextualHeroView` ma teraz tylko `onStartPlan`; `HeroFirstRunView`/`HeroFreeModeView` bez closurów akcji.
+- `HomeView`: `ActiveSheet` (3 przypadki) uproszczony do `startingPlan: WorkoutPlan?` + `sheet(item:)` (jedyny sheet prezentowany przez hero to start planu). Usunięte nieużywane ścieżki `.quickWorkout`/`.planEditor` (rail i „Plany" je pokrywają).
+- Moduły: zlikwidowane drugie wejście do konfiguracji. Górna ikona w toolbarze to jedyny punkt „Dostosuj moduły" (otwiera `ModuleSelectionView`); usunięty dolny przycisk „Dostosuj moduły" oraz cały tryb edycji (`editMode`, blur, `.environment(\.editMode:)`, reset przy pustej liście, toggle „Gotowe"). Przestawianie modułów działa jak dotąd przez przeciąganie na ekranie (onDrag/onDrop, niezależne od trybu edycji); copy stopki selektora zaktualizowane („przeciągnij moduł", bez „trybu edycji"). `ModuleView` nietknięty — jego gałęzie edycji stają się bezczynne (env `editMode` = nil), bez ryzyka dla builda.
+- Do weryfikacji: build; smoke: firstRun/freeMode pokazują tekst bez zdublowanych przycisków, rail działa; przeciąganie modułów porządkuje listę; górna ikona otwiera selektor (add/remove), dolnego przycisku już nie ma.
