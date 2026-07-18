@@ -22,7 +22,7 @@ Poprzedni tracker (kontekst Sprintów 1–8, zamknięty): [docs/SPRINTS.md](SPRI
 | Sprint | Zakres (skrót) | Status | Data |
 |---|---|---|---|
 | H1 | Fundament stanu (bez UI): planID w WorkoutLogEntry, HomeHeroState, heroState(asOf:) w HomeDashboardViewModel, testy parametryzowane | do weryfikacji | 2026-07-18 |
-| H2 | Widoki hero: ContextualHeroView + widoki per stan (Views/Components/Hero/), animacje + Reduce Motion, copy PL, previews per stan + galeria (bez integracji z HomeView) | oczekuje | — |
+| H2 | Widoki hero: ContextualHeroView + widoki per stan (Views/Components/Hero/), animacje + Reduce Motion, copy PL, previews per stan + galeria (bez integracji z HomeView) | do weryfikacji | 2026-07-18 |
 | H3 | Integracja: ContextualHeroView w HomeView (ActiveSheet), rail z wejściem „Plany", seedowane previews AppEnvironment, bramka jakości App Store, testy akcji | oczekuje | — |
 
 Statusy: `oczekuje` → `w toku` → `do weryfikacji` → `zakończony` (ustawia użytkownik).
