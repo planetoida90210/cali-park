@@ -67,7 +67,7 @@ final class HomeDashboardViewModel {
 
     /// The most recent workout for the Home preview: a whole session when the
     /// latest entry belongs to one, otherwise the single standalone entry.
-    struct LatestWorkout {
+    struct LatestWorkout: Equatable {
         let date: Date
         let entries: [WorkoutLogEntry]
 
@@ -100,7 +100,13 @@ final class HomeDashboardViewModel {
 
     // MARK: Streak
     var streak: WorkoutStreak {
-        WorkoutStreak.compute(from: entries.map(\.date))
+        streak(asOf: .now)
+    }
+
+    /// Testable core of `streak` with an explicit reference date, computed on
+    /// the injected calendar so streak math is deterministic in tests.
+    func streak(asOf reference: Date) -> WorkoutStreak {
+        WorkoutStreak.compute(from: entries.map(\.date), calendar: calendar, today: reference)
     }
 
     // MARK: Hero card
@@ -170,5 +176,51 @@ final class HomeDashboardViewModel {
             .min {
                 $0.date != $1.date ? $0.date < $1.date : $0.plan.createdAt < $1.plan.createdAt
             }
+    }
+
+    // MARK: Hero state
+    /// The contextual hero state for `reference`'s day, resolved from logs and
+    /// plans. Pure and deterministic given the injected `calendar` and the
+    /// explicit date, so it can be exhaustively tested. Mirrors the decision
+    /// tree in the plan: plan today → done? → trained today? → any plan? →
+    /// empty journal?
+    func heroState(asOf reference: Date = .now) -> HomeHeroState {
+        let entriesToday = entries.filter { calendar.isDate($0.date, inSameDayAs: reference) }
+        let planned = nextPlannedWorkout(asOf: reference)
+        let planToday = planned.flatMap { calendar.isDate($0.date, inSameDayAs: reference) ? $0.plan : nil }
+
+        // Q1 — is a plan scheduled for today?
+        if let planToday {
+            let planDoneToday = entriesToday.contains { $0.planID == planToday.id }
+            if planDoneToday {
+                return completedTodayState(asOf: reference)
+            }
+            let loggedTodayReps = entriesToday.reduce(0) { $0 + $1.totalReps }
+            return .planToday(plan: planToday, loggedTodayReps: loggedTodayReps)
+        }
+
+        // Q2 — no plan today, but did we log a workout today anyway?
+        if !entriesToday.isEmpty {
+            return completedTodayState(asOf: reference)
+        }
+
+        // Q3 — nothing today; is any plan scheduled at all?
+        if let planned {
+            return .restDay(nextPlan: planned.plan, date: planned.date, streak: streak(asOf: reference))
+        }
+
+        // Q4 — no plans; does the journal hold any history?
+        if let lastWorkout = latestWorkout {
+            return .freeMode(lastWorkout: lastWorkout, suggestion: suggestedExercise, streak: streak(asOf: reference))
+        }
+
+        return .firstRun
+    }
+
+    /// Builds the "done today" state, falling back to `firstRun` only in the
+    /// impossible case of a completed day with no recoverable summary.
+    private func completedTodayState(asOf reference: Date) -> HomeHeroState {
+        guard let lastWorkout = latestWorkout else { return .firstRun }
+        return .completedToday(summary: lastWorkout, streak: streak(asOf: reference))
     }
 }

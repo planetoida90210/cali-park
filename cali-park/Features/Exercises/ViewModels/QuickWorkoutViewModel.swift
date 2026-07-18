@@ -32,16 +32,23 @@ final class QuickWorkoutViewModel {
     private let store: WorkoutLogStoring
     /// Shared identifier stamped on every entry saved from this session.
     private let sessionID = UUID()
+    /// The plan this session was seeded from, stamped on every saved entry so
+    /// Home can tell that *this plan* was completed today; `nil` for a free
+    /// (unplanned) quick workout.
+    private let planID: UUID?
 
     // MARK: Init
     init(store: WorkoutLogStoring) {
         self.store = store
+        self.planID = nil
     }
 
     /// Seeds the session from a plan: each planned exercise becomes an item,
-    /// prefilled from its targets or left pending for the user to log.
-    convenience init(store: WorkoutLogStoring, plan: WorkoutPlan) {
-        self.init(store: store)
+    /// prefilled from its targets or left pending for the user to log. Keeps
+    /// the plan's `id` so finished entries record which plan they belong to.
+    init(store: WorkoutLogStoring, plan: WorkoutPlan) {
+        self.store = store
+        self.planID = plan.id
         items = plan.exercises.compactMap(Self.draftItem(from:))
     }
 
@@ -100,7 +107,8 @@ final class QuickWorkoutViewModel {
                 exerciseID: item.exercise.id,
                 date: date,
                 sets: item.sets,
-                sessionID: sessionID
+                sessionID: sessionID,
+                planID: planID
             )
         }
 
