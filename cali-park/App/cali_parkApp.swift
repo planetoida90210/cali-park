@@ -20,7 +20,7 @@ struct cali_parkApp: App {
                 if hasCompletedOnboarding {
                     MainTabView(environment: environment)
                 } else {
-                    OnboardingView()
+                    OnboardingView(environment: environment)
                 }
             }
             .preferredColorScheme(.dark)

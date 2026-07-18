@@ -67,6 +67,11 @@ final class AppEnvironment: ObservableObject {
         ExerciseLibraryViewModel()
     }
 
+    /// Placement questionnaire for onboarding and in-app re-calibration.
+    func makePlacementCalibrationViewModel() -> PlacementCalibrationViewModel {
+        PlacementCalibrationViewModel(store: placementStore)
+    }
+
     func makeWorkoutLogViewModel(exercise: Exercise) -> WorkoutLogViewModel {
         WorkoutLogViewModel(exercise: exercise, store: workoutLogStore)
     }
