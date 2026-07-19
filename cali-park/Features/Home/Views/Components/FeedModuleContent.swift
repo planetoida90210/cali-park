@@ -8,7 +8,7 @@ struct FeedModuleContent: View {
             HStack {
                 Text("Aktywność znajomych")
                     .font(.bodyLarge)
-                    .foregroundColor(.textPrimary)
+                    .foregroundStyle(Color.textPrimary)
                 
                 Spacer()
             }
@@ -31,7 +31,7 @@ struct FeedModuleContent: View {
         }
         .padding()
         .background(Color.componentBackground)
-        .cornerRadius(12)
+        .clipShape(.rect(cornerRadius: 12))
     }
     
     private func feedItem(avatar: String, name: String, action: String, time: String) -> some View {
@@ -43,24 +43,24 @@ struct FeedModuleContent: View {
                     .overlay(
                         Text(avatar)
                             .font(.footnote.bold())
-                            .foregroundColor(.accent)
+                            .foregroundStyle(Color.accent)
                     )
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(name)
                         .font(.bodyMedium.bold())
-                        .foregroundColor(.textPrimary)
+                        .foregroundStyle(Color.textPrimary)
                     
                     Text(action)
                         .font(.bodyMedium)
-                        .foregroundColor(.textSecondary)
+                        .foregroundStyle(Color.textSecondary)
                 }
                 
                 Spacer()
                 
                 Text(time)
                     .font(.caption)
-                    .foregroundColor(.textTertiary)
+                    .foregroundStyle(Color.textTertiary)
             }
             
             Divider()

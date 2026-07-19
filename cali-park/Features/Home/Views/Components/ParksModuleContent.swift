@@ -10,15 +10,15 @@ struct ParksModuleContent: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Warszawa")
                         .font(.bodySmall)
-                        .foregroundColor(.textSecondary)
+                        .foregroundStyle(Color.textSecondary)
                     
                     HStack {
                         Image(systemName: "sun.max.fill")
-                            .foregroundColor(.yellow)
+                            .foregroundStyle(Color.yellow)
                         
                         Text("22°C")
                             .font(.title3.bold())
-                            .foregroundColor(.textPrimary)
+                            .foregroundStyle(Color.textPrimary)
                     }
                 }
                 
@@ -28,11 +28,11 @@ struct ParksModuleContent: View {
                 VStack(alignment: .trailing, spacing: 4) {
                     Text("Najbliższy park")
                         .font(.bodySmall)
-                        .foregroundColor(.textSecondary)
+                        .foregroundStyle(Color.textSecondary)
                     
                     Text("Park Skaryszewski (1,2 km)")
                         .font(.bodyMedium)
-                        .foregroundColor(.textPrimary)
+                        .foregroundStyle(Color.textPrimary)
                 }
             }
             
@@ -47,11 +47,11 @@ struct ParksModuleContent: View {
             }) {
                 Text("Pokaż na mapie")
                     .font(.buttonMedium)
-                    .foregroundColor(.accent)
+                    .foregroundStyle(Color.accent)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(Color.glassBackground)
-                    .cornerRadius(8)
+                    .clipShape(.rect(cornerRadius: 8))
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(Color.accent, lineWidth: 1)
@@ -60,7 +60,7 @@ struct ParksModuleContent: View {
         }
         .padding()
         .background(Color.componentBackground)
-        .cornerRadius(12)
+        .clipShape(.rect(cornerRadius: 12))
     }
     
     private func parkRow(name: String, distance: String, busy: String) -> some View {
@@ -68,18 +68,18 @@ struct ParksModuleContent: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(name)
                     .font(.bodyMedium)
-                    .foregroundColor(.textPrimary)
+                    .foregroundStyle(Color.textPrimary)
                 
                 Text(busy)
                     .font(.caption)
-                    .foregroundColor(.textSecondary)
+                    .foregroundStyle(Color.textSecondary)
             }
             
             Spacer()
             
             Text(distance)
                 .font(.bodyMedium)
-                .foregroundColor(.accent)
+                .foregroundStyle(Color.accent)
         }
         .padding(.vertical, 4)
     }

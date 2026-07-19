@@ -29,7 +29,7 @@ Poprzednie trackery (kontekst, zamknięte): [docs/SPRINTS.md](SPRINTS.md) (Ćwic
 | SK5 | Zakładka Skille zamiast Społeczności: SkillPathsView (poziom + XP + karty ścieżek), PathDetailView (drabina, bez kłódek), StepDetailSheetView (kryterium + postęp + CTA Trenuj), sekcja „Progresje" w detalu ruchu, drill-in wariantów w pickerze, previews, testy VM | do weryfikacji | 2026-07-18 |
 | SK6a | Pętla nagrody w zakładce Skille: silnik nagrody (czysty, idempotentny, tylko z logów, baseline bez lawiny), celebracja awansu (raz, kolejka, Reduce Motion, haptyka), XP toast, sekcja odznak | do weryfikacji | 2026-07-19 |
 | SK6b | Home żyje z tych samych danych: realny AchievementsModuleContent (poziom/XP/ostatni awans), podpowiedź progresji w hero (freeMode/restDay), wyłączenie atrap leaderboard/feed | do weryfikacji | 2026-07-19 |
-| SK6c | Bramka jakości App Store (dostępność, Reduce Motion, Dynamic Type, zero deprecated, copy PL) + audyt sekretów/Core Data + regresja H1 + smoke całości | oczekuje | — |
+| SK6c | Bramka jakości App Store (dostępność, Reduce Motion, Dynamic Type, zero deprecated, copy PL) + audyt sekretów/Core Data + regresja H1 + smoke całości | do weryfikacji | 2026-07-19 |
 
 Statusy: `oczekuje` → `w toku` → `do weryfikacji` → `zakończony` (ustawia użytkownik).
 
@@ -383,3 +383,62 @@ Szablon wpisu (kopiuj i wypełnij):
 - Smoke (baseline): istniejący użytkownik z historią wchodzi w Skille pierwszy raz po aktualizacji → **żadnej lawiny** celebracji (baseline seedowany po cichu).
 - Smoke (odznaki): sekcja „Odznaki" w Skillach pokazuje zdobyte w akcencie, resztę wyszarzoną z warunkiem.
 - Dostępność: VoiceOver czyta overlay jednym zdaniem („Zaliczony szczebel: …. +100 XP."), przycisk „Zamknij" na scrimie; Reduce Motion → brak animacji wejścia (overlay statyczny).
+
+---
+
+### Sprint SK6b — 2026-07-19, agent
+
+> **Uwaga o fundamencie:** SK6a w tabeli miał status `do weryfikacji`, gdy zaczynałem SK6b (instrukcja #2 mówi „STOP"). Użytkownik jawnie polecił wykonać wyłącznie SK6b, więc kontynuowałem — ale SK6b jest celowo niezależny od SK6a: buduję tylko na `ProgressionEngine` (SK3, `zakończony`), nie tykam `RewardEvaluator`/kolejki celebracji. Nadal wymaga ręcznej weryfikacji buildu SK6a + SK6b razem.
+
+**Zrobione:**
+- `cali-park/Features/Main/TabRouter.swift` — NOWY: `AppTab` (enum `Int`, kolejność zakładek: home/parks/exercises/skills/profile — koniec magicznych indeksów) + `@Observable @MainActor TabRouter` (jedna, wstrzykiwana selekcja zakładki).
+- `cali-park/Features/Main/MainTabView.swift` — `selectedTab: Int` → `@State TabRouter` + `TabView(selection: $router.selection)` na `AppTab`; `.environment(router)` udostępnia selekcję głęboko w drzewie (moduł osiągnięć przełącza na Skille bez przewlekania bindingu).
+- `cali-park/Features/Skills/Services/ProgressionEngine.swift` — dwie czyste, statyczne funkcje: `lastAdvancement(from:)` (ostatnio zaliczony szczebel = ścieżka z najpóźniej pierwszy raz osiągniętym najwyższym szczeblem z logów; tylko logi, nie deklaracje; remis → porządek katalogu) i `mostActionableHint(logs:placement:)` (aktualny szczebel z częściowym, niedokończonym postępem, najbliższy kryterium; placement jako podłoga). Prywatny helper `firstQualifyingDate(for:exerciseID:in:)`.
+- `cali-park/Features/Skills/Models/ProgressionHint.swift` — NOWY: wartość opisująca nudge (pathID + currentRungIndex + `RungProgress`), derived, nieperystowana.
+- `cali-park/Features/Skills/Services/ProgressionFormat.swift` — `hintLine(_:)`: „Jeszcze 2 powtórzenia do 3 × 8 — następny szczebel: <nazwa>"; przy szczeblu-szczycie (brak następnego) nazywa aktualny; sekundy jako „5 s", repy przez `PolishPlural.reps`.
+- `cali-park/Features/Home/Models/HomeAchievementsSummary.swift` — NOWY: derived model modułu (poziom, XP do następnego, %, liczba odznak zdobyte/wszystkie, `Advancement` z nazwą szczebla/ścieżki/symbolem).
+- `cali-park/Features/Home/ViewModels/HomeDashboardViewModel.swift` — wstrzyknięty `placementStore` (default `InMemory…`, więc konstruktory z H1 kompilują się bez zmian), cache `placement` w `reload()`; `achievementsSummary` (z `ProgressionEngine`, tylko logi) i `progressionHint` (String? z `mostActionableHint` + `hintLine`); prywatny `resolveAdvancement(_:)`.
+- `cali-park/Core/AppEnvironment.swift` — `makeHomeDashboardViewModel()` przekazuje `placementStore` (Home i Skille czytają tę samą deklarację).
+- `cali-park/Features/Home/Views/Components/AchievementsModuleContent.swift` — przepisany na `AchievementsModuleContent(summary:)`: realny poziom + pasek XP („X XP do poziomu N+1", `numericText`) + odznaki „N/M" (koniec hardkodu „12/30") + „Ostatni awans" (symbol/nazwa/ścieżka albo empty state); cała karta to `Button` → `router.selection = .skills`; wyczyszczone deprecated API (`foregroundColor`→`foregroundStyle`, `cornerRadius`→`clipShape(.rect(cornerRadius:))`).
+- `cali-park/Components/ModuleView.swift` — case `achievements` przekazuje `dashboard.achievementsSummary`.
+- `cali-park/Features/Home/Views/Components/Hero/ContextualHeroView.swift` + `HeroFreeModeView.swift` + `HeroRestDayView.swift` — nowy opcjonalny `progressionHint: String?` przekazywany do stanów freeMode/restDay; nowy wspólny `HeroProgressionHintView.swift` (ikona `chart.line.uptrend.xyaxis` dekoracyjna + linia, VoiceOver „Postęp: …"). Zero zmian w maszynie `HomeHeroState`/`heroState(asOf:)`.
+- `cali-park/Features/Home/Views/HomeView.swift` — `ContextualHeroView(… progressionHint: dashboard.progressionHint …)`.
+- `cali-park/Models/ModuleDefinition.swift` — usunięte `friends` (Leaderboard) i `feed` (Aktywność) z `allModules` (znikają z selektora); `ModulePreferences.init` filtruje zapisane preferencje do znanych ID (czyści stare atrapy u istniejących użytkowników). Widoki `LeaderboardModuleContent`/`FeedModuleContent` zostają w repo (wrócą z backendem); martwe case'y w `ModuleView` zostawione dla łatwego re-enable.
+- `cali-parkTests/HomeAchievementsTests.swift` — NOWY: `lastAdvancement` (pusto→nil, 3×8 podciągnięć→`(.pullUp, 4)`, remis dat→późniejsza ścieżka), `mostActionableHint`/`hintLine` (brak częściowego postępu→nil, 3×6 na zadeklarowanym szczeblu→„Jeszcze 2 powtórzenia do 3 × 8 …" + nazwa następnego szczebla), `achievementsSummary` (świeżak: poziom 1, 0 odznak, 500 XP; z logów: poziom 2, nazwa awansu 1:1 z katalogiem), hint przez VM, oraz regresja H1 (placement nie zmienia `heroState` pustego dziennika, hint = nil).
+
+**Zastosowane skille:**
+- `swiftui-design-principles` — restraint: moduł osiągnięć to trzy bloki (poziom+odznaki / pasek XP / ostatni awans), `ProgressView(value:)` zamiast ręcznego rysowania, siatka 8/12/16, kolory semantyczne AppTheme, `clipShape(.rect(cornerRadius: 12))`/`.circle`, `numericText` na liczbach; hint jako jedna dyskretna linia. Zero GeometryReader/stałych ramek, zero `.font(.system(size:))`. Odrzuciłem przykłady `.font(.system(size:))` ze skilla na rzecz Dynamic Type z AppTheme (reguła projektu).
+- `writing-for-interfaces` — copy zwięzłe, konkret w nagłówku: „Poziom N", „X XP do poziomu N+1", „Ostatni awans", empty state „Zalicz pierwszy szczebel, aby zdobyć awans." (front-loaded cel, bez „Ups"); hint 1:1 z planem („Jeszcze 2 powtórzenia do 3 × 8 — następny szczebel: …"); dynamiczne liczby przez `PolishPlural.reps` (0/1/wiele), sekundy jako niezmienne „s"; VoiceOver „Zdobyte odznaki: N z M", „Postęp: …", `accessibilityHint` „Otwiera zakładkę Skille".
+- `swift-architecture-skill` — MVVM/DI jak w całym projekcie: logika w `ProgressionEngine`/`ProgressionFormat` (czyste, bezstanowe, poza DI), VM liczy summary/hint z wstrzykniętych store'ów, widoki „głupie" (dostają wartości). `TabRouter` to jedyny nowy stan współdzielony — `@Observable` przez `.environment`, bez singletonów; reużyty `placementStore` z `AppEnvironment` (zero nowych zależności). Home zależy od typów Skills (ten sam moduł) — świadomie, „Home żyje z tych samych danych".
+- `swift-testing-pro` — struktury nie klasy, `#expect`/`try #require`, `Issue`-free; kalendarz UTC + `day(n)`, zero timingu; stuby InMemory; `@MainActor` tylko na suicie dotykającej VM (silnik/format testowane bez izolacji).
+
+**Odstępstwa od planu:**
+- „Ostatni awans" liczę jako ścieżkę z najpóźniejszą datą pierwszego osiągnięcia jej **najwyższego** zalogowanego szczebla (nie „ostatni dowolny zaliczony szczebel"). Powód: unika dziwności, gdy ktoś później loguje niższy szczebel — nagłówek pokazuje realny szczyt ostatnio pchniętej drabiny. Wyłącznie z logów (spójne z XP/odznakami; deklaracja nie daje awansu).
+- Atrapy leaderboard/feed: plan mówił „domyślnie wyłączone z preferencji" — one już NIE były w domyślnych (`["log","next","parks"]`). Zinterpretowałem intencję („znikają dwie atrapy", „czekają na backend") jako usunięcie z listy dostępnych modułów + filtr zapisanych prefs, żeby atrapa nie dała się włączyć ani nie wróciła u istniejącego użytkownika. Pliki widoków zostają w repo.
+
+**Decyzje podjęte w trakcie:**
+- Przełączanie zakładki: `TabRouter` (@Observable) + `.environment` zamiast przewlekania bindingu przez `HomeView`→`ModuleView`→moduł. `AppTab` enum likwiduje magiczne indeksy zakładek. `@Environment(TabRouter.self) private var router: TabRouter?` (opcjonalny — previews i hosty bez routera nie krzaczą).
+- Hint tylko w freeMode/restDay (jak plan). W planToday/completedToday karta ma już swój przekaz — hint by konkurował. Warunek pojawienia się: częściowy, niezerowy i niedokończony postęp na aktualnym szczeblu (bez „0%"-nudge). Placement jako podłoga → nudge z realnego aktualnego szczebla wracającego użytkownika.
+- `HomeDashboardViewModel.placementStore` z defaultem `InMemorySkillPlacementStore()` — dodanie parametru NIE łamie konstruktorów z testów H1/planera (zostają na `store:planStore:calendar:`).
+- Cache `placement` w `reload()` — brak odczytu dysku przy każdym renderze `progressionHint`.
+
+**Znane problemy / TODO (dla SK6c):**
+- Deprecated API POZA zakresem: `LeaderboardModuleContent`/`FeedModuleContent` (nieużywane w domyślnym UI, ale w repo) i `ModuleView` wciąż mają `foregroundColor()`/`cornerRadius()`; `ModuleView` używa `UIImpactFeedbackGenerator` i `matchedGeometryEffect`. Zostawione świadomie (spoza SK6b, żeby nie ryzykować builda) — kandydaci na bramkę SK6c.
+- Achievements/hint aktualizują się przy `reload()` (onAppear Home + `onDismiss` sheetów). Zapis z innej zakładki pojawi się po powrocie na Home (jak reszta modułów). App-wide natychmiastowość → wspólny strumień (poza SK6b, uwaga też w SK6a).
+- Ikona odznak w module: pokazuję licznik „N/M", bez galerii ikon (pełna sekcja odznak żyje w Skillach — SK6a). Świadomy restraint.
+- „Ostatni awans" przez `lastAdvancement` skanuje logi kilka razy (osobno level/badges/advance) — dla lokalnych danych bez znaczenia; moduł liczy się tylko gdy rozwinięty.
+
+**Wskazówki dla następnego agenta (SK6c — bramka jakości):**
+- Dotknięte w SK6b pliki są czyste z deprecated API i na Dynamic Type — audytuj resztę modułów Home (`ModuleView`, Leaderboard/Feed) i całość SK1–SK6.
+- Regresja H1: `HomeHeroStateTests`/`HomeHeroActionsTests`/`HomePlannerTests` muszą przejść bez zmian (dodałem tylko defaultowany parametr do `HomeDashboardViewModel.init`).
+- Smoke tab-switch: tap w moduł „Osiągnięcia" → zakładka Skille; sprawdź, że `.environment(TabRouter…)` dociera (moduł wewnątrz `ModuleView`).
+- Nie ruszaj `RewardEvaluator`/kolejki (SK6a) ani maszyny `heroState` (H1).
+
+**Do ręcznej weryfikacji przez użytkownika:**
+- Build + testy w Xcode (nowe pliki: `TabRouter.swift`, `ProgressionHint.swift`, `HomeAchievementsSummary.swift`, `HeroProgressionHintView.swift`, `HomeAchievementsTests.swift` — synchronized groups powinny podpiąć automatycznie; jeśli nie, dodać ręcznie).
+- **Najpierw zweryfikuj build SK6a** (był `do weryfikacji`) — SK6b jest niezależny, ale kompiluje się razem.
+- Testy: `HomeAchievementsTests` (wszystkie suity) + regresja `HomeHeroStateTests`, `HomeHeroActionsTests`, `HomePlannerTests`, `RewardLoopTests`, `SkillPathsViewModelTests`, `ProgressionEngineTests`.
+- Smoke (osiągnięcia): Home → „Dostosuj moduły" → włącz „Osiągnięcia" → rozwiń moduł → realny „Poziom N" + pasek XP + „N/6" odznak + „Ostatni awans" (po treningu domykającym szczebel) albo empty state (świeżak); tap w moduł → przeskok na zakładkę Skille.
+- Smoke (hero hint): stan „Wolny tryb"/„Dzień przerwy" z placementem (np. zadeklaruj podciąganie „5–8") i częściowym logiem na aktualnym szczeblu → hero pokazuje linię „Jeszcze … — następny szczebel: …"; bez częściowego postępu → linii brak.
+- Smoke (atrapy): „Dostosuj moduły" NIE oferuje już „Leaderboard" ani „Aktywność społeczności"; istniejący użytkownik, który je miał włączone, po aktualizacji ma je usunięte z listy.
+- Dostępność: VoiceOver czyta moduł osiągnięć jako jeden przycisk („Otwiera zakładkę Skille"), odznaki „N z M", hint „Postęp: …"; Dynamic Type nie łamie modułu ani hero.
