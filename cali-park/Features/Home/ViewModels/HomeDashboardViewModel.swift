@@ -12,18 +12,24 @@ final class HomeDashboardViewModel {
     private(set) var entries: [WorkoutLogEntry] = []
     /// Saved workout plans, used to surface the next scheduled workout.
     private(set) var plans: [WorkoutPlan] = []
+    /// The athlete's declared placement, cached on reload so the achievements
+    /// module and hero hint read it without touching disk on every render.
+    private var placement: SkillPlacement?
 
     // MARK: Dependencies
     private let store: WorkoutLogStoring
     private let planStore: WorkoutPlanStoring
+    private let placementStore: PlacementStoring
     private let calendar: Calendar
 
     // MARK: Init
     init(store: WorkoutLogStoring,
          planStore: WorkoutPlanStoring,
+         placementStore: PlacementStoring = InMemorySkillPlacementStore(),
          calendar: Calendar = .current) {
         self.store = store
         self.planStore = planStore
+        self.placementStore = placementStore
         self.calendar = calendar
         reload()
     }
@@ -32,6 +38,7 @@ final class HomeDashboardViewModel {
     func reload() {
         entries = store.load().sorted { $0.date > $1.date }
         plans = planStore.load()
+        placement = placementStore.load()
     }
 
     /// SetPad session for logging straight from Home (Quick Log).
@@ -117,6 +124,47 @@ final class HomeDashboardViewModel {
         return entries
             .filter { $0.exerciseID == ExerciseCatalog.pullUpsID && week.contains($0.date) }
             .reduce(0) { $0 + $1.totalReps }
+    }
+
+    // MARK: Skills bridge
+    /// Real achievements for the Home module: level, XP to the next level, badge
+    /// count, and the most recent conquered rung — all from logs, so Home mirrors
+    /// the Skills tab. Declarations grant nothing here.
+    var achievementsSummary: HomeAchievementsSummary {
+        let level = ProgressionEngine.playerLevel(for: entries)
+        let badges = ProgressionEngine.earnedBadges(from: entries, calendar: calendar)
+        let advancement = ProgressionEngine.lastAdvancement(from: entries)
+            .flatMap(resolveAdvancement)
+        return HomeAchievementsSummary(
+            level: level.level,
+            xpToNextLevel: level.xpToNextLevel,
+            progressToNextLevel: level.progressToNextLevel,
+            earnedBadgeCount: badges.count,
+            totalBadgeCount: Badge.allCases.count,
+            lastAdvancement: advancement
+        )
+    }
+
+    /// A one-line progression nudge for the hero's rest-day / free-training
+    /// states ("Jeszcze 2 powtórzenia do 3 × 8 — następny szczebel: …"), or
+    /// `nil` when no rung is partway done. Uses the cached placement as a floor,
+    /// like the Skills tab.
+    var progressionHint: String? {
+        ProgressionEngine.mostActionableHint(logs: entries, placement: placement)
+            .flatMap(ProgressionFormat.hintLine)
+    }
+
+    /// Resolves a rung reference into display names from the catalogs.
+    private func resolveAdvancement(_ reference: RungReference) -> HomeAchievementsSummary.Advancement? {
+        guard let path = ProgressionCatalog.path(withID: reference.pathID),
+              reference.rungIndex < path.steps.count,
+              let exercise = ExerciseCatalog.exercise(withID: path.steps[reference.rungIndex].exerciseID)
+        else { return nil }
+        return HomeAchievementsSummary.Advancement(
+            title: exercise.name,
+            pathName: path.name,
+            symbolName: path.symbolName
+        )
     }
 
     // MARK: Next workout

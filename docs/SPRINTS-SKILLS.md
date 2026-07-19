@@ -28,7 +28,7 @@ Poprzednie trackery (kontekst, zamknięte): [docs/SPRINTS.md](SPRINTS.md) (Ćwic
 | SK4 | Placement UI: przebudowa strony poziomu w OnboardingView na placement per ścieżka (pytania liczbowe + skille + guma), arkusz kalibracji w apce, testy mapowania odpowiedzi → szczeble | zakończony | 2026-07-18 |
 | SK5 | Zakładka Skille zamiast Społeczności: SkillPathsView (poziom + XP + karty ścieżek), PathDetailView (drabina, bez kłódek), StepDetailSheetView (kryterium + postęp + CTA Trenuj), sekcja „Progresje" w detalu ruchu, drill-in wariantów w pickerze, previews, testy VM | do weryfikacji | 2026-07-18 |
 | SK6a | Pętla nagrody w zakładce Skille: silnik nagrody (czysty, idempotentny, tylko z logów, baseline bez lawiny), celebracja awansu (raz, kolejka, Reduce Motion, haptyka), XP toast, sekcja odznak | do weryfikacji | 2026-07-19 |
-| SK6b | Home żyje z tych samych danych: realny AchievementsModuleContent (poziom/XP/ostatni awans), podpowiedź progresji w hero (freeMode/restDay), wyłączenie atrap leaderboard/feed | oczekuje | — |
+| SK6b | Home żyje z tych samych danych: realny AchievementsModuleContent (poziom/XP/ostatni awans), podpowiedź progresji w hero (freeMode/restDay), wyłączenie atrap leaderboard/feed | do weryfikacji | 2026-07-19 |
 | SK6c | Bramka jakości App Store (dostępność, Reduce Motion, Dynamic Type, zero deprecated, copy PL) + audyt sekretów/Core Data + regresja H1 + smoke całości | oczekuje | — |
 
 Statusy: `oczekuje` → `w toku` → `do weryfikacji` → `zakończony` (ustawia użytkownik).

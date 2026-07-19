@@ -98,6 +98,61 @@ enum ProgressionEngine {
         PlayerLevel.forXP(experiencePoints(for: logs))
     }
 
+    // MARK: Highlights
+
+    /// The most recently conquered rung across all paths, scored from logs only,
+    /// or `nil` when nothing has been conquered yet.
+    ///
+    /// "Most recent" is the path whose top logged rung was first reached latest —
+    /// the last milestone the athlete actually trained up to. Declarations never
+    /// count (this reads logs, like XP and badges). Ties break on catalog order.
+    static func lastAdvancement(from logs: [WorkoutLogEntry]) -> RungReference? {
+        var best: (reference: RungReference, date: Date)?
+        for path in ProgressionCatalog.all {
+            // The highest rung the logs directly satisfy on this path.
+            var topLoggedRung = -1
+            for (index, step) in path.steps.enumerated()
+            where meetsCriterion(step.criterion, exerciseID: step.exerciseID, in: logs) {
+                topLoggedRung = index
+            }
+            guard topLoggedRung >= 0 else { continue }
+
+            let step = path.steps[topLoggedRung]
+            guard let date = firstQualifyingDate(for: step.criterion, exerciseID: step.exerciseID, in: logs) else { continue }
+            let reference = RungReference(pathID: path.id, rungIndex: topLoggedRung)
+            if best == nil || date > best!.date {
+                best = (reference, date)
+            }
+        }
+        return best?.reference
+    }
+
+    /// The single rung most worth nudging toward: the current rung (respecting
+    /// the placement floor) with partial-but-unfinished progress, closest to its
+    /// criterion. `nil` when no rung is partway done.
+    static func mostActionableHint(logs: [WorkoutLogEntry],
+                                   placement: SkillPlacement?) -> ProgressionHint? {
+        let states = pathStates(logs: logs, placement: placement)
+        var best: ProgressionHint?
+        var bestFraction = 0.0
+        for path in ProgressionCatalog.all {
+            guard let state = states[path.id] else { continue }
+            let progress = state.currentProgress
+            // Only nudge when there's real, unfinished progress to build on.
+            guard progress.bestValue > 0, !progress.isMet else { continue }
+            let fraction = progress.fractionComplete
+            if fraction > bestFraction {
+                bestFraction = fraction
+                best = ProgressionHint(
+                    pathID: path.id,
+                    currentRungIndex: state.currentRungIndex,
+                    progress: progress
+                )
+            }
+        }
+        return best
+    }
+
     // MARK: Badges
 
     /// Every badge the logs earn. Computed strictly from logs (skill completion
@@ -154,6 +209,26 @@ enum ProgressionEngine {
             best = max(best, weakestCounted)
         }
         return best
+    }
+
+    /// The date of the earliest single session that satisfies a criterion for an
+    /// exercise, or `nil` when no session ever does — i.e. when the athlete first
+    /// conquered that rung.
+    private static func firstQualifyingDate(for criterion: AdvancementCriterion,
+                                            exerciseID: UUID,
+                                            in logs: [WorkoutLogEntry]) -> Date? {
+        let requiredSets = criterion.sets
+        guard requiredSets > 0 else { return nil }
+
+        var earliest: Date?
+        for entry in logs where entry.exerciseID == exerciseID {
+            let values = qualifyingValues(in: entry, for: criterion.measurement)
+            guard values.count >= requiredSets else { continue }
+            let weakestCounted = values.sorted(by: >)[requiredSets - 1]
+            guard weakestCounted >= criterion.targetValue else { continue }
+            earliest = min(earliest ?? entry.date, entry.date)
+        }
+        return earliest
     }
 
     /// The per-set values in an entry relevant to a measurement: reps from

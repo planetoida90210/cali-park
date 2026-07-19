@@ -12,6 +12,8 @@ struct HeroFreeModeView: View {
     let name: String
     let weeklyReps: Int
     let weeklyProgress: Double
+    /// A one-line progression nudge, or `nil` when no rung is partway done.
+    var progressionHint: String? = nil
     var now: Date = .now
 
     var body: some View {
@@ -37,6 +39,10 @@ struct HeroFreeModeView: View {
             }
             .accessibilityElement(children: .combine)
 
+            if let progressionHint {
+                HeroProgressionHintView(hint: progressionHint)
+            }
+
             HeroStreakLabel(streak: streak)
 
             Divider().overlay(Color.divider)
@@ -57,7 +63,8 @@ struct HeroFreeModeView: View {
         streak: WorkoutStreak(current: 0, longest: 6, trainedDays: []),
         name: "Michał",
         weeklyReps: 15,
-        weeklyProgress: 0.25
+        weeklyProgress: 0.25,
+        progressionHint: "Jeszcze 2 powtórzenia do 3 × 8 — następny szczebel: Pełne podciągnięcia"
     )
     .padding(20)
     .background(Color.componentBackground)

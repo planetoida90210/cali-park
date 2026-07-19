@@ -11,6 +11,8 @@ struct HeroRestDayView: View {
     let name: String
     let weeklyReps: Int
     let weeklyProgress: Double
+    /// A one-line progression nudge, or `nil` when no rung is partway done.
+    var progressionHint: String? = nil
     var now: Date = .now
 
     var body: some View {
@@ -28,6 +30,10 @@ struct HeroRestDayView: View {
                     .lineLimit(1)
             }
             .accessibilityElement(children: .combine)
+
+            if let progressionHint {
+                HeroProgressionHintView(hint: progressionHint)
+            }
 
             HeroStreakLabel(streak: streak)
 
@@ -48,7 +54,8 @@ struct HeroRestDayView: View {
         streak: WorkoutStreak(current: 3, longest: 7, trainedDays: []),
         name: "Michał",
         weeklyReps: 18,
-        weeklyProgress: 0.3
+        weeklyProgress: 0.3,
+        progressionHint: "Jeszcze 5 s do 3 × 20 s — następny szczebel: Advanced tuck front lever"
     )
     .padding(20)
     .background(Color.componentBackground)

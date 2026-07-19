@@ -50,6 +50,7 @@ struct HomeView: View {
                                 name: userProfile.name,
                                 weeklyReps: dashboard.weeklyPullUps,
                                 weeklyProgress: weeklyProgress,
+                                progressionHint: dashboard.progressionHint,
                                 onStartPlan: { startingPlan = $0 }
                             )
                             .padding(.horizontal, 16)

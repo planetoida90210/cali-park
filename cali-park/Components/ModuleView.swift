@@ -150,7 +150,7 @@ struct ModuleView: View {
         case "feed":
             FeedModuleContent()
         case "achievements":
-            AchievementsModuleContent()
+            AchievementsModuleContent(summary: dashboard.achievementsSummary)
         default:
             EmptyView()
         }

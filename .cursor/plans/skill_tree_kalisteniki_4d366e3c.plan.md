@@ -40,7 +40,7 @@ todos:
     status: completed
   - id: sk6b-home
     content: "SK6b: Realny moduł osiągnięć na Home (poziom/XP/ostatni awans), podpowiedź progresji w hero (freeMode/restDay), wyłączenie atrap leaderboard/feed z domyślnego UI"
-    status: pending
+    status: completed
   - id: sk6c-quality
     content: "SK6c: Bramka jakości App Store (dostępność, Reduce Motion, Dynamic Type, zero deprecated w dotykanych plikach, copy PL) + regresja testów H1 + smoke test całości"
     status: pending
