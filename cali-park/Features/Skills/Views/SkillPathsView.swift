@@ -40,6 +40,8 @@ struct SkillPathsView: View {
                             .buttonStyle(.plain)
                         }
                     }
+
+                    BadgesSectionView(earned: viewModel.badges)
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
@@ -73,6 +75,7 @@ struct SkillPathsView: View {
                 PlacementCalibrationSheet(viewModel: environment.makePlacementCalibrationViewModel())
             }
         }
+        .rewardOverlay(viewModel)
     }
 }
 

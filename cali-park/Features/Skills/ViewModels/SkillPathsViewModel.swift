@@ -3,8 +3,8 @@ import Observation
 
 // MARK: - SkillPathsViewModel
 /// Drives the Skills tab: turns the workout log and the athlete's placement into
-/// per-path summaries, an overall level, and the set of paths that advanced
-/// since the last load (a hook the reward loop in SK6 builds on).
+/// per-path summaries, an overall level, earned badges, and the reward loop —
+/// the queue of advances to celebrate and the XP a save just gained.
 ///
 /// Loading is synchronous because the stores it reads are synchronous (an
 /// in-memory or on-disk JSON file), matching `HomeDashboardViewModel`; there is
@@ -24,6 +24,19 @@ final class SkillPathsViewModel {
     /// Paths whose conquered-rung count grew since the previous load. Empty on
     /// the first load, so an initial placement never counts as an advance.
     private(set) var recentlyAdvancedPaths: Set<ProgressionPathID> = []
+    /// Badges earned from the whole log history; declarations never grant one.
+    private(set) var badges: Set<Badge> = []
+    /// The advance being celebrated right now, or `nil` when the queue is empty.
+    private(set) var currentCelebration: CelebrationEvent?
+    /// XP gained by the most recent save, to show as a toast; `nil` when there
+    /// is nothing fresh to announce (or a celebration is carrying the moment).
+    private(set) var xpToastAmount: Int?
+
+    /// Advances waiting behind `currentCelebration`, shown one at a time.
+    private var pendingCelebrations: [CelebrationEvent] = []
+    /// Total XP at the previous load, to measure a save's gain; `nil` until the
+    /// first load, so opening the tab never toasts historical XP.
+    private var previousTotalXP: Int?
 
     /// The most recent logs, kept so any single rung can be scored on demand
     /// (the ladder detail shows a best for every rung, not just the current one).
@@ -32,11 +45,15 @@ final class SkillPathsViewModel {
     // MARK: Dependencies
     private let logStore: WorkoutLogStoring
     private let placementStore: PlacementStoring
+    private let progressStore: SkillProgressStoring
 
     // MARK: Init
-    init(logStore: WorkoutLogStoring, placementStore: PlacementStoring) {
+    init(logStore: WorkoutLogStoring,
+         placementStore: PlacementStoring,
+         progressStore: SkillProgressStoring) {
         self.logStore = logStore
         self.placementStore = placementStore
+        self.progressStore = progressStore
         load()
     }
 
@@ -54,7 +71,56 @@ final class SkillPathsViewModel {
         }
         level = ProgressionEngine.playerLevel(for: logs)
         hasPlacement = placement != nil
+        badges = ProgressionEngine.earnedBadges(from: logs)
         recentlyAdvancedPaths = Self.advances(from: previous, to: summaries)
+
+        enqueueFreshCelebrations(placement: placement)
+        updateXPToast()
+    }
+
+    // MARK: Reward loop
+
+    /// Compares logs against the "already celebrated" record, queues any fresh
+    /// advances, and persists the updated record so each is celebrated once.
+    /// The placement is a floor only — it never adds a celebration.
+    private func enqueueFreshCelebrations(placement: SkillPlacement?) {
+        let evaluation = RewardEvaluator.evaluate(
+            logs: logs,
+            placement: placement,
+            celebrated: progressStore.load()
+        )
+        try? progressStore.save(evaluation.updatedProgress)
+
+        guard !evaluation.pendingEvents.isEmpty else { return }
+        pendingCelebrations.append(contentsOf: evaluation.pendingEvents)
+        if currentCelebration == nil {
+            currentCelebration = pendingCelebrations.removeFirst()
+        }
+    }
+
+    /// Sets the XP toast to a save's gain, unless this is the first load (no
+    /// baseline yet) or a celebration is already carrying the moment.
+    private func updateXPToast() {
+        let total = level.totalXP
+        defer { previousTotalXP = total }
+        guard let previous = previousTotalXP, total > previous else {
+            xpToastAmount = nil
+            return
+        }
+        xpToastAmount = currentCelebration == nil ? total - previous : nil
+    }
+
+    /// Whether more advances wait behind the one on screen.
+    var hasQueuedCelebrations: Bool { !pendingCelebrations.isEmpty }
+
+    /// Advances the celebration queue after the current overlay is dismissed.
+    func dismissCurrentCelebration() {
+        currentCelebration = pendingCelebrations.isEmpty ? nil : pendingCelebrations.removeFirst()
+    }
+
+    /// Clears the XP toast once it has been shown.
+    func clearXPToast() {
+        xpToastAmount = nil
     }
 
     /// The summary for one path, or `nil` if the catalog has no such path.

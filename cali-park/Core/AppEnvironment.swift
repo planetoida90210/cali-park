@@ -21,7 +21,7 @@ final class AppEnvironment: ObservableObject {
     /// onboarding calibration (SK4) and the Skills tab (SK5).
     let placementStore: PlacementStoring
     /// Persists which rewards have already been celebrated, so the reward loop
-    /// (SK6) stays idempotent. No UI consumer yet.
+    /// (SK6a) stays idempotent. Consumed by the Skills tab.
     let skillProgressStore: SkillProgressStoring
 
     // MARK: Init
@@ -72,9 +72,14 @@ final class AppEnvironment: ObservableObject {
         PlacementCalibrationViewModel(store: placementStore)
     }
 
-    /// Skills tab: per-path progress from logs and placement.
+    /// Skills tab: per-path progress from logs and placement, plus the reward
+    /// loop (celebrations, XP toast, badges) backed by the progress store.
     func makeSkillPathsViewModel() -> SkillPathsViewModel {
-        SkillPathsViewModel(logStore: workoutLogStore, placementStore: placementStore)
+        SkillPathsViewModel(
+            logStore: workoutLogStore,
+            placementStore: placementStore,
+            progressStore: skillProgressStore
+        )
     }
 
     func makeWorkoutLogViewModel(exercise: Exercise) -> WorkoutLogViewModel {

@@ -27,9 +27,13 @@ Poprzednie trackery (kontekst, zamknięte): [docs/SPRINTS.md](SPRINTS.md) (Ćwic
 | SK3 | Silnik + placement (bez UI): ProgressionEngine (stany ścieżek z logów + deklaracji, ścieżki w pełni niezależne), SkillPlacement + PlacementStoring, XP/poziomy wstecz z historii, odznaki, SkillProgressStore, testy parametryzowane | zakończony | 2026-07-18 |
 | SK4 | Placement UI: przebudowa strony poziomu w OnboardingView na placement per ścieżka (pytania liczbowe + skille + guma), arkusz kalibracji w apce, testy mapowania odpowiedzi → szczeble | zakończony | 2026-07-18 |
 | SK5 | Zakładka Skille zamiast Społeczności: SkillPathsView (poziom + XP + karty ścieżek), PathDetailView (drabina, bez kłódek), StepDetailSheetView (kryterium + postęp + CTA Trenuj), sekcja „Progresje" w detalu ruchu, drill-in wariantów w pickerze, previews, testy VM | do weryfikacji | 2026-07-18 |
-| SK6 | Pętla nagrody + Home: celebracja awansu (raz, kolejka, Reduce Motion), XP toast, sekcja odznak, realny moduł osiągnięć, podpowiedź progresji w hero, wyłączenie atrap leaderboard/feed, bramka jakości App Store | oczekuje | — |
+| SK6a | Pętla nagrody w zakładce Skille: silnik nagrody (czysty, idempotentny, tylko z logów, baseline bez lawiny), celebracja awansu (raz, kolejka, Reduce Motion, haptyka), XP toast, sekcja odznak | do weryfikacji | 2026-07-19 |
+| SK6b | Home żyje z tych samych danych: realny AchievementsModuleContent (poziom/XP/ostatni awans), podpowiedź progresji w hero (freeMode/restDay), wyłączenie atrap leaderboard/feed | oczekuje | — |
+| SK6c | Bramka jakości App Store (dostępność, Reduce Motion, Dynamic Type, zero deprecated, copy PL) + audyt sekretów/Core Data + regresja H1 + smoke całości | oczekuje | — |
 
 Statusy: `oczekuje` → `w toku` → `do weryfikacji` → `zakończony` (ustawia użytkownik).
+
+**Podział SK6:** oryginalny SK6 był zbyt duży na jednego agenta, więc rozbito go na trzy niezależne, kolejne części (SK6a → SK6b → SK6c) — szczegóły zakresu w sekcji „Sprint SK6" planu źródłowego.
 
 ## Obowiązkowe skille per sprint
 
@@ -42,7 +46,9 @@ Pliki w `.agents/skills/` (projekt) i `~/.agents/skills/` (globalne). Szczegół
 | SK3 | `swift-concurrency-pro`, `swift-testing-pro`, `swift-api-design-guidelines-skill`, `swift-security-expert` (bramka: co wolno trzymać w JSON/UserDefaults), `core-data-expert` (bramka), `swift-architecture-skill` |
 | SK4 | `writing-for-interfaces`, `swiftui-design-principles`, `swift-testing-pro`, `swift-security-expert` (bramka: dane placementu to nie sekrety, ale zero sekretów przy okazji), `swift-architecture-skill` |
 | SK5 | `swiftui-design-principles`, `writing-for-interfaces`, `swift-concurrency-pro`, `swift-testing-pro`, `swift-architecture-skill` |
-| SK6 | wszystkie powyższe jako bramka końcowa: `swiftui-design-principles` + `writing-for-interfaces` (celebracje/copy), `swift-concurrency-pro` (kolejka celebracji), `swift-testing-pro` (idempotencja), `swift-security-expert` + `core-data-expert` (audyt końcowy), `swift-api-design-guidelines-skill` |
+| SK6a | `swift-concurrency-pro` (kolejka celebracji — jeden strumień zdarzeń), `swift-testing-pro` (idempotencja/baseline), `swiftui-design-principles` + `writing-for-interfaces` (overlay/copy z restraint), `swift-api-design-guidelines-skill`, `swift-architecture-skill` |
+| SK6b | `swiftui-design-principles` + `writing-for-interfaces` (moduł osiągnięć + linia hero), `swift-testing-pro` (regresja H1), `swift-architecture-skill` |
+| SK6c | wszystkie powyższe jako bramka końcowa: `swift-security-expert` + `core-data-expert` (audyt sekretów/Core Data), `swiftui-design-principles`, `writing-for-interfaces`, `swift-testing-pro` (regresja + smoke) |
 
 ## Dziennik sprintów
 
@@ -315,3 +321,65 @@ Szablon wpisu (kopiuj i wypełnij):
 - Smoke (statyka sekundowa): wejdź np. w Front lever → szczebel „Tuck front lever" → „Trenuj" → SetPad w trybie sekund („Liczysz sekundy utrzymania").
 - Smoke (warianty bez bałaganu): zakładka Ćwiczenia nadal 19 ruchów; detal np. Podciągnięcia → sekcja „Progresje" prowadzi do drabiny; „Szybki trening" → picker → przy ruchu z wariantami chevron → lista wariantów (np. „Negatywy podciągnięć") → wybór loguje wariant.
 - Dostępność: VoiceOver czyta karty i szczeble („… Cel: 3 serie po 8 powtórzeń"); brak ikon kłódek; Dynamic Type nie łamie układu.
+
+---
+
+### Sprint SK6a — 2026-07-19, agent
+
+> **Podział SK6:** SK6 był zbyt duży na jednego agenta, więc rozbito go na trzy części. SK6a (ten wpis) = pętla nagrody w zakładce Skille. SK6b (Home: realny moduł osiągnięć + hero-kontekst + wyłączenie atrap) i SK6c (bramka jakości App Store + regresja H1 + smoke) czekają w tabeli jako `oczekuje`.
+
+**Zrobione:**
+- `cali-park/Features/Skills/Models/CelebrationEvent.swift` — enum jednego zdarzenia do świętowania (`.rungConquered(RungReference)` / `.levelReached(Int)`), `Identifiable`/`Hashable`/`Sendable`; niesie tylko referencje, zero copy.
+- `cali-park/Features/Skills/Models/RewardEvaluation.swift` — wynik ewaluacji: `pendingEvents` (kolejność wyświetlania) + `updatedProgress` do zapisania (idempotencja).
+- `cali-park/Features/Skills/Services/RewardEvaluator.swift` — czysty, statyczny silnik nagrody. `evaluate(logs:placement:celebrated:)`: świętowalne szczeble = zaliczone z LOGÓW i **na/powyżej zadeklarowanego progu** (placement to tylko podłoga, nigdy nie dodaje zdarzeń); pierwsze wywołanie (brak zapisu) seeduje baseline po cichu (zero lawiny dla istniejącej historii); szczeble przed poziomem; kolejność deterministyczna (porządek katalogu → indeks szczebla).
+- `cali-park/Features/Skills/Services/CelebrationPresentation.swift` — czysty resolver copy PL celebracji z katalogów (eyebrow/tytuł/podtytuł/XP/symbol + spoken VoiceOver).
+- `cali-park/Features/Skills/ViewModels/SkillPathsViewModel.swift` — dodane: `skillProgressStore`, `badges`, `currentCelebration` + kolejka `pendingCelebrations`, `xpToastAmount` (+ `previousTotalXP`), `hasQueuedCelebrations`, `dismissCurrentCelebration()`, `clearXPToast()`. `load()` woła silnik nagrody (zapisuje `updatedProgress`), liczy odznaki i deltę XP (toast tłumiony, gdy odpala się celebracja).
+- `cali-park/Features/Skills/Views/CelebrationOverlayView.swift` — pełnoekranowy overlay: ikona (`PhaseAnimator` pop-in, Reduce Motion → statyczna), eyebrow/tytuł/podtytuł/XP, `.sensoryFeedback(.success, trigger:)`, zamknięcie przyciskiem (scrim + CTA „Dalej"/„Świetnie").
+- `cali-park/Features/Skills/Views/XPToastView.swift` — dyskretna pigułka „+N XP" (capsule, akcent, monospacedDigit, etykieta VoiceOver).
+- `cali-park/Features/Skills/Views/BadgesSectionView.swift` — sekcja odznak (siatka 3 kol., zdobyte w akcencie, przyszłe wyszarzone z jawnym warunkiem w etykiecie dostępności) z `Badge.allCases` + `ProgressionEngine.earnedBadges`.
+- `cali-park/Features/Skills/Views/RewardOverlay.swift` — reużywalny `ViewModifier` + `View.rewardOverlay(_:)`: montuje celebrację + toast; **stosowany na `SkillPathsView` i `PathDetailView`** (trening odbywa się w detalu ścieżki, więc awans świętuje się tam; wspólny `SkillProgressStore` gwarantuje „raz").
+- `cali-park/Features/Skills/Views/SkillPathsView.swift` — sekcja odznak + `.rewardOverlay(viewModel)`.
+- `cali-park/Features/Skills/Views/PathDetailView.swift` — `.rewardOverlay(viewModel)`.
+- `cali-park/Core/AppEnvironment.swift` — `makeSkillPathsViewModel()` wstrzykuje `skillProgressStore`.
+- `cali-parkTests/RewardLoopTests.swift` — nowy plik: silnik (baseline bez lawiny, nowe szczeble → zdarzenia, poziom po szczeblach, idempotencja, podłoga placementu, kolejność), copy celebracji, VM (świeżak = brak, deklaracja nie celebruje, trening → kolejka + drenaż + idempotencja reloadu, dodatkowy wolumen na zaliczonym szczeblu → toast bez celebracji, odznaki z logów).
+- `cali-parkTests/SkillPathsViewModelTests.swift` — dostrojone konstrukcje VM do nowego inicjalizatora (`progressStore:`).
+
+**Zastosowane skille:**
+- `swift-concurrency-pro` — kolejka celebracji jako **jeden strumień zdarzeń** (`[CelebrationEvent]` + `currentCelebration`), nie rozproszone boole; silnik nagrody to czyste funkcje statyczne na typach wartościowych (zero stanu, zero wyścigów); `load()` synchroniczne (store'y synchroniczne — spójne z resztą VM), jedyne `Task` to auto-zamknięcie toastu z `Task.sleep(for: .seconds(2))` (nie nanoseconds); zero `DispatchQueue`.
+- `swift-testing-pro` — struktury nie klasy, `#expect`/`try #require`, `Issue.record` dla nietrafionego kształtu; testy idempotencji i baseline zamiast timingu; `@MainActor` tylko na suicie dotykającej VM; stuby InMemory.
+- `swiftui-design-principles` — restraint: jedna informacja na overlay (ikona + tytuł + jedna linia XP), siatka 8/12/16/24/32, kolory semantyczne AppTheme, `clipShape(.rect(cornerRadius: 16))` (modal, ≤ zakaz 22+), ring/haptyka bez fajerwerków; overlay bez GeometryReader/stałych ramek; brak `.font(.system(size:))`; inline `if let` w `.overlay` zamiast computed view-properties (rule @Observable).
+- `writing-for-interfaces` — celebracja to moment radości: jeden wykrzyknik dozwolony? świadomie ZERO (tytuł = konkret: nazwa ćwiczenia / „Poziom 3"), eyebrow wielkimi literami jako etykieta, XP jako konkret „+100 XP"; CTA wg wzorca końca flow („Świetnie"/„Dalej"); dynamiczne stringi z liczbami (0/1/wiele) — `Badge` count „3/6", toast „+N XP"; spoken VoiceOver pełne zdanie.
+- `swift-api-design-guidelines-skill` — nazwy jasne w miejscu użycia (`evaluate(logs:placement:celebrated:)`, `resolving(_:)`, `dismissCurrentCelebration()`, `hasQueuedCelebrations`), boole jako asercje, komentarze dokumentacyjne przy każdej deklaracji, etykiety argumentów wg gramatyki; `RewardEvaluation` jako nazwany typ zamiast krotki.
+- `swift-architecture-skill` — MVVM/DI zachowane: silnik + resolver bezstanowe (jak `ProgressionEngine`/`ProgressionFormat`, poza DI), VM za istniejącą fabryką w `AppEnvironment`, reużyty `SkillProgressStore` (SK3) — zero nowych zależności/singletonów; overlay jako `ViewModifier` reużywany na dwóch ekranach zamiast duplikacji.
+
+**Odstępstwa od planu:**
+- Overlay montowany **także na `PathDetailView`**, nie tylko na przeglądzie Skille. Powód: CTA „Trenuj" żyje w detalu szczebla (sheet z `PathDetailView`), więc awans domyka się, gdy użytkownik jest w detalu; gdyby overlay był tylko na przeglądzie, VM detalu „skonsumowałby" awans (zapis do `SkillProgressStore`) bez pokazania — celebracja by przepadła. SK5 sam to przewidział („po SK6 warto rozważyć wspólny strumień"). Wspólny store trzyma idempotencję między ekranami.
+- Silnik przyjmuje `placement` jako **podłogę** (nie tylko czyste logi). Plan mówił „tylko z logów" i zarazem „celebracje od placementu w górę" — pogodzone: deklaracja nie dodaje zdarzeń (test `declaringAPlacementNeverCelebrates`, `rungsBelowTheDeclaredFloorDoNotCelebrate`), ale logowanie szczebla poniżej deklaracji nie jest świeżym awansem.
+
+**Decyzje podjęte w trakcie:**
+- XP toast tłumiony, gdy w tym samym `load()` odpala się celebracja (overlay już niesie XP) — brak podwójnego komunikatu. Toast = delta XP między przeładowaniami; pierwszy load nigdy nie toastuje (jak `recentlyAdvancedPaths`).
+- Baseline seedowany po cichu przy braku zapisu (`celebrated == nil`) — istniejący użytkownik z historią nie dostaje lawiny; potem tylko realne, nowe awanse.
+- Kolejność zdarzeń: szczeble (porządek katalogu → indeks), na końcu poziom (finał). Zamykanie tapnięciem/przyciskiem, nie auto-timer (VoiceOver/testy).
+- XP overlay dla szczebla pokazuje stały bonus `+\(ProgressionEngine.xpPerConqueredRung) XP` (=+100), dla poziomu bez XP-noty.
+
+**Znane problemy / TODO (dla SK6b/SK6c):**
+- `AchievementsModuleContent` (Home) nadal hardkoduje „12/30" — **SK6b** (poziom/XP/ostatni awans z `ProgressionEngine`, tap → zakładka Skille, indeks 3 w `MainTabView`).
+- XP toast/celebracja działają w zakładce Skille i detalu ścieżki. Zapis z innych miejsc (Quick Log/sesja na Home) zostanie „uczczony" przy najbliższym wejściu w Skille (idempotentnie). Jeśli SK6b chce natychmiastowego toastu app-wide — potrzebny wspólny strumień/serwis nad `AppEnvironment` (świadomie poza SK6a).
+- Hero-kontekst (`freeMode`/`restDay`) i wyłączenie atrap leaderboard/feed — **SK6b**.
+- Overlay pokrywa obszar pod paskiem nawigacji (scrim `ignoresSafeArea`), ale sam navbar może pozostać widoczny na `PathDetailView` — do ewentualnego domknięcia w bramce **SK6c** (np. `fullScreenCover`, jeśli zajdzie potrzeba).
+
+**Wskazówki dla następnego agenta (SK6b):**
+- Poziom/XP/odznaki bierz z `ProgressionEngine.playerLevel(for:)` / `earnedBadges(from:)`; ostatni awans możesz odczytać z `SkillProgress` (`skillProgressStore`) lub policzyć jak w `RewardEvaluator`. Nie licz XP z placementu (silnik strukturalnie tego nie robi).
+- `AchievementsModuleContent` przerób na realne dane + tap → `MainTabView` indeks Skille (jak sugeruje SK5).
+- Hero-kontekst: `ProgressionEngine.pathStates` + `RungProgress`/`ProgressionFormat.progressLine` dają „3 × 8 — Twoje najlepsze: 3 × 6"; nie zmieniaj maszyny `heroState` (regresja H1).
+- Nie ruszaj `RewardEvaluator`/kolejki — jeśli Home ma też celebrować, reużyj `SkillProgressStore` (idempotencja współdzielona) i `rewardOverlay`.
+
+**Do ręcznej weryfikacji przez użytkownika:**
+- Build + testy w Xcode (nowe pliki w `Features/Skills/{Models,Services,Views}` i `cali-parkTests/RewardLoopTests.swift` — synchronized groups powinny podpiąć automatycznie; jeśli nie, dodać ręcznie).
+- Testy: `RewardLoopTests` (wszystkie suity) + regresja `SkillPathsViewModelTests`, `ProgressionEngineTests`, `ProgressionCatalogTests`, `PlacementCalibrationTests`, `SetSecondsTests`, `ExercisesDataTests`, `HomeHeroStateTests`.
+- Smoke (celebracja): świeży placement (np. podciąganie „5–8") → zakładka Skille → Podciąganie → aktualny szczebel → „Trenuj" → zaloguj 3×8 → po zamknięciu SetPada/detalu **pełnoekranowa celebracja awansu** + haptyka; „Świetnie"/„Dalej" domyka kolejkę.
+- Smoke (idempotencja): ta sama celebracja NIE pojawia się drugi raz po powrocie na przegląd ani po ponownym wejściu.
+- Smoke (toast): dołóż jeszcze jedną serię na już zaliczonym szczeblu → dyskretny „+N XP" (bez overlay).
+- Smoke (baseline): istniejący użytkownik z historią wchodzi w Skille pierwszy raz po aktualizacji → **żadnej lawiny** celebracji (baseline seedowany po cichu).
+- Smoke (odznaki): sekcja „Odznaki" w Skillach pokazuje zdobyte w akcencie, resztę wyszarzoną z warunkiem.
+- Dostępność: VoiceOver czyta overlay jednym zdaniem („Zaliczony szczebel: …. +100 XP."), przycisk „Zamknij" na scrimie; Reduce Motion → brak animacji wejścia (overlay statyczny).
