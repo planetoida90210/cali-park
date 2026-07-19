@@ -442,3 +442,60 @@ Szablon wpisu (kopiuj i wypełnij):
 - Smoke (hero hint): stan „Wolny tryb"/„Dzień przerwy" z placementem (np. zadeklaruj podciąganie „5–8") i częściowym logiem na aktualnym szczeblu → hero pokazuje linię „Jeszcze … — następny szczebel: …"; bez częściowego postępu → linii brak.
 - Smoke (atrapy): „Dostosuj moduły" NIE oferuje już „Leaderboard" ani „Aktywność społeczności"; istniejący użytkownik, który je miał włączone, po aktualizacji ma je usunięte z listy.
 - Dostępność: VoiceOver czyta moduł osiągnięć jako jeden przycisk („Otwiera zakładkę Skille"), odznaki „N z M", hint „Postęp: …"; Dynamic Type nie łamie modułu ani hero.
+
+---
+
+### Sprint SK6c — 2026-07-19, agent
+
+> **Uwaga o fundamencie:** SK6a i SK6b w tabeli miały status `do weryfikacji`, gdy zaczynałem SK6c (instrukcja #2 mówi „STOP"). Użytkownik jawnie polecił wykonać wyłącznie SK6c, więc kontynuowałem — to sprint-bramka (audyt + doc + drobne poprawki deprecated), z natury czytający całość SK1–SK6, nie fundament pod kolejny kod. Build SK6a+SK6b+SK6c nadal wymaga jednej wspólnej ręcznej weryfikacji w Xcode.
+
+**Zrobione:**
+- `cali-park/Features/Home/Views/Components/ParksModuleContent.swift` — wyczyszczone deprecated API (`foregroundColor()`→`foregroundStyle(Color…)`, `cornerRadius()`→`clipShape(.rect(cornerRadius:))`). **Moduł żywy** (w domyślnym `["log","next","parks"]`) — więc realnie wysyłał deprecated API do App Store. Zero zmian zachowania (czyste zamiany stylu).
+- `cali-park/Features/Home/Views/Components/LeaderboardModuleContent.swift` — te same zamiany deprecated→nowe API. Kod martwy (usunięty z listy modułów w SK6b), ale zostaje w repo → czyścimy, żeby wrócił bez długu, gdy wejdzie backend.
+- `cali-park/Features/Home/Views/Components/FeedModuleContent.swift` — jw. (martwy, ale czysty).
+- **Bramka jakości App Store — checklist (poniżej „Do weryfikacji"):** przeszła całość UI planu (Skille + Home).
+
+**Zastosowane skille:**
+- `swift-security-expert` (audyt, Branch 1 REVIEW + anti-pattern #1 „UserDefaults dla sekretów") — przeskanowałem wszystkie dotknięte pliki SK1–SK6 pod kątem sekretów. Wynik: ZERO tokenów/credentials/kluczy/flag „premium" w plikach i UserDefaults. Store'y Skille (`FileSkillPlacementStore`, `FileSkillProgressStore`) trzymają dane treningowe w `URL.documentsDirectory` jako JSON (`skill-placement.json`, `skill-progress.json`) — to NIE sekrety, więc zwykły plik jest poprawny (Keychain zarezerwowany dla poświadczeń, których tu nie ma). `UserDefaults` używany wyłącznie w `ModulePreferences` na listę ID modułów (`enabledModules`) — dane preferencji UI, nie sekret. Keychain/CryptoKit/biometria niepotrzebne (brak poświadczeń w zakresie). Gdy wejdzie backend — tokeny wyłącznie Keychain (poza tym planem).
+- `core-data-expert` (bramka końcowa persystencji) — potwierdzone: ZERO Core Data/SwiftData w całym planie (`grep` po `NSPersistent`/`NSManagedObject`/`SwiftData`/`@Model` = brak). `PersistenceController` nietknięty (poza listą zmian gita). Progres liczony z logów, katalogi statyczne — bramka przeszła bez bazy, jak deklarowano w SK1/SK3.
+- `swiftui-design-principles` (checklist §11) — audyt siatki/typografii/kolorów: dotknięte widoki Skille/Home używają siatki 4/8/12/16/24/32, semantycznych kolorów (AppTheme), `clipShape(.rect(cornerRadius:))` 12–16 pt (overlay 16, karty 12), `ProgressView(value:)` zamiast ręcznych pasków, `contentTransition(.numericText())`; ZERO `.font(.system(size:))` i `fontWeight()` w Skille/Home/Main (potwierdzone grepem); brak `GeometryReader`/stałych ramek w UI planu (jedyny `frame(w:44,h:44)` to `HeroWeeklyRingView` z H1 — nietknięty).
+- `writing-for-interfaces` — copy PL: liczby przez `PolishPlural` (reps/seconds), sekundy jako niezmienne „s", ZERO `String(format:)`/C-style w Skille; empty-state front-loaded („Zalicz pierwszy szczebel, aby zdobyć awans."), CTA spójne („Trenuj"/„Ustaw poziom"/„Dalej"/„Świetnie"/„Gotowe"), brak „Ups"/wykrzykników w celebracji.
+- `swift-testing-pro` — regresję traktuję jako „istniejące suity muszą przejść bez zmian" (nie dodaję testów, bo moje zmiany to czyste zamiany stylu bez logiki — nie ma czego asertować). Lista suit do przebiegu w „Do weryfikacji".
+
+**Odstępstwa od planu:**
+- Zakres „zero deprecated w dotykanych plikach" dotyczy plików TEGO planu — te były już czyste (SK6a/SK6b posprzątały po sobie; `ModuleView` również jest czysty — wbrew nocie SK6b nie ma już `foregroundColor`/`cornerRadius`, zostały tylko `UIImpactFeedbackGenerator` i `matchedGeometryEffect`, które NIE są deprecated). Rozszerzyłem sprzątanie o 3 pliki treści modułów Home (`Parks`/`Leaderboard`/`Feed`), bo: (a) `ParksModuleContent` to żywe domyślne UI wysyłające deprecated API, (b) SK6b jawnie nominował `Leaderboard`/`Feed` na bramkę SK6c, (c) reguła projektu każe zamieniać `foregroundColor`/`cornerRadius` przy każdym kontakcie. Świadomie NIE ruszałem deprecated API w reszcie appki (cała funkcja Parks, Profile, Community, Components, `AppTheme`) — to dług sprzed tego planu, poza zakresem ścieżek, a hurtowa zamiana groziłaby buildem.
+- „Regresja + smoke" realizuję jako audyt statyczny + checklist + skrypt smoke do ręcznego przejścia (instrukcja #5 zabrania `xcodebuild`). Nie dopisałem nowych testów — brak nowej logiki do pokrycia.
+
+**Decyzje podjęte w trakcie:**
+- Granica sprzątania deprecated: „powierzchnia modułów Home + całe Skille", nie „cała appka". Uzasadnienie wyżej. Reszta appki = osobny, dedykowany plan „modernizacja deprecated API" (kandydat po tym planie).
+- Nie migruję `ModulePreferences` z `ObservableObject` na `@Observable` — używany przez `@EnvironmentObject` w całej appce (nie tylko Home); migracja rozlałaby się poza plan i groziła buildem. Odnotowane jako dług.
+
+**Znane problemy / TODO (dług poza zakresem ścieżek):**
+- **Deprecated API app-wide:** `foregroundColor()`/`cornerRadius()` nadal w ~26 plikach (cała funkcja Parks, `ProfileView`, `CommunityView`, `RatingStarsView`, `CollapsibleCard`, `AppTheme` i in.). Poza zakresem planu ścieżek — rekomendowany osobny plan modernizacji.
+- **Martwe CTA w atrapach:** `ParksModuleContent` (żywy moduł) ma placeholderowe przyciski bez akcji („Pokaż na mapie") i zahardkodowane dane (Warszawa/22°C/park) — to atrapa czekająca na realne dane pogody/parków, spoza ścieżek. `Leaderboard`/`Feed` (martwe) też mają puste akcje, ale są usunięte z UI. CTA wprowadzone przez plan ścieżek („Trenuj", „Ustaw poziom", celebracja, karta osiągnięć→Skille) działają.
+- **`ModulePreferences` = `ObservableObject`** (nie `@Observable`) — patrz decyzje.
+- Overlay celebracji nadal może zostawić widoczny navbar na `PathDetailView` (nota z SK6a) — kosmetyka; nie blokuje App Store, zostawione (ewentualnie `fullScreenCover` w przyszłości).
+
+**Wskazówki dla następnego agenta:**
+- Plan SK1–SK6 domknięty po stronie kodu; następny naturalny krok to plany „poza zakresem" z sekcji planu źródłowego (karty-share ImageRenderer/ShareLink na bazie hooka celebracji; „zbuduj plan z moich ścieżek"; backend/rankingi) albo dedykowany plan „modernizacja deprecated API app-wide".
+- Nie ruszaj maszyny `heroState` (H1) ani `RewardEvaluator`/kolejki (SK6a) — audyt potwierdził, że są czyste i idempotentne.
+
+**Do ręcznej weryfikacji przez użytkownika:**
+
+*Najpierw:* zweryfikuj **wspólny build SK6a + SK6b + SK6c** w Xcode (SK6a i SK6b nadal `do weryfikacji`).
+
+*Bramka jakości App Store — checklist (wynik audytu SK6c):*
+- ✅ **Zero deprecated w dotykanych plikach** planu (Skille + pliki Home z SK6a/SK6b + `ModuleView`) — potwierdzone grepem. Dodatkowo wyczyszczone `Parks`/`Leaderboard`/`Feed`.
+- ✅ **Dynamic Type** — brak `.font(.system(size:))`/`fontWeight()` w Skille/Home/Main; wszystkie fonty z AppTheme (skalowalne).
+- ✅ **Reduce Motion** — `CelebrationOverlayView` (PhaseAnimator pomijany), `RewardOverlay` (transition/animacja `nil` przy Reduce Motion). Zweryfikuj wizualnie: Ustawienia → Dostępność → Ruch → Ogranicz ruch → celebracja bez animacji wejścia.
+- ✅ **Dostępność** — etykiety per stan szczebla (`PathDetailView`), overlay czytany jednym zdaniem, odznaki z warunkiem, hint „Postęp: …", karta osiągnięć jako jeden przycisk; każdy interaktywny element to `Button` z etykietą (brak `onTapGesture` w UI planu).
+- ✅ **Copy PL** — `PolishPlural`, niezmienne „s", zero C-style; CTA spójne.
+- ✅ **Sekrety** — brak w plikach/UserDefaults; store'y Skille = JSON w documents (dane treningowe).
+- ✅ **Core Data** — nietknięte; zero SwiftData/@Model.
+- ✅ **Zero nowych uprawnień** — plan w całości lokalny (brak zmian Info.plist/entitlements).
+
+*Testy (przebieg w Xcode — regresja całości SK1–SK6):* `HomeHeroStateTests`, `HomeHeroActionsTests`, `HomePlannerTests`, `HomeAchievementsTests`, `RewardLoopTests`, `SkillPathsViewModelTests`, `ProgressionEngineTests`, `ProgressionCatalogTests`, `AdvancementCriterionTests`, `PlacementCalibrationTests`, `SetSecondsTests`, `ExercisesDataTests`, `ExerciseLibraryViewModelTests` — wszystkie powinny przejść bez zmian (SK6c nie zmienił logiki).
+
+*Smoke — pełny przepływ planu (świeże konto):* onboarding → „Co już potrafisz?" → np. podciąganie „5–8", „Mam gumę" → zakładka **Skille** pokazuje właściwe szczeble → wejdź w Podciąganie → drabina bez kłódek → „Trenuj" → zaloguj 3×8 → **celebracja awansu** + haptyka → „Świetnie" domyka → Home: moduł „Osiągnięcia" pokazuje poziom/XP/ostatni awans, hero w „Wolnym trybie"/„Dniu przerwy" podpowiada następny cel → tap w moduł osiągnięć → skok na Skille.
+*Smoke — regres wizualny modułów Home:* „Pogoda & Park", (po ręcznym włączeniu) oraz — jeśli tymczasowo przywrócisz — Leaderboard/Feed wyglądają identycznie jak przed SK6c (zamiana `foregroundColor`→`foregroundStyle` i `cornerRadius`→`clipShape` jest wizualnie neutralna).
+*Smoke — atrapy:* „Dostosuj moduły" nie oferuje Leaderboard/Aktywności; istniejący użytkownik z tymi atrapami ma je po aktualizacji usunięte.

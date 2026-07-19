@@ -43,7 +43,7 @@ todos:
     status: completed
   - id: sk6c-quality
     content: "SK6c: Bramka jakości App Store (dostępność, Reduce Motion, Dynamic Type, zero deprecated w dotykanych plikach, copy PL) + regresja testów H1 + smoke test całości"
-    status: pending
+    status: completed
 isProject: false
 ---
 
