@@ -8,13 +8,13 @@ struct LeaderboardModuleContent: View {
             HStack {
                 Text("Ranking znajomych")
                     .font(.bodyLarge)
-                    .foregroundColor(.textPrimary)
+                    .foregroundStyle(Color.textPrimary)
                 
                 Spacer()
                 
                 Text("Ten tydzień")
                     .font(.caption)
-                    .foregroundColor(.textSecondary)
+                    .foregroundStyle(Color.textSecondary)
             }
             
             VStack(spacing: 10) {
@@ -28,20 +28,20 @@ struct LeaderboardModuleContent: View {
             }) {
                 Text("Zobacz pełny ranking")
                     .font(.footnote)
-                    .foregroundColor(.accent)
+                    .foregroundStyle(Color.accent)
             }
             .padding(.top, 4)
         }
         .padding()
         .background(Color.componentBackground)
-        .cornerRadius(12)
+        .clipShape(.rect(cornerRadius: 12))
     }
     
     private func leaderboardRow(rank: Int, name: String, points: Int, isCurrentUser: Bool) -> some View {
         HStack {
             Text("\(rank)")
                 .font(.system(.body, design: .rounded).bold())
-                .foregroundColor(rank <= 3 ? .accent : .textSecondary)
+                .foregroundStyle(rank <= 3 ? Color.accent : Color.textSecondary)
                 .frame(width: 24)
             
             Circle()
@@ -50,23 +50,23 @@ struct LeaderboardModuleContent: View {
                 .overlay(
                     Text(String(name.prefix(1)))
                         .font(.footnote.bold())
-                        .foregroundColor(isCurrentUser ? .accent : .textSecondary)
+                        .foregroundStyle(isCurrentUser ? Color.accent : Color.textSecondary)
                 )
             
             Text(name)
                 .font(.bodyMedium)
-                .foregroundColor(isCurrentUser ? .accent : .textPrimary)
+                .foregroundStyle(isCurrentUser ? Color.accent : Color.textPrimary)
             
             Spacer()
             
             Text("\(points) p")
                 .font(.bodyMedium.bold())
-                .foregroundColor(isCurrentUser ? .accent : .textPrimary)
+                .foregroundStyle(isCurrentUser ? Color.accent : Color.textPrimary)
         }
         .padding(.vertical, 4)
         .padding(.horizontal, 8)
         .background(isCurrentUser ? Color.accent.opacity(0.1) : Color.clear)
-        .cornerRadius(8)
+        .clipShape(.rect(cornerRadius: 8))
     }
 }
 
