@@ -63,6 +63,7 @@ struct PathDetailView: View {
         .sheet(isPresented: $showingCalibration, onDismiss: { viewModel.load() }) {
             PlacementCalibrationSheet(viewModel: environment.makePlacementCalibrationViewModel())
         }
+        .rewardOverlay(viewModel)
     }
 }
 

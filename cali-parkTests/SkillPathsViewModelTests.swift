@@ -101,7 +101,8 @@ struct SkillPathsViewModelTests {
                                placement: SkillPlacement? = nil) -> SkillPathsViewModel {
         SkillPathsViewModel(
             logStore: InMemoryWorkoutLogStore(initial: logs),
-            placementStore: InMemorySkillPlacementStore(initial: placement)
+            placementStore: InMemorySkillPlacementStore(initial: placement),
+            progressStore: InMemorySkillProgressStore()
         )
     }
 
@@ -165,7 +166,8 @@ struct SkillPathsViewModelTests {
         let store = InMemoryWorkoutLogStore()
         let viewModel = SkillPathsViewModel(
             logStore: store,
-            placementStore: InMemorySkillPlacementStore()
+            placementStore: InMemorySkillPlacementStore(),
+            progressStore: InMemorySkillProgressStore()
         )
         #expect(viewModel.recentlyAdvancedPaths.isEmpty)
 

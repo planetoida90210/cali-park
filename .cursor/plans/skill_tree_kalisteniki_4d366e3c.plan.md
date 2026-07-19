@@ -35,14 +35,14 @@ todos:
   - id: sk5-previews
     content: "SK5: Previews seedowanych wariantów (świeżak / placement średni / weteran) + testy VM"
     status: completed
-  - id: sk6-reward
-    content: "SK6: Celebracja awansu szczebla/poziomu (raz, kolejka, Reduce Motion) + XP toast + sekcja odznak"
+  - id: sk6a-reward
+    content: "SK6a: Pętla nagrody w zakładce Skille — celebracja awansu szczebla/poziomu (raz, kolejka, Reduce Motion, haptyka) + XP toast + sekcja odznak. Silnik nagrody czysty i idempotentny (tylko z logów, nigdy z deklaracji)."
+    status: completed
+  - id: sk6b-home
+    content: "SK6b: Realny moduł osiągnięć na Home (poziom/XP/ostatni awans), podpowiedź progresji w hero (freeMode/restDay), wyłączenie atrap leaderboard/feed z domyślnego UI"
     status: pending
-  - id: sk6-home
-    content: "SK6: Realny moduł osiągnięć na Home, podpowiedź progresji w hero, wyłączenie atrap leaderboard/feed"
-    status: pending
-  - id: sk6-quality
-    content: "SK6: Bramka jakości App Store + regresja testów H1 + smoke test całości"
+  - id: sk6c-quality
+    content: "SK6c: Bramka jakości App Store (dostępność, Reduce Motion, Dynamic Type, zero deprecated w dotykanych plikach, copy PL) + regresja testów H1 + smoke test całości"
     status: pending
 isProject: false
 ---
@@ -189,16 +189,34 @@ Największa wartość tego sprintu to **treść zgodna ze źródłami**, nie kod
 
 ## Sprint SK6 — pętla nagrody + Home + bramka jakości
 
-- **Celebracja awansu**: zapis logu/sesji, który domyka kryterium szczebla lub próg poziomu → pełnoekranowy overlay (szczebel, ścieżka, XP; `PhaseAnimator`; Reduce Motion → wersja statyczna) + haptyka; raz per awans (stor z SK3), kolejka gdy kilka naraz. **Awanse z deklaracji placementu NIE celebrują.**
-- **XP toast**: dyskretny "+34 XP" po każdym zapisie z SetPada/sesji.
-- **Odznaki**: sekcja w zakładce Skille (zdobyte w akcencie, przyszłe wyszarzone z jawnym warunkiem) + celebracja.
-- **[AchievementsModuleContent](cali-park/Features/Home/Views/Components/AchievementsModuleContent.swift)**: realne dane (poziom, XP do następnego, ostatni awans/odznaka), tap → zakładka Skille.
-- **Hero — linia kontekstu** (bez zmiany maszyny stanów H1): w `freeMode`/`restDay` najbliższy cel progresji ("Jeszcze 2 powtórzenia do 3×8 — następny szczebel: pełne podciągnięcia").
-- **Atrapy**: moduły leaderboard/feed domyślnie wyłączone z preferencji (czekają na backend).
-- **Bramka jakości App Store** (checklist w dzienniku): dostępność (etykiety per stan szczebla, Reduce Motion), Dynamic Type max, zero deprecated API w dotykanych plikach, copy PL (`PolishPlural`, `Text(_, format:)`), każdy CTA działa.
-- **Testy**: kolejka i idempotencja celebracji, brak celebracji z placementu, regresja `heroState` (testy H1 bez zmian).
+SK6 okazał się zbyt duży na jednego agenta, więc dzieli się na **trzy niezależne, kolejne części** (SK6a → SK6b → SK6c). Każda ma osobny wpis w trackerze i osobną weryfikację buildu. Zakres źródłowy jest ten sam, tylko rozłożony na trzech agentów.
 
-**DoD:** trening domykający 3×8 → celebracja awansu + XP; Home żyje z tych samych danych; atrapy zniknęły z domyślnego UI.
+### SK6a — pętla nagrody w zakładce Skille (silnik + celebracja + XP toast + odznaki)
+
+- **Silnik nagrody** (czysty, deterministyczny, testowalny): na podstawie logów + zapisanego stanu „już uczczone" (`SkillProgressStore` z SK3) wyznacza listę zdarzeń do świętowania — awanse szczebli i progi poziomów. **Tylko z logów** (silnik nie zna placementu → deklaracje strukturalnie nie mogą celebrować). Pierwsze wywołanie (brak zapisu) **seeduje baseline po cichu** (istniejący użytkownik z historią nie dostaje lawiny celebracji), potem świętowane są tylko realne, nowe awanse. Idempotencja: każdy awans świętowany dokładnie raz (`SkillProgress` w JSON).
+- **Celebracja awansu**: zapis logu/sesji, który domyka kryterium szczebla lub próg poziomu → pełnoekranowy overlay (szczebel, ścieżka, XP; `PhaseAnimator`; Reduce Motion → wersja statyczna) + haptyka (`.sensoryFeedback`); raz per awans, **kolejka** gdy kilka naraz (jeden strumień zdarzeń, nie rozproszone boole). Zamykanie tapnięciem (przycisk — VoiceOver), nie auto-timer.
+- **XP toast**: dyskretny „+N XP" po zapisie, który podniósł XP (tłumiony, gdy w tym samym przeładowaniu odpala się celebracja — overlay niesie XP).
+- **Odznaki**: sekcja w zakładce Skille (zdobyte w akcencie, przyszłe wyszarzone z jawnym warunkiem) z `ProgressionEngine.earnedBadges`.
+- **Testy**: baseline bez lawiny, nowy szczebel → zdarzenie, idempotencja (drugie wywołanie = brak zdarzeń), brak celebracji z placementu, wykrywanie poziomu, kolejność kolejki, copy celebracji.
+
+**DoD SK6a:** trening domykający 3×8 aktualnego szczebla → celebracja awansu + (przy braku celebracji) toast XP; sekcja odznak żyje z realnych logów; nic się nie celebruje dwa razy ani z samej deklaracji.
+
+### SK6b — Home żyje z tych samych danych
+
+- **[AchievementsModuleContent](cali-park/Features/Home/Views/Components/AchievementsModuleContent.swift)**: realne dane (poziom, XP do następnego, ostatni awans/odznaka) z `ProgressionEngine`, tap → zakładka Skille. Koniec hardkodu „12/30".
+- **Hero — linia kontekstu** (bez zmiany maszyny stanów H1): w `freeMode`/`restDay` najbliższy cel progresji („Jeszcze 2 powtórzenia do 3×8 — następny szczebel: pełne podciągnięcia").
+- **Atrapy**: moduły leaderboard/feed domyślnie wyłączone z preferencji (czekają na backend).
+- **Testy**: regresja `heroState` (testy H1 bez zmian), mapowanie realnych danych osiągnięć.
+
+**DoD SK6b:** Home pokazuje realny poziom/XP/ostatni awans; hero podpowiada następny cel; atrapy zniknęły z domyślnego UI.
+
+### SK6c — bramka jakości App Store + regresja
+
+- **Bramka jakości App Store** (checklist w dzienniku): dostępność (etykiety per stan szczebla, Reduce Motion), Dynamic Type max, zero deprecated API w dotykanych plikach, copy PL (`PolishPlural`, `Text(_, format:)`), każdy CTA działa, zero nowych uprawnień.
+- **Audyt końcowy** (`swift-security-expert` + `core-data-expert`): żadnych sekretów w plikach/UserDefaults, Core Data nadal nietknięte.
+- **Regresja + smoke** całości planu SK1–SK6 (patrz „Weryfikacja końcowa" niżej).
+
+**DoD SK6c:** cały przepływ SK1–SK6 przechodzi bramkę App Store i smoke test.
 
 ## Poza zakresem (świadomie, na osobne plany)
 
