@@ -32,18 +32,9 @@ struct ModuleDefinition: Identifiable, Codable, Equatable {
             iconName: "flame.fill",
             description: "Historia Twoich treningów"
         ),
-        ModuleDefinition(
-            id: "friends",
-            name: "Leaderboard",
-            iconName: "trophy.fill",
-            description: "Porównaj wyniki ze znajomymi"
-        ),
-        ModuleDefinition(
-            id: "feed",
-            name: "Aktywność społeczności",
-            iconName: "person.3.fill",
-            description: "Najnowsze posty znajomych"
-        ),
+        // Leaderboard ("friends") and community feed ("feed") are placeholder
+        // modules that need a backend. They are intentionally left out of the
+        // available list until then; their views stay in the repo, unreferenced.
         ModuleDefinition(
             id: "achievements",
             name: "Osiągnięcia",
@@ -71,7 +62,14 @@ class ModulePreferences: ObservableObject {
     init() {
         // Domyślnie włączone moduły
         if let savedModules = UserDefaults.standard.stringArray(forKey: "enabledModules") {
-            self.enabledModules = savedModules
+            // Drop any modules that no longer exist (e.g. the retired
+            // leaderboard/feed placeholders) so stale prefs can't resurface atrapy.
+            let known = Set(ModuleDefinition.allModules.map(\.id))
+            let filtered = savedModules.filter { known.contains($0) }
+            self.enabledModules = filtered
+            if filtered != savedModules {
+                saveEnabledModules()
+            }
         } else {
             // Domyślnie włączone: log, next, parks
             self.enabledModules = ["log", "next", "parks"]

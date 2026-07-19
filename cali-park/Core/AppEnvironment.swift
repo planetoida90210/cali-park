@@ -95,7 +95,11 @@ final class AppEnvironment: ObservableObject {
     }
 
     func makeHomeDashboardViewModel() -> HomeDashboardViewModel {
-        HomeDashboardViewModel(store: workoutLogStore, planStore: workoutPlanStore)
+        HomeDashboardViewModel(
+            store: workoutLogStore,
+            planStore: workoutPlanStore,
+            placementStore: placementStore
+        )
     }
 
     func makeWorkoutPlansViewModel() -> WorkoutPlansViewModel {

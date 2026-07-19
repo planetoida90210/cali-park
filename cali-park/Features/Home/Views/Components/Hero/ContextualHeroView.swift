@@ -15,6 +15,9 @@ struct ContextualHeroView: View {
     let name: String
     let weeklyReps: Int
     let weeklyProgress: Double
+    /// A one-line progression nudge shown on rest / free-training days, e.g.
+    /// "Jeszcze 2 powtórzenia do 3 × 8 — następny szczebel: …". `nil` hides it.
+    var progressionHint: String? = nil
     var now: Date = .now
 
     /// Only the contextual "start today's plan" is a hero action. The
@@ -65,6 +68,7 @@ struct ContextualHeroView: View {
                 name: name,
                 weeklyReps: weeklyReps,
                 weeklyProgress: weeklyProgress,
+                progressionHint: progressionHint,
                 now: now
             )
 
@@ -76,6 +80,7 @@ struct ContextualHeroView: View {
                 name: name,
                 weeklyReps: weeklyReps,
                 weeklyProgress: weeklyProgress,
+                progressionHint: progressionHint,
                 now: now
             )
 

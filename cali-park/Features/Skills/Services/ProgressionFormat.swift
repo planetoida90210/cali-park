@@ -46,6 +46,34 @@ enum ProgressionFormat {
         return "\(target) — Twoje najlepsze: \(best)"
     }
 
+    /// A one-line nudge toward the athlete's most actionable rung, resolving the
+    /// catalog names for display: "Jeszcze 2 powtórzenia do 3 × 8 — następny
+    /// szczebel: Pełne podciągnięcia". When the current rung is the skill itself
+    /// (no rung follows), it names that rung instead of a next one. `nil` when
+    /// the catalog can't resolve the hint.
+    static func hintLine(_ hint: ProgressionHint) -> String? {
+        guard let path = ProgressionCatalog.path(withID: hint.pathID),
+              hint.currentRungIndex < path.steps.count else { return nil }
+
+        let remaining = max(0, hint.progress.targetValue - hint.progress.bestValue)
+        let remainingText: String
+        switch hint.progress.criterion {
+        case .setsOfReps: remainingText = PolishPlural.reps(remaining)
+        case .setsOfHold: remainingText = "\(remaining) \(secondsUnit)"
+        }
+        let goal = criterion(hint.progress.criterion)
+
+        let nextIndex = hint.currentRungIndex + 1
+        if nextIndex < path.steps.count,
+           let next = ExerciseCatalog.exercise(withID: path.steps[nextIndex].exerciseID) {
+            return "Jeszcze \(remainingText) do \(goal) — następny szczebel: \(next.name)"
+        }
+
+        // Top rung: name the skill being conquered rather than a next step.
+        let current = ExerciseCatalog.exercise(withID: path.steps[hint.currentRungIndex].exerciseID)?.name ?? path.name
+        return "Jeszcze \(remainingText) do \(goal) — \(current)"
+    }
+
     /// Equipment for a rung, joined for display; "Masa ciała" when a rung needs
     /// none.
     static func equipment(_ equipment: [String]) -> String {
