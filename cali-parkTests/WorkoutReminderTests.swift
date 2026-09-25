@@ -55,7 +55,7 @@ struct WorkoutReminderWeeklyTests {
         let requests = WorkoutReminderPlanner.requests(for: plan, calendar: ReminderFixtures.calendar)
 
         #expect(requests.count == 2)
-        #expect(requests.allSatisfy(\.repeats))
+        #expect(requests.allSatisfy { $0.repeats })
         #expect(Set(requests.compactMap { $0.dateComponents.weekday }) == [Weekday.monday.rawValue, Weekday.wednesday.rawValue])
         #expect(requests.allSatisfy { $0.dateComponents.hour == 18 && $0.dateComponents.minute == 30 })
         #expect(requests.allSatisfy { $0.id.hasPrefix("plan-") && $0.id.contains("-wd") })

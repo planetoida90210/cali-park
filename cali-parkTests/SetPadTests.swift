@@ -12,7 +12,7 @@ import Testing
 // MARK: - Key sequences
 
 /// One SetPad key press, so sequences read like the real interaction.
-private enum Key {
+enum Key {
     case digit(Int)
     case plus
     case backspace

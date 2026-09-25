@@ -183,7 +183,7 @@ struct TimedWorkoutLogViewModelTests {
         viewModel.save()
 
         let entry = try #require(store.load().first)
-        #expect(entry.sets.allSatisfy(\.isTimed))
+        #expect(entry.sets.allSatisfy { $0.isTimed })
         #expect(entry.sets.map(\.durationSeconds) == [15, 15, 15])
         #expect(entry.totalSeconds == 45)
         #expect(entry.totalReps == 0)

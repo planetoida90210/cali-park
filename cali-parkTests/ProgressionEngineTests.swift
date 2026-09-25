@@ -351,7 +351,10 @@ struct SkillPlacementStoreTests {
         let store = FileSkillPlacementStore(directory: directory)
         #expect(store.load() == nil)
 
-        let placement = SkillPlacement(declaredRungByPath: [.core: 1], ownedEquipment: ["Pull-up bar"])
+        // ISO 8601 stores whole seconds, so a sub-second `.now` wouldn't roundtrip.
+        let placement = SkillPlacement(declaredRungByPath: [.core: 1],
+                                       ownedEquipment: ["Pull-up bar"],
+                                       declaredAt: Date(timeIntervalSince1970: 1_000_000))
         try store.save(placement)
         #expect(store.load() == placement)
     }

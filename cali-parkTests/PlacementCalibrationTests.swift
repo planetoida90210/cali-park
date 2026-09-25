@@ -27,22 +27,22 @@ struct PlacementRepMappingTests {
 
     /// Every (path, bucket) → expected declared rung, pinning `docs/PROGRESSIONS.md`.
     @Test(arguments: [
-        RepCase(path: .pullUp, bucket: .none, expectedRung: 2),
-        RepCase(path: .pullUp, bucket: .few, expectedRung: 4),
-        RepCase(path: .pullUp, bucket: .several, expectedRung: 5),
-        RepCase(path: .pullUp, bucket: .many, expectedRung: 6),
-        RepCase(path: .pushUp, bucket: .none, expectedRung: 2),
-        RepCase(path: .pushUp, bucket: .few, expectedRung: 3),
-        RepCase(path: .pushUp, bucket: .several, expectedRung: 4),
-        RepCase(path: .pushUp, bucket: .many, expectedRung: 5),
-        RepCase(path: .dip, bucket: .none, expectedRung: 1),
-        RepCase(path: .dip, bucket: .few, expectedRung: 2),
-        RepCase(path: .dip, bucket: .several, expectedRung: 2),
-        RepCase(path: .dip, bucket: .many, expectedRung: 3),
+        RepCase(path: .pullUp, bucket: .none, expectedRung: 2),     // negatives
+        RepCase(path: .pullUp, bucket: .few, expectedRung: 4),      // pull-ups
+        RepCase(path: .pullUp, bucket: .several, expectedRung: 4),  // pull-ups
+        RepCase(path: .pullUp, bucket: .many, expectedRung: 5),     // L-pull-ups
+        RepCase(path: .pushUp, bucket: .none, expectedRung: 2),     // knee push-ups
+        RepCase(path: .pushUp, bucket: .few, expectedRung: 3),      // push-ups
+        RepCase(path: .pushUp, bucket: .several, expectedRung: 3),  // push-ups
+        RepCase(path: .pushUp, bucket: .many, expectedRung: 4),     // diamond, not yet conquered
+        RepCase(path: .dip, bucket: .none, expectedRung: 1),        // negatives
+        RepCase(path: .dip, bucket: .few, expectedRung: 2),         // dips
+        RepCase(path: .dip, bucket: .several, expectedRung: 2),     // dips
+        RepCase(path: .dip, bucket: .many, expectedRung: 3),        // ring dips
         RepCase(path: .legs, bucket: .none, expectedRung: nil),
-        RepCase(path: .legs, bucket: .few, expectedRung: 1),
-        RepCase(path: .legs, bucket: .several, expectedRung: 2),
-        RepCase(path: .legs, bucket: .many, expectedRung: 3)
+        RepCase(path: .legs, bucket: .few, expectedRung: 1),        // squats
+        RepCase(path: .legs, bucket: .several, expectedRung: 1),    // squats
+        RepCase(path: .legs, bucket: .many, expectedRung: 2)        // lunges
     ])
     func repBucketMapsToRung(_ testCase: RepCase) {
         let placement = PlacementCalibration.placement(
@@ -51,6 +51,44 @@ struct PlacementRepMappingTests {
             ownsBand: false
         )
         #expect(placement.declaredRung(for: testCase.path) == testCase.expectedRung)
+    }
+
+    /// 9 push-ups in one set is not 3 × 8 push-ups, let alone diamond push-ups:
+    /// the top bucket starts at 12 and even then only makes diamonds current.
+    @Test func nineRegularPushUpsDoNotConquerDiamonds() throws {
+        let pushUp = try #require(ProgressionCatalog.path(withID: .pushUp))
+        let diamondRung = try #require(pushUp.steps.firstIndex { $0.exerciseID == ExerciseCatalog.diamondPushUpsID })
+
+        for bucket in RepCountBucket.allCases {
+            let placement = PlacementCalibration.placement(repAnswers: [.pushUp: bucket], masteredSkills: [], ownsBand: false)
+            let state = ProgressionEngine.pathState(for: pushUp, logs: [], placement: placement)
+            #expect(state.conqueredRungCount <= diamondRung, "\(bucket.label) must not conquer diamond push-ups")
+        }
+    }
+
+    /// A rep count only speaks for the movement it asks about: no answer on any
+    /// question may conquer a rung above that movement.
+    @Test func repCountNeverConquersAHarderVariant() throws {
+        for question in PlacementCalibration.repQuestions {
+            let path = try #require(ProgressionCatalog.path(withID: question.path))
+            for bucket in RepCountBucket.allCases {
+                let placement = PlacementCalibration.placement(repAnswers: [question.path: bucket], masteredSkills: [], ownsBand: false)
+                let state = ProgressionEngine.pathState(for: path, logs: [], placement: placement)
+                #expect(state.conqueredRungCount <= question.movementRung + 1,
+                        "\(question.path) \(bucket.label) conquers a variant harder than the counted movement")
+            }
+        }
+    }
+
+    /// Only the top bucket proves the movement's own 3 × 8; everything below it
+    /// keeps the movement as the rung to train.
+    @Test func movementIsConqueredOnlyFromTopBucket() {
+        for question in PlacementCalibration.repQuestions {
+            for bucket in RepCountBucket.allCases {
+                let conquersMovement = question.rung(for: bucket) > question.movementRung
+                #expect(conquersMovement == (bucket == .many), "\(question.path) \(bucket.label)")
+            }
+        }
     }
 
     @Test func emptyAnswersDeclareNothing() {
@@ -86,7 +124,7 @@ struct PlacementSkillMappingTests {
     /// rung wins regardless of which is larger.
     @Test func highestRungWinsWhenAnswersSharePath() {
         let pistolBeatsSquats = PlacementCalibration.placement(
-            repAnswers: [.legs: .many],          // step-ups, rung 3
+            repAnswers: [.legs: .many],          // lunges, rung 2
             masteredSkills: ["pistolSquat"],      // pistol, rung 5
             ownsBand: false
         )
@@ -97,7 +135,7 @@ struct PlacementSkillMappingTests {
             masteredSkills: [],
             ownsBand: false
         )
-        #expect(squatsBeatNothing.declaredRung(for: .legs) == 3)
+        #expect(squatsBeatNothing.declaredRung(for: .legs) == 2)
 
         let pistolWithoutSquats = PlacementCalibration.placement(
             repAnswers: [.legs: .none],          // rung 0, dropped
@@ -131,7 +169,7 @@ struct PlacementCalibrationIntegrityTests {
         for question in PlacementCalibration.repQuestions {
             let path = try #require(ProgressionCatalog.path(withID: question.path))
             for bucket in RepCountBucket.allCases {
-                let rung = try #require(question.rung(for: bucket))
+                let rung = question.rung(for: bucket)
                 #expect(rung >= 0)
                 #expect(rung < path.steps.count)
             }
@@ -164,7 +202,7 @@ struct PlacementCalibrationViewModelTests {
 
         #expect(viewModel.didSave)
         let saved = try #require(store.load())
-        #expect(saved.declaredRung(for: .pullUp) == 6)
+        #expect(saved.declaredRung(for: .pullUp) == 5)
         #expect(saved.declaredRung(for: .muscleUp) == 3)
         #expect(saved.ownsEquipment("Resistance bands"))
         #expect(saved.declaredAt == fixedDate)
@@ -199,14 +237,14 @@ struct PlacementNeverGrantsXPTests {
             ownsBand: true
         )
         // The placement really does declare progress…
-        #expect(placement.declaredRung(for: .pullUp) == 6)
+        #expect(placement.declaredRung(for: .pullUp) == 5)
         // …yet with no logs there is no XP to earn from it.
         #expect(ProgressionEngine.experiencePoints(for: []) == 0)
 
         // And the declared rungs still show as conquered without any XP.
         let pullUp = try #require(ProgressionCatalog.path(withID: .pullUp))
         let state = ProgressionEngine.pathState(for: pullUp, logs: [], placement: placement)
-        #expect(state.conqueredRungCount == 6)
+        #expect(state.conqueredRungCount == 5)
     }
 }
 
