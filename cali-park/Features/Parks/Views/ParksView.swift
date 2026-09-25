@@ -153,7 +153,7 @@ struct ParksView: View {
                 .foregroundColor(.textPrimary)
 
             if viewModel.selectedTab == .favorites {
-                Text("Polub swoją pierwszą siłownię, klikając w serduszko przy kafelku.")
+                Text("Polub siłownię serduszkiem przy kafelku. Pojawi się tutaj.")
                     .font(.caption)
                     .foregroundColor(.textSecondary)
                     .multilineTextAlignment(.center)

@@ -29,7 +29,7 @@ enum WorkoutReminderPlanner {
         else { return [] }
 
         let title = plan.name.isEmpty ? "Trening" : plan.name
-        let body = "Czas na trening · \(PolishPlural.exercises(plan.exerciseCount))"
+        let body = "Czas na trening. \(PolishPlural.exercises(plan.exerciseCount))."
 
         switch plan.schedule {
         case .weekly(let days):

@@ -172,7 +172,7 @@ final class PlanEditorViewModel {
             try store.save(plan)
             didSave = true
         } catch {
-            errorMessage = "Nie udało się zapisać planu. Spróbuj ponownie."
+            errorMessage = "Nie udało się zapisać planu."
         }
     }
 }

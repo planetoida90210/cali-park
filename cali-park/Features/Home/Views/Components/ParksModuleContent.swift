@@ -26,7 +26,7 @@ struct ParksModuleContent: View {
                 
                 // Najbliższe parki
                 VStack(alignment: .trailing, spacing: 4) {
-                    Text("Najbliższy park")
+                    Text("Najbliższa siłownia")
                         .font(.bodySmall)
                         .foregroundStyle(Color.textSecondary)
                     

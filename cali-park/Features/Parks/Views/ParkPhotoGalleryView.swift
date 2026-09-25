@@ -45,13 +45,15 @@ struct ParkPhotoGalleryView: View {
             .navigationTitle(photos[currentIndex].uploaderName)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Zamknij") { dismiss() } } }
-            .alert("Usuń zdjęcie?", isPresented: $showDeleteAlert) {
-                Button("Usuń", role: .destructive) {
+            .alert("Usunąć to zdjęcie?", isPresented: $showDeleteAlert) {
+                Button("Usuń zdjęcie", role: .destructive) {
                     let photo = photos[currentIndex]
                     photosVM.delete(photo)
                     if photosVM.photos.isEmpty { dismiss() }
                 }
-                Button("Anuluj", role: .cancel) {}
+                Button("Zostaw zdjęcie", role: .cancel) {}
+            } message: {
+                Text("Zniknie z galerii siłowni.")
             }
             .onChange(of: currentIndex) { _, _ in commentFieldFocused = false }
         }
@@ -188,10 +190,10 @@ private struct PhotoDetailItem: View {
                 .background(Color.appBackground)
         }
         .confirmationDialog("Opcje zdjęcia", isPresented: $showActionSheet, titleVisibility: .visible) {
-            Button(photo.visibility == .public ? "Ustaw jako prywatne" : "Ustaw jako publiczne") {
+            Button(photo.visibility == .public ? "Pokaż tylko znajomym" : "Pokaż wszystkim") {
                 vm.toggleVisibility(for: photo)
             }
-            Button("Usuń", role: .destructive) { onDeleteRequest() }
+            Button("Usuń zdjęcie", role: .destructive) { onDeleteRequest() }
             Button("Anuluj", role: .cancel) {}
         }
     }
@@ -211,7 +213,7 @@ private struct PhotoDetailItem: View {
                 HStack(spacing: 4) {
                     Image(systemName: "lock.fill")
                         .font(.caption)
-                    Text("Dla znajomych")
+                    Text("Tylko znajomi")
                         .font(.caption)
                         .foregroundColor(.textSecondary)
                 }

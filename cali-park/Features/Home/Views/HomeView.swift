@@ -153,7 +153,7 @@ struct HomeView: View {
                 .font(.largeTitle)
                 .foregroundStyle(Color.accent)
 
-            Text("Ekran główny jest pusty")
+            Text("Start jest pusty")
                 .font(.title3)
                 .foregroundStyle(Color.textPrimary)
 
@@ -197,7 +197,7 @@ struct ModuleSelectionView: View {
                 } header: {
                     Text("Dostępne moduły")
                 } footer: {
-                    Text("Włączone moduły będą widoczne na ekranie głównym. Kolejność zmienisz, przeciągając moduł na ekranie głównym.")
+                    Text("Włączone moduły będą widoczne na starcie. Kolejność zmienisz, przeciągając moduł.")
                 }
             }
             .listStyle(.insetGrouped)

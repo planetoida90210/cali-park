@@ -11,8 +11,8 @@ enum EquipmentCategory: String, Codable, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .strength: "Siła"
-        case .mobility: "Mobility"
-        case .extra: "Extra"
+        case .mobility: "Mobilność"
+        case .extra: "Inne"
         }
     }
 
@@ -26,6 +26,53 @@ struct EquipmentItem: Identifiable, Hashable {
     let name: String
     let category: EquipmentCategory
     let symbol: String
+
+    /// Polish label. `name` stays the stored key shared with park data.
+    var displayName: String {
+        Self.displayName(for: name)
+    }
+
+    static func displayName(for key: String) -> String {
+        displayNames[key] ?? key
+    }
+
+    static func shortName(for key: String) -> String {
+        shortNames[key] ?? displayName(for: key)
+    }
+
+    private static let displayNames: [String: String] = [
+        "Pull-up bar": "Drążek",
+        "Dip bar": "Poręcze do dipów",
+        "Monkey bars": "Drabinki",
+        "Rings": "Kółka",
+        "Push-up handles": "Uchwyty do pompek",
+        "Parallel bars": "Poręcze",
+        "Climbing rope": "Lina",
+        "Box jump": "Skrzynia",
+        "Battle ropes": "Liny",
+        "Sledge hammer": "Młot",
+        "Kettlebell": "Kettlebell",
+        "Medicine ball": "Piłka lekarska",
+        "Resistance bands": "Gumy",
+        "Tires": "Opony"
+    ]
+
+    private static let shortNames: [String: String] = [
+        "Pull-up bar": "Drążek",
+        "Dip bar": "Dipy",
+        "Monkey bars": "Drabinki",
+        "Rings": "Kółka",
+        "Push-up handles": "Pompki",
+        "Parallel bars": "Poręcze",
+        "Climbing rope": "Lina",
+        "Box jump": "Skrzynia",
+        "Battle ropes": "Liny",
+        "Sledge hammer": "Młot",
+        "Kettlebell": "Kettlebell",
+        "Medicine ball": "Piłka",
+        "Resistance bands": "Gumy",
+        "Tires": "Opony"
+    ]
 }
 
 // MARK: - Static Mapping

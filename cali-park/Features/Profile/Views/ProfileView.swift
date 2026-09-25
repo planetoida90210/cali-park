@@ -3,7 +3,6 @@ import SwiftUI
 // MARK: - ProfileView
 /// Placeholder tab until the profile feature is built on the stabilized base.
 struct ProfileView: View {
-    private let stats = ["Treningi", "Znajomi", "Osiągnięcia"]
     private let menuOptions = ["Edytuj profil", "Moje treningi", "Historia", "Ustawienia", "Pomoc", "Wyloguj"]
 
     var body: some View {
@@ -34,35 +33,19 @@ struct ProfileView: View {
                         .foregroundColor(.accent)
                 )
 
-            Text("Użytkownik CaliPark")
+            Text("Twój profil")
                 .font(.title2)
                 .foregroundColor(.textPrimary)
-
-            Text("Poziom zaawansowania: Średni")
-                .font(.bodyMedium)
-                .foregroundColor(.textSecondary)
         }
         .padding(.top, 20)
     }
 
     // MARK: - Stats
     private var statsRow: some View {
-        HStack(spacing: 20) {
-            ForEach(stats, id: \.self) { stat in
-                VStack {
-                    Text("24")
-                        .font(.title2)
-                        .foregroundColor(.accent)
-                    Text(stat)
-                        .font(.bodySmall)
-                        .foregroundColor(.textSecondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(Color.componentBackground)
-                .cornerRadius(12)
-            }
-        }
+        Text("Statystyki pojawią się, gdy zaczniesz trenować.")
+            .font(.bodyMedium)
+            .foregroundColor(.textSecondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: - Menu

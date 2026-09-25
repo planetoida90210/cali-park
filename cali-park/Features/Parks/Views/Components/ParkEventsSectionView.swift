@@ -137,7 +137,7 @@ struct ParkEventsSectionView: View {
                     Image(systemName: "lock.fill")
                         .font(.caption2)
                         .foregroundColor(.accent)
-                    Text("Funkcja Premium")
+                    Text("Trening grupowy w Premium")
                         .font(.caption2)
                         .foregroundColor(.textSecondary)
                 }

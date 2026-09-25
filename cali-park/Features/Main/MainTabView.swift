@@ -7,7 +7,7 @@ struct MainTabView: View {
     var body: some View {
         @Bindable var router = router
         TabView(selection: $router.selection) {
-            Tab("Home", systemImage: "house.fill", value: AppTab.home) {
+            Tab("Start", systemImage: "house.fill", value: AppTab.home) {
                 HomeView(environment: environment)
             }
 
@@ -21,7 +21,7 @@ struct MainTabView: View {
                 ExerciseLibraryView(environment: environment)
             }
 
-            Tab("Skille", systemImage: "trophy.fill", value: AppTab.skills) {
+            Tab("Ścieżki", systemImage: "trophy.fill", value: AppTab.skills) {
                 SkillPathsView(environment: environment)
             }
 

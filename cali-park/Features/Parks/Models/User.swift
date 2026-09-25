@@ -16,6 +16,6 @@ struct User: Identifiable, Codable, Equatable, Hashable {
         id: UUID(uuidString: "B2000000-0000-4000-8000-000000000001")!,
         name: "Anon",
         avatarURL: nil,
-        bio: "Lubiący kalistenikę bywalec parków"
+        bio: "Trenuje kalistenikę na siłowniach plenerowych."
     )
 } 

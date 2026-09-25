@@ -36,7 +36,7 @@ private struct StreakSummaryRow: View {
                     .foregroundStyle(Color.textPrimary)
                     .contentTransition(.numericText())
 
-                Text("aktualny streak")
+                Text("aktualna seria")
                     .font(.bodyMedium)
                     .foregroundStyle(Color.textSecondary)
             }
@@ -124,11 +124,11 @@ private struct StreakEmptyState: View {
                 .font(.title2)
                 .foregroundStyle(Color.textSecondary)
 
-            Text("Brak streaka")
+            Text("Brak serii")
                 .font(.bodyMedium)
                 .foregroundStyle(Color.textPrimary)
 
-            Text("Zaloguj trening, aby zacząć serię dni.")
+            Text("Zaloguj trening, aby zacząć.")
                 .font(.bodySmall)
                 .foregroundStyle(Color.textSecondary)
                 .multilineTextAlignment(.center)

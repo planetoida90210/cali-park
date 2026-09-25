@@ -116,7 +116,7 @@ struct OnboardingView: View {
                 .foregroundStyle(Color.textPrimary)
                 .multilineTextAlignment(.center)
 
-            Text("Twoja podróż po świecie kalisteniki zaczyna się tutaj. Przygotujmy wszystko, aby dopasować aplikację do Twoich potrzeb.")
+            Text("Siłownie, plany i ścieżki w jednym miejscu. Ustawimy start pod to, co już umiesz.")
                 .font(.bodyLarge)
                 .foregroundStyle(Color.textSecondary)
                 .multilineTextAlignment(.center)

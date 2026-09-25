@@ -56,7 +56,7 @@ struct PlacementFormView: View {
     // MARK: Skills
     private var skillSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Opanowane skille")
+            Text("Opanowane ruchy")
                 .font(.title3)
                 .foregroundStyle(Color.textPrimary)
 

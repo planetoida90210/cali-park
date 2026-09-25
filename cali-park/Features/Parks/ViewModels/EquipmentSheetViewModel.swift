@@ -36,7 +36,9 @@ final class EquipmentSheetViewModel: ObservableObject {
     private func applyFilters() {
         filteredItems = allItems.filter { item in
             let matchesCategory = selectedCategory == nil || item.category == selectedCategory!
-            let matchesSearch = searchText.isEmpty || item.name.localizedCaseInsensitiveContains(searchText)
+            let matchesSearch = searchText.isEmpty
+                || item.name.localizedCaseInsensitiveContains(searchText)
+                || item.displayName.localizedCaseInsensitiveContains(searchText)
             return matchesCategory && matchesSearch
         }
     }

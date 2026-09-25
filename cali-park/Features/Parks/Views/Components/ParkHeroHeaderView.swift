@@ -114,6 +114,7 @@ struct ParkHeroHeaderView: View {
                     .clipShape(Circle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(currentFavorite ? "Usuń z ulubionych" : "Dodaj do ulubionych")
 
             // Images count
             if park.images.count > 1 {

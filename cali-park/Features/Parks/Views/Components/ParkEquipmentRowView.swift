@@ -67,7 +67,7 @@ struct ParkEquipmentRowView: View {
         }
         .frame(minWidth: 52)
         .accessibilityElement()
-        .accessibilityLabel(equipment)
+        .accessibilityLabel(EquipmentItem.displayName(for: equipment))
         .onTapGesture { onTapShowAll() }
     }
 
@@ -92,9 +92,7 @@ struct ParkEquipmentRowView: View {
     }
 
     private func shortLabel(for equipment: String) -> String {
-        // Pierwsze słowo lub skrót – maks 8 znaków
-        let label = equipment.split(separator: " ").first.map(String.init) ?? equipment
-        return label.count > 8 ? String(label.prefix(8)) : label
+        EquipmentItem.shortName(for: equipment)
     }
 }
 

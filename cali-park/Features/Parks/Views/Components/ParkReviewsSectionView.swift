@@ -23,10 +23,10 @@ struct ParkReviewsSectionView: View {
         }
         .padding(.vertical, 4)
         .animation(.easeInOut, value: isExpanded)
-        .alert("Błąd", isPresented: errorBinding) {
-            Button("OK", role: .cancel) {}
+        .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
+            Button("Rozumiem", role: .cancel) {}
         } message: {
-            Text(viewModel.errorMessage ?? "")
+            Text("Spróbuj ponownie.")
         }
     }
 
@@ -75,7 +75,7 @@ struct ParkReviewsSectionView: View {
     @ViewBuilder
     private var reviewList: some View {
         if viewModel.reviews.isEmpty {
-            Text("Brak opinii")
+            Text("Brak opinii. Dodaj pierwszą po treningu w tej siłowni.")
                 .font(.caption)
                 .foregroundColor(.textSecondary)
         } else {
@@ -91,7 +91,7 @@ struct ParkReviewsSectionView: View {
                     viewModel.loadMore()
                     showAll = true
                 } label: {
-                    Text("Więcej...")
+                    Text("Pokaż wszystkie")
                         .font(.caption.weight(.semibold))
                         .foregroundColor(.accent)
                 }

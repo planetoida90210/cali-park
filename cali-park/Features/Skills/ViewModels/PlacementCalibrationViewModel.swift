@@ -81,7 +81,7 @@ final class PlacementCalibrationViewModel {
             try store.save(placement)
             didSave = true
         } catch {
-            errorMessage = "Nie udało się zapisać poziomu. Spróbuj ponownie."
+            errorMessage = "Nie udało się zapisać poziomu."
         }
     }
 }

@@ -47,7 +47,7 @@ final class WorkoutHistoryViewModel {
             try store.delete(id: entry.id)
             entries.removeAll { $0.id == entry.id }
         } catch {
-            errorMessage = "Nie udało się usunąć wpisu. Spróbuj ponownie."
+            errorMessage = "Nie udało się usunąć treningu."
         }
     }
 

@@ -48,7 +48,7 @@ struct SkillPathsView: View {
                 .padding(.bottom, 24)
             }
             .background(Color.appBackground.ignoresSafeArea())
-            .navigationTitle("Skille")
+            .navigationTitle("Ścieżki")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

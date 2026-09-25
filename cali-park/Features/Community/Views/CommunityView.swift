@@ -12,8 +12,8 @@ struct CommunityView: View {
                         .foregroundColor(.textPrimary)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    ForEach(0..<4, id: \.self) { index in
-                        CommunityPostCard(index: index)
+                    ForEach(Array(Self.posts.enumerated()), id: \.offset) { _, post in
+                        CommunityPostCard(name: post.name, message: post.message, time: post.time)
                     }
                 }
                 .padding()
@@ -23,16 +23,25 @@ struct CommunityView: View {
             .navigationBarTitleDisplayMode(.inline)
         }
     }
+
+    private static let posts: [(name: String, message: String, time: String)] = [
+        ("Maciek", "15 podciągnięć na drążku. Czwarty dzień z rzędu.", "1 godzinę temu"),
+        ("Kuba", "Plan na dziś: pompki i dipy.", "2 godziny temu"),
+        ("Ola", "Pierwszy muscle-up w tym miesiącu.", "5 godzin temu"),
+        ("Ania", "Trening przy 18 stopniach. Warto było wyjść.", "wczoraj")
+    ]
 }
 
 // MARK: - CommunityPostCard
 private struct CommunityPostCard: View {
-    let index: Int
+    let name: String
+    let message: String
+    let time: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             header
-            Text("To jest przykładowy post użytkownika w społeczności CaliPark. Użytkownicy mogą dzielić się swoimi treningami i osiągnięciami.")
+            Text(message)
                 .font(.bodyMedium)
                 .foregroundColor(.textPrimary)
             actions
@@ -50,18 +59,15 @@ private struct CommunityPostCard: View {
                 .overlay(Image(systemName: "person.fill").foregroundColor(.accent))
 
             VStack(alignment: .leading) {
-                Text("Użytkownik \(index + 1)")
+                Text(name)
                     .font(.bodyLarge)
                     .foregroundColor(.textPrimary)
-                Text("2 godziny temu")
+                Text(time)
                     .font(.bodySmall)
                     .foregroundColor(.textSecondary)
             }
 
             Spacer()
-
-            Image(systemName: "ellipsis")
-                .foregroundColor(.textSecondary)
         }
     }
 

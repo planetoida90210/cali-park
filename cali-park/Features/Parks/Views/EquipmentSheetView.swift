@@ -34,7 +34,11 @@ struct EquipmentSheetView: View {
         NavigationStack {
             Group {
                 if equipments.isEmpty {
-                    ContentUnavailableView("Brak danych", systemImage: "exclamationmark.triangle")
+                    ContentUnavailableView(
+                        "Brak sprzętu",
+                        systemImage: "dumbbell",
+                        description: Text("Ta siłownia nie ma jeszcze listy sprzętu.")
+                    )
                 } else {
                     ScrollView {
                         // Category Picker
@@ -73,7 +77,7 @@ struct EquipmentSheetView: View {
                     }
                 }
             }
-            .navigationTitle("Wyposażenie")
+            .navigationTitle("Sprzęt")
             .searchable(text: $viewModel.searchText, prompt: "Szukaj drążka…")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Zamknij") { dismiss() } }
@@ -99,7 +103,7 @@ private struct EquipmentGridCell: View {
                 .frame(width: 42, height: 42)
                 .symbolRenderingMode(.hierarchical)
                 .foregroundStyle(Color.accent)
-            Text(item.name)
+            Text(item.displayName)
                 .font(.subheadline)
                 .multilineTextAlignment(.center)
                 .foregroundColor(.textPrimary)

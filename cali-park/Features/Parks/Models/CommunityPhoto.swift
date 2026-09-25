@@ -79,10 +79,10 @@ extension CommunityPhoto {
             CommunityPhoto(
                 parkID: firstPark.id,
                 imageURL: url,
-                uploaderName: "Użytkownik \(index + 1)",
+                uploaderName: ["Maciek", "Kuba", "Ola"][index % 3],
                 uploadDate: Calendar.current.date(byAdding: .day, value: -index * 3, to: .now) ?? .now,
                 visibility: .public,
-                caption: index % 2 == 0 ? "Świetna sesja na świeżym powietrzu! #workout" : "",
+                caption: index % 2 == 0 ? "Sesja na świeżym powietrzu." : "",
                 likes: Int.random(in: 0...42)
             )
         }

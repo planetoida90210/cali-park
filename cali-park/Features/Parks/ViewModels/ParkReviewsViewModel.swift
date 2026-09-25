@@ -107,7 +107,7 @@ final class ParkReviewsViewModel: ObservableObject {
         } catch is CancellationError {
             // Superseded by a newer request – ignore.
         } catch {
-            errorMessage = "Nie udało się pobrać opinii: \(error.localizedDescription)"
+            errorMessage = "Nie udało się wczytać opinii."
         }
     }
 
@@ -131,7 +131,7 @@ final class ParkReviewsViewModel: ObservableObject {
         } catch is CancellationError {
             // Cancelled – nothing to surface.
         } catch {
-            errorMessage = "Nie udało się zapisać opinii: \(error.localizedDescription)"
+            errorMessage = "Nie udało się zapisać opinii."
         }
     }
 
