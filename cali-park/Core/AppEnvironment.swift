@@ -90,6 +90,10 @@ final class AppEnvironment: ObservableObject {
         WorkoutHistoryViewModel(store: workoutLogStore)
     }
 
+    func makeWorkoutSessionDetailViewModel(sessionID: UUID) -> WorkoutSessionDetailViewModel {
+        WorkoutSessionDetailViewModel(sessionID: sessionID, store: workoutLogStore)
+    }
+
     func makeQuickWorkoutViewModel() -> QuickWorkoutViewModel {
         QuickWorkoutViewModel(store: workoutLogStore)
     }

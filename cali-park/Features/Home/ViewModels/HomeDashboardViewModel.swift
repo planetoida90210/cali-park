@@ -57,6 +57,11 @@ final class HomeDashboardViewModel {
         QuickWorkoutViewModel(store: store, plan: plan)
     }
 
+    /// Detail screen for a workout opened from the "Ostatni trening" card.
+    func makeWorkoutSessionDetailViewModel(sessionID: UUID) -> WorkoutSessionDetailViewModel {
+        WorkoutSessionDetailViewModel(sessionID: sessionID, store: store)
+    }
+
     /// Editor for a brand-new plan, started straight from Home when nothing is
     /// scheduled yet ("Zaplanuj trening").
     func makePlanEditorViewModel() -> PlanEditorViewModel {
@@ -74,27 +79,8 @@ final class HomeDashboardViewModel {
 
     /// The most recent workout for the Home preview: a whole session when the
     /// latest entry belongs to one, otherwise the single standalone entry.
-    struct LatestWorkout: Equatable {
-        let date: Date
-        let entries: [WorkoutLogEntry]
-
-        var isSession: Bool { entries.count > 1 }
-        var totalReps: Int { entries.reduce(0) { $0 + $1.totalReps } }
-        var totalSeconds: Int { entries.reduce(0) { $0 + $1.totalSeconds } }
-    }
-
-    var latestWorkout: LatestWorkout? {
-        guard let latest = entries.first else { return nil }
-
-        if let sessionID = latest.sessionID {
-            let sessionEntries = entries.filter { $0.sessionID == sessionID }
-            return LatestWorkout(
-                date: sessionEntries.map(\.date).max() ?? latest.date,
-                entries: sessionEntries
-            )
-        }
-
-        return LatestWorkout(date: latest.date, entries: [latest])
+    var latestWorkout: WorkoutSession? {
+        WorkoutSession.latest(in: entries)
     }
 
     /// The exercise Quick Log should open: the last logged one,

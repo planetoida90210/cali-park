@@ -5,7 +5,7 @@ import SwiftUI
 /// trained, the streak it kept alive, and the weekly goal demoted to a
 /// secondary line. No CTA — the work is finished.
 struct HeroCompletedTodayView: View {
-    let summary: HomeDashboardViewModel.LatestWorkout
+    let summary: WorkoutSession
     let streak: WorkoutStreak
     let name: String
     let weeklyReps: Int
@@ -46,7 +46,8 @@ struct HeroCompletedTodayView: View {
 // MARK: - Preview
 #Preview("Zrobione dziś") {
     HeroCompletedTodayView(
-        summary: HomeDashboardViewModel.LatestWorkout(
+        summary: WorkoutSession(
+            id: UUID(),
             date: .now,
             entries: [
                 WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, sets: [LoggedSet(reps: 8), LoggedSet(reps: 6)], sessionID: UUID()),

@@ -119,7 +119,8 @@ private enum HeroPreview {
     )
 
     static let completedToday = HomeHeroState.completedToday(
-        summary: HomeDashboardViewModel.LatestWorkout(
+        summary: WorkoutSession(
+            id: sharedSession,
             date: .now,
             entries: [
                 WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, sets: [LoggedSet(reps: 8), LoggedSet(reps: 6)], sessionID: sharedSession),
@@ -136,7 +137,8 @@ private enum HeroPreview {
     )
 
     static let freeMode = HomeHeroState.freeMode(
-        lastWorkout: HomeDashboardViewModel.LatestWorkout(
+        lastWorkout: WorkoutSession(
+            id: UUID(),
             date: Calendar.current.date(byAdding: .day, value: -2, to: .now)!,
             entries: [WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, sets: [LoggedSet(reps: 8), LoggedSet(reps: 7)])]
         ),
