@@ -213,7 +213,9 @@ struct WorkoutLogEntryPlanIDCodableTests {
     @Test
     func planIDRoundtrips() throws {
         let planID = UUID()
+        // ISO 8601 stores whole seconds, so a sub-second `.now` wouldn't roundtrip.
         let entry = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
+                                    date: Date(timeIntervalSince1970: 1_000_000),
                                     sets: [LoggedSet(reps: 6)],
                                     sessionID: UUID(),
                                     planID: planID)

@@ -6,8 +6,10 @@ import Foundation
 /// calibration.
 ///
 /// Buckets are deliberately coarse — a newcomer and a veteran both answer in one
-/// tap. This is transient UI input, never persisted: only the resulting rung
-/// index is stored in `SkillPlacement`.
+/// tap. The top bucket starts at 12 because a single-set max around 12 is what
+/// three sets of 8 need; 9 in one set does not yet mean 3 × 8. This is
+/// transient UI input, never persisted: only the resulting rung index is stored
+/// in `SkillPlacement`.
 enum RepCountBucket: String, CaseIterable, Identifiable, Hashable, Sendable {
     case none
     case few
@@ -16,13 +18,13 @@ enum RepCountBucket: String, CaseIterable, Identifiable, Hashable, Sendable {
 
     var id: String { rawValue }
 
-    /// Short, concrete label with real numbers, e.g. "1–4".
+    /// Short, concrete label with real numbers, e.g. "1–5".
     var label: String {
         switch self {
         case .none: "0"
-        case .few: "1–4"
-        case .several: "5–8"
-        case .many: "9+"
+        case .few: "1–5"
+        case .several: "6–11"
+        case .many: "12+"
         }
     }
 }

@@ -6,7 +6,7 @@ import Foundation
 ///
 /// A declaration sets the *current* rung of a path — everything below it is
 /// treated as conquered without needing logs, so someone who already does 12
-/// pull-ups starts from the archer rung rather than from the dead hang. A
+/// pull-ups starts from the L-pull-up rung rather than from the dead hang. A
 /// declaration never grants XP or badges (those come only from real logs), and
 /// it never lowers a rung already earned from logs: `ProgressionEngine` takes
 /// the max of declaration and logs. Placement is training data, not a secret,

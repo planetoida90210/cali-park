@@ -18,30 +18,33 @@ enum PlacementCalibration {
     static let bandEquipment = "Resistance bands"
 
     // MARK: Questions
-    /// Rep-count questions, one per rep-based path. Buckets map to a starting
-    /// rung: "0" drops to the regression that builds the movement, "9+" starts
-    /// near the top. Unilateral leg skills (pistol) are intentionally left to the
-    /// skill checkbox rather than credited from a two-legged squat count.
+    /// Rep-count questions, one per rep-based path. A count never conquers a
+    /// variant harder than the counted movement (see `RepCountQuestion`); those
+    /// come from logs or, for skills a count can't capture, the checkboxes below.
     static let repQuestions: [RepCountQuestion] = [
         RepCountQuestion(
             path: .pullUp,
             prompt: "Ile pełnych podciągnięć robisz w jednej serii?",
-            rungForBucket: [.none: 2, .few: 4, .several: 5, .many: 6]
+            zeroRepRung: 2,     // negatives
+            movementRung: 4     // pull-ups
         ),
         RepCountQuestion(
             path: .pushUp,
             prompt: "Ile pełnych pompek robisz w jednej serii?",
-            rungForBucket: [.none: 2, .few: 3, .several: 4, .many: 5]
+            zeroRepRung: 2,     // knee push-ups
+            movementRung: 3     // push-ups
         ),
         RepCountQuestion(
             path: .dip,
             prompt: "Ile dipów na poręczach robisz w jednej serii?",
-            rungForBucket: [.none: 1, .few: 2, .several: 2, .many: 3]
+            zeroRepRung: 1,     // negatives
+            movementRung: 2     // dips
         ),
         RepCountQuestion(
             path: .legs,
             prompt: "Ile przysiadów robisz w jednej serii?",
-            rungForBucket: [.none: 0, .few: 1, .several: 2, .many: 3]
+            zeroRepRung: 0,     // assisted squats
+            movementRung: 1     // squats
         )
     ]
 
@@ -64,8 +67,8 @@ enum PlacementCalibration {
         var declaredRungByPath: [ProgressionPathID: Int] = [:]
 
         for question in repQuestions {
-            guard let bucket = repAnswers[question.id],
-                  let rung = question.rung(for: bucket) else { continue }
+            guard let bucket = repAnswers[question.id] else { continue }
+            let rung = question.rung(for: bucket)
             declaredRungByPath[question.path] = max(declaredRungByPath[question.path] ?? 0, rung)
         }
 

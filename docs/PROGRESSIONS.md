@@ -229,6 +229,31 @@ to osobny plan.
 
 ---
 
+## Deklaracja startu (placement) — `PlacementCalibration`
+
+Pytanie „Ile … robisz w jednej serii?" mówi **tylko o ruchu, o który pyta**.
+Trudniejsze warianty (diamentowe, L-pull-upy, wykroki, dipy na kółkach) to
+osobne ćwiczenia — żadna odpowiedź ich nie zalicza. Zdobywa się je logami albo
+(dla skilli, których nie da się policzyć powtórzeniami) checkboxem.
+
+| Odpowiedź | Aktualny szczebel | Co zaliczone |
+|---|---|---|
+| 0 | regresja budująca ruch | szczeble poniżej regresji |
+| 1–5, 6–11 | sam ruch | regresje poniżej ruchu |
+| 12+ | następny wariant (do zdobycia logami) | ruch z pytania (≈ max 12 w serii to realne 3 × 8) |
+
+| Ścieżka | Regresja przy „0" | Ruch z pytania | Przy „12+" aktualny |
+|---|---|---|---|
+| Podciąganie | Negatywy | Pełne podciągnięcia | L-pull-ups |
+| Pompki | Pompki z kolan | Pełne pompki | Pompki diamentowe |
+| Dipy | Negatywy dipów | Dipy na poręczach | Dipy na kółkach |
+| Nogi | Przysiad z asystą | Pełny przysiad | Wykroki |
+
+Checkboxy skilli (muscle-up, pełny L-sit, pistolet) ustawiają zaznaczony skill
+jako aktualny szczebel. Deklaracja nigdy nie daje XP ani odznak.
+
+---
+
 ## Zasady integralności (egzekwowane testami — `ProgressionCatalogTests`)
 
 1. Każdy `exerciseID` w każdym szczeblu wskazuje istniejące ćwiczenie w
