@@ -29,13 +29,46 @@ final class ExerciseLibraryViewModel {
     /// never appear here — they live on the skill ladders. Search is case- and
     /// diacritic-insensitive, so "podciagniecia" finds "Podciągnięcia".
     var displayedExercises: [Exercise] {
-        var list = exercises.filter { $0.variantOf == nil }
+        filtered(exercises.filter { $0.variantOf == nil })
+    }
+
+    /// What the quick-workout picker lists. With an empty search it matches the
+    /// library (main movements only); a non-empty query also matches progression
+    /// variants, so "diamentowe" finds "Pompki diamentowe". Catalog order, same
+    /// category filter.
+    var pickerExercises: [Exercise] {
+        query.isEmpty ? displayedExercises : filtered(exercises)
+    }
+
+    /// The main movement `exercise` is a variant of; `nil` for a main movement.
+    func parent(of exercise: Exercise) -> Exercise? {
+        guard let parentID = exercise.variantOf else { return nil }
+        return exercises.first { $0.id == parentID }
+    }
+
+    /// Whether picking `exercise` should first ask which variant was done.
+    func hasVariants(_ exercise: Exercise) -> Bool {
+        exercise.variantOf == nil && exercises.contains { $0.variantOf == exercise.id }
+    }
+
+    /// The choices offered after tapping a movement: the base movement first,
+    /// then its variants in catalog order (roughly easiest to hardest).
+    func variantChoices(for movement: Exercise) -> [Exercise] {
+        [movement] + exercises.filter { $0.variantOf == movement.id }
+    }
+
+    // MARK: Filtering
+    private var query: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func filtered(_ source: [Exercise]) -> [Exercise] {
+        var list = source
 
         if let selectedCategory {
             list = list.filter { $0.category == selectedCategory }
         }
 
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         if !query.isEmpty {
             list = list.filter { $0.name.localizedStandardContains(query) }
         }

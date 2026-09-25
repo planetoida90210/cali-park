@@ -3,11 +3,15 @@ import SwiftUI
 // MARK: - QuickWorkoutView
 /// "Szybki trening": build a workout from any exercises, then save it as one
 /// session. Add an exercise → log its sets on the SetPad → it joins the list →
-/// repeat → "Zakończ trening" persists everything at once.
+/// repeat → "Zakończ" persists everything at once and pushes the summary, whose
+/// "Gotowe" closes the sheet and lands on the Start tab.
 struct QuickWorkoutView: View {
     @State private var viewModel: QuickWorkoutViewModel
     @State private var activeSheet: ActiveSheet?
+    /// The saved workout, set after "Zakończ" to push its summary.
+    @State private var summarySessionID: UUID?
     @Environment(\.dismiss) private var dismiss
+    @Environment(TabRouter.self) private var router: TabRouter?
 
     /// Called after the session is saved, so the presenter can refresh.
     var onFinish: () -> Void = {}
@@ -63,8 +67,11 @@ struct QuickWorkoutView: View {
             .onChange(of: viewModel.didFinish) { _, didFinish in
                 if didFinish {
                     onFinish()
-                    dismiss()
+                    summarySessionID = viewModel.savedSessionID
                 }
+            }
+            .navigationDestination(item: $summarySessionID) { _ in
+                WorkoutSessionDetailView(viewModel: viewModel.makeSummaryViewModel(), onDone: returnToStart)
             }
             .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
                 Button("Rozumiem", role: .cancel) {}
@@ -72,6 +79,14 @@ struct QuickWorkoutView: View {
                 Text("Spróbuj ponownie.")
             }
         }
+        // Once saved, the summary's "Gotowe" is the way out.
+        .interactiveDismissDisabled(viewModel.didFinish)
+    }
+
+    /// Closes the sheet on the Start tab, whichever tab the workout began on.
+    private func returnToStart() {
+        router?.selection = .home
+        dismiss()
     }
 
     // MARK: Session list
@@ -177,7 +192,7 @@ private struct SessionSetPadSheet: View {
         .padding(.horizontal, 16)
         .padding(.top, 24)
         .padding(.bottom, 16)
-        .presentationDetents([.medium])
+        .presentationContentHeight()
         .presentationDragIndicator(.visible)
         .presentationBackground(Color.appBackground)
     }

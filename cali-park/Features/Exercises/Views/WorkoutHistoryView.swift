@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - WorkoutHistoryView
 /// "Ostatnie treningi": every logged entry, newest first, with
 /// swipe-to-delete. Saved SetPad entries land here — that is the
-/// confirmation that a save worked.
+/// confirmation that a save worked. Tapping a row opens its whole workout.
 struct WorkoutHistoryView: View {
     @State private var viewModel: WorkoutHistoryViewModel
 
@@ -20,11 +20,14 @@ struct WorkoutHistoryView: View {
                     ForEach(viewModel.sections) { section in
                         Section {
                             ForEach(section.entries) { entry in
-                                WorkoutHistoryRow(
-                                    entry: entry,
-                                    exercise: viewModel.exercise(for: entry),
-                                    showsDate: !section.isSession
-                                )
+                                NavigationLink(value: WorkoutSessionRoute(sessionID: section.id)) {
+                                    WorkoutHistoryRow(
+                                        entry: entry,
+                                        exercise: viewModel.exercise(for: entry),
+                                        showsDate: !section.isSession
+                                    )
+                                }
+                                .accessibilityHint("Pokaż szczegóły treningu")
                                 .listRowBackground(Color.componentBackground)
                                 .listRowSeparatorTint(Color.divider)
                             }
@@ -49,6 +52,9 @@ struct WorkoutHistoryView: View {
         .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle("Ostatnie treningi")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(for: WorkoutSessionRoute.self) { route in
+            WorkoutSessionDetailView(viewModel: viewModel.makeDetailViewModel(sessionID: route.sessionID))
+        }
         .onAppear { viewModel.reload() }
         .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
             Button("Rozumiem", role: .cancel) {}
@@ -69,7 +75,7 @@ struct WorkoutHistoryView: View {
 // MARK: - WorkoutSessionHeader
 /// Header for a grouped quick-workout session: when it happened plus a summary.
 private struct WorkoutSessionHeader: View {
-    let section: WorkoutHistorySection
+    let section: WorkoutSession
 
     var body: some View {
         HStack {

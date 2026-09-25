@@ -6,7 +6,7 @@ import SwiftUI
 /// to train next. Acting on it is one tap away in the permanent rail below
 /// ("Szybki trening" / "Plany"), so the card informs rather than repeats it.
 struct HeroFreeModeView: View {
-    let lastWorkout: HomeDashboardViewModel.LatestWorkout
+    let lastWorkout: WorkoutSession
     let suggestion: Exercise?
     let streak: WorkoutStreak
     let name: String
@@ -55,7 +55,8 @@ struct HeroFreeModeView: View {
 // MARK: - Preview
 #Preview("Wolny tryb") {
     HeroFreeModeView(
-        lastWorkout: HomeDashboardViewModel.LatestWorkout(
+        lastWorkout: WorkoutSession(
+            id: UUID(),
             date: Calendar.current.date(byAdding: .day, value: -2, to: .now)!,
             entries: [WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, sets: [LoggedSet(reps: 8), LoggedSet(reps: 7)])]
         ),

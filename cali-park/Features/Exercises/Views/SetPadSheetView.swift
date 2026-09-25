@@ -22,7 +22,7 @@ struct SetPadSheetView: View {
         .padding(.horizontal, 16)
         .padding(.top, 24)
         .padding(.bottom, 16)
-        .presentationDetents([.medium])
+        .presentationContentHeight()
         .presentationDragIndicator(.visible)
         .presentationBackground(Color.appBackground)
         .onChange(of: viewModel.didSave) { _, didSave in

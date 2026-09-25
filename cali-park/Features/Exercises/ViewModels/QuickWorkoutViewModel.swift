@@ -75,6 +75,15 @@ final class QuickWorkoutViewModel {
     var canFinish: Bool { items.contains { !$0.isPending } }
     var exerciseCount: Int { items.count }
     var totalSets: Int { items.reduce(0) { $0 + $1.sets.count } }
+    /// The saved workout's identifier once `finish()` succeeded, so the screen
+    /// can push its summary; `nil` before that.
+    var savedSessionID: UUID? { didFinish ? sessionID : nil }
+
+    /// The summary of the workout just saved, read back from the store so it
+    /// shows exactly what was persisted.
+    func makeSummaryViewModel() -> WorkoutSessionDetailViewModel {
+        WorkoutSessionDetailViewModel(sessionID: sessionID, store: store)
+    }
 
     // MARK: Intentions
     /// Queues an exercise with the sets logged on the SetPad. Empty logs are

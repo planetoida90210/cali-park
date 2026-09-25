@@ -113,6 +113,11 @@ struct HomeView: View {
                     WorkoutPlansView(environment: environment)
                 }
             }
+            .navigationDestination(for: WorkoutSessionRoute.self) { route in
+                WorkoutSessionDetailView(
+                    viewModel: dashboard.makeWorkoutSessionDetailViewModel(sessionID: route.sessionID)
+                )
+            }
             .onAppear {
                 // Picks up entries logged in the Exercises tab.
                 dashboard.reload()

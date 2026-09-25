@@ -18,7 +18,7 @@ enum HomeHeroState: Equatable {
     /// Today's training is done — either the scheduled plan or a free workout.
     /// `summary` is the session/workout to celebrate; `streak` is the run kept
     /// alive by finishing today.
-    case completedToday(summary: HomeDashboardViewModel.LatestWorkout, streak: WorkoutStreak)
+    case completedToday(summary: WorkoutSession, streak: WorkoutStreak)
 
     /// Nothing scheduled for today, but a future plan exists. Shows the streak
     /// and when the `nextPlan` comes up (`date`).
@@ -27,7 +27,7 @@ enum HomeHeroState: Equatable {
     /// No plans at all, yet the journal has history. Shows the streak, the last
     /// workout, and a `suggestion` for what to train next (`nil` when the
     /// heuristic can't pick one).
-    case freeMode(lastWorkout: HomeDashboardViewModel.LatestWorkout, suggestion: Exercise?, streak: WorkoutStreak)
+    case freeMode(lastWorkout: WorkoutSession, suggestion: Exercise?, streak: WorkoutStreak)
 
     /// A fresh start: no plans and an empty journal. Invites the user to plan or
     /// start a quick workout.
