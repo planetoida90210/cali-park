@@ -50,7 +50,7 @@ final class ParkPhotosViewModel: ObservableObject {
         } catch is CancellationError {
             // Superseded by a newer request – ignore.
         } catch {
-            errorMessage = "Błąd pobierania zdjęć: \(error.localizedDescription)"
+            errorMessage = "Nie udało się wczytać zdjęć."
         }
     }
 
@@ -60,7 +60,7 @@ final class ParkPhotosViewModel: ObservableObject {
                 try await service.deletePhoto(id: photo.id)
                 photos.removeAll { $0.id == photo.id }
             } catch {
-                errorMessage = "Nie udało się usunąć zdjęcia. Spróbuj ponownie."
+                errorMessage = "Nie udało się usunąć zdjęcia."
             }
         }
     }
@@ -96,7 +96,7 @@ final class ParkPhotosViewModel: ObservableObject {
             photos.insert(uploaded, at: 0)
             lastAdded = uploaded
         } catch {
-            errorMessage = "Nie udało się dodać zdjęcia. Spróbuj ponownie."
+            errorMessage = "Nie udało się dodać zdjęcia."
         }
     }
 
@@ -123,7 +123,7 @@ final class ParkPhotosViewModel: ObservableObject {
             lastAdded = newPhoto
             _ = try await service.uploadPhoto(newPhoto) // stub delay
         } catch {
-            errorMessage = "Nie udało się zapisać zdjęcia. Spróbuj ponownie."
+            errorMessage = "Nie udało się zapisać zdjęcia."
         }
     }
 }

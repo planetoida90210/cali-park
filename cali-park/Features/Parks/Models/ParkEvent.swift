@@ -102,19 +102,19 @@ extension ParkEvent {
                 attendeeCount: 8,
                 capacity: 15,
                 participants: [.mock, .mock],
-                description: "Intensywny circuit training oparty na ćwiczeniach z ciężarem własnego ciała. Idealny na rozruch dnia. Prowadzi trener Kuba.",
+                description: "Obwód z ciężarem własnego ciała. Prowadzi Kuba.",
                 organizer: .mock,
                 requiredEquipment: [],
                 isAttending: true
             ),
             ParkEvent(
                 parkID: firstPark.id,
-                title: "Mobility & Stretching",
+                title: "Mobilność i rozciąganie",
                 date: Calendar.current.date(byAdding: .day, value: 5, to: now) ?? now,
                 attendeeCount: 3,
                 capacity: 10,
                 participants: [.mock],
-                description: "Sesja rozciągania i mobilizacji stawów dla każdego poziomu zaawansowania.",
+                description: "Rozciąganie i mobilizacja stawów.",
                 organizer: .mock,
                 requiredEquipment: [],
                 isAttending: false

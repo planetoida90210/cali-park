@@ -29,7 +29,7 @@ struct ReviewRowView: View {
     private var authorName: String {
         // In UI-first phase we don't have full user lookup – fallback to anon.
         // Later we will map userID → User.
-        "Użytkownik".appending(String(review.userID.uuidString.prefix(4)))
+        "Anonim"
     }
 
     private var dateString: String {

@@ -40,7 +40,7 @@ final class WorkoutLogViewModel {
             try store.append(entry)
             didSave = true
         } catch {
-            errorMessage = "Nie udało się zapisać treningu. Spróbuj ponownie."
+            errorMessage = "Nie udało się zapisać treningu."
         }
     }
 }

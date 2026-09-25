@@ -141,6 +141,7 @@ struct ParkCardView: View {
                 .foregroundColor(park.isFavorite ? .accent : .textSecondary)
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityLabel(park.isFavorite ? "Usuń z ulubionych" : "Dodaj do ulubionych")
     }
 }
 

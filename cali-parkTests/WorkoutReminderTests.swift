@@ -147,7 +147,7 @@ struct WorkoutReminderContentTests {
         let plan = ReminderFixtures.plan(schedule: .weekly([.monday]), exercises: 2, name: "Push")
         let request = try #require(WorkoutReminderPlanner.requests(for: plan, calendar: ReminderFixtures.calendar).first)
         #expect(request.title == "Push")
-        #expect(request.body == "Czas na trening · 2 ćwiczenia")
+        #expect(request.body == "Czas na trening. 2 ćwiczenia.")
     }
 
     @Test

@@ -59,7 +59,7 @@ struct LeaderboardModuleContent: View {
             
             Spacer()
             
-            Text("\(points) p")
+            Text("\(points) pkt")
                 .font(.bodyMedium.bold())
                 .foregroundStyle(isCurrentUser ? Color.accent : Color.textPrimary)
         }

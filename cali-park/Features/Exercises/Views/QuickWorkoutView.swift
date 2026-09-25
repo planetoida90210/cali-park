@@ -66,10 +66,10 @@ struct QuickWorkoutView: View {
                     dismiss()
                 }
             }
-            .alert("Błąd", isPresented: errorBinding) {
-                Button("OK", role: .cancel) {}
+            .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
+                Button("Rozumiem", role: .cancel) {}
             } message: {
-                Text(viewModel.errorMessage ?? "")
+                Text("Spróbuj ponownie.")
             }
         }
     }

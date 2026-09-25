@@ -31,7 +31,7 @@ struct LastWorkoutModuleContent: View {
                             .font(.bodySmall)
                             .foregroundStyle(Color.textSecondary)
                     } else {
-                        Text("Brak zapisów — zaloguj pierwszy trening.")
+                        Text("Brak treningów. Zaloguj pierwszy.")
                             .font(.bodyMedium)
                             .foregroundStyle(Color.textPrimary)
                     }

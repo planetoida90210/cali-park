@@ -31,7 +31,7 @@ final class WorkoutPlansViewModel {
             try store.delete(id: plan.id)
             plans.removeAll { $0.id == plan.id }
         } catch {
-            errorMessage = "Nie udało się usunąć planu. Spróbuj ponownie."
+            errorMessage = "Nie udało się usunąć planu."
         }
     }
 

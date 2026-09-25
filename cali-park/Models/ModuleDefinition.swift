@@ -18,19 +18,19 @@ struct ModuleDefinition: Identifiable, Codable, Equatable {
             id: "next",
             name: "Następny trening",
             iconName: "calendar",
-            description: "Plan treningowy na dziś"
+            description: "Najbliższy plan albo propozycja treningu."
         ),
         ModuleDefinition(
             id: "parks",
-            name: "Pogoda & Park",
+            name: "Pogoda i siłownia",
             iconName: "mappin.and.ellipse",
-            description: "Znajdź miejsce do treningu"
+            description: "Pogoda i najbliższa siłownia."
         ),
         ModuleDefinition(
             id: "streak",
-            name: "Kalendarz streak",
+            name: "Seria dni",
             iconName: "flame.fill",
-            description: "Historia Twoich treningów"
+            description: "Dni treningu z rzędu."
         ),
         // Leaderboard ("friends") and community feed ("feed") are placeholder
         // modules that need a backend. They are intentionally left out of the

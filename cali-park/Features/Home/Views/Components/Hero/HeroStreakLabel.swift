@@ -12,13 +12,13 @@ struct HeroStreakLabel: View {
                 .foregroundStyle(streak.current > 0 ? Color.orange : Color.textSecondary)
                 .accessibilityHidden(true)
 
-            Text("Streak: \(PolishPlural.days(streak.current))")
+            Text("Seria: \(PolishPlural.days(streak.current))")
                 .font(.bodyMedium)
                 .foregroundStyle(Color.textPrimary)
                 .contentTransition(.numericText())
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Aktualny streak: \(PolishPlural.days(streak.current))")
+        .accessibilityLabel("Aktualna seria: \(PolishPlural.days(streak.current))")
     }
 }
 

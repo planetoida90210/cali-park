@@ -39,10 +39,10 @@ struct PlacementCalibrationSheet: View {
             .onChange(of: viewModel.didSave) { _, didSave in
                 if didSave { dismiss() }
             }
-            .alert("Błąd", isPresented: errorBinding) {
-                Button("OK", role: .cancel) {}
+            .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
+                Button("Rozumiem", role: .cancel) {}
             } message: {
-                Text(viewModel.errorMessage ?? "")
+                Text("Spróbuj ponownie.")
             }
         }
     }

@@ -19,7 +19,7 @@ struct AchievementsModuleContent: View {
             content
         }
         .buttonStyle(.plain)
-        .accessibilityHint("Otwiera zakładkę Skille")
+        .accessibilityHint("Otwiera zakładkę Ścieżki")
     }
 
     private var content: some View {

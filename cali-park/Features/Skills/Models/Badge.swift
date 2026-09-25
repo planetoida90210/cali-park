@@ -29,7 +29,7 @@ enum Badge: String, Codable, CaseIterable, Identifiable, Sendable {
         case .firstWorkout: "Pierwszy trening"
         case .tenTrainingDays: "Regularność"
         case .weekStreak: "Tydzień z rzędu"
-        case .firstSkill: "Pierwszy skill"
+        case .firstSkill: "Pierwsza ścieżka"
         case .threeSkills: "Kolekcjoner"
         case .thousandReps: "Tysiąc powtórzeń"
         }

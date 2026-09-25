@@ -113,11 +113,11 @@ struct ParkDetailView: View {
     // MARK: - Sections
     private var equipmentSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Wyposażenie")
+            Text("Sprzęt")
                 .font(.bodyMedium)
                 .foregroundColor(.textPrimary)
             if park.equipments.isEmpty {
-                Text("Brak danych")
+                Text("Brak sprzętu")
                     .font(.caption)
                     .foregroundColor(.textSecondary)
             } else {
@@ -164,9 +164,9 @@ private struct QuickLogPlaceholder: View {
     @Environment(\.dismiss) private var dismiss
     var body: some View {
         NavigationStack {
-            Text("Quick workout log w budowie ✌️")
+            Text("Dodawanie treningu z tej siłowni pojawi się wkrótce.")
                 .padding()
-                .navigationTitle("Dodaj log")
+                .navigationTitle("Dodaj trening")
                 .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Zamknij") { dismiss() } } }
         }
     }
@@ -178,9 +178,9 @@ private struct ReportParkView: View {
     @Environment(\.dismiss) private var dismiss
     var body: some View {
         NavigationStack {
-            Text("Raportowanie jeszcze w przygotowaniu ✌️")
+            Text("Zgłaszanie siłowni pojawi się wkrótce.")
                 .padding()
-                .navigationTitle("Zgłoś park")
+                .navigationTitle("Zgłoś siłownię")
                 .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Zamknij") { dismiss() } } }
         }
     }

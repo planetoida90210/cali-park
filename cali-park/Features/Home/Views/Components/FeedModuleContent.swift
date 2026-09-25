@@ -24,7 +24,7 @@ struct FeedModuleContent: View {
                 feedItem(
                     avatar: "K",
                     name: "Kuba W.",
-                    action: "ukończył trening Pull",
+                    action: "ukończył trening podciągania",
                     time: "3 godz. temu"
                 )
             }

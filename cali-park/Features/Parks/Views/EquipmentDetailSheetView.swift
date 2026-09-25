@@ -21,14 +21,14 @@ struct EquipmentDetailSheetView: View {
                             .fill(Color.componentBackground)
                     )
 
-                Text(item.name)
+                Text(item.displayName)
                     .font(.title2.weight(.bold))
                     .foregroundColor(.textPrimary)
 
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Opis")
                         .font(.headline)
-                    Text("Krótki opis działania sprzętu. Tutaj w przyszłości pobierzemy dane z backendu, wraz z linkiem do wideo instruktażowego.")
+                    Text("Jak używać tego sprzętu, pokażemy tutaj.")
                         .font(.body)
                         .foregroundColor(.textSecondary)
                 }
@@ -36,7 +36,7 @@ struct EquipmentDetailSheetView: View {
                 // Actions
                 VStack(spacing: 12) {
                     Button(action: openDemoVideo) {
-                        Label("Zobacz instruktaż (YouTube)", systemImage: "play.circle")
+                        Label("Zobacz instruktaż", systemImage: "play.circle")
                     }
                     .buttonStyle(PrimaryButtonStyle())
 
@@ -55,7 +55,7 @@ struct EquipmentDetailSheetView: View {
         }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
-        .navigationTitle(item.name)
+        .navigationTitle(item.displayName)
         .navigationBarTitleDisplayMode(.inline)
     }
 

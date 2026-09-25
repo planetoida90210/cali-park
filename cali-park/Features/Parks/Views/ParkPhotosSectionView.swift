@@ -15,7 +15,7 @@ struct ParkPhotosSectionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                Text("Zdjęcia użytkowników z parku")
+                Text("Zdjęcia z tej siłowni")
                     .font(.bodyMedium)
                     .foregroundColor(.textPrimary)
                 if !isPremiumUser {
@@ -72,15 +72,15 @@ struct ParkPhotosSectionView: View {
                 withAnimation { toastVisible = false }
             }
         }
-        .alert("Funkcja Premium", isPresented: $showPremiumAlert) {
-            Button("OK", role: .cancel) {}
+        .alert("Zdjęcia są w Premium", isPresented: $showPremiumAlert) {
+            Button("Rozumiem", role: .cancel) {}
         } message: {
-            Text("Dodawanie i zarządzanie zdjęciami wymaga subskrypcji CaliPark Premium.")
+            Text("Dodawanie i zarządzanie zdjęciami jest w subskrypcji CaliPark Premium.")
         }
-        .alert("Błąd", isPresented: errorBinding) {
-            Button("OK", role: .cancel) {}
+        .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
+            Button("Rozumiem", role: .cancel) {}
         } message: {
-            Text(viewModel.errorMessage ?? "")
+            Text("Spróbuj ponownie.")
         }
     }
 
