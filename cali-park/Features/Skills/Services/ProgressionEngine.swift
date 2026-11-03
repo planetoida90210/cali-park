@@ -38,9 +38,14 @@ enum ProgressionEngine {
         return states
     }
 
-    /// The state of a single path. The current rung is the higher of what the
-    /// logs prove and what the placement declares; everything below it counts as
-    /// conquered.
+    /// The state of a single path. Everything up to the higher of what the logs
+    /// prove and what the placement declares counts as conquered; the current
+    /// rung is the first unconquered main-line rung above that.
+    ///
+    /// Parallel-track rungs (`isParallelTrack`, e.g. band pull-ups or step-ups)
+    /// are options, never the mandatory next step, so the current rung skips
+    /// them (audit A-3). Logging one still counts like any other rung: it can
+    /// conquer itself and the rungs below it, and earns XP and a celebration.
     static func pathState(for path: ProgressionPath,
                           logs: [WorkoutLogEntry],
                           placement: SkillPlacement?) -> PathState {
@@ -60,8 +65,10 @@ enum ProgressionEngine {
 
         let conqueredThrough = max(logsConqueredThrough, declaredConqueredThrough)
         let conqueredRungCount = conqueredThrough + 1
-        // Train the first unconquered rung, or stay on the top once complete.
-        let currentRungIndex = min(max(conqueredThrough + 1, 0), rungCount - 1)
+        // Train the first unconquered main-line rung, or stay on the top once
+        // complete.
+        let currentRungIndex = nextMainLineRung(in: path, from: conqueredThrough + 1)
+            ?? min(max(conqueredThrough + 1, 0), rungCount - 1)
 
         return PathState(
             pathID: path.id,
@@ -70,6 +77,14 @@ enum ProgressionEngine {
             conqueredRungCount: conqueredRungCount,
             currentProgress: rungProgress(for: path.steps[currentRungIndex], in: logs)
         )
+    }
+
+    /// The index of the first rung at or after `index` that is not a parallel
+    /// track, or `nil` when no such rung exists.
+    static func nextMainLineRung(in path: ProgressionPath, from index: Int) -> Int? {
+        let start = max(index, 0)
+        guard start < path.steps.count else { return nil }
+        return path.steps[start...].firstIndex { !$0.isParallelTrack }
     }
 
     /// The athlete's best logged progress toward one rung's criterion.

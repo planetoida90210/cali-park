@@ -44,13 +44,31 @@ struct ProgressionFormatTests {
 
     @Test func equipmentFallsBackToBodyweight() {
         #expect(ProgressionFormat.equipment([]) == "Masa ciała")
-        #expect(ProgressionFormat.equipment(["Pull-up bar"]) == "Pull-up bar")
-        #expect(ProgressionFormat.equipment(["Pull-up bar", "Rings"]) == "Pull-up bar · Rings")
+        #expect(ProgressionFormat.equipment(["Pull-up bar"]) == "Drążek")
+        #expect(ProgressionFormat.equipment(["Pull-up bar", "Rings"]) == "Drążek · Kółka")
+        #expect(ProgressionFormat.equipment(ExerciseCatalog.flagEquipment) == "Pionowy drążek · Drabinki gimnastyczne")
     }
 
     @Test func spokenCriterionSpellsUnitsForVoiceOver() {
         #expect(ProgressionFormat.spokenCriterion(.setsOfReps(sets: 3, reps: 8)) == "3 serie po 8 powtórzeń")
         #expect(ProgressionFormat.spokenCriterion(.setsOfHold(sets: 3, seconds: 20)) == "3 serie po 20 sekund")
+    }
+
+    @Test func unilateralRungsCountPerSide() throws {
+        let archer = try #require(ProgressionCatalog.path(withID: .pullUp)?.steps.last)
+        #expect(archer.exerciseID == ExerciseCatalog.archerPullUpsID)
+        #expect(ProgressionFormat.criterion(for: archer) == "3 × 5 na rękę")
+        #expect(ProgressionFormat.spokenCriterion(for: archer) == "3 serie po 5 powtórzeń na rękę")
+
+        let lSit = try #require(ProgressionCatalog.path(withID: .lSit)?.steps.first { $0.exerciseID == ExerciseCatalog.oneLegLSitID })
+        #expect(ProgressionFormat.criterion(for: lSit) == "3 × 20 s na stronę")
+
+        let pistol = try #require(ProgressionCatalog.path(withID: .legs)?.steps.last)
+        let progress = RungProgress(criterion: pistol.criterion, bestValue: 3)
+        #expect(ProgressionFormat.progressLine(progress, side: pistol.unilateralSide) == "3 × 5 na nogę — Twoje najlepsze: 3 × 3")
+
+        let pullUps = try #require(ProgressionCatalog.path(withID: .pullUp)?.steps.first { $0.exerciseID == ExerciseCatalog.pullUpsID })
+        #expect(ProgressionFormat.criterion(for: pullUps) == "3 × 8")
     }
 }
 
@@ -117,14 +135,14 @@ struct SkillPathsViewModelTests {
     }
 
     @Test func placementSetsTheCurrentRung() {
-        // Declaring rung 4 (full pull-ups) conquers everything below it.
-        let placement = SkillPlacement(declaredRungByPath: [.pullUp: 4])
+        // Declaring full pull-ups (rung 5) conquers everything below it.
+        let placement = SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID])
         let viewModel = makeViewModel(placement: placement)
 
         #expect(viewModel.hasPlacement)
         let pullUp = try! #require(viewModel.summary(for: .pullUp))
-        #expect(pullUp.state.currentRungIndex == 4)
-        #expect(pullUp.state.conqueredRungCount == 4)
+        #expect(pullUp.state.currentRungIndex == 5)
+        #expect(pullUp.state.conqueredRungCount == 5)
         #expect(pullUp.currentStep.exerciseID == ExerciseCatalog.pullUpsID)
     }
 
@@ -138,11 +156,11 @@ struct SkillPathsViewModelTests {
         let viewModel = makeViewModel(logs: logs)
 
         let pullUp = try! #require(viewModel.summary(for: .pullUp))
-        // Conquering full pull-ups (index 4) puts the athlete on L-pull-ups (5).
-        #expect(pullUp.state.currentRungIndex == 5)
+        // Conquering full pull-ups (index 5) puts the athlete on L-pull-ups (6).
+        #expect(pullUp.state.currentRungIndex == 6)
         #expect(pullUp.currentStep.exerciseID == ExerciseCatalog.lPullUpsID)
 
-        // Volume plus five conquered rungs lifts the athlete past level 1.
+        // Volume plus six conquered rungs lifts the athlete past level 1.
         #expect(viewModel.level.level == 2)
     }
 

@@ -142,11 +142,11 @@ struct StableRungIdentityTests {
         let placement = try #require(try FileSkillPlacementStore(directory: directory).load())
         #expect(placement.declaredReference(for: .pullUp)?.step?.exerciseID == E.bandPullUpsID)
         #expect(placement.declaredReference(for: .pushUp)?.step?.exerciseID == E.pseudoPlanchePushUpsID)
-        #expect(placement.declaredRung(for: .pullUp) == 3)
+        #expect(placement.declaredRung(for: .pullUp) == 4)
         #expect(placement.declaredRung(for: .pushUp) == 5)
 
         let progress = try #require(try FileSkillProgressStore(directory: directory).load())
-        #expect(progress.celebratedRungs.compactMap(\.rungIndex).sorted() == [1, 3])
+        #expect(progress.celebratedRungs.compactMap(\.rungIndex).sorted() == [1, 4])
         #expect(progress.hasCelebrated(RungReference(pathID: .dip, stepID: E.negativeDipsID)))
     }
 
@@ -225,18 +225,18 @@ struct StableRungIdentityTests {
 @Suite("Lowering the placement floor never re-celebrates old rungs")
 struct LoweredFloorTests {
     @Test func loweringTheFloorAfterTrainingCelebratesNothing() {
-        let placed = SkillPlacement(declaredRungByPath: [.pullUp: 4])
+        let placed = SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID])
         let logs = [IntegrityFixture.pullUps3x8()]
         let baseline = RewardEvaluator.evaluate(logs: [], placement: placed, celebrated: nil).updatedProgress
 
         let trained = RewardEvaluator.evaluate(logs: logs, placement: placed, celebrated: baseline)
-        // Only the declared rung itself celebrates; 0…3 are recorded silently.
+        // Only the declared rung itself celebrates; 0…4 are recorded silently.
         #expect(IntegrityFixture.rungEvents(trained.pendingEvents) == [IntegrityFixture.pullUpRung])
-        let belowFloor = (0...3).compactMap { RungReference(pathID: .pullUp, rungIndex: $0) }
+        let belowFloor = (0...4).compactMap { RungReference(pathID: .pullUp, rungIndex: $0) }
         #expect(belowFloor.allSatisfy(trained.updatedProgress.hasCelebrated))
 
         let shown = trained.pendingEvents.reduce(trained.updatedProgress) { $0.markingCelebrated($1) }
-        for lowered in [nil, SkillPlacement.empty, SkillPlacement(declaredRungByPath: [.pullUp: 2])] {
+        for lowered in [nil, SkillPlacement.empty, SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.negativePullUpsID])] {
             let after = RewardEvaluator.evaluate(logs: logs, placement: lowered, celebrated: shown)
             #expect(after.pendingEvents.isEmpty)
         }
@@ -246,13 +246,13 @@ struct LoweredFloorTests {
     /// floor. The next evaluation fills in the ones below it silently, so a
     /// later floor drop stays quiet too.
     @Test func aRecordFromBeforeTheFixIsFilledInSilently() {
-        let placed = SkillPlacement(declaredRungByPath: [.pullUp: 4])
+        let placed = SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID])
         let logs = [IntegrityFixture.pullUps3x8()]
         let oldRecord = SkillProgress(celebratedRungs: [IntegrityFixture.pullUpRung], celebratedLevel: 2)
 
         let upgraded = RewardEvaluator.evaluate(logs: logs, placement: placed, celebrated: oldRecord)
         #expect(upgraded.pendingEvents.isEmpty)
-        #expect(upgraded.updatedProgress.celebratedRungs.count == 5)
+        #expect(upgraded.updatedProgress.celebratedRungs.count == 6)
 
         let lowered = RewardEvaluator.evaluate(logs: logs, placement: nil, celebrated: upgraded.updatedProgress)
         #expect(lowered.pendingEvents.isEmpty)
@@ -261,7 +261,7 @@ struct LoweredFloorTests {
     @MainActor
     @Test func recalibratingDownInTheAppShowsNoFalseOverlay() throws {
         let logStore = InMemoryWorkoutLogStore()
-        let placementStore = InMemorySkillPlacementStore(initial: SkillPlacement(declaredRungByPath: [.pullUp: 4]))
+        let placementStore = InMemorySkillPlacementStore(initial: SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID]))
         let progressStore = InMemorySkillProgressStore()
         let viewModel = SkillPathsViewModel(logStore: logStore, placementStore: placementStore, progressStore: progressStore)
 
@@ -417,7 +417,7 @@ struct RecalibrationTests {
 
         #expect(viewModel.didSave)
         let saved = try #require(store.load())
-        #expect(saved.declaredRung(for: .pullUp) == 4)
+        #expect(saved.declaredStepByPath[.pullUp] == ExerciseCatalog.pullUpsID)
         #expect(saved.declaredRung(for: .pushUp) == 3)
         #expect(saved.declaredRung(for: .muscleUp) == 3)
         #expect(saved.declaredRung(for: .dip) == 2)
@@ -475,7 +475,7 @@ struct RecalibrationTests {
 
         let result = try #require(store.load())
         #expect(result.declaredRung(for: .muscleUp) == nil)
-        #expect(result.declaredRung(for: .pullUp) == 4)
+        #expect(result.declaredStepByPath[.pullUp] == ExerciseCatalog.pullUpsID)
     }
 
     @Test func answeringAPathAgainReplacesOrClearsIt() throws {
@@ -488,15 +488,15 @@ struct RecalibrationTests {
         viewModel.save()
 
         let result = try #require(store.load())
-        #expect(result.declaredRung(for: .pullUp) == 5)
+        #expect(result.declaredStepByPath[.pullUp] == ExerciseCatalog.lPullUpsID)
         #expect(result.declaredRung(for: .legs) == nil)
     }
 
     @Test func saveMergesAgainstWhatIsSavedNow() throws {
-        let store = InMemorySkillPlacementStore(initial: SkillPlacement(declaredRungByPath: [.pullUp: 4]))
+        let store = InMemorySkillPlacementStore(initial: SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID]))
         let viewModel = PlacementCalibrationViewModel(store: store)
         // Another screen saves a push-up declaration while this form is open.
-        try store.save(SkillPlacement(declaredRungByPath: [.pullUp: 4, .pushUp: 3]))
+        try store.save(SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID, .pushUp: ExerciseCatalog.pushUpsID]))
 
         viewModel.select(.few, for: try Self.question(.dip))
         viewModel.save()

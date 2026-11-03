@@ -46,17 +46,18 @@ private enum Fixture {
 // MARK: - Path state from logs
 
 struct ProgressionEnginePathStateTests {
-    // Pull-up ladder indices: 0 dead hang, 1 scapular, 2 negatives,
-    // 3 band (parallel), 4 full pull-ups, 5 L-pull-ups, 6 archer.
+    // Pull-up ladder indices: 0 dead hang, 1 scapular, 2 arch hang,
+    // 3 negatives, 4 band (parallel), 5 full pull-ups, 6 L-pull-ups, 7 archer.
+    private static let pullUps = SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID])
 
     @Test
     func threeByEightInOneSessionConquersThroughFullPullUps() {
         let state = Fixture.pullUpState(logs: [Fixture.reps(ExerciseCatalog.pullUpsID, 8, 8, 8)])
-        // Rungs 0...4 conquered; now training L-pull-ups (index 5).
-        #expect(state.conqueredRungCount == 5)
-        #expect(state.currentRungIndex == 5)
-        #expect(state.isConquered(rungAt: 4))
-        #expect(!state.isConquered(rungAt: 5))
+        // Rungs 0...5 conquered; now training L-pull-ups (index 6).
+        #expect(state.conqueredRungCount == 6)
+        #expect(state.currentRungIndex == 6)
+        #expect(state.isConquered(rungAt: 5))
+        #expect(!state.isConquered(rungAt: 6))
         #expect(!state.isComplete)
     }
 
@@ -75,12 +76,11 @@ struct ProgressionEnginePathStateTests {
 
     @Test
     func currentRungProgressReportsBestWeakestSet() {
-        // Placement puts the athlete on full pull-ups (index 4); a near-miss
+        // Placement puts the athlete on full pull-ups (index 5); a near-miss
         // session (8, 6, 7) reports the weakest of the best 3 sets as progress.
-        let placement = SkillPlacement(declaredRungByPath: [.pullUp: 4])
-        let state = Fixture.pullUpState(logs: [Fixture.reps(ExerciseCatalog.pullUpsID, 8, 6, 7)], placement: placement)
-        // Not met (6 < 8), so full pull-ups (index 4) is still current.
-        #expect(state.currentRungIndex == 4)
+        let state = Fixture.pullUpState(logs: [Fixture.reps(ExerciseCatalog.pullUpsID, 8, 6, 7)], placement: Self.pullUps)
+        // Not met (6 < 8), so full pull-ups (index 5) is still current.
+        #expect(state.currentRungIndex == 5)
         #expect(state.currentProgress.bestValue == 6)
         #expect(state.currentProgress.targetValue == 8)
         #expect(!state.currentProgress.isMet)
@@ -89,9 +89,8 @@ struct ProgressionEnginePathStateTests {
     @Test
     func fewerSetsThanRequiredScoresZeroProgress() {
         // Only two sets logged for a 3-set criterion → no qualifying session.
-        let placement = SkillPlacement(declaredRungByPath: [.pullUp: 4])
-        let state = Fixture.pullUpState(logs: [Fixture.reps(ExerciseCatalog.pullUpsID, 12, 12)], placement: placement)
-        #expect(state.currentRungIndex == 4)
+        let state = Fixture.pullUpState(logs: [Fixture.reps(ExerciseCatalog.pullUpsID, 12, 12)], placement: Self.pullUps)
+        #expect(state.currentRungIndex == 5)
         #expect(state.currentProgress.bestValue == 0)
     }
 
@@ -120,7 +119,7 @@ struct ProgressionEnginePathStateTests {
     @Test
     func topRungConqueredMarksPathComplete() {
         let path = ProgressionCatalog.path(withID: .handstand)!
-        // Handstand top rung (index 2) is wall HSPU, 3 × 5 reps.
+        // Handstand top rung (index 5) is wall HSPU, 3 × 5 reps.
         let state = ProgressionEngine.pathState(
             for: path,
             logs: [Fixture.reps(ExerciseCatalog.wallHandstandPushUpsID, 5, 5, 5)],
@@ -138,37 +137,37 @@ struct ProgressionEnginePathStateTests {
 struct ProgressionEnginePlacementTests {
     @Test
     func declarationSetsStartingRungWithoutLogs() {
-        // Declare archer (index 6) as the current rung.
-        let placement = SkillPlacement(declaredRungByPath: [.pullUp: 6])
+        // Declare archer (index 7) as the current rung.
+        let placement = SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.archerPullUpsID])
         let state = Fixture.pullUpState(logs: [], placement: placement)
-        #expect(state.currentRungIndex == 6)
-        #expect(state.conqueredRungCount == 6)
-        #expect(state.isConquered(rungAt: 5))
-        #expect(!state.isConquered(rungAt: 6))
+        #expect(state.currentRungIndex == 7)
+        #expect(state.conqueredRungCount == 7)
+        #expect(state.isConquered(rungAt: 6))
+        #expect(!state.isConquered(rungAt: 7))
     }
 
     @Test
     func logsWinWhenTheyExceedTheDeclaration() {
-        // Declare negatives (index 2) but log full pull-ups (conquers through 4).
-        let placement = SkillPlacement(declaredRungByPath: [.pullUp: 2])
+        // Declare negatives (index 3) but log full pull-ups (conquers through 5).
+        let placement = SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.negativePullUpsID])
         let state = Fixture.pullUpState(
             logs: [Fixture.reps(ExerciseCatalog.pullUpsID, 8, 8, 8)],
             placement: placement
         )
-        #expect(state.conqueredRungCount == 5)
-        #expect(state.currentRungIndex == 5)
+        #expect(state.conqueredRungCount == 6)
+        #expect(state.currentRungIndex == 6)
     }
 
     @Test
     func declarationWinsWhenItExceedsTheLogs() {
-        // Declare archer (index 6); logs only reach full pull-ups (index 4).
-        let placement = SkillPlacement(declaredRungByPath: [.pullUp: 6])
+        // Declare archer (index 7); logs only reach full pull-ups (index 5).
+        let placement = SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.archerPullUpsID])
         let state = Fixture.pullUpState(
             logs: [Fixture.reps(ExerciseCatalog.pullUpsID, 8, 8, 8)],
             placement: placement
         )
-        #expect(state.currentRungIndex == 6)
-        #expect(state.conqueredRungCount == 6)
+        #expect(state.currentRungIndex == 7)
+        #expect(state.conqueredRungCount == 7)
     }
 
     @Test
@@ -207,18 +206,20 @@ struct ProgressionEngineExperienceTests {
     func declarationsNeverGrantXP() {
         // Placement is not an input to XP at all — no logs means no XP, whatever
         // the athlete declares.
-        let placement = SkillPlacement(declaredRungByPath: [.pullUp: 6])
+        let placement = SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.archerPullUpsID])
         let state = Fixture.pullUpState(logs: [], placement: placement)
-        #expect(state.currentRungIndex == 6)                 // declaration applied…
+        #expect(state.currentRungIndex == 7)                 // declaration applied…
         #expect(ProgressionEngine.experiencePoints(for: []) == 0) // …but zero XP.
     }
 
     @Test
     func xpCountsVolumePlusConqueredRungs() {
         // 3 × 8 pull-ups = 24 reps × 10 = 240 XP volume.
-        // Conquers through rung 4 → 5 rungs × 100 = 500 XP bonus. Total 740.
+        // Conquers through rung 5 → 6 rungs × 100 = 600 XP bonus. Total 840.
+        // (Before the 2026-11 revision added the arch hang it was 5 rungs and
+        // 740 XP: the one-time jump the owner accepted, see ProgressionCatalog.)
         let xp = ProgressionEngine.experiencePoints(for: [Fixture.reps(ExerciseCatalog.pullUpsID, 8, 8, 8)])
-        #expect(xp == 740)
+        #expect(xp == 840)
     }
 
     @Test

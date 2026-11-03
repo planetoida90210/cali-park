@@ -16,19 +16,34 @@ struct RepCountQuestion: Identifiable, Sendable {
     /// The question shown to the athlete, e.g. "Ile pełnych podciągnięć…".
     let prompt: String
     /// The rung declared when the athlete can't do a single rep yet — the
-    /// regression that builds toward the movement.
-    let zeroRepRung: Int
-    /// The rung of the movement the question counts.
-    let movementRung: Int
+    /// regression that builds toward the movement — as its step ID.
+    let zeroRepStep: UUID
+    /// The step ID of the movement the question counts.
+    let movementStep: UUID
+    /// The step ID made current at "12+": the next main-line variant above the
+    /// movement, to be earned through logs.
+    let nextVariantStep: UUID
 
     var id: ProgressionPathID { path }
 
-    /// The starting rung declared by an answer.
-    func rung(for bucket: RepCountBucket) -> Int {
+    /// The starting rung declared by an answer, as a step ID. Step IDs, not
+    /// positions, so inserting rungs never moves an answer's meaning.
+    func step(for bucket: RepCountBucket) -> UUID {
         switch bucket {
-        case .none: zeroRepRung
-        case .few, .several: movementRung
-        case .many: movementRung + 1
+        case .none: zeroRepStep
+        case .few, .several: movementStep
+        case .many: nextVariantStep
         }
+    }
+
+    /// The position in the current ladder of the rung an answer declares, or
+    /// `nil` if the step is not on the path.
+    func rung(for bucket: RepCountBucket) -> Int? {
+        RungReference(pathID: path, stepID: step(for: bucket)).rungIndex
+    }
+
+    /// The position of the counted movement in the current ladder.
+    var movementRung: Int? {
+        RungReference(pathID: path, stepID: movementStep).rungIndex
     }
 }

@@ -15,7 +15,14 @@ struct SkillQuestion: Identifiable, Sendable {
     let path: ProgressionPathID
     /// The checkbox label, e.g. "Muscle-up".
     let label: String
-    /// The starting rung declared when the athlete checks this skill. Always
-    /// greater than zero, so the declaration actually moves the starting point.
-    let rung: Int
+    /// The starting rung declared when the athlete checks this skill, as a
+    /// step ID. Never the bottom rung, so the declaration actually moves the
+    /// starting point.
+    let step: UUID
+
+    /// The position of the declared rung in the current ladder, or `nil` if
+    /// the step is not on the path.
+    var rung: Int? {
+        RungReference(pathID: path, stepID: step).rungIndex
+    }
 }

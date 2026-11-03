@@ -58,12 +58,19 @@ struct ProgressionCatalogTests {
     }
 
     @Test
-    func onlyBandPullUpsIsAParallelTrack() {
+    func bandPullUpsAndStepUpsAreTheParallelTracks() {
         let parallel = ProgressionCatalog.all
             .flatMap(\.steps)
             .filter(\.isParallelTrack)
             .map(\.exerciseID)
-        #expect(parallel == [ExerciseCatalog.bandPullUpsID])
+        #expect(parallel == [ExerciseCatalog.bandPullUpsID, ExerciseCatalog.stepUpsID])
+    }
+
+    /// A ladder never ends on a parallel track, so the engine always has a
+    /// main-line rung to make current.
+    @Test(arguments: ProgressionCatalog.all)
+    func pathEndsOnAMainLineRung(path: ProgressionPath) {
+        #expect(path.steps.last?.isParallelTrack == false)
     }
 
     @Test

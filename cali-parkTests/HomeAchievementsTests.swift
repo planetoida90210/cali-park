@@ -49,8 +49,7 @@ struct LastAdvancementTests {
 
         let reference = try #require(ProgressionEngine.lastAdvancement(from: logs))
 
-        // Full pull-ups sit at rung index 4 of the pull-up ladder.
-        #expect(reference == RungReference(pathID: .pullUp, rungIndex: 4)!)
+        #expect(reference == RungReference(pathID: .pullUp, stepID: ExerciseCatalog.pullUpsID))
     }
 
     @Test func theLatestConqueredRungWins() throws {
@@ -74,14 +73,14 @@ struct ProgressionHintTests {
     @Test func noPartialProgressYieldsNoHint() {
         // A returning athlete with a declaration but no logs: nothing is partway
         // done, so there's nothing to nudge toward.
-        let placement = SkillPlacement(declaredRungByPath: [.pullUp: 4])
+        let placement = SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID])
 
         #expect(ProgressionEngine.mostActionableHint(logs: [], placement: placement) == nil)
     }
 
     @Test func partialProgressOnTheCurrentRungIsActionable() throws {
-        // Declared at full pull-ups (rung 4); logged 3 × 6 there — 6 of 8 reps.
-        let placement = SkillPlacement(declaredRungByPath: [.pullUp: 4])
+        // Declared at full pull-ups (rung 5); logged 3 × 6 there — 6 of 8 reps.
+        let placement = SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID])
         let logs = [
             WorkoutLogEntry(
                 exerciseID: ExerciseCatalog.pullUpsID,
@@ -91,11 +90,11 @@ struct ProgressionHintTests {
 
         let hint = try #require(ProgressionEngine.mostActionableHint(logs: logs, placement: placement))
         #expect(hint.pathID == .pullUp)
-        #expect(hint.currentRungIndex == 4)
+        #expect(hint.currentRungIndex == 5)
 
         let line = try #require(ProgressionFormat.hintLine(hint))
         #expect(line.hasPrefix("Jeszcze 2 powtórzenia do 3 × 8"))
-        // The next rung (index 5) is what the athlete unlocks.
+        // The next rung (index 6) is what the athlete unlocks.
         let nextRungName = try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.lPullUpsID)?.name)
         #expect(line.contains("następny szczebel: \(nextRungName)"))
     }
@@ -130,20 +129,20 @@ struct HomeAchievementsSummaryTests {
         let vm = dashboard(entries: [AchievementFixture.reps3x8(ExerciseCatalog.pullUpsID)])
 
         let summary = vm.achievementsSummary
-        // 24 reps × 10 XP + five conquered rungs × 100 XP = 740 XP → level 2.
+        // 24 reps × 10 XP + six conquered rungs × 100 XP = 840 XP → level 2.
         #expect(summary.level == 2)
         #expect(summary.earnedBadgeCount >= 1) // at least the first-workout badge
 
         let advancement = try #require(summary.lastAdvancement)
         let path = try #require(ProgressionCatalog.path(withID: .pullUp))
-        let exercise = try #require(ExerciseCatalog.exercise(withID: path.steps[4].exerciseID))
+        let exercise = try #require(ExerciseCatalog.exercise(withID: path.steps[5].exerciseID))
         #expect(advancement.title == exercise.name)
         #expect(advancement.pathName == path.name)
         #expect(advancement.symbolName == path.symbolName)
     }
 
     @Test func theHintSurfacesThroughTheViewModel() throws {
-        let placement = SkillPlacement(declaredRungByPath: [.pullUp: 4])
+        let placement = SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID])
         let logs = [
             WorkoutLogEntry(
                 exerciseID: ExerciseCatalog.pullUpsID,
@@ -157,7 +156,7 @@ struct HomeAchievementsSummaryTests {
 
     // MARK: H1 regression — the placement store must not disturb heroState.
     @Test func placementDoesNotChangeHeroStateForAnEmptyJournal() {
-        let vm = dashboard(placement: SkillPlacement(declaredRungByPath: [.pullUp: 4]))
+        let vm = dashboard(placement: SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID]))
 
         #expect(vm.heroState(asOf: AchievementFixture.day(0)) == .firstRun)
         #expect(vm.progressionHint == nil)

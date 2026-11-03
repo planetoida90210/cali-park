@@ -25,6 +25,13 @@ struct Exercise: Identifiable, Codable, Equatable, Hashable {
     /// skill ladders. The parent is always a main movement (a flat, one-level
     /// hierarchy), never another variant.
     var variantOf: UUID?
+    /// How a one-sided exercise is counted ("na rękę", "na nogę", "na
+    /// stronę"); `nil` for a two-sided movement.
+    var unilateralSide: UnilateralSide?
+
+    /// Whether the exercise works one side at a time, so its targets count
+    /// per side.
+    var isUnilateral: Bool { unilateralSide != nil }
 
     init(id: UUID,
          name: String,
@@ -35,7 +42,8 @@ struct Exercise: Identifiable, Codable, Equatable, Hashable {
          symbolName: String,
          equipment: [String] = [],
          measurement: ExerciseMeasurement = .reps,
-         variantOf: UUID? = nil) {
+         variantOf: UUID? = nil,
+         unilateralSide: UnilateralSide? = nil) {
         self.id = id
         self.name = name
         self.category = category
@@ -46,14 +54,17 @@ struct Exercise: Identifiable, Codable, Equatable, Hashable {
         self.equipment = equipment
         self.measurement = measurement
         self.variantOf = variantOf
+        self.unilateralSide = unilateralSide
     }
 
     // MARK: Codable
-    // `measurement`, `variantOf` and `equipment` decode with defaults so
-    // catalog snapshots encoded before these fields existed still load.
+    // `measurement`, `variantOf`, `equipment` and `unilateralSide` decode with
+    // defaults so catalog snapshots encoded before these fields existed still
+    // load.
     private enum CodingKeys: String, CodingKey {
         case id, name, category, muscleGroups, description
         case instructions, symbolName, equipment, measurement, variantOf
+        case unilateralSide
     }
 
     init(from decoder: any Decoder) throws {
@@ -68,6 +79,7 @@ struct Exercise: Identifiable, Codable, Equatable, Hashable {
         equipment = try container.decodeIfPresent([String].self, forKey: .equipment) ?? []
         measurement = try container.decodeIfPresent(ExerciseMeasurement.self, forKey: .measurement) ?? .reps
         variantOf = try container.decodeIfPresent(UUID.self, forKey: .variantOf)
+        unilateralSide = try container.decodeIfPresent(UnilateralSide.self, forKey: .unilateralSide)
     }
 
     func hash(into hasher: inout Hasher) {

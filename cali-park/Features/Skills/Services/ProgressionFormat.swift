@@ -13,14 +13,22 @@ enum ProgressionFormat {
 
     /// The target for a rung: "3 × 8" for reps, "3 × 20 s" for holds, or the
     /// mastery markers "pierwsze czyste" / "pierwsze 5 s" for single-effort
-    /// skills.
-    static func criterion(_ criterion: AdvancementCriterion) -> String {
-        switch criterion {
+    /// skills. A unilateral rung counts per side: "3 × 5 na rękę".
+    static func criterion(_ criterion: AdvancementCriterion,
+                          side: UnilateralSide? = nil) -> String {
+        let target = switch criterion {
         case let .setsOfReps(sets, reps):
             sets == 1 && reps == 1 ? "pierwsze czyste" : "\(sets) × \(reps)"
         case let .setsOfHold(sets, seconds):
             sets == 1 ? "pierwsze \(seconds) \(secondsUnit)" : "\(sets) × \(seconds) \(secondsUnit)"
         }
+        return withSide(target, side)
+    }
+
+    /// The target for a step, counted per side when its exercise is
+    /// unilateral.
+    static func criterion(for step: ProgressionStep) -> String {
+        criterion(step.criterion, side: step.unilateralSide)
     }
 
     /// The athlete's best logged effort toward a rung, or `nil` when no session
@@ -40,8 +48,8 @@ enum ProgressionFormat {
 
     /// The target paired with the logged best: "3 × 8 — Twoje najlepsze: 3 × 6",
     /// or just the target when nothing counts yet.
-    static func progressLine(_ progress: RungProgress) -> String {
-        let target = criterion(progress.criterion)
+    static func progressLine(_ progress: RungProgress, side: UnilateralSide? = nil) -> String {
+        let target = criterion(progress.criterion, side: side)
         guard let best = best(progress) else { return target }
         return "\(target) — Twoje najlepsze: \(best)"
     }
@@ -61,10 +69,11 @@ enum ProgressionFormat {
         case .setsOfReps: remainingText = PolishPlural.reps(remaining)
         case .setsOfHold: remainingText = "\(remaining) \(secondsUnit)"
         }
-        let goal = criterion(hint.progress.criterion)
+        let goal = criterion(hint.progress.criterion, side: path.steps[hint.currentRungIndex].unilateralSide)
 
-        let nextIndex = hint.currentRungIndex + 1
-        if nextIndex < path.steps.count,
+        // The next rung to name skips parallel tracks: they are options, not
+        // the next step (audit A-3).
+        if let nextIndex = ProgressionEngine.nextMainLineRung(in: path, from: hint.currentRungIndex + 1),
            let next = ExerciseCatalog.exercise(withID: path.steps[nextIndex].exerciseID) {
             return "Jeszcze \(remainingText) do \(goal) — następny szczebel: \(next.name)"
         }
@@ -74,16 +83,19 @@ enum ProgressionFormat {
         return "Jeszcze \(remainingText) do \(goal) — \(current)"
     }
 
-    /// Equipment for a rung, joined for display; "Masa ciała" when a rung needs
-    /// none.
+    /// Equipment for a rung by its Polish names, joined for display; any one
+    /// piece is enough. "Masa ciała" when a rung needs none.
     static func equipment(_ equipment: [String]) -> String {
-        equipment.isEmpty ? "Masa ciała" : equipment.joined(separator: " · ")
+        equipment.isEmpty
+            ? "Masa ciała"
+            : equipment.map(EquipmentItem.displayName(for:)).joined(separator: " · ")
     }
 
     /// A spoken reading of a criterion for VoiceOver: "3 serie po 8 powtórzeń",
     /// "3 serie po 20 sekund", or the spelled-out mastery markers.
-    static func spokenCriterion(_ criterion: AdvancementCriterion) -> String {
-        switch criterion {
+    static func spokenCriterion(_ criterion: AdvancementCriterion,
+                                side: UnilateralSide? = nil) -> String {
+        let spoken = switch criterion {
         case let .setsOfReps(sets, reps):
             sets == 1 && reps == 1
                 ? "pierwsze czyste powtórzenie"
@@ -93,5 +105,17 @@ enum ProgressionFormat {
                 ? "pierwsze utrzymanie \(PolishPlural.seconds(seconds))"
                 : "\(PolishPlural.sets(sets)) po \(PolishPlural.seconds(seconds))"
         }
+        return withSide(spoken, side)
+    }
+
+    /// The spoken target for a step, per side when its exercise is unilateral.
+    static func spokenCriterion(for step: ProgressionStep) -> String {
+        spokenCriterion(step.criterion, side: step.unilateralSide)
+    }
+
+    /// Appends the per-side suffix ("na rękę") when there is one.
+    private static func withSide(_ text: String, _ side: UnilateralSide?) -> String {
+        guard let side else { return text }
+        return "\(text) \(side.label)"
     }
 }

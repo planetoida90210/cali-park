@@ -28,6 +28,11 @@ struct EquipmentItem: Identifiable, Hashable {
     let symbol: String
 
     /// Polish label. `name` stays the stored key shared with park data.
+    ///
+    /// Keys added since the park model (ticket 012) are OSM `fitness_station`
+    /// values (`fitness_pole`, `wall_bars`); the older English keys keep their
+    /// spelling so stored values still match. A key only changes its label
+    /// here, never its spelling.
     var displayName: String {
         Self.displayName(for: name)
     }
@@ -43,7 +48,9 @@ struct EquipmentItem: Identifiable, Hashable {
     private static let displayNames: [String: String] = [
         "Pull-up bar": "Drążek",
         "Dip bar": "Poręcze do dipów",
-        "Monkey bars": "Drabinki",
+        "Monkey bars": "Drabinka pozioma",
+        "fitness_pole": "Pionowy drążek",
+        "wall_bars": "Drabinki gimnastyczne",
         "Rings": "Kółka",
         "Push-up handles": "Uchwyty do pompek",
         "Parallel bars": "Poręcze",
@@ -60,7 +67,9 @@ struct EquipmentItem: Identifiable, Hashable {
     private static let shortNames: [String: String] = [
         "Pull-up bar": "Drążek",
         "Dip bar": "Dipy",
-        "Monkey bars": "Drabinki",
+        "Monkey bars": "Drabinka",
+        "fitness_pole": "Słup",
+        "wall_bars": "Drabinki",
         "Rings": "Kółka",
         "Push-up handles": "Pompki",
         "Parallel bars": "Poręcze",
@@ -82,6 +91,8 @@ extension EquipmentItem {
         "Pull-up bar": (.strength, "figure.pullup"),
         "Dip bar": (.strength, "flame"),
         "Monkey bars": (.strength, "rectangle.3.offgrid"),
+        "fitness_pole": (.strength, "figure.climbing"),
+        "wall_bars": (.strength, "ladder"),
         "Rings": (.strength, "circle.grid.cross"),
         "Push-up handles": (.strength, "hands.sparkles"),
         "Parallel bars": (.strength, "line.3.horizontal.decrease"),

@@ -187,8 +187,8 @@ private struct RungRow: View {
     private var subtitle: String {
         switch displayState {
         case .conquered: "Zaliczone"
-        case .current: ProgressionFormat.progressLine(progress)
-        case .future: ProgressionFormat.criterion(step.criterion)
+        case .current: ProgressionFormat.progressLine(progress, side: step.unilateralSide)
+        case .future: ProgressionFormat.criterion(for: step)
         }
     }
 
@@ -203,8 +203,8 @@ private struct RungRow: View {
     private var stateLabel: String {
         switch displayState {
         case .conquered: "Zaliczone"
-        case .current: "Trenujesz teraz. Cel: \(ProgressionFormat.spokenCriterion(step.criterion))"
-        case .future: "Cel: \(ProgressionFormat.spokenCriterion(step.criterion))"
+        case .current: "Trenujesz teraz. Cel: \(ProgressionFormat.spokenCriterion(for: step))"
+        case .future: "Cel: \(ProgressionFormat.spokenCriterion(for: step))"
         }
     }
 }

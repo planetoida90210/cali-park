@@ -67,9 +67,21 @@ struct StepDetailSheetView: View {
                 .foregroundStyle(Color.textSecondary)
                 .textCase(.uppercase)
 
-            Text(ProgressionFormat.criterion(step.criterion))
+            Text(ProgressionFormat.criterion(for: step))
                 .font(.title3)
                 .foregroundStyle(Color.textPrimary)
+
+            if let note = step.criterionNote {
+                Text(note)
+                    .font(.bodyMedium)
+                    .foregroundStyle(Color.textPrimary)
+            }
+
+            if step.unilateralSide != nil {
+                Text("Wpisz wynik słabszej strony.")
+                    .font(.bodySmall)
+                    .foregroundStyle(Color.textSecondary)
+            }
 
             if let best = ProgressionFormat.best(progress) {
                 Text("Twoje najlepsze: \(best)")
@@ -84,14 +96,27 @@ struct StepDetailSheetView: View {
             ProgressView(value: progress.fractionComplete)
                 .tint(Color.accent)
                 .padding(.top, 4)
+
+            Text("Skąd to kryterium? \(step.criterionSource.label). \(step.criterionSource.explanation)")
+                .font(.bodySmall)
+                .foregroundStyle(Color.textTertiary)
+                .padding(.top, 4)
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.componentBackground)
         .clipShape(.rect(cornerRadius: 12))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Cel: \(ProgressionFormat.spokenCriterion(step.criterion))")
+        .accessibilityLabel(accessibilityCriterion)
         .accessibilityValue(accessibilityProgress)
+    }
+
+    private var accessibilityCriterion: String {
+        var parts = ["Cel: \(ProgressionFormat.spokenCriterion(for: step))"]
+        if let note = step.criterionNote { parts.append(note) }
+        if step.unilateralSide != nil { parts.append("Wpisz wynik słabszej strony") }
+        parts.append("Źródło: \(step.criterionSource.explanation)")
+        return parts.joined(separator: ". ")
     }
 
     private var accessibilityProgress: String {
@@ -112,6 +137,12 @@ struct StepDetailSheetView: View {
             Text(ProgressionFormat.equipment(step.equipment))
                 .font(.bodyMedium)
                 .foregroundStyle(Color.textPrimary)
+
+            if let tip = step.tip {
+                Text("Wskazówka: \(tip)")
+                    .font(.bodySmall)
+                    .foregroundStyle(Color.textSecondary)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -181,7 +212,7 @@ private struct ExerciseInstructionsList: View {
 // MARK: - Preview
 #Preview {
     let path = ProgressionCatalog.path(withID: .pullUp)!
-    let step = path.steps[4]
+    let step = path.steps[3]
     return Color.appBackground
         .ignoresSafeArea()
         .sheet(isPresented: .constant(true)) {

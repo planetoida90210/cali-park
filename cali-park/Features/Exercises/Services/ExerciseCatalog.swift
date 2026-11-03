@@ -80,6 +80,29 @@ enum ExerciseCatalog {
     static let wallPlankID = UUID(uuidString: "E0000000-0000-4000-8000-000000000064")!
     static let wallHandstandHoldID = UUID(uuidString: "E0000000-0000-4000-8000-000000000065")!
 
+    // MARK: Stable identifiers — ladder revision (ticket 015)
+    // Rungs added by the 2026-11 ladder revision; all are variants of one of
+    // the 19 main movements, so the library list does not grow.
+    static let archHangID = UUID(uuidString: "E0000000-0000-4000-8000-000000000066")!
+    static let ringSupportHoldID = UUID(uuidString: "E0000000-0000-4000-8000-000000000067")!
+    static let splitSquatID = UUID(uuidString: "E0000000-0000-4000-8000-000000000068")!
+    static let bulgarianSplitSquatID = UUID(uuidString: "E0000000-0000-4000-8000-000000000069")!
+    static let oneFootSupportedLSitID = UUID(uuidString: "E0000000-0000-4000-8000-000000000070")!
+    static let straightArmFrogStandID = UUID(uuidString: "E0000000-0000-4000-8000-000000000071")!
+    static let halfLayPlancheID = UUID(uuidString: "E0000000-0000-4000-8000-000000000072")!
+    static let advancedTuckFlagID = UUID(uuidString: "E0000000-0000-4000-8000-000000000073")!
+    static let pikePushUpsID = UUID(uuidString: "E0000000-0000-4000-8000-000000000074")!
+    static let elevatedPikePushUpsID = UUID(uuidString: "E0000000-0000-4000-8000-000000000075")!
+    static let wallHandstandPushUpNegativesID = UUID(uuidString: "E0000000-0000-4000-8000-000000000076")!
+
+    // MARK: Equipment keys
+    /// A vertical pole for the human flag (OSM `fitness_station=fitness_pole`).
+    static let verticalPoleEquipment = "fitness_pole"
+    /// Wall bars, the gymnastic ladder against a wall (OSM `wall_bars`).
+    static let wallBarsEquipment = "wall_bars"
+    /// Where a flag can be trained: any one of these is enough.
+    static let flagEquipment = [verticalPoleEquipment, wallBarsEquipment]
+
     // MARK: Lookup
     /// Fast lookup used by log history and Home modules.
     static func exercise(withID id: UUID) -> Exercise? {
@@ -176,7 +199,8 @@ enum ExerciseCatalog {
                 "Tułów pionowo, przednie kolano nad stopą.",
                 "Odepchnij się i wróć do pozycji wyjściowej."
             ],
-            symbolName: "figure.strengthtraining.functional"
+            symbolName: "figure.strengthtraining.functional",
+            unilateralSide: .leg
         ),
         Exercise(
             id: plankID,
@@ -237,7 +261,8 @@ enum ExerciseCatalog {
                 "Ręce przed sobą dla równowagi.",
                 "Wstań bez odbicia i dotykania ziemi drugą nogą."
             ],
-            symbolName: "figure.strengthtraining.functional"
+            symbolName: "figure.strengthtraining.functional",
+            unilateralSide: .leg
         ),
         Exercise(
             id: wallHandstandPushUpsID,
@@ -282,7 +307,8 @@ enum ExerciseCatalog {
                 "Opuść się powoli i zmień stronę."
             ],
             symbolName: "figure.climbing",
-            equipment: ["Pull-up bar"]
+            equipment: ["Pull-up bar"],
+            unilateralSide: .arm
         ),
         Exercise(
             id: ringDipsID,
@@ -359,7 +385,7 @@ enum ExerciseCatalog {
                 "Utrzymaj napięcie całego ciała."
             ],
             symbolName: "figure.climbing",
-            equipment: ["Pull-up bar"],
+            equipment: flagEquipment,
             measurement: .seconds
         ),
         Exercise(
@@ -428,8 +454,24 @@ enum ExerciseCatalog {
             instructions: [
                 "Zwiśnij na drążku z wyprostowanych ramion.",
                 "Bez zginania łokci ściągnij łopatki w dół i do siebie.",
-                "Unieś klatkę o kilka centymetrów.",
+                "Unieś klatkę o kilka centymetrów i zatrzymaj się tak na 3–5 sekund.",
                 "Wróć powoli do pełnego zwisu i powtórz."
+            ],
+            symbolName: "figure.climbing",
+            equipment: ["Pull-up bar"],
+            variantOf: pullUpsID
+        ),
+        Exercise(
+            id: archHangID,
+            name: "Zwis z wygięciem",
+            category: .basic,
+            muscleGroups: [.back, .shoulders],
+            description: "Ze zwisu ściągasz łopatki i wypychasz klatkę w stronę drążka, z prostymi łokciami. Uczy pozycji górnych pleców, z której ruszają mocne podciągnięcia.",
+            instructions: [
+                "Zwiśnij na drążku nachwytem, ramiona proste.",
+                "Ściągnij łopatki w dół i do tyłu, wypchnij klatkę w stronę drążka.",
+                "Łokcie zostają proste — pracują łopatki i górne plecy.",
+                "Zatrzymaj się na chwilę w wygięciu, wróć do zwisu i powtórz."
             ],
             symbolName: "figure.climbing",
             equipment: ["Pull-up bar"],
@@ -440,11 +482,11 @@ enum ExerciseCatalog {
             name: "Negatywy podciągnięć",
             category: .basic,
             muscleGroups: [.back, .arms],
-            description: "Powolne opuszczanie z góry drążka. Buduje siłę do pierwszego pełnego podciągnięcia.",
+            description: "Powolne opuszczanie z góry drążka. Buduje siłę do pierwszego pełnego podciągnięcia. Liczy się zjazd trwający 5–10 sekund.",
             instructions: [
                 "Wejdź brodą nad drążek z podskoku lub podpórki.",
                 "Napnij plecy i ramiona.",
-                "Opuszczaj się jak najwolniej — celuj w 3–5 sekund.",
+                "Opuszczaj się równo i powoli — jedno powtórzenie to 5–10 sekund zjazdu.",
                 "Zejdź do pełnego zwisu i powtórz."
             ],
             symbolName: "figure.climbing",
@@ -547,7 +589,8 @@ enum ExerciseCatalog {
             ],
             symbolName: "figure.play",
             equipment: ["Pull-up bar", "Parallel bars"],
-            variantOf: australianPullUpsID
+            variantOf: australianPullUpsID,
+            unilateralSide: .arm
         ),
         Exercise(
             id: tuckFrontLeverRowsID,
@@ -640,7 +683,6 @@ enum ExerciseCatalog {
                 "Wypchnij się, nie cofając barków za dłonie."
             ],
             symbolName: "figure.gymnastics",
-            equipment: ["Push-up handles"],
             variantOf: pushUpsID
         ),
 
@@ -667,16 +709,33 @@ enum ExerciseCatalog {
             name: "Negatywy dipów",
             category: .basic,
             muscleGroups: [.chest, .arms, .shoulders],
-            description: "Powolne opuszczanie w dipie. Buduje siłę do pierwszego pełnego dipa.",
+            description: "Powolne opuszczanie w dipie. Buduje siłę do pierwszego pełnego dipa. Liczy się zjazd trwający 5–10 sekund.",
             instructions: [
                 "Wejdź w podpór na poręczach, ramiona wyprostowane.",
                 "Pochyl tułów lekko do przodu.",
-                "Opuszczaj się jak najwolniej — celuj w 3–5 sekund.",
+                "Opuszczaj się równo i powoli — jedno powtórzenie to 5–10 sekund zjazdu.",
                 "Zejdź na dół i wróć na górę nogami lub podskokiem."
             ],
             symbolName: "figure.strengthtraining.traditional",
             equipment: ["Dip bar", "Parallel bars"],
             variantOf: dipsID
+        ),
+        Exercise(
+            id: ringSupportHoldID,
+            name: "Podpór na kółkach",
+            category: .advanced,
+            muscleGroups: [.chest, .arms, .shoulders],
+            description: "Podpór na prostych rękach na kółkach. Uczy panowania nad niestabilnym chwytem, zanim zaczniesz dipy na kółkach.",
+            instructions: [
+                "Wejdź w podpór na kółkach, ramiona proste, kółka przy biodrach.",
+                "Ściągnij barki w dół, napnij brzuch i pośladki.",
+                "Dociśnij kółka do boków, żeby się nie rozjeżdżały.",
+                "Z czasem obracaj kółka na zewnątrz, kciukami od siebie."
+            ],
+            symbolName: "figure.strengthtraining.traditional",
+            equipment: ["Rings"],
+            measurement: .seconds,
+            variantOf: ringDipsID
         ),
 
         // MARK: Warianty — Nogi
@@ -696,6 +755,38 @@ enum ExerciseCatalog {
             variantOf: squatsID
         ),
         Exercise(
+            id: splitSquatID,
+            name: "Przysiad wykroczny",
+            category: .basic,
+            muscleGroups: [.legs],
+            description: "Przysiad w stałym rozkroku: stopy się nie ruszają, ty schodzisz i wstajesz. Stabilniejszy niż wykroki, mocniej buduje przednią nogę.",
+            instructions: [
+                "Stań w długim rozkroku, jedna stopa z przodu, druga z tyłu na palcach.",
+                "Zejdź w dół, aż tylne kolano prawie dotknie ziemi.",
+                "Tułów pionowo, ciężar na przedniej nodze.",
+                "Wstań, nie ruszając stóp, a po serii zmień nogę."
+            ],
+            symbolName: "figure.strengthtraining.functional",
+            variantOf: lungesID,
+            unilateralSide: .leg
+        ),
+        Exercise(
+            id: bulgarianSplitSquatID,
+            name: "Przysiad bułgarski",
+            category: .advanced,
+            muscleGroups: [.legs, .core],
+            description: "Przysiad wykroczny z tylną stopą na ławce. Prawie cały ciężar idzie na przednią nogę, więc to dobry krok w stronę pistoletu.",
+            instructions: [
+                "Stań przodem od ławki i połóż na niej grzbiet tylnej stopy.",
+                "Przednia stopa daleko z przodu, tułów pionowo.",
+                "Zejdź, aż przednie udo będzie mniej więcej równoległe do ziemi.",
+                "Wypchnij się przednią nogą, a po serii zmień stronę."
+            ],
+            symbolName: "figure.strengthtraining.functional",
+            variantOf: lungesID,
+            unilateralSide: .leg
+        ),
+        Exercise(
             id: stepUpsID,
             name: "Wejścia na podwyższenie",
             category: .basic,
@@ -708,7 +799,8 @@ enum ExerciseCatalog {
                 "Zejdź powoli i powtórz, zmieniając nogę."
             ],
             symbolName: "figure.strengthtraining.functional",
-            variantOf: lungesID
+            variantOf: lungesID,
+            unilateralSide: .leg
         ),
         Exercise(
             id: assistedPistolSquatsID,
@@ -723,7 +815,8 @@ enum ExerciseCatalog {
                 "Wstań na jednej nodze, minimalnie pomagając rękami."
             ],
             symbolName: "figure.strengthtraining.functional",
-            variantOf: pistolSquatsID
+            variantOf: pistolSquatsID,
+            unilateralSide: .leg
         ),
 
         // MARK: Warianty — Core
@@ -813,21 +906,22 @@ enum ExerciseCatalog {
             variantOf: lSitID
         ),
         Exercise(
-            id: oneLegLSitID,
-            name: "L-sit na jednej nodze",
-            category: .advanced,
+            id: oneFootSupportedLSitID,
+            name: "L-sit z podporem jednej stopy",
+            category: .basic,
             muscleGroups: [.core, .arms],
-            description: "L-sit z jedną nogą uniesioną, drugą podkurczoną. Krok do pełnego L-sit.",
+            description: "L-sit, w którym jedna pięta zostaje na ziemi, a druga prosta noga wisi w powietrzu. Pierwszy krok do uniesienia obu nóg.",
             instructions: [
-                "Podpór na poręczach, ramiona wyprostowane, barki w dół.",
-                "Unieś jedną prostą nogę do poziomu.",
-                "Drugą nogę podkurcz, by odciążyć pozycję.",
-                "Utrzymaj pozycję i zmieniaj nogi między seriami."
+                "Podpór na poręczach lub uchwytach, ramiona proste, barki w dół.",
+                "Jedną prostą nogę oprzyj piętą o ziemię.",
+                "Drugą prostą nogę unieś nad ziemię.",
+                "Trzymaj pozycję i zmieniaj nogi między seriami."
             ],
             symbolName: "figure.core.training",
             equipment: ["Parallel bars", "Push-up handles"],
             measurement: .seconds,
-            variantOf: lSitID
+            variantOf: lSitID,
+            unilateralSide: .side
         ),
         Exercise(
             id: tuckLSitID,
@@ -845,6 +939,24 @@ enum ExerciseCatalog {
             equipment: ["Parallel bars", "Push-up handles"],
             measurement: .seconds,
             variantOf: lSitID
+        ),
+        Exercise(
+            id: oneLegLSitID,
+            name: "L-sit na jednej nodze",
+            category: .advanced,
+            muscleGroups: [.core, .arms],
+            description: "L-sit z jedną nogą prostą w poziomie i drugą podkurczoną. Trudniejszy niż tuck L-sit, ostatni krok przed pełnym L-sitem.",
+            instructions: [
+                "Podpór na poręczach, ramiona wyprostowane, barki w dół.",
+                "Unieś jedną prostą nogę do poziomu.",
+                "Drugą nogę podkurcz, by odciążyć pozycję.",
+                "Utrzymaj pozycję i zmieniaj nogi między seriami."
+            ],
+            symbolName: "figure.core.training",
+            equipment: ["Parallel bars", "Push-up handles"],
+            measurement: .seconds,
+            variantOf: lSitID,
+            unilateralSide: .side
         ),
 
         // MARK: Warianty — Front lever
@@ -1034,7 +1146,22 @@ enum ExerciseCatalog {
                 "Utrzymaj balans przez zaplanowany czas."
             ],
             symbolName: "figure.gymnastics",
-            equipment: ["Push-up handles"],
+            measurement: .seconds,
+            variantOf: plancheID
+        ),
+        Exercise(
+            id: straightArmFrogStandID,
+            name: "Żabka na prostych rękach",
+            category: .advanced,
+            muscleGroups: [.shoulders, .arms, .core],
+            description: "Żabka z wyprostowanymi łokciami: kolana opierasz wysoko o ramiona, a ciężar trzymasz na prostych rękach. Uczy pochylenia barków przed dłonie, jak w planche.",
+            instructions: [
+                "Kucnij, dłonie na ziemi na szerokość barków, palce do przodu.",
+                "Oprzyj kolana wysoko o tył ramion, łokcie proste.",
+                "Pochyl barki przed dłonie i oderwij stopy.",
+                "Utrzymaj balans przez zaplanowany czas."
+            ],
+            symbolName: "figure.gymnastics",
             measurement: .seconds,
             variantOf: plancheID
         ),
@@ -1089,6 +1216,23 @@ enum ExerciseCatalog {
             measurement: .seconds,
             variantOf: plancheID
         ),
+        Exercise(
+            id: halfLayPlancheID,
+            name: "Half-lay planche",
+            category: .expert,
+            muscleGroups: [.shoulders, .arms, .core],
+            description: "Planche ze złączonymi nogami zgiętymi w biodrach. Ostatni krok przed pełną planche, jak half-lay we front i back leverze.",
+            instructions: [
+                "Wejdź w podpór z mocną protrakcją i ciężarem przed dłońmi.",
+                "Złącz nogi i zegnij biodra, skracając dźwignię.",
+                "Trzymaj plecy i barki w poziomie.",
+                "Utrzymaj pozycję przez zaplanowany czas."
+            ],
+            symbolName: "figure.gymnastics",
+            equipment: ["Push-up handles", "Parallel bars"],
+            measurement: .seconds,
+            variantOf: plancheID
+        ),
 
         // MARK: Warianty — Flaga
         Exercise(
@@ -1104,7 +1248,7 @@ enum ExerciseCatalog {
                 "Utrzymaj napięcie przez zaplanowany czas."
             ],
             symbolName: "figure.climbing",
-            equipment: ["Pull-up bar"],
+            equipment: flagEquipment,
             measurement: .seconds,
             variantOf: humanFlagID
         ),
@@ -1121,7 +1265,24 @@ enum ExerciseCatalog {
                 "Utrzymaj pozycję przez zaplanowany czas."
             ],
             symbolName: "figure.climbing",
-            equipment: ["Pull-up bar"],
+            equipment: flagEquipment,
+            measurement: .seconds,
+            variantOf: humanFlagID
+        ),
+        Exercise(
+            id: advancedTuckFlagID,
+            name: "Advanced tuck flaga",
+            category: .expert,
+            muscleGroups: [.core, .shoulders, .back],
+            description: "Flaga z otwartymi biodrami i kolanami odsuniętymi od klatki. Cięższa dźwignia niż tuck, krok przed flagą w rozkroku.",
+            instructions: [
+                "Ustaw ręce na pionowym drążku jak do flagi.",
+                "Wejdź w tuck flagę z ciałem w poziomie.",
+                "Otwórz biodra i odsuń kolana od klatki, plecy płasko.",
+                "Utrzymaj pozycję przez zaplanowany czas."
+            ],
+            symbolName: "figure.climbing",
+            equipment: flagEquipment,
             measurement: .seconds,
             variantOf: humanFlagID
         ),
@@ -1138,7 +1299,7 @@ enum ExerciseCatalog {
                 "Utrzymaj linię ciała przez zaplanowany czas."
             ],
             symbolName: "figure.climbing",
-            equipment: ["Pull-up bar"],
+            equipment: flagEquipment,
             measurement: .seconds,
             variantOf: humanFlagID
         ),
@@ -1174,6 +1335,51 @@ enum ExerciseCatalog {
             ],
             symbolName: "figure.gymnastics",
             measurement: .seconds,
+            variantOf: wallHandstandPushUpsID
+        ),
+        Exercise(
+            id: pikePushUpsID,
+            name: "Pompki pike",
+            category: .basic,
+            muscleGroups: [.shoulders, .arms],
+            description: "Pompki z biodrami wysoko, ciało w kształcie odwróconego V. Przenoszą pchanie z klatki na barki i uczą ruchu pompki w staniu na rękach.",
+            instructions: [
+                "Podpór przodem, przejdź stopami w stronę rąk, aż biodra będą wysoko.",
+                "Głowa między ramionami, ciężar nad dłońmi.",
+                "Opuść czubek głowy w stronę ziemi przed dłońmi.",
+                "Wypchnij się do wyprostu ramion."
+            ],
+            symbolName: "figure.strengthtraining.traditional",
+            variantOf: wallHandstandPushUpsID
+        ),
+        Exercise(
+            id: elevatedPikePushUpsID,
+            name: "Pompki pike z nogami na podwyższeniu",
+            category: .advanced,
+            muscleGroups: [.shoulders, .arms, .core],
+            description: "Pompki pike ze stopami na ławce lub skrzyni. Tułów jest bliżej pionu, więc barki dźwigają więcej ciężaru ciała.",
+            instructions: [
+                "Oprzyj stopy na ławce, dłonie na ziemi pod barkami.",
+                "Podejdź rękami do ławki, aż biodra znajdą się nad barkami.",
+                "Opuść głowę w stronę ziemi, łokcie lekko do przodu.",
+                "Wypchnij się do wyprostu ramion."
+            ],
+            symbolName: "figure.strengthtraining.traditional",
+            variantOf: wallHandstandPushUpsID
+        ),
+        Exercise(
+            id: wallHandstandPushUpNegativesID,
+            name: "Negatywy pompek w staniu przy ścianie",
+            category: .advanced,
+            muscleGroups: [.shoulders, .arms, .core],
+            description: "Powolne opuszczanie w staniu na rękach przy ścianie. Buduje siłę do pierwszej pełnej pompki w staniu. Liczy się zjazd trwający 5–10 sekund.",
+            instructions: [
+                "Wejdź w stanie na rękach przy ścianie.",
+                "Opuszczaj się równo i powoli — 5–10 sekund do lekkiego dotknięcia głową ziemi.",
+                "Zejdź z pozycji nogami, zamiast się wypychać.",
+                "Wejdź ponownie i powtórz."
+            ],
+            symbolName: "figure.gymnastics",
             variantOf: wallHandstandPushUpsID
         )
     ]

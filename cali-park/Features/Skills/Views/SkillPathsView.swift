@@ -186,7 +186,7 @@ private struct SkillPathCard: View {
                 ProgressView(value: summary.currentProgress.fractionComplete)
                     .tint(Color.accent)
 
-                Text(ProgressionFormat.criterion(summary.currentStep.criterion))
+                Text(ProgressionFormat.criterion(for: summary.currentStep))
                     .font(.bodySmall)
                     .foregroundStyle(Color.textTertiary)
             }
@@ -203,7 +203,7 @@ private struct SkillPathCard: View {
         if summary.state.isComplete {
             return "\(summary.path.name). Ukończone."
         }
-        return "\(summary.path.name). Teraz: \(currentExercise?.name ?? ""). Cel: \(ProgressionFormat.spokenCriterion(summary.currentStep.criterion))."
+        return "\(summary.path.name). Teraz: \(currentExercise?.name ?? ""). Cel: \(ProgressionFormat.spokenCriterion(for: summary.currentStep))."
     }
 }
 

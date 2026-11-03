@@ -21,39 +21,49 @@ enum PlacementCalibration {
     /// Rep-count questions, one per rep-based path. A count never conquers a
     /// variant harder than the counted movement (see `RepCountQuestion`); those
     /// come from logs or, for skills a count can't capture, the checkboxes below.
+    ///
+    /// Answers name rungs by step ID, so inserting rungs never changes where
+    /// an answer lands. After the 2026-11 revision (ticket 015) the outcomes
+    /// are the same as before except dips at "12+", which now start on the
+    /// ring support hold that RR asks for before ring dips.
     static let repQuestions: [RepCountQuestion] = [
         RepCountQuestion(
             path: .pullUp,
             prompt: "Ile pełnych podciągnięć robisz w jednej serii?",
-            zeroRepRung: 2,     // negatives
-            movementRung: 4     // pull-ups
+            zeroRepStep: ExerciseCatalog.negativePullUpsID,
+            movementStep: ExerciseCatalog.pullUpsID,
+            nextVariantStep: ExerciseCatalog.lPullUpsID
         ),
         RepCountQuestion(
             path: .pushUp,
             prompt: "Ile pełnych pompek robisz w jednej serii?",
-            zeroRepRung: 2,     // knee push-ups
-            movementRung: 3     // push-ups
+            zeroRepStep: ExerciseCatalog.kneePushUpsID,
+            movementStep: ExerciseCatalog.pushUpsID,
+            nextVariantStep: ExerciseCatalog.diamondPushUpsID
         ),
         RepCountQuestion(
             path: .dip,
             prompt: "Ile dipów na poręczach robisz w jednej serii?",
-            zeroRepRung: 1,     // negatives
-            movementRung: 2     // dips
+            zeroRepStep: ExerciseCatalog.negativeDipsID,
+            movementStep: ExerciseCatalog.dipsID,
+            nextVariantStep: ExerciseCatalog.ringSupportHoldID
         ),
         RepCountQuestion(
             path: .legs,
             prompt: "Ile przysiadów robisz w jednej serii?",
-            zeroRepRung: 0,     // assisted squats
-            movementRung: 1     // squats
+            zeroRepStep: ExerciseCatalog.assistedSquatsID,
+            movementStep: ExerciseCatalog.squatsID,
+            nextVariantStep: ExerciseCatalog.lungesID
         )
     ]
 
     /// Skill checkboxes for movements that a rep count cannot capture. Each
-    /// declares a rung above zero so checking it actually moves the start point.
+    /// declares the skill itself as the current rung, so checking it actually
+    /// moves the start point.
     static let skillQuestions: [SkillQuestion] = [
-        SkillQuestion(id: "muscleUp", path: .muscleUp, label: "Muscle-up", rung: 3),
-        SkillQuestion(id: "fullLSit", path: .lSit, label: "Pełny L-sit", rung: 3),
-        SkillQuestion(id: "pistolSquat", path: .legs, label: "Pistolet (przysiad na jednej nodze)", rung: 5)
+        SkillQuestion(id: "muscleUp", path: .muscleUp, label: "Muscle-up", step: ExerciseCatalog.muscleUpID),
+        SkillQuestion(id: "fullLSit", path: .lSit, label: "Pełny L-sit", step: ExerciseCatalog.lSitID),
+        SkillQuestion(id: "pistolSquat", path: .legs, label: "Pistolet (przysiad na jednej nodze)", step: ExerciseCatalog.pistolSquatsID)
     ]
 
     // MARK: Reducer
@@ -64,24 +74,34 @@ enum PlacementCalibration {
                           masteredSkills: Set<String>,
                           ownsBand: Bool,
                           declaredAt: Date = .now) -> SkillPlacement {
-        var declaredRungByPath: [ProgressionPathID: Int] = [:]
+        var declared: [ProgressionPathID: RungReference] = [:]
+
+        // Keeps the higher of two declarations on one path, by current position.
+        func declare(_ step: UUID, on path: ProgressionPathID) {
+            let candidate = RungReference(pathID: path, stepID: step)
+            guard let index = candidate.rungIndex else { return }
+            if let existing = declared[path]?.rungIndex, existing >= index { return }
+            declared[path] = candidate
+        }
 
         for question in repQuestions {
             guard let bucket = repAnswers[question.id] else { continue }
-            let rung = question.rung(for: bucket)
-            declaredRungByPath[question.path] = max(declaredRungByPath[question.path] ?? 0, rung)
+            declare(question.step(for: bucket), on: question.path)
         }
 
         for question in skillQuestions where masteredSkills.contains(question.id) {
-            declaredRungByPath[question.path] = max(declaredRungByPath[question.path] ?? 0, question.rung)
+            declare(question.step, on: question.path)
         }
 
-        // A rung-0 declaration is identical to no declaration (nothing below to
-        // conquer), so drop it to keep the stored map minimal and meaningful.
-        let meaningfulDeclarations = declaredRungByPath.filter { $0.value > 0 }
+        // A bottom-rung declaration is identical to no declaration (nothing
+        // below to conquer), so drop it to keep the stored map minimal and
+        // meaningful.
+        let meaningfulDeclarations = declared
+            .filter { ($0.value.rungIndex ?? 0) > 0 }
+            .mapValues(\.stepID)
 
         return SkillPlacement(
-            declaredRungByPath: meaningfulDeclarations,
+            declaredStepByPath: meaningfulDeclarations,
             ownedEquipment: ownsBand ? [bandEquipment] : [],
             declaredAt: declaredAt
         )
@@ -99,18 +119,18 @@ enum PlacementCalibration {
         var repAnswers: [ProgressionPathID: RepCountBucket] = [:]
         var masteredSkills: Set<String> = []
 
-        for question in skillQuestions where placement.declaredRung(for: question.path) == question.rung {
+        for question in skillQuestions where placement.declaredStepByPath[question.path] == question.step {
             masteredSkills.insert(question.id)
         }
 
         for question in repQuestions {
-            guard let rung = placement.declaredRung(for: question.path) else { continue }
+            guard let declaredStep = placement.declaredStepByPath[question.path] else { continue }
             // A checked skill explains this rung; the rep count is unknown.
             let explainedBySkill = skillQuestions.contains {
                 $0.path == question.path && masteredSkills.contains($0.id)
             }
             guard !explainedBySkill else { continue }
-            let matching = RepCountBucket.allCases.filter { question.rung(for: $0) == rung }
+            let matching = RepCountBucket.allCases.filter { question.step(for: $0) == declaredStep }
             if matching.count == 1, let bucket = matching.first {
                 repAnswers[question.path] = bucket
             }

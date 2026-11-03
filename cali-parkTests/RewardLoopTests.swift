@@ -23,8 +23,9 @@ private enum RewardFixture {
         )
     }
 
-    /// The rung references the full-pull-up session conquers (indices 0…4).
-    static let conqueredPullUpRungs = (0...4).map { RungReference(pathID: .pullUp, rungIndex: $0)! }
+    /// The rung references the full-pull-up session conquers (indices 0…5;
+    /// full pull-ups sit at index 5).
+    static let conqueredPullUpRungs = (0...5).map { RungReference(pathID: .pullUp, rungIndex: $0)! }
 }
 
 // MARK: - RewardEvaluator
@@ -35,7 +36,7 @@ struct RewardEvaluatorTests {
 
         #expect(evaluation.pendingEvents.isEmpty)
         #expect(RewardFixture.conqueredPullUpRungs.allSatisfy { evaluation.updatedProgress.celebratedRungs.contains($0) })
-        // Volume plus five conquered rungs already lifts the athlete to level 2.
+        // Volume plus six conquered rungs already lifts the athlete to level 2.
         #expect(evaluation.updatedProgress.celebratedLevel == 2)
     }
 
@@ -77,9 +78,9 @@ struct RewardEvaluatorTests {
     }
 
     @Test func rungsBelowTheDeclaredFloorDoNotCelebrate() {
-        // A pro who declared archer (rung 6) logs full pull-ups (rung 4) — below
+        // A pro who declared archer (rung 7) logs full pull-ups (rung 5) — below
         // their declaration. That is not a fresh advance, so nothing celebrates.
-        let placement = SkillPlacement(declaredRungByPath: [.pullUp: 6])
+        let placement = SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.archerPullUpsID])
         let baseline = RewardEvaluator.evaluate(logs: [], placement: placement, celebrated: nil).updatedProgress
         let evaluation = RewardEvaluator.evaluate(logs: [RewardFixture.pullUps3x8()], placement: placement, celebrated: baseline)
 
@@ -159,7 +160,7 @@ struct SkillPathsRewardTests {
         // only — so nothing is celebrated and no badge is granted.
         let viewModel = SkillPathsViewModel(
             logStore: InMemoryWorkoutLogStore(),
-            placementStore: InMemorySkillPlacementStore(initial: SkillPlacement(declaredRungByPath: [.pullUp: 6])),
+            placementStore: InMemorySkillPlacementStore(initial: SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.archerPullUpsID])),
             progressStore: InMemorySkillProgressStore()
         )
 
