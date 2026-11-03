@@ -168,8 +168,8 @@ final class HomeDashboardViewModel {
     /// Resolves a rung reference into display names from the catalogs.
     private func resolveAdvancement(_ reference: RungReference) -> HomeAchievementsSummary.Advancement? {
         guard let path = ProgressionCatalog.path(withID: reference.pathID),
-              reference.rungIndex < path.steps.count,
-              let exercise = ExerciseCatalog.exercise(withID: path.steps[reference.rungIndex].exerciseID)
+              let step = reference.step,
+              let exercise = ExerciseCatalog.exercise(withID: step.exerciseID)
         else { return nil }
         return HomeAchievementsSummary.Advancement(
             title: exercise.name,

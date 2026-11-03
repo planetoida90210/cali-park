@@ -86,4 +86,68 @@ enum PlacementCalibration {
             declaredAt: declaredAt
         )
     }
+
+    // MARK: Re-calibration
+    /// The form answers that reproduce a saved placement, for pre-filling the
+    /// form on re-calibration. Only unambiguous answers come back: a rung that
+    /// several buckets declare (1–5 and 6–11 both place you on the movement
+    /// itself), or that no answer declares, stays unanswered. `merging` keeps
+    /// the saved declaration for such a path as long as the athlete does not
+    /// answer it again.
+    static func answers(from placement: SkillPlacement) -> (repAnswers: [ProgressionPathID: RepCountBucket],
+                                                             masteredSkills: Set<String>) {
+        var repAnswers: [ProgressionPathID: RepCountBucket] = [:]
+        var masteredSkills: Set<String> = []
+
+        for question in skillQuestions where placement.declaredRung(for: question.path) == question.rung {
+            masteredSkills.insert(question.id)
+        }
+
+        for question in repQuestions {
+            guard let rung = placement.declaredRung(for: question.path) else { continue }
+            // A checked skill explains this rung; the rep count is unknown.
+            let explainedBySkill = skillQuestions.contains {
+                $0.path == question.path && masteredSkills.contains($0.id)
+            }
+            guard !explainedBySkill else { continue }
+            let matching = RepCountBucket.allCases.filter { question.rung(for: $0) == rung }
+            if matching.count == 1, let bucket = matching.first {
+                repAnswers[question.path] = bucket
+            }
+        }
+
+        return (repAnswers, masteredSkills)
+    }
+
+    /// The placement to save after a re-calibration: the paths answered in this
+    /// session take their new declaration (or lose it, when the new answer
+    /// declares nothing), every other path keeps what `saved` declared. So
+    /// answering one question never erases the others.
+    ///
+    /// - Parameters:
+    ///   - answers: The placement the session's answers describe (`placement(…)`).
+    ///   - answeredPaths: The paths whose answers the athlete changed in this
+    ///     session.
+    ///   - saved: The placement saved before this session, or `nil` on first
+    ///     calibration.
+    static func merging(_ answers: SkillPlacement,
+                        answeredPaths: Set<ProgressionPathID>,
+                        into saved: SkillPlacement?) -> SkillPlacement {
+        guard let saved else { return answers }
+
+        var declarations = saved.declaredStepByPath.filter { !answeredPaths.contains($0.key) }
+        for (path, stepID) in answers.declaredStepByPath where answeredPaths.contains(path) {
+            declarations[path] = stepID
+        }
+
+        // The form only asks about the band; keep any other equipment.
+        var equipment = saved.ownedEquipment.subtracting([bandEquipment])
+        equipment.formUnion(answers.ownedEquipment)
+
+        return SkillPlacement(
+            declaredStepByPath: declarations,
+            ownedEquipment: equipment,
+            declaredAt: answers.declaredAt
+        )
+    }
 }

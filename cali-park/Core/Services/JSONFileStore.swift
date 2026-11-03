@@ -25,20 +25,35 @@ enum JSONFileStoreError: Error {
 ///   are copied aside to `<name>.corrupt-<timestamp>.<ext>` once, and every
 ///   later write is refused while the file stays that way, so the original is
 ///   never overwritten with empty state.
-/// - New writes use a versioned envelope, `{"schemaVersion": 1, "payload": …}`.
-///   Reads also accept the bare legacy format (the payload alone) that
-///   versions before the envelope wrote.
+/// - New writes use a versioned envelope, `{"schemaVersion": N, "payload": …}`,
+///   where N is the store's `schemaVersion` (1 unless the store bumped it).
+///   Reads accept every version from 1 up to N, plus the bare legacy format
+///   (the payload alone) that versions before the envelope wrote, which reads
+///   as version 1. The payload's decoder carries the stored version in
+///   `userInfo[JSONFileFormat.schemaVersionKey]`, so a payload type can decode
+///   an older shape and migrate it in memory. The file itself is rewritten in
+///   the current version on the next write.
 /// - Writes are atomic. Dates are ISO 8601 with whole seconds.
 struct JSONFileStore<Value: Codable>: Sendable {
     let fileURL: URL
+    /// The version this store writes; reads accept `1...schemaVersion`.
+    let schemaVersion: Int
     private let logger: Logger
     private let now: @Sendable () -> Date
 
     /// - Parameters:
     ///   - logCategory: the `os.Logger` category, one per store.
+    ///   - schemaVersion: the payload format version this store writes. Bump
+    ///     it when the payload shape changes, and teach the payload's decoder
+    ///     to read the older versions.
     ///   - now: clock for quarantine file names; injectable for tests.
-    init(fileURL: URL, logCategory: String, now: @escaping @Sendable () -> Date = { .now }) {
+    init(fileURL: URL,
+         logCategory: String,
+         schemaVersion: Int = JSONFileFormat.currentSchemaVersion,
+         now: @escaping @Sendable () -> Date = { .now }) {
+        precondition(schemaVersion >= 1, "Schema versions start at 1")
         self.fileURL = fileURL
+        self.schemaVersion = schemaVersion
         self.logger = AppLog.logger(category: logCategory)
         self.now = now
     }
@@ -77,10 +92,9 @@ struct JSONFileStore<Value: Codable>: Sendable {
 
     // MARK: Format
     private func decode(_ data: Data) throws -> Value {
-        let decoder = JSONFileFormat.decoder
         do {
-            if let header = try? decoder.decode(JSONFileFormat.Header.self, from: data) {
-                guard JSONFileFormat.supportedSchemaVersions.contains(header.schemaVersion) else {
+            if let header = try? JSONFileFormat.decoder.decode(JSONFileFormat.Header.self, from: data) {
+                guard (1...schemaVersion).contains(header.schemaVersion) else {
                     let copy = preserveCopy(of: data)
                     logger.error("""
                         Unsupported schema version \(header.schemaVersion, privacy: .public) in \
@@ -90,10 +104,11 @@ struct JSONFileStore<Value: Codable>: Sendable {
                         header.schemaVersion, file: fileURL, preservedCopy: copy
                     )
                 }
+                let decoder = JSONFileFormat.decoder(forSchemaVersion: header.schemaVersion)
                 return try decoder.decode(JSONFileFormat.Envelope<Value>.self, from: data).payload
             }
-            // No envelope: the legacy bare format.
-            return try decoder.decode(Value.self, from: data)
+            // No envelope: the legacy bare format, which is version 1.
+            return try JSONFileFormat.decoder(forSchemaVersion: 1).decode(Value.self, from: data)
         } catch let error as JSONFileStoreError {
             throw error
         } catch {
@@ -107,7 +122,7 @@ struct JSONFileStore<Value: Codable>: Sendable {
     }
 
     private func encodeAndWrite(_ value: Value) throws {
-        let envelope = JSONFileFormat.Envelope(schemaVersion: JSONFileFormat.currentSchemaVersion, payload: value)
+        let envelope = JSONFileFormat.Envelope(schemaVersion: schemaVersion, payload: value)
         do {
             let data = try JSONFileFormat.encoder.encode(envelope)
             try data.write(to: fileURL, options: .atomic)
@@ -158,10 +173,19 @@ struct JSONFileStore<Value: Codable>: Sendable {
 /// The on-disk format shared by every `JSONFileStore`. Kept outside the
 /// generic type so the coders are created once, and so tests can use them.
 enum JSONFileFormat {
-    /// The version new writes carry.
+    /// The version new writes carry, unless a store sets its own.
     static let currentSchemaVersion = 1
-    /// Envelope versions this build can read.
-    static let supportedSchemaVersions = 1...currentSchemaVersion
+
+    /// `userInfo` key under which a store's decoder carries the schema version
+    /// of the file being read (an `Int`). Absent when a value is decoded
+    /// outside a store; payload types then read their current format.
+    static let schemaVersionKey = CodingUserInfoKey(rawValue: "calipark.schemaVersion")!
+
+    /// The schema version of the file being decoded, or `nil` when the value is
+    /// not being read by a `JSONFileStore`.
+    static func schemaVersion(of decoder: any Decoder) -> Int? {
+        decoder.userInfo[schemaVersionKey] as? Int
+    }
 
     struct Envelope<Payload: Codable>: Codable {
         let schemaVersion: Int
@@ -185,6 +209,15 @@ enum JSONFileFormat {
         decoder.dateDecodingStrategy = .iso8601
         return decoder
     }()
+
+    /// A decoder that tells the payload which schema version it is reading.
+    /// A fresh instance per read, because `userInfo` is mutable state.
+    static func decoder(forSchemaVersion version: Int) -> JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        decoder.userInfo[schemaVersionKey] = version
+        return decoder
+    }
 
     /// `20261103T211500Z`: no colons, so quarantine names are safe everywhere.
     static let quarantineStamp = Date.ISO8601FormatStyle(

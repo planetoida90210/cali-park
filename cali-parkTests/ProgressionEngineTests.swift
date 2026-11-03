@@ -367,16 +367,16 @@ struct SkillProgressStoreTests {
     func progressRoundtripsThroughJSON() throws {
         let progress = SkillProgress(
             celebratedRungs: [
-                RungReference(pathID: .pullUp, rungIndex: 4),
-                RungReference(pathID: .dip, rungIndex: 2)
+                RungReference(pathID: .pullUp, rungIndex: 4)!,
+                RungReference(pathID: .dip, rungIndex: 2)!
             ],
             celebratedLevel: 3
         )
         let data = try JSONEncoder().encode(progress)
         let decoded = try JSONDecoder().decode(SkillProgress.self, from: data)
         #expect(decoded == progress)
-        #expect(decoded.hasCelebrated(RungReference(pathID: .pullUp, rungIndex: 4)))
-        #expect(!decoded.hasCelebrated(RungReference(pathID: .pullUp, rungIndex: 5)))
+        #expect(decoded.hasCelebrated(RungReference(pathID: .pullUp, rungIndex: 4)!))
+        #expect(!decoded.hasCelebrated(RungReference(pathID: .pullUp, rungIndex: 5)!))
     }
 
     @Test
@@ -389,7 +389,7 @@ struct SkillProgressStoreTests {
         let store = FileSkillProgressStore(directory: directory)
         #expect(try store.load() == nil)
 
-        let progress = SkillProgress(celebratedRungs: [RungReference(pathID: .planche, rungIndex: 1)], celebratedLevel: 2)
+        let progress = SkillProgress(celebratedRungs: [RungReference(pathID: .planche, rungIndex: 1)!], celebratedLevel: 2)
         try store.save(progress)
         #expect(try store.load() == progress)
     }

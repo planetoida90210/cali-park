@@ -6,9 +6,12 @@ import Observation
 /// sheet: it holds the athlete's answers, turns them into a `SkillPlacement`
 /// through `PlacementCalibration`, and persists it through `PlacementStoring`.
 ///
-/// The declared date is injected for deterministic tests. Saving re-declares the
-/// placement; the engine protects rungs already earned from logs, so a downward
-/// re-calibration is safe.
+/// Re-calibration starts from the saved placement: answers that map back to it
+/// unambiguously are pre-filled, and saving changes only the paths the athlete
+/// answered in this session (`PlacementCalibration.merging`), so adjusting one
+/// ladder never erases the others. The engine protects rungs already earned
+/// from logs, so a downward re-calibration is safe. The declared date is
+/// injected for deterministic tests.
 @MainActor
 @Observable
 final class PlacementCalibrationViewModel {
@@ -27,6 +30,12 @@ final class PlacementCalibrationViewModel {
     /// Set after a successful save so the presenter can dismiss.
     private(set) var didSave = false
 
+    /// Paths whose answers changed in this session; only these are re-declared.
+    private(set) var answeredPaths: Set<ProgressionPathID> = []
+    /// The saved placement the form started from, for showing what a path
+    /// declares when its answer could not be pre-filled.
+    private let savedPlacement: SkillPlacement?
+
     private let store: PlacementStoring
     private let now: () -> Date
 
@@ -34,10 +43,16 @@ final class PlacementCalibrationViewModel {
     init(store: PlacementStoring, now: @escaping () -> Date = { .now }) {
         self.store = store
         self.now = now
-        // Pre-fill the unambiguous equipment answer from any prior declaration so
-        // re-calibration starts from what the athlete already told us. An
-        // unreadable placement only loses the pre-fill; saving reports the error.
-        ownsBand = (try? store.load())?.ownsEquipment(PlacementCalibration.bandEquipment) ?? false
+        // Pre-fill from any prior declaration so re-calibration starts from
+        // what the athlete already told us. An unreadable placement only loses
+        // the pre-fill; saving reports the error.
+        savedPlacement = try? store.load()
+        ownsBand = savedPlacement?.ownsEquipment(PlacementCalibration.bandEquipment) ?? false
+        if let savedPlacement {
+            let answers = PlacementCalibration.answers(from: savedPlacement)
+            repAnswers = answers.repAnswers
+            masteredSkills = answers.masteredSkills
+        }
     }
 
     // MARK: Answers
@@ -49,6 +64,21 @@ final class PlacementCalibrationViewModel {
     /// Records the athlete's answer to a rep question (single choice).
     func select(_ bucket: RepCountBucket, for question: RepCountQuestion) {
         repAnswers[question.id] = bucket
+        answeredPaths.insert(question.path)
+    }
+
+    /// The saved declaration for a rep question's path that no bucket shows,
+    /// e.g. "Podciągnięcia" when both 1–5 and 6–11 lead there. `nil` when the
+    /// path has no saved declaration, a bucket or a checked skill already
+    /// shows it, or the athlete answered the path in this session.
+    func savedRungName(for question: RepCountQuestion) -> String? {
+        let shownBySkill = skillQuestions.contains { $0.path == question.path && masteredSkills.contains($0.id) }
+        guard repAnswers[question.id] == nil,
+              !shownBySkill,
+              !answeredPaths.contains(question.path),
+              let step = savedPlacement?.declaredReference(for: question.path)?.step
+        else { return nil }
+        return ExerciseCatalog.exercise(withID: step.exerciseID)?.name
     }
 
     /// Whether the athlete marked a skill as already owned.
@@ -63,10 +93,11 @@ final class PlacementCalibrationViewModel {
         } else {
             masteredSkills.insert(question.id)
         }
+        answeredPaths.insert(question.path)
     }
 
     // MARK: Result
-    /// The placement the current answers describe.
+    /// The placement the current answers describe, on their own.
     var placement: SkillPlacement {
         PlacementCalibration.placement(
             repAnswers: repAnswers,
@@ -76,10 +107,14 @@ final class PlacementCalibrationViewModel {
         )
     }
 
-    /// Persists the declared placement, setting `didSave` on success.
+    /// Persists the answered paths over the saved placement, setting `didSave`
+    /// on success. The saved placement is re-read here, so the merge is made
+    /// against what is on disk now, and an unreadable one fails the save
+    /// instead of being replaced.
     func save() {
         do {
-            try store.save(placement)
+            let saved = try store.load()
+            try store.save(PlacementCalibration.merging(placement, answeredPaths: answeredPaths, into: saved))
             didSave = true
         } catch {
             errorMessage = "Nie udało się zapisać poziomu."

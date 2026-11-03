@@ -26,7 +26,11 @@ struct FileSkillPlacementStore: PlacementStoring {
     private let file: JSONFileStore<SkillPlacement>
 
     init(directory: URL = .documentsDirectory, fileName: String = "skill-placement.json") {
-        file = JSONFileStore(fileURL: directory.appending(path: fileName), logCategory: "SkillPlacementStore")
+        file = JSONFileStore(
+            fileURL: directory.appending(path: fileName),
+            logCategory: "SkillPlacementStore",
+            schemaVersion: SkillPlacement.schemaVersion
+        )
     }
 
     func load() throws -> SkillPlacement? {

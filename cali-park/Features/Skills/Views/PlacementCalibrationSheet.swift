@@ -5,9 +5,10 @@ import SwiftUI
 /// onboarding or want to adjust it later.
 ///
 /// Presented on first contact with the Skills tab and from "Ustaw poziom" in a
-/// path's detail (SK5 wires those entry points). Saving re-declares placement;
-/// re-calibrating down never erases rungs already earned from logs, because the
-/// engine takes the max of declaration and logs.
+/// path's detail (SK5 wires those entry points). The form opens pre-filled
+/// from the saved placement, and saving re-declares only the paths answered in
+/// this session. Re-calibrating down never erases rungs already earned from
+/// logs, because the engine takes the max of declaration and logs.
 struct PlacementCalibrationSheet: View {
     @State private var viewModel: PlacementCalibrationViewModel
     @Environment(\.dismiss) private var dismiss

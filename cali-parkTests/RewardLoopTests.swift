@@ -24,7 +24,7 @@ private enum RewardFixture {
     }
 
     /// The rung references the full-pull-up session conquers (indices 0…4).
-    static let conqueredPullUpRungs = (0...4).map { RungReference(pathID: .pullUp, rungIndex: $0) }
+    static let conqueredPullUpRungs = (0...4).map { RungReference(pathID: .pullUp, rungIndex: $0)! }
 }
 
 // MARK: - RewardEvaluator
@@ -66,8 +66,13 @@ struct RewardEvaluatorTests {
         let first = RewardEvaluator.evaluate(logs: [RewardFixture.pullUps3x8()], placement: nil, celebrated: baseline)
         #expect(first.pendingEvents.isEmpty == false)
 
-        // Persisting `updatedProgress` and re-evaluating the same logs yields nothing.
-        let second = RewardEvaluator.evaluate(logs: [RewardFixture.pullUps3x8()], placement: nil, celebrated: first.updatedProgress)
+        // Until the events are shown they stay pending: nothing is lost.
+        let unshown = RewardEvaluator.evaluate(logs: [RewardFixture.pullUps3x8()], placement: nil, celebrated: first.updatedProgress)
+        #expect(unshown.pendingEvents == first.pendingEvents)
+
+        // Once each is marked as shown, re-evaluating the same logs yields nothing.
+        let shown = first.pendingEvents.reduce(first.updatedProgress) { $0.markingCelebrated($1) }
+        let second = RewardEvaluator.evaluate(logs: [RewardFixture.pullUps3x8()], placement: nil, celebrated: shown)
         #expect(second.pendingEvents.isEmpty)
     }
 
@@ -99,7 +104,7 @@ struct RewardEvaluatorTests {
         let firstRung = events.first
         if case let .rungConquered(rung) = firstRung {
             // Pull-up precedes dip in the catalog, so its rung 0 comes first.
-            #expect(rung == RungReference(pathID: .pullUp, rungIndex: 0))
+            #expect(rung == RungReference(pathID: .pullUp, rungIndex: 0)!)
         } else {
             Issue.record("Expected a rung event first, got \(String(describing: firstRung))")
         }
@@ -114,7 +119,7 @@ struct CelebrationPresentationTests {
         let step = path.steps[4]
         let exercise = try #require(ExerciseCatalog.exercise(withID: step.exerciseID))
 
-        let presentation = CelebrationPresentation.resolving(.rungConquered(RungReference(pathID: .pullUp, rungIndex: 4)))
+        let presentation = CelebrationPresentation.resolving(.rungConquered(RungReference(pathID: .pullUp, rungIndex: 4)!))
 
         #expect(presentation.eyebrow == "ZALICZONY SZCZEBEL")
         #expect(presentation.title == exercise.name)

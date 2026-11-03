@@ -32,7 +32,7 @@ struct CelebrationPresentation: Equatable, Sendable {
 
     private static func rungPresentation(_ rung: RungReference) -> CelebrationPresentation {
         let path = ProgressionCatalog.path(withID: rung.pathID)
-        let step = path?.steps.indices.contains(rung.rungIndex) == true ? path?.steps[rung.rungIndex] : nil
+        let step = rung.step
         let exerciseName = step.flatMap { ExerciseCatalog.exercise(withID: $0.exerciseID)?.name } ?? "Nowy szczebel"
         let pathName = path?.name
         let xpNote = "+\(ProgressionEngine.xpPerConqueredRung) XP"

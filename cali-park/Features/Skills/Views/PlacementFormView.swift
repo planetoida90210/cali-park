@@ -33,6 +33,14 @@ struct PlacementFormView: View {
                     bucketButton(bucket, for: question)
                 }
             }
+
+            // A saved level no single bucket stands for (e.g. 1–5 and 6–11
+            // both lead to it) is kept as is unless the athlete answers again.
+            if let savedRung = viewModel.savedRungName(for: question) {
+                Text("Zapisany poziom: \(savedRung)")
+                    .font(.bodySmall)
+                    .foregroundStyle(Color.textSecondary)
+            }
         }
     }
 

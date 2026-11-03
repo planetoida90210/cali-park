@@ -102,12 +102,12 @@ struct GoldenFixtureTests {
         let url = try StoreTestSupport.installFixture("skill-placement-legacy", as: "skill-placement.json", in: directory)
         let store = FileSkillPlacementStore(directory: directory)
         var updated = try #require(try store.load())
-        updated.declaredRungByPath[.dip] = 2
+        updated.declaredStepByPath[.dip] = ExerciseCatalog.dipsID
 
         try store.save(updated)
 
         #expect(try store.load() == updated)
-        #expect(try StoreTestSupport.topLevelObject(at: url)["schemaVersion"] as? Int == 1)
+        #expect(try StoreTestSupport.topLevelObject(at: url)["schemaVersion"] as? Int == 2)
     }
 }
 
@@ -144,7 +144,7 @@ struct EnvelopeRoundTripTests {
         try FileSkillPlacementStore(directory: directory).save(StoreFixtures.placement)
 
         let object = try StoreTestSupport.topLevelObject(at: directory.appending(path: "skill-placement.json"))
-        #expect(object["schemaVersion"] as? Int == 1)
+        #expect(object["schemaVersion"] as? Int == 2)
         #expect(object["payload"] is [String: Any])
         #expect(try FileSkillPlacementStore(directory: directory).load() == StoreFixtures.placement)
     }
@@ -155,7 +155,7 @@ struct EnvelopeRoundTripTests {
         try FileSkillProgressStore(directory: directory).save(StoreFixtures.progress)
 
         let object = try StoreTestSupport.topLevelObject(at: directory.appending(path: "skill-progress.json"))
-        #expect(object["schemaVersion"] as? Int == 1)
+        #expect(object["schemaVersion"] as? Int == 2)
         #expect(try FileSkillProgressStore(directory: directory).load() == StoreFixtures.progress)
     }
 

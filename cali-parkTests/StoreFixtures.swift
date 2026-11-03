@@ -86,17 +86,24 @@ enum StoreFixtures {
     ]
 
     // MARK: skill-placement.json
+    /// The fixture stores version 1 rung indices, pullUp 3 and pushUp 5. In
+    /// the v1 ladders those are band pull-ups and pseudo-planche push-ups.
     static let placement = SkillPlacement(
-        declaredRungByPath: [.pullUp: 3, .pushUp: 5],
+        declaredStepByPath: [
+            .pullUp: ExerciseCatalog.bandPullUpsID,
+            .pushUp: ExerciseCatalog.pseudoPlanchePushUpsID
+        ],
         ownedEquipment: ["Resistance bands"],
         declaredAt: october1
     )
 
     // MARK: skill-progress.json
+    /// The fixture stores version 1 rung indices, pullUp 3 and dip 1: band
+    /// pull-ups and negative dips.
     static let progress = SkillProgress(
         celebratedRungs: [
-            RungReference(pathID: .pullUp, rungIndex: 3),
-            RungReference(pathID: .dip, rungIndex: 1)
+            RungReference(pathID: .pullUp, stepID: ExerciseCatalog.bandPullUpsID),
+            RungReference(pathID: .dip, stepID: ExerciseCatalog.negativeDipsID)
         ],
         celebratedLevel: 4
     )

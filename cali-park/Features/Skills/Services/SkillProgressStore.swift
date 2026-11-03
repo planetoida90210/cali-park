@@ -23,7 +23,11 @@ struct FileSkillProgressStore: SkillProgressStoring {
     private let file: JSONFileStore<SkillProgress>
 
     init(directory: URL = .documentsDirectory, fileName: String = "skill-progress.json") {
-        file = JSONFileStore(fileURL: directory.appending(path: fileName), logCategory: "SkillProgressStore")
+        file = JSONFileStore(
+            fileURL: directory.appending(path: fileName),
+            logCategory: "SkillProgressStore",
+            schemaVersion: SkillProgress.schemaVersion
+        )
     }
 
     func load() throws -> SkillProgress? {

@@ -97,7 +97,7 @@ struct PlacementRepMappingTests {
             masteredSkills: [],
             ownsBand: false
         )
-        #expect(placement.declaredRungByPath.isEmpty)
+        #expect(placement.declaredStepByPath.isEmpty)
         #expect(placement.ownedEquipment.isEmpty)
     }
 }

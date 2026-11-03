@@ -50,7 +50,7 @@ struct LastAdvancementTests {
         let reference = try #require(ProgressionEngine.lastAdvancement(from: logs))
 
         // Full pull-ups sit at rung index 4 of the pull-up ladder.
-        #expect(reference == RungReference(pathID: .pullUp, rungIndex: 4))
+        #expect(reference == RungReference(pathID: .pullUp, rungIndex: 4)!)
     }
 
     @Test func theLatestConqueredRungWins() throws {
@@ -64,7 +64,7 @@ struct LastAdvancementTests {
         let reference = try #require(ProgressionEngine.lastAdvancement(from: logs))
 
         // Full dips sit at rung index 2 of the dip ladder.
-        #expect(reference == RungReference(pathID: .dip, rungIndex: 2))
+        #expect(reference == RungReference(pathID: .dip, rungIndex: 2)!)
     }
 }
 

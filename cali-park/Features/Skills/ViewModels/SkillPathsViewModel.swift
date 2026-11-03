@@ -97,8 +97,14 @@ final class SkillPathsViewModel {
 
     // MARK: Reward loop
 
-    /// Compares logs against the "already celebrated" record, queues any fresh
-    /// advances, and persists the updated record so each is celebrated once.
+    /// Compares logs against the "already celebrated" record and rebuilds the
+    /// queue of advances still to show. An advance is added to the record only
+    /// when its overlay is dismissed (`dismissCurrentCelebration`), so an
+    /// evaluation that runs while the Skills tab is off screen, or an app quit
+    /// mid-queue, never loses a celebration. The record is written here only
+    /// when the evaluation changed it (a first-run baseline, or rungs conquered
+    /// below the placement floor), not on every load.
+    ///
     /// The placement is a floor only — it never adds a celebration.
     /// An unreadable record is skipped, not treated as "nothing celebrated":
     /// that would re-baseline silently and overwrite it.
@@ -115,16 +121,40 @@ final class SkillPathsViewModel {
             placement: placement,
             celebrated: celebrated
         )
-        do {
-            try progressStore.save(evaluation.updatedProgress)
-        } catch {
-            logger.error("Cannot save reward progress: \(String(describing: error), privacy: .public)")
+        if evaluation.updatedProgress != celebrated {
+            do {
+                try progressStore.save(evaluation.updatedProgress)
+            } catch {
+                // Safe to drop: the next load evaluates the same record again.
+                logger.error("Cannot save reward progress: \(String(describing: error), privacy: .public)")
+            }
         }
+        replaceCelebrationQueue(with: evaluation.pendingEvents)
+    }
 
-        guard !evaluation.pendingEvents.isEmpty else { return }
-        pendingCelebrations.append(contentsOf: evaluation.pendingEvents)
-        if currentCelebration == nil {
-            currentCelebration = pendingCelebrations.removeFirst()
+    /// Makes `events` the queue. The overlay on screen stays put while it is
+    /// still pending; an event another screen already showed drops out.
+    private func replaceCelebrationQueue(with events: [CelebrationEvent]) {
+        if let current = currentCelebration, events.contains(current) {
+            pendingCelebrations = events.filter { $0 != current }
+        } else {
+            currentCelebration = events.first
+            pendingCelebrations = Array(events.dropFirst())
+        }
+    }
+
+    /// Adds a shown event to the persisted record, re-reading it first so a
+    /// mark made by another Skills screen is kept. A failed write only means
+    /// the event may play once more.
+    private func markCelebrated(_ event: CelebrationEvent) {
+        do {
+            // No record means the baseline was never saved; marking now would
+            // turn that into a near-empty record and replay history.
+            guard let record = try progressStore.load() else { return }
+            let marked = record.markingCelebrated(event)
+            if marked != record { try progressStore.save(marked) }
+        } catch {
+            logger.error("Cannot mark celebration as shown: \(String(describing: error), privacy: .public)")
         }
     }
 
@@ -147,8 +177,9 @@ final class SkillPathsViewModel {
     /// Whether more advances wait behind the one on screen.
     var hasQueuedCelebrations: Bool { !pendingCelebrations.isEmpty }
 
-    /// Advances the celebration queue after the current overlay is dismissed.
+    /// Records the overlay on screen as celebrated and moves to the next one.
     func dismissCurrentCelebration() {
+        if let shown = currentCelebration { markCelebrated(shown) }
         currentCelebration = pendingCelebrations.isEmpty ? nil : pendingCelebrations.removeFirst()
     }
 

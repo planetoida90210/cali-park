@@ -119,7 +119,7 @@ enum ProgressionEngine {
 
             let step = path.steps[topLoggedRung]
             guard let date = firstQualifyingDate(for: step.criterion, exerciseID: step.exerciseID, in: logs) else { continue }
-            let reference = RungReference(pathID: path.id, rungIndex: topLoggedRung)
+            let reference = RungReference(pathID: path.id, stepID: step.id)
             if best == nil || date > best!.date {
                 best = (reference, date)
             }

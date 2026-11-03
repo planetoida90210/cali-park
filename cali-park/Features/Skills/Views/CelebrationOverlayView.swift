@@ -100,7 +100,7 @@ struct CelebrationOverlayView: View {
     Color.appBackground.ignoresSafeArea()
         .overlay {
             CelebrationOverlayView(
-                event: .rungConquered(RungReference(pathID: .pullUp, rungIndex: 4)),
+                event: .rungConquered(RungReference(pathID: .pullUp, stepID: ExerciseCatalog.pullUpsID)),
                 hasNext: true,
                 onDismiss: {}
             )
