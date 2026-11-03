@@ -110,6 +110,13 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - celebracja liczy się jako pokazana dopiero po zamknięciu, a plik postępu nie jest przepisywany przy każdym wczytaniu (A-4, C-7),
   - nie zrobione: A-7 (stare mapowanie kubełków, nie da się go pewnie rozpoznać), podwójny toast XP (F-4, D-V1, A-10, wymaga wspólnego koordynatora nagród), A-3 (guma, czeka na decyzję w 015),
   - testy: 355 (618 przypadków).
+- **Planer: zaliczenie planu i przypomnienia** (`bfb3796`, 2026-11-04):
+  - plan jest zaliczony na dany dzień, gdy któryś wpis z tego dnia ma jego id; Home proponuje następny niezaliczony plan na dziś, a po wszystkich pokazuje „Dziś · Zrobione” (B-5),
+  - przełącznik „Przypomnienie” i godzina w edytorze planu, zgoda pytana dopiero przy pierwszym włączeniu, a przy odmowie krótkie wyjaśnienie z linkiem do Ustawień („Przypomnienia o treningu w 1.0”),
+  - `WorkoutPlanService` zapisuje i usuwa plany oraz synchronizuje przypomnienia po każdej zmianie, przy starcie i powrocie do apki; uszkodzony plik planów nie kasuje przypomnień,
+  - scheduler: limit 64 powiadomień (najbliższe pierwsze), kolejne zmiany się nie przeplatają, błędy trafiają do logów, bez `.badge` (B-7),
+  - nie zrobione: B-8 (plan jednorazowy z datą w przeszłości), B-9 (strefa czasowa); przypomnienie tygodniowe odpala też w dzień, w którym plan już jest zrobiony,
+  - testy: 393 (656 przypadków).
 - **Prototyp mapy** do „Wygląd mapy parków” (`bb42651`, `2e553c8`): tylko w buildzie Debug.
 - **Propozycje do potwierdzenia:** drabiny i programy (`29e6d99`), model Parku i wiek Konta (`824e987`).
 
