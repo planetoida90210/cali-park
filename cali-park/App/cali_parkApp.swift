@@ -21,6 +21,9 @@ struct cali_parkApp: App {
             // Throwaway map-look prototype (ticket 011), opened with `-PrototypeMapLook`.
             if Self.mapLookOptions.isEnabled {
                 MapLookPrototypeRoot(options: Self.mapLookOptions)
+            } else if Self.parkSubmissionOptions.isEnabled {
+                // Throwaway Park Submission prototype (ticket 013), opened with `-PrototypeParkSubmission`.
+                ParkSubmissionPrototypeRoot(options: Self.parkSubmissionOptions)
             } else {
                 appContent
             }
@@ -32,6 +35,7 @@ struct cali_parkApp: App {
 
     #if DEBUG
     private static let mapLookOptions = MapLookLaunchOptions()
+    private static let parkSubmissionOptions = ParkSubmissionLaunchOptions()
     #endif
 
     private var appContent: some View {
