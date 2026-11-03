@@ -2,8 +2,10 @@ import SwiftUI
 
 // MARK: - Next Workout Module
 /// Shows what to train next. A scheduled plan wins (name, when, and a
-/// "Rozpocznij" that opens the session prefilled from the plan); otherwise it
-/// falls back to the untrained-group suggestion, then an honest empty state.
+/// "Rozpocznij" that opens the session prefilled from the plan). When every
+/// plan due today is done it says so instead of offering it again. Without
+/// plans it falls back to the untrained-group suggestion, then an honest empty
+/// state.
 struct NextWorkoutModuleContent: View {
     let dashboard: HomeDashboardViewModel
 
@@ -13,15 +15,18 @@ struct NextWorkoutModuleContent: View {
 
     var body: some View {
         Group {
-            if let planned = dashboard.nextPlannedWorkout {
+            switch dashboard.nextWorkoutState {
+            case .planned(let planned):
                 PlannedWorkoutContent(planned: planned, today: dashboard.now, calendar: dashboard.calendar) {
                     startingPlan = planned.plan
                 }
-            } else if let suggestion = dashboard.suggestedExercise {
+            case .doneToday(let plans, let next):
+                DoneTodayContent(plans: plans, next: next, today: dashboard.now, calendar: dashboard.calendar)
+            case .suggestion(let suggestion):
                 SuggestionContent(exercise: suggestion) {
                     loggingExercise = suggestion
                 }
-            } else {
+            case .empty:
                 NextWorkoutEmptyState()
             }
         }
@@ -80,6 +85,46 @@ private struct PlannedWorkoutContent: View {
                     .clipShape(.rect(cornerRadius: 8))
             }
         }
+    }
+}
+
+// MARK: - DoneTodayContent
+/// Every plan due today is logged: confirm it, and name the next plan without
+/// a start button so today's plan is not logged twice by accident.
+private struct DoneTodayContent: View {
+    let plans: [WorkoutPlan]
+    let next: HomeDashboardViewModel.PlannedWorkout?
+    let today: Date
+    let calendar: Calendar
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "checkmark")
+                .font(.title3)
+                .foregroundStyle(Color.black)
+                .frame(width: 44, height: 44)
+                .background(Color.accent)
+                .clipShape(.rect(cornerRadius: 12))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Dziś · Zrobione")
+                    .font(.bodyLarge)
+                    .foregroundStyle(Color.textPrimary)
+
+                Text(plans.map(\.name).joined(separator: ", "))
+                    .font(.bodySmall)
+                    .foregroundStyle(Color.textSecondary)
+
+                if let next {
+                    Text("Następny: \(WorkoutScheduleFormatter.dayLabel(next.date, asOf: today, calendar: calendar)) · \(next.plan.name)")
+                        .font(.bodySmall)
+                        .foregroundStyle(Color.textSecondary)
+                }
+            }
+
+            Spacer()
+        }
+        .accessibilityElement(children: .combine)
     }
 }
 

@@ -14,9 +14,12 @@ final class AppEnvironment: ObservableObject {
     let workoutLogStore: WorkoutLogStoring
     /// Persists reusable, scheduled workout plans (planner feature).
     let workoutPlanStore: WorkoutPlanStoring
-    /// Schedules local reminders for scheduled plans. No UI consumer yet — the
-    /// planner UI wires it in (Sprint 2 of the profile/reminders plan).
+    /// Schedules local reminders for scheduled plans. Only `workoutPlanService`
+    /// talks to it.
     let reminderScheduler: WorkoutReminderScheduling
+    /// Owns saving and deleting plans and keeps their reminders in sync. View
+    /// models change plans only through it.
+    let workoutPlanService: WorkoutPlanService
     /// Persists the athlete's self-declared skill placement. Consumed by the
     /// onboarding calibration (SK4) and the Skills tab (SK5).
     let placementStore: PlacementStoring
@@ -31,7 +34,7 @@ final class AppEnvironment: ObservableObject {
          favoritesStore: FavoritesStoring = UserDefaultsFavoritesStore(),
          workoutLogStore: WorkoutLogStoring = FileWorkoutLogStore(),
          workoutPlanStore: WorkoutPlanStoring = FileWorkoutPlanStore(),
-         reminderScheduler: WorkoutReminderScheduling = NotificationCenterReminderScheduler(),
+         reminderScheduler: WorkoutReminderScheduling = NotificationCenterReminderScheduler(center: SystemNotificationCenter()),
          placementStore: PlacementStoring = FileSkillPlacementStore(),
          skillProgressStore: SkillProgressStoring = FileSkillProgressStore()) {
         self.communityPhotoService = communityPhotoService
@@ -41,6 +44,7 @@ final class AppEnvironment: ObservableObject {
         self.workoutLogStore = workoutLogStore
         self.workoutPlanStore = workoutPlanStore
         self.reminderScheduler = reminderScheduler
+        self.workoutPlanService = WorkoutPlanService(store: workoutPlanStore, scheduler: reminderScheduler)
         self.placementStore = placementStore
         self.skillProgressStore = skillProgressStore
     }
@@ -101,18 +105,18 @@ final class AppEnvironment: ObservableObject {
     func makeHomeDashboardViewModel() -> HomeDashboardViewModel {
         HomeDashboardViewModel(
             store: workoutLogStore,
-            planStore: workoutPlanStore,
+            planService: workoutPlanService,
             placementStore: placementStore
         )
     }
 
     func makeWorkoutPlansViewModel() -> WorkoutPlansViewModel {
-        WorkoutPlansViewModel(store: workoutPlanStore)
+        WorkoutPlansViewModel(service: workoutPlanService)
     }
 
     /// `plan == nil` starts a new plan; pass an existing plan to edit it.
     func makePlanEditorViewModel(plan: WorkoutPlan? = nil) -> PlanEditorViewModel {
-        PlanEditorViewModel(plan: plan, store: workoutPlanStore)
+        PlanEditorViewModel(plan: plan, service: workoutPlanService)
     }
 
     // MARK: Preview
@@ -130,6 +134,7 @@ extension AppEnvironment {
         AppEnvironment(
             workoutLogStore: InMemoryWorkoutLogStore(initial: logs),
             workoutPlanStore: InMemoryWorkoutPlanStore(initial: plans),
+            reminderScheduler: InMemoryReminderScheduler(status: .authorized),
             placementStore: InMemorySkillPlacementStore(initial: placement),
             skillProgressStore: InMemorySkillProgressStore()
         )

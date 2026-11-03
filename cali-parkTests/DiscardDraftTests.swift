@@ -146,7 +146,7 @@ struct SetPadDiscardTests {
 @MainActor
 struct PlanEditorDiscardTests {
     private func editor(_ plan: WorkoutPlan?, store: WorkoutPlanStoring = InMemoryWorkoutPlanStore()) -> PlanEditorViewModel {
-        PlanEditorViewModel(plan: plan, store: store, calendar: Fixtures.calendar, now: Fixtures.reference)
+        PlanEditorViewModel(plan: plan, service: .testing(store), calendar: Fixtures.calendar, now: Fixtures.reference)
     }
 
     @Test
@@ -203,10 +203,10 @@ struct PlanEditorDiscardTests {
     }
 
     @Test
-    func savingClearsTheFlag() {
+    func savingClearsTheFlag() async {
         let editor = editor(Fixtures.plan)
         editor.name = "Push v2"
-        editor.save()
+        await editor.save()
         #expect(editor.didSave)
         #expect(!editor.hasUnsavedChanges)
     }
@@ -217,13 +217,13 @@ struct PlanEditorDiscardTests {
 @MainActor
 struct PlanEditorPreservesFieldsTests {
     @Test
-    func savingAnEditKeepsFieldsTheEditorDoesNotShow() throws {
+    func savingAnEditKeepsFieldsTheEditorDoesNotShow() async throws {
         let store = InMemoryWorkoutPlanStore(initial: [Fixtures.plan])
-        let editor = PlanEditorViewModel(plan: Fixtures.plan, store: store,
+        let editor = PlanEditorViewModel(plan: Fixtures.plan, service: .testing(store),
                                          calendar: Fixtures.calendar, now: Fixtures.reference)
         editor.name = "Push v2"
         editor.toggle(.friday)
-        editor.save()
+        await editor.save()
 
         let saved = try #require(store.load().first)
         #expect(store.load().count == 1)
@@ -238,17 +238,17 @@ struct PlanEditorPreservesFieldsTests {
     }
 
     @Test
-    func unchangedSaveRoundTripsThePlanExactly() throws {
+    func unchangedSaveRoundTripsThePlanExactly() async throws {
         let store = InMemoryWorkoutPlanStore(initial: [Fixtures.plan])
-        let editor = PlanEditorViewModel(plan: Fixtures.plan, store: store,
+        let editor = PlanEditorViewModel(plan: Fixtures.plan, service: .testing(store),
                                          calendar: Fixtures.calendar, now: Fixtures.reference)
-        editor.save()
+        await editor.save()
         #expect(try #require(store.load().first) == Fixtures.plan)
     }
 
     @Test
     func newPlanKeepsOneIdentityAcrossRetries() {
-        let editor = PlanEditorViewModel(plan: nil, store: InMemoryWorkoutPlanStore(),
+        let editor = PlanEditorViewModel(plan: nil, service: .testing(InMemoryWorkoutPlanStore()),
                                          calendar: Fixtures.calendar, now: Fixtures.reference)
         editor.name = "Nowy"
         editor.addExercise(Fixtures.pushUps)

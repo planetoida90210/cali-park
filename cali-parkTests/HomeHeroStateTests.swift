@@ -48,7 +48,7 @@ struct HomeHeroStateResolutionTests {
                            entries: [WorkoutLogEntry] = []) -> HomeDashboardViewModel {
         HomeDashboardViewModel(
             store: InMemoryWorkoutLogStore(initial: entries),
-            planStore: InMemoryWorkoutPlanStore(initial: plans),
+            planService: .testing(InMemoryWorkoutPlanStore(initial: plans)),
             calendar: Fixtures.calendar
         )
     }

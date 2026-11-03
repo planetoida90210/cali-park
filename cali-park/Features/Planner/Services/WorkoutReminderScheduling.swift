@@ -12,6 +12,13 @@ enum ReminderAuthorizationStatus: Sendable {
     var isAuthorized: Bool { self == .authorized }
 }
 
+// MARK: - ReminderSchedulingError
+/// Some reminders could not be registered. The others were, so the error
+/// lists only the failed request identifiers.
+struct ReminderSchedulingError: Error, Equatable {
+    let failedRequestIDs: [String]
+}
+
 // MARK: - WorkoutReminderScheduling
 /// Abstraction over local-reminder scheduling, mirroring the store protocols:
 /// UI stays testable with the in-memory stub, and the real
@@ -21,14 +28,15 @@ protocol WorkoutReminderScheduling: Sendable {
     func authorizationStatus() async -> ReminderAuthorizationStatus
 
     /// Prompts for permission if undetermined; returns whether it's granted.
+    /// A failed request counts as not granted.
     @discardableResult
     func requestAuthorization() async -> Bool
 
-    /// Replaces all app-owned pending reminders with those derived from `plans`.
-    func reschedule(for plans: [WorkoutPlan]) async
-
-    /// Removes every app-owned pending reminder.
-    func cancelAll() async
+    /// Makes the app-owned pending reminders match those derived from
+    /// `plans`. Calls never interleave: a second call starts after the first
+    /// one finished. Throws `ReminderSchedulingError` when some reminders
+    /// could not be registered.
+    func reschedule(for plans: [WorkoutPlan]) async throws
 }
 
 // MARK: - InMemoryReminderScheduler
@@ -38,34 +46,47 @@ protocol WorkoutReminderScheduling: Sendable {
 actor InMemoryReminderScheduler: WorkoutReminderScheduling {
     private(set) var scheduledRequests: [WorkoutReminderRequest] = []
     private(set) var rescheduleCount = 0
+    private(set) var authorizationRequestCount = 0
     private var status: ReminderAuthorizationStatus
     private let grantOnRequest: Bool
+    private var failsToSchedule: Bool
     private let calendar: Calendar
+    private let clock: @Sendable () -> Date
 
     init(status: ReminderAuthorizationStatus = .notDetermined,
          grantOnRequest: Bool = true,
-         calendar: Calendar = .current) {
+         failsToSchedule: Bool = false,
+         calendar: Calendar = .current,
+         clock: @escaping @Sendable () -> Date = { .now }) {
         self.status = status
         self.grantOnRequest = grantOnRequest
+        self.failsToSchedule = failsToSchedule
         self.calendar = calendar
+        self.clock = clock
     }
 
     func authorizationStatus() async -> ReminderAuthorizationStatus { status }
 
     @discardableResult
     func requestAuthorization() async -> Bool {
+        authorizationRequestCount += 1
         if status == .notDetermined {
             status = grantOnRequest ? .authorized : .denied
         }
         return status.isAuthorized
     }
 
-    func reschedule(for plans: [WorkoutPlan]) async {
+    func reschedule(for plans: [WorkoutPlan]) async throws {
         rescheduleCount += 1
-        scheduledRequests = WorkoutReminderPlanner.requests(for: plans, calendar: calendar)
+        let requests = WorkoutReminderPlanner.requests(for: plans, calendar: calendar, asOf: clock())
+        if failsToSchedule {
+            throw ReminderSchedulingError(failedRequestIDs: requests.map(\.id))
+        }
+        scheduledRequests = requests
     }
 
-    func cancelAll() async {
-        scheduledRequests = []
+    /// Lets a test make later reschedules fail or succeed.
+    func setFailsToSchedule(_ fails: Bool) {
+        failsToSchedule = fails
     }
 }

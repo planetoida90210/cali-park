@@ -24,7 +24,7 @@ private extension HomeHeroState {
 struct HomeHeroActionsTests {
     private func dashboard(logStore: WorkoutLogStoring,
                            planStore: WorkoutPlanStoring) -> HomeDashboardViewModel {
-        HomeDashboardViewModel(store: logStore, planStore: planStore)
+        HomeDashboardViewModel(store: logStore, planService: .testing(planStore))
     }
 
     /// planToday → tapping "Rozpocznij" (a plan-seeded quick workout) and

@@ -56,13 +56,18 @@ struct WorkoutPlansView: View {
                 Button {
                     editorRoute = .edit(plan)
                 } label: {
-                    WorkoutPlanRow(plan: plan, summary: viewModel.scheduleSummary(for: plan))
+                    WorkoutPlanRow(plan: plan,
+                                   summary: viewModel.scheduleSummary(for: plan),
+                                   reminder: viewModel.reminderSummary(for: plan))
                 }
                 .listRowBackground(Color.componentBackground)
                 .listRowSeparatorTint(Color.divider)
             }
             .onDelete { offsets in
-                offsets.map { viewModel.plans[$0] }.forEach(viewModel.delete)
+                let doomed = offsets.map { viewModel.plans[$0] }
+                Task {
+                    for plan in doomed { await viewModel.delete(plan) }
+                }
             }
         }
         .listStyle(.insetGrouped)
@@ -104,6 +109,8 @@ private enum PlanEditorRoute: Identifiable {
 private struct WorkoutPlanRow: View {
     let plan: WorkoutPlan
     let summary: String
+    /// Reminder time, e.g. "18:30", or `nil` without a reminder.
+    let reminder: String?
 
     var body: some View {
         HStack(spacing: 12) {
@@ -115,6 +122,13 @@ private struct WorkoutPlanRow: View {
                 Text(summary)
                     .font(.bodySmall)
                     .foregroundStyle(Color.textSecondary)
+
+                if let reminder {
+                    Label(reminder, systemImage: "bell")
+                        .font(.bodySmall)
+                        .foregroundStyle(Color.textSecondary)
+                        .accessibilityLabel("Przypomnienie o \(reminder)")
+                }
             }
 
             Spacer()

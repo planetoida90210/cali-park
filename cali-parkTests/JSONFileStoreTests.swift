@@ -413,7 +413,7 @@ struct StoreLoadFailureViewModelTests {
 
     @Test
     func plansListReportsLoadFailure() {
-        let viewModel = WorkoutPlansViewModel(store: BrokenPlanStore())
+        let viewModel = WorkoutPlansViewModel(service: .testing(BrokenPlanStore()))
 
         #expect(viewModel.hasLoadError)
         #expect(viewModel.errorMessage == StoreLoadFailure.message)
@@ -434,7 +434,7 @@ struct StoreLoadFailureViewModelTests {
                                     sets: [LoggedSet(reps: 5)])
         let viewModel = HomeDashboardViewModel(
             store: InMemoryWorkoutLogStore(initial: [entry]),
-            planStore: BrokenPlanStore(),
+            planService: .testing(BrokenPlanStore()),
             placementStore: InMemorySkillPlacementStore()
         )
 

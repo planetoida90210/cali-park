@@ -109,7 +109,7 @@ struct HomeAchievementsSummaryTests {
                            placement: SkillPlacement? = nil) -> HomeDashboardViewModel {
         HomeDashboardViewModel(
             store: InMemoryWorkoutLogStore(initial: entries),
-            planStore: InMemoryWorkoutPlanStore(initial: []),
+            planService: .testing(InMemoryWorkoutPlanStore(initial: [])),
             placementStore: InMemorySkillPlacementStore(initial: placement),
             calendar: AchievementFixture.calendar
         )

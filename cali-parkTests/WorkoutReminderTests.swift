@@ -111,16 +111,21 @@ struct WorkoutReminderOneOffTests {
         #expect(requests.isEmpty)
     }
 
+    /// A calendar trigger can't repeat every N days, so an interval plan gets
+    /// one dated reminder per upcoming occurrence, up to the pending cap.
     @Test
-    func everyNDaysBuildsSingleFutureRequest() throws {
+    func everyNDaysBuildsDatedRequestsForUpcomingOccurrences() throws {
+        // Anchor day 0, interval 3 → occurrences on days 3, 6, 9… after day 1.
         let plan = ReminderFixtures.plan(schedule: .everyNDays(3, from: ReminderFixtures.day(0)))
         let requests = WorkoutReminderPlanner.requests(for: plan,
                                                        calendar: ReminderFixtures.calendar,
                                                        asOf: ReminderFixtures.day(1))
-        #expect(requests.count == 1)
-        let request = try #require(requests.first)
-        #expect(request.repeats == false)
-        #expect(request.id.hasSuffix("-interval"))
+        #expect(requests.count == WorkoutReminderPlanner.pendingLimit)
+        #expect(requests.allSatisfy { !$0.repeats && $0.id.contains("-on-") })
+        #expect(Set(requests.map(\.id)).count == requests.count)
+
+        let fireDates = try requests.prefix(3).map { try #require(ReminderFixtures.calendar.date(from: $0.dateComponents)) }
+        #expect(fireDates == [3, 6, 9].map { ReminderFixtures.day($0, hour: 18).addingTimeInterval(30 * 60) })
     }
 
     /// When today's reminder time already passed, `everyNDays` skips to the
@@ -172,11 +177,11 @@ struct WorkoutReminderContentTests {
 
 struct InMemoryReminderSchedulerTests {
     @Test
-    func rescheduleRecordsBuiltRequests() async {
+    func rescheduleRecordsBuiltRequests() async throws {
         let scheduler = InMemoryReminderScheduler(calendar: ReminderFixtures.calendar)
         let plan = ReminderFixtures.plan(schedule: .weekly([.monday, .wednesday]))
 
-        await scheduler.reschedule(for: [plan])
+        try await scheduler.reschedule(for: [plan])
 
         let scheduled = await scheduler.scheduledRequests
         let count = await scheduler.rescheduleCount
@@ -194,10 +199,14 @@ struct InMemoryReminderSchedulerTests {
     }
 
     @Test
-    func cancelAllClearsRequests() async {
+    func failingRescheduleThrowsAndKeepsThePreviousRequests() async throws {
         let scheduler = InMemoryReminderScheduler(calendar: ReminderFixtures.calendar)
-        await scheduler.reschedule(for: [ReminderFixtures.plan(schedule: .weekly([.monday]))])
-        await scheduler.cancelAll()
-        #expect(await scheduler.scheduledRequests.isEmpty)
+        try await scheduler.reschedule(for: [ReminderFixtures.plan(schedule: .weekly([.monday]))])
+        await scheduler.setFailsToSchedule(true)
+
+        await #expect(throws: ReminderSchedulingError.self) {
+            try await scheduler.reschedule(for: [])
+        }
+        #expect(await scheduler.scheduledRequests.count == 1)
     }
 }

@@ -1,8 +1,9 @@
 import SwiftUI
 
 // MARK: - PlanEditorView
-/// Create or edit a workout plan: name it, add exercises, and pick how often it
-/// repeats. "Zapisz" is enabled only once the plan is complete.
+/// Create or edit a workout plan: name it, add exercises, pick how often it
+/// repeats, and optionally set a reminder. "Zapisz" is enabled only once the
+/// plan is complete.
 struct PlanEditorView: View {
     @State private var viewModel: PlanEditorViewModel
     @State private var showingPicker = false
@@ -22,6 +23,7 @@ struct PlanEditorView: View {
                 PlanNameSection(name: $viewModel.name)
                 PlanExercisesSection(viewModel: viewModel) { showingPicker = true }
                 PlanScheduleSection(viewModel: viewModel)
+                PlanReminderSection(viewModel: viewModel)
             }
             .scrollContentBackground(.hidden)
             .background(Color.appBackground.ignoresSafeArea())
@@ -38,10 +40,12 @@ struct PlanEditorView: View {
                     .foregroundStyle(Color.textSecondary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Zapisz") { viewModel.save() }
-                        .font(.buttonMedium)
-                        .foregroundStyle(viewModel.canSave ? Color.accent : Color.textSecondary)
-                        .disabled(!viewModel.canSave)
+                    Button("Zapisz") {
+                        Task { await viewModel.save() }
+                    }
+                    .font(.buttonMedium)
+                    .foregroundStyle(canTapSave ? Color.accent : Color.textSecondary)
+                    .disabled(!canTapSave)
                 }
             }
             .sheet(isPresented: $showingPicker) {
@@ -51,20 +55,25 @@ struct PlanEditorView: View {
                 }
             }
             .onChange(of: viewModel.didSave) { _, saved in
-                if saved {
-                    onSave()
-                    dismiss()
-                }
+                guard saved else { return }
+                onSave()
+                // A reminder warning shows first; its button closes the editor.
+                if viewModel.errorMessage == nil { dismiss() }
             }
             .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
-                Button("Rozumiem", role: .cancel) {}
+                Button("Rozumiem", role: .cancel) {
+                    if viewModel.didSave { dismiss() }
+                }
             } message: {
-                Text("Spróbuj ponownie.")
+                Text(viewModel.didSave ? "Sprawdź ustawienia powiadomień." : "Spróbuj ponownie.")
             }
+            .task { await viewModel.refreshNotificationPermission() }
         }
         // A swipe must not drop unsaved edits; "Anuluj" asks first.
         .interactiveDismissDisabled(viewModel.hasUnsavedChanges)
     }
+
+    private var canTapSave: Bool { viewModel.canSave && !viewModel.isSaving }
 
     // Bridges the optional `errorMessage` to a Bool binding for `.alert`.
     private var errorBinding: Binding<Bool> {
@@ -179,6 +188,57 @@ private struct PlanScheduleSection: View {
     }
 }
 
+// MARK: - PlanReminderSection
+/// The reminder toggle and its time. Turning it on may show the system
+/// permission prompt; when notifications are off, a short note links to the
+/// app's notification settings.
+private struct PlanReminderSection: View {
+    @Bindable var viewModel: PlanEditorViewModel
+
+    var body: some View {
+        Section {
+            Toggle("Przypomnienie", isOn: reminderBinding)
+                .tint(Color.accent)
+                .foregroundStyle(Color.textPrimary)
+                .listRowBackground(Color.componentBackground)
+
+            if viewModel.reminderEnabled {
+                DatePicker("Godzina", selection: $viewModel.reminderTime, displayedComponents: .hourAndMinute)
+                    .foregroundStyle(Color.textPrimary)
+                    .listRowBackground(Color.componentBackground)
+            }
+        } footer: {
+            if viewModel.showsNotificationsDeniedHint {
+                NotificationsDeniedHint()
+            } else if viewModel.reminderEnabled {
+                Text("Przypomnimy Ci o treningu w zaplanowane dni.")
+            }
+        }
+    }
+
+    /// The toggle shows the new value at once; the view model may turn it
+    /// back off when notifications are denied.
+    private var reminderBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.reminderEnabled },
+            set: { enabled in Task { await viewModel.setReminderEnabled(enabled) } }
+        )
+    }
+}
+
+// MARK: - NotificationsDeniedHint
+private struct NotificationsDeniedHint: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Powiadomienia są wyłączone. Włącz je w Ustawieniach, żeby dostawać przypomnienia.")
+            if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
+                Link("Otwórz Ustawienia", destination: url)
+                    .foregroundStyle(Color.accent)
+            }
+        }
+    }
+}
+
 // MARK: - WeekdaySelector
 /// Row of weekday toggles in the user's locale order (Monday-first in Poland).
 /// Multiple days can be active — that is the weekly schedule's `Set<Weekday>`.
@@ -216,7 +276,7 @@ private struct WeekdaySelector: View {
         .ignoresSafeArea()
         .sheet(isPresented: .constant(true)) {
             PlanEditorView(
-                viewModel: PlanEditorViewModel(plan: nil, store: InMemoryWorkoutPlanStore())
+                viewModel: AppEnvironment.seeded().makePlanEditorViewModel()
             )
             .preferredColorScheme(.dark)
         }

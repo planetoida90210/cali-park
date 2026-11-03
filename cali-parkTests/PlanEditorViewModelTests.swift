@@ -37,7 +37,7 @@ private enum Fixtures {
 @MainActor
 struct PlanEditorViewModelTests {
     private func newEditor(store: WorkoutPlanStoring = InMemoryWorkoutPlanStore()) -> PlanEditorViewModel {
-        PlanEditorViewModel(plan: nil, store: store, calendar: Fixtures.calendar)
+        PlanEditorViewModel(plan: nil, service: .testing(store), calendar: Fixtures.calendar)
     }
 
     @Test
@@ -136,23 +136,23 @@ struct PlanEditorViewModelTests {
     }
 
     @Test
-    func saveUpsertsWithStablePlanID() throws {
+    func saveUpsertsWithStablePlanID() async throws {
         let store = InMemoryWorkoutPlanStore()
         let editor = newEditor(store: store)
         editor.name = "Pull"
         editor.addExercise(ExerciseCatalog.all[0])
         editor.toggle(.monday)
 
-        editor.save()
+        await editor.save()
         #expect(editor.didSave)
         #expect(store.load().count == 1)
 
         let savedID = try #require(store.load().first?.id)
 
         // Editing the same plan and saving again updates in place (no duplicate).
-        let again = PlanEditorViewModel(plan: store.load().first, store: store, calendar: Fixtures.calendar)
+        let again = PlanEditorViewModel(plan: store.load().first, service: .testing(store), calendar: Fixtures.calendar)
         again.name = "Pull day"
-        again.save()
+        await again.save()
 
         #expect(store.load().count == 1)
         #expect(store.load().first?.id == savedID)
@@ -160,25 +160,25 @@ struct PlanEditorViewModelTests {
     }
 
     @Test
-    func saveWithoutRequiredFieldsIsANoOp() {
+    func saveWithoutRequiredFieldsIsANoOp() async {
         let store = InMemoryWorkoutPlanStore()
         let editor = newEditor(store: store)
         editor.name = "Incomplete"
         // No exercises yet.
-        editor.save()
+        await editor.save()
 
         #expect(!editor.didSave)
         #expect(store.load().isEmpty)
     }
 
     @Test
-    func saveFailureSurfacesError() {
-        let editor = PlanEditorViewModel(plan: nil, store: FailingWorkoutPlanStore(), calendar: Fixtures.calendar)
+    func saveFailureSurfacesError() async {
+        let editor = PlanEditorViewModel(plan: nil, service: .testing(FailingWorkoutPlanStore()), calendar: Fixtures.calendar)
         editor.name = "Pull"
         editor.addExercise(ExerciseCatalog.all[0])
         editor.toggle(.monday)
 
-        editor.save()
+        await editor.save()
 
         #expect(editor.errorMessage != nil)
         #expect(!editor.didSave)
@@ -191,7 +191,7 @@ struct PlanEditorViewModelTests {
             exercises: [PlannedExercise(exerciseID: ExerciseCatalog.squatsID)],
             schedule: .weekly([.tuesday, .friday])
         )
-        let editor = PlanEditorViewModel(plan: plan, store: InMemoryWorkoutPlanStore(), calendar: Fixtures.calendar)
+        let editor = PlanEditorViewModel(plan: plan, service: .testing(InMemoryWorkoutPlanStore()), calendar: Fixtures.calendar)
 
         #expect(editor.name == "Legs")
         #expect(editor.exercises.count == 1)
@@ -210,18 +210,18 @@ struct WorkoutPlansViewModelTests {
         let newer = WorkoutPlan(name: "New", schedule: .weekly([.tuesday]), createdAt: Fixtures.day(9))
         let store = InMemoryWorkoutPlanStore(initial: [older, newer])
 
-        let viewModel = WorkoutPlansViewModel(store: store)
+        let viewModel = WorkoutPlansViewModel(service: .testing(store))
 
         #expect(viewModel.plans.map(\.name) == ["New", "Old"])
     }
 
     @Test
-    func deleteRemovesFromStoreAndList() throws {
+    func deleteRemovesFromStoreAndList() async throws {
         let plan = WorkoutPlan(name: "Pull", schedule: .weekly([.monday]))
         let store = InMemoryWorkoutPlanStore(initial: [plan])
-        let viewModel = WorkoutPlansViewModel(store: store)
+        let viewModel = WorkoutPlansViewModel(service: .testing(store))
 
-        viewModel.delete(plan)
+        await viewModel.delete(plan)
 
         #expect(viewModel.plans.isEmpty)
         #expect(store.load().isEmpty)

@@ -31,7 +31,7 @@ struct NextPlannedWorkoutTests {
     private func dashboard(plans: [WorkoutPlan]) -> HomeDashboardViewModel {
         HomeDashboardViewModel(
             store: InMemoryWorkoutLogStore(),
-            planStore: InMemoryWorkoutPlanStore(initial: plans),
+            planService: .testing(InMemoryWorkoutPlanStore(initial: plans)),
             calendar: Fixtures.calendar
         )
     }

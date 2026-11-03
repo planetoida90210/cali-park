@@ -53,7 +53,7 @@ struct HomeDayRolloverTests {
                            entries: [WorkoutLogEntry] = []) -> HomeDashboardViewModel {
         HomeDashboardViewModel(
             store: InMemoryWorkoutLogStore(initial: entries),
-            planStore: InMemoryWorkoutPlanStore(initial: plans),
+            planService: .testing(InMemoryWorkoutPlanStore(initial: plans)),
             calendar: Fixtures.calendar,
             clock: { clock.now }
         )
@@ -150,7 +150,7 @@ struct HomeDayRolloverTests {
         let clock = TestClock(Fixtures.mondayEvening - 2 * 86_400) // Saturday
         let dashboard = HomeDashboardViewModel(
             store: InMemoryWorkoutLogStore(initial: [Fixtures.entry(on: clock.now - 3_600)]),
-            planStore: InMemoryWorkoutPlanStore(),
+            planService: .testing(InMemoryWorkoutPlanStore()),
             calendar: calendar,
             clock: { clock.now }
         )
@@ -171,7 +171,7 @@ struct HomeReloadAfterSummaryDeleteTests {
     @Test
     func deletedWorkoutLeavesHomeAfterReload() throws {
         let logStore = InMemoryWorkoutLogStore()
-        let dashboard = HomeDashboardViewModel(store: logStore, planStore: InMemoryWorkoutPlanStore())
+        let dashboard = HomeDashboardViewModel(store: logStore, planService: .testing(InMemoryWorkoutPlanStore()))
 
         let session = dashboard.makeQuickWorkoutViewModel()
         session.addExercise(try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),

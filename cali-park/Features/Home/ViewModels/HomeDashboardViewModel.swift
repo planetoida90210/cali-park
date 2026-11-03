@@ -32,7 +32,8 @@ final class HomeDashboardViewModel {
 
     // MARK: Dependencies
     private let store: WorkoutLogStoring
-    private let planStore: WorkoutPlanStoring
+    /// Reads plans and owns saving them (with their reminders).
+    private let planService: WorkoutPlanService
     private let placementStore: PlacementStoring
     let calendar: Calendar
     /// Wall-clock source; tests inject a controllable one.
@@ -40,12 +41,12 @@ final class HomeDashboardViewModel {
 
     // MARK: Init
     init(store: WorkoutLogStoring,
-         planStore: WorkoutPlanStoring,
+         planService: WorkoutPlanService,
          placementStore: PlacementStoring = InMemorySkillPlacementStore(),
          calendar: Calendar = .current,
          clock: @escaping () -> Date = { .now }) {
         self.store = store
-        self.planStore = planStore
+        self.planService = planService
         self.placementStore = placementStore
         self.calendar = calendar
         self.clock = clock
@@ -59,7 +60,7 @@ final class HomeDashboardViewModel {
         now = clock()
         var failed = false
         do { entries = try store.load().sorted { $0.date > $1.date } } catch { failed = true }
-        do { plans = try planStore.load() } catch { failed = true }
+        do { plans = try planService.loadPlans() } catch { failed = true }
         do { placement = try placementStore.load() } catch { failed = true }
         // Alert once per failure streak, not on every appear.
         if failed, !hasLoadError { errorMessage = StoreLoadFailure.message }
@@ -90,7 +91,7 @@ final class HomeDashboardViewModel {
     /// Editor for a brand-new plan, started straight from Home when nothing is
     /// scheduled yet ("Zaplanuj trening").
     func makePlanEditorViewModel() -> PlanEditorViewModel {
-        PlanEditorViewModel(plan: nil, store: planStore)
+        PlanEditorViewModel(plan: nil, service: planService, calendar: calendar)
     }
 
     // MARK: Last workout
@@ -215,27 +216,60 @@ final class HomeDashboardViewModel {
 
     // MARK: Next planned workout
     /// The soonest scheduled workout: an active plan paired with its next day.
-    struct PlannedWorkout: Equatable {
-        let plan: WorkoutPlan
-        let date: Date
-    }
+    typealias PlannedWorkout = PlanAgenda.Occurrence
 
-    /// The active plan whose next occurrence is soonest, or `nil` when no plan
-    /// is scheduled. Ties break on creation order for a stable result.
+    /// The next plan that still needs doing, or `nil` when no plan is
+    /// scheduled. A plan already done today moves to its next scheduled day,
+    /// so a second plan due today becomes reachable. Ties break on creation
+    /// order for a stable result.
     var nextPlannedWorkout: PlannedWorkout? {
         nextPlannedWorkout(asOf: now)
     }
 
     /// Testable core of `nextPlannedWorkout` with an explicit reference date.
     func nextPlannedWorkout(asOf reference: Date) -> PlannedWorkout? {
-        plans
-            .compactMap { plan -> PlannedWorkout? in
-                guard let date = plan.nextOccurrence(onOrAfter: reference, calendar: calendar) else { return nil }
-                return PlannedWorkout(plan: plan, date: date)
-            }
-            .min {
-                $0.date != $1.date ? $0.date < $1.date : $0.plan.createdAt < $1.plan.createdAt
-            }
+        PlanAgenda.nextUndone(plans: plans, entries: entries, calendar: calendar, today: reference)
+    }
+
+    /// The plans due on `reference`'s day, split by whether they are done.
+    func plansToday(asOf reference: Date) -> PlanAgenda.Day {
+        PlanAgenda.day(reference, plans: plans, entries: entries, calendar: calendar)
+    }
+
+    // MARK: Next workout module
+    /// What the "Następny trening" module shows.
+    enum NextWorkoutState: Equatable {
+        /// A plan to start: the first undone plan due today, else the next
+        /// scheduled one.
+        case planned(PlannedWorkout)
+        /// Every plan due today is done. `next` is the following plan, if any,
+        /// shown for information only (no start button, so today's plan is
+        /// not logged twice by accident).
+        case doneToday(plans: [WorkoutPlan], next: PlannedWorkout?)
+        /// No plans: the untrained-group suggestion.
+        case suggestion(Exercise)
+        /// Nothing to suggest yet.
+        case empty
+    }
+
+    var nextWorkoutState: NextWorkoutState {
+        nextWorkoutState(asOf: now)
+    }
+
+    /// Testable core of `nextWorkoutState` with an explicit reference date.
+    func nextWorkoutState(asOf reference: Date) -> NextWorkoutState {
+        let today = plansToday(asOf: reference)
+        let next = nextPlannedWorkout(asOf: reference)
+        if today.isAllDone {
+            return .doneToday(plans: today.due, next: next)
+        }
+        if let next {
+            return .planned(next)
+        }
+        if let suggestion = suggestedExercise {
+            return .suggestion(suggestion)
+        }
+        return .empty
     }
 
     // MARK: Hero state
@@ -246,31 +280,26 @@ final class HomeDashboardViewModel {
 
     /// The contextual hero state for `reference`'s day, resolved from logs and
     /// plans. Pure and deterministic given the injected `calendar` and the
-    /// explicit date, so it can be exhaustively tested. Mirrors the decision
-    /// tree in the plan: plan today → done? → trained today? → any plan? →
-    /// empty journal?
+    /// explicit date, so it can be exhaustively tested. Decision tree: an
+    /// undone plan today → trained today (every plan due today done, or a
+    /// free workout)? → any plan ahead? → empty journal?
     func heroState(asOf reference: Date) -> HomeHeroState {
         let entriesToday = entries.filter { calendar.isDate($0.date, inSameDayAs: reference) }
-        let planned = nextPlannedWorkout(asOf: reference)
-        let planToday = planned.flatMap { calendar.isDate($0.date, inSameDayAs: reference) ? $0.plan : nil }
 
-        // Q1 — is a plan scheduled for today?
-        if let planToday {
-            let planDoneToday = entriesToday.contains { $0.planID == planToday.id }
-            if planDoneToday {
-                return completedTodayState(asOf: reference)
-            }
+        // Q1 — is a plan due today and not done yet? Offer the first one.
+        if let planToday = plansToday(asOf: reference).undone.first {
             let loggedTodayReps = entriesToday.reduce(0) { $0 + $1.totalReps }
             return .planToday(plan: planToday, loggedTodayReps: loggedTodayReps)
         }
 
-        // Q2 — no plan today, but did we log a workout today anyway?
+        // Q2 — every plan due today is done, or we trained without a plan.
+        // A done plan always has an entry today, so this covers both.
         if !entriesToday.isEmpty {
             return completedTodayState(asOf: reference)
         }
 
         // Q3 — nothing today; is any plan scheduled at all?
-        if let planned {
+        if let planned = nextPlannedWorkout(asOf: reference) {
             return .restDay(nextPlan: planned.plan, date: planned.date, streak: streak(asOf: reference))
         }
 

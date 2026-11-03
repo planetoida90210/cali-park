@@ -157,7 +157,7 @@ struct WorkoutSessionSharingTests {
                             sets: [LoggedSet(reps: 20)])
         ]
         let store = InMemoryWorkoutLogStore(initial: entries)
-        let dashboard = HomeDashboardViewModel(store: store, planStore: InMemoryWorkoutPlanStore())
+        let dashboard = HomeDashboardViewModel(store: store, planService: .testing(InMemoryWorkoutPlanStore()))
         let history = WorkoutHistoryViewModel(store: store)
 
         #expect(dashboard.latestWorkout?.id == sessionID)
