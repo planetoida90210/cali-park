@@ -77,6 +77,8 @@ Zdecydowany spec CaliPark 1.0: zakres, backend, model danych, wygląd kluczowych
 
 Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warningów, wszystkie testy jednostkowe zielone.
 
+**Faza 0 z mapy jest w całości zrobiona** (punkty 1–4 z „Warstwa danych treningów”); zostaje przeniesienie plików do Application Support oraz eksport i import.
+
 - **Faza 0a: bezpieczeństwo danych i blokery uploadu** (`daf0492`, `7a802c5`, `e6fc8a9`, 2026-11-03):
   - wspólny `JSONFileStore` dla 4 store'ów: uszkodzony plik jest odkładany na bok, nigdy nie nadpisywany, błąd pokazuje alert i trafia do logów (B-2, C-1, D-4, F-1, G-4, G-10),
   - wersjonowana koperta `schemaVersion: 1`, stary format dalej się czyta (C-4),
@@ -89,6 +91,13 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - Home odświeża „dziś” po powrocie do apki i o północy (B-3, D-17) oraz po zamknięciu szybkiego treningu z Home (B-4),
   - edytor planu nie gubi pól, których nie edytuje, np. `reminderTime` (B-6, C-13),
   - testy: 329 (575 przypadków).
+- **Faza 0b: integralność danych Skills** (`d4e1011`, 2026-11-03):
+  - szczeble zapisane po ID ćwiczenia zamiast indeksu, z migracją starych plików przez zamrożoną kolejność drabin (`LadderOrderV1`), wersja pliku 2 (A-6, C-5); to odblokowuje „Rewizja drabin progresji”,
+  - „Ustaw poziom” startuje z zapisanych odpowiedzi i nie kasuje ścieżek, których nie ruszasz (A-1, C-6),
+  - koniec fałszywego „+100 XP” po obniżeniu poziomu (A-2),
+  - celebracja liczy się jako pokazana dopiero po zamknięciu, a plik postępu nie jest przepisywany przy każdym wczytaniu (A-4, C-7),
+  - nie zrobione: A-7 (stare mapowanie kubełków, nie da się go pewnie rozpoznać), podwójny toast XP (F-4, D-V1, A-10, wymaga wspólnego koordynatora nagród), A-3 (guma, czeka na decyzję w 015),
+  - testy: 355 (618 przypadków).
 - **Prototyp mapy** do „Wygląd mapy parków” (`bb42651`, `2e553c8`): tylko w buildzie Debug.
 - **Propozycje do potwierdzenia:** drabiny i programy (`29e6d99`), model Parku i wiek Konta (`824e987`).
 

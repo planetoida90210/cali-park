@@ -8,12 +8,13 @@ Build and run the unit tests yourself before you call a change done. The sprint 
 
 ```sh
 xcodebuild -project cali-park.xcodeproj -scheme cali-park \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' \
   -derivedDataPath "$TMPDIR/dd" -only-testing:cali-parkTests test
 ```
 
 - Simulator access fails inside the Bash sandbox (CoreSimulator, xcrun cache). Run xcodebuild with the sandbox disabled.
-- Baseline as of 2026-11-03: the build has zero warnings and every unit test passes (270 `@Test` functions, 512 cases including parameterized ones). Keep the build warning-free and the tests green.
+- Some simulator names exist on more than one runtime. Without `OS=26.5` in the destination, xcodebuild may fail to match a device; `id=<UDID>` from `xcrun simctl list devices` also works.
+- Baseline as of 2026-11-03, after foundation phase 0: the build has zero warnings and every unit test passes (355 `@Test` functions, 618 cases including parameterized ones). Keep the build warning-free and the tests green.
 - Targets use synchronized folders. A new file under `cali-park/` or `cali-parkTests/` is compiled automatically, so add files without editing `project.pbxproj`.
 
 ## Toolchain facts

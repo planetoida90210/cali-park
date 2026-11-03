@@ -22,3 +22,7 @@ Propozycja ze źródłami: [proposals/015-ladders.md](../proposals/015-ladders.m
 - Ruchy jednostronne: „na stronę” tylko w opisie (flaga `isUnilateral`), format logu bez zmian.
 - Dane: wymaga stabilnych ID szczebli z Fazy 0b (worker T3). `PlacementCalibration` przechodzi na ID ćwiczeń w tym samym kroku. Nowe szczeble poniżej zaliczonego liczą się jako zaliczone, więc obecni użytkownicy dostaną jednorazowy skok XP.
 - Nowe znalezisko: silnik ignoruje `isParallelTrack`, więc guma wychodzi jako aktualny szczebel (audyt A-3).
+
+## Postęp (2026-11-03)
+
+Stabilne ID szczebli są już na `main` (`d4e1011`): placement i rekord celebracji zapisują ID ćwiczenia, a stare pliki migrują przez zamrożoną kolejność `LadderOrderV1`. Wstawianie i przestawianie szczebli z propozycji nie przesunie już zapisanych danych.
