@@ -84,6 +84,11 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - `PrivacyInfo.xcprivacy` z `UserDefaults` `CA92.1` (C-2, G-1),
   - tylko iPhone i pion, bez Maca i Vision Pro (G-11), poprawione teksty uprawnień (G-6),
   - testy: 302 (544 przypadki), było 270 (512).
+- **Faza 0c: szkice i nieaktualny Home** (`e03695d`, `5012b44`, 2026-11-03):
+  - szybki trening, edytor planu i SetPad pytają przed odrzuceniem wpisanych danych, a swipe w dół jest wtedy zablokowany (B-1, E-3),
+  - Home odświeża „dziś” po powrocie do apki i o północy (B-3, D-17) oraz po zamknięciu szybkiego treningu z Home (B-4),
+  - edytor planu nie gubi pól, których nie edytuje, np. `reminderTime` (B-6, C-13),
+  - testy: 329 (575 przypadków).
 - **Prototyp mapy** do „Wygląd mapy parków” (`bb42651`, `2e553c8`): tylko w buildzie Debug.
 - **Propozycje do potwierdzenia:** drabiny i programy (`29e6d99`), model Parku i wiek Konta (`824e987`).
 
