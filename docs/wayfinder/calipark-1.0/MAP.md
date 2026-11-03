@@ -132,6 +132,10 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - scheduler: limit 64 powiadomień (najbliższe pierwsze), kolejne zmiany się nie przeplatają, błędy trafiają do logów, bez `.badge` (B-7),
   - nie zrobione: B-8 (plan jednorazowy z datą w przeszłości), B-9 (strefa czasowa); przypomnienie tygodniowe odpala też w dzień, w którym plan już jest zrobiony,
   - testy: 393 (656 przypadków).
+- **CI, krok F0 fundamentu** (`449024e`, `45de40c`, `3b5dd4a`, 2026-11-04):
+  - GitHub Actions na każdym pushu na `main` (poza samymi dokumentami): build i testy jednostkowe na `macos-26` z Xcode 26.6, zero warningów albo czerwono (G-7),
+  - lint na razie tylko raportuje: reguły z `project-rules.mdc` z bazową liczbą naruszeń (122× `foregroundColor` itd.) i `swift-format` (G-18),
+  - pierwszy run wyłapał linię, której starszy kompilator nie przepuszczał; poprawione.
 - **Prototyp mapy** do „Wygląd mapy parków” (`bb42651`, `2e553c8`): tylko w buildzie Debug.
 - **Prototyp zgłoszenia Parku** do „Formularz zgłoszenia parku” (`19d525a`, 2026-11-04): tylko w buildzie Debug (argument `-PrototypeParkSubmission`), dwa układy formularza (A · Kroki, B · Jeden arkusz), 24 zrzuty w [prototypes/park-submission](prototypes/park-submission/README.md).
 - **Propozycje do potwierdzenia:** drabiny i programy (`29e6d99`), model Parku i wiek Konta (`824e987`).
