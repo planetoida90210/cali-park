@@ -36,11 +36,15 @@ final class QuickWorkoutViewModel {
     /// Home can tell that *this plan* was completed today; `nil` for a free
     /// (unplanned) quick workout.
     private let planID: UUID?
+    /// The items the session opened with (a plan's seeded exercises, or none),
+    /// so leaving untouched never asks to discard anything.
+    private let initialItems: [DraftItem]
 
     // MARK: Init
     init(store: WorkoutLogStoring) {
         self.store = store
         self.planID = nil
+        self.initialItems = []
     }
 
     /// Seeds the session from a plan: each planned exercise becomes an item,
@@ -49,7 +53,9 @@ final class QuickWorkoutViewModel {
     init(store: WorkoutLogStoring, plan: WorkoutPlan) {
         self.store = store
         self.planID = plan.id
-        items = plan.exercises.compactMap(Self.draftItem(from:))
+        let seeded = plan.exercises.compactMap(Self.draftItem(from:))
+        self.items = seeded
+        self.initialItems = seeded
     }
 
     /// Maps a planned exercise to a session item. Returns `nil` when the
@@ -78,6 +84,9 @@ final class QuickWorkoutViewModel {
     /// The saved workout's identifier once `finish()` succeeded, so the screen
     /// can push its summary; `nil` before that.
     var savedSessionID: UUID? { didFinish ? sessionID : nil }
+    /// Whether closing now would lose something the user entered: the items
+    /// differ from what the session opened with, and nothing is saved yet.
+    var hasUnsavedChanges: Bool { !didFinish && items != initialItems }
 
     /// The summary of the workout just saved, read back from the store so it
     /// shows exactly what was persisted.

@@ -10,13 +10,33 @@ struct SetPadEntryView: View {
     let exercise: Exercise
     @Binding var input: SetPadInput
     var saveTitle = "Zapisz"
+    /// Adds an "Anuluj" to the header that asks before dropping typed sets.
+    /// `nil` hides it (the caller offers its own way out).
+    var cancel: Cancel? = nil
     let onSave: () -> Void
+
+    /// How the header's "Anuluj" behaves.
+    struct Cancel {
+        let hasUnsavedChanges: Bool
+        let onCancel: () -> Void
+    }
 
     @AppStorage("hasSeenSetPadHint") private var hasSeenSetPadHint = false
 
     var body: some View {
         VStack(spacing: 16) {
-            SetPadHeader(exercise: exercise)
+            SetPadHeader(exercise: exercise) {
+                if let cancel {
+                    DiscardDraftButton(
+                        hasUnsavedChanges: cancel.hasUnsavedChanges,
+                        title: "Odrzucić serie?",
+                        message: "Wpisane serie nie zostaną zapisane.",
+                        onDiscard: cancel.onCancel
+                    )
+                    .font(.bodyMedium)
+                    .foregroundStyle(Color.textSecondary)
+                }
+            }
 
             SetPadDisplay(
                 input: input,
@@ -48,8 +68,10 @@ struct SetPadEntryView: View {
 }
 
 // MARK: - SetPadHeader
-struct SetPadHeader: View {
+struct SetPadHeader<Accessory: View>: View {
     let exercise: Exercise
+    /// Trailing control, e.g. the sheet's "Anuluj".
+    @ViewBuilder let accessory: Accessory
 
     var body: some View {
         HStack(spacing: 12) {
@@ -68,6 +90,8 @@ struct SetPadHeader: View {
             }
 
             Spacer()
+
+            accessory
         }
     }
 }

@@ -36,8 +36,13 @@ struct QuickWorkoutView: View {
             .safeAreaInset(edge: .bottom) { bottomBar }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Anuluj") { dismiss() }
-                        .foregroundStyle(Color.textSecondary)
+                    DiscardDraftButton(
+                        hasUnsavedChanges: viewModel.hasUnsavedChanges,
+                        title: "Odrzucić trening?",
+                        message: "Dodane ćwiczenia i serie nie zostaną zapisane.",
+                        onDiscard: { dismiss() }
+                    )
+                    .foregroundStyle(Color.textSecondary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Zakończ") { viewModel.finish() }
@@ -79,8 +84,9 @@ struct QuickWorkoutView: View {
                 Text("Spróbuj ponownie.")
             }
         }
-        // Once saved, the summary's "Gotowe" is the way out.
-        .interactiveDismissDisabled(viewModel.didFinish)
+        // A swipe must not drop an unsaved workout; "Anuluj" asks first. Once
+        // saved, the summary's "Gotowe" is the way out.
+        .interactiveDismissDisabled(viewModel.didFinish || viewModel.hasUnsavedChanges)
     }
 
     /// Closes the sheet on the Start tab, whichever tab the workout began on.
@@ -169,6 +175,8 @@ private struct SessionSetPadSheet: View {
     let initialSets: [LoggedSet]
     let onSave: ([LoggedSet]) -> Void
 
+    /// What the keypad opened with; any difference is unsaved typing.
+    private let initialInput: SetPadInput
     @State private var input: SetPadInput
     @Environment(\.dismiss) private var dismiss
 
@@ -176,19 +184,25 @@ private struct SessionSetPadSheet: View {
         self.exercise = exercise
         self.initialSets = initialSets
         self.onSave = onSave
-        _input = State(initialValue: SetPadInput(
+        let initialInput = SetPadInput(
             committedSets: initialSets.map { $0.padValue(for: exercise.measurement) }
-        ))
+        )
+        self.initialInput = initialInput
+        _input = State(initialValue: initialInput)
     }
+
+    private var hasUnsavedChanges: Bool { input != initialInput }
 
     var body: some View {
         SetPadEntryView(
             exercise: exercise,
             input: $input,
-            saveTitle: "Dodaj do treningu"
+            saveTitle: "Dodaj do treningu",
+            cancel: SetPadEntryView.Cancel(hasUnsavedChanges: hasUnsavedChanges) { dismiss() }
         ) {
             onSave(input.setsForSaving.map { LoggedSet(value: $0, measurement: exercise.measurement) })
         }
+        .interactiveDismissDisabled(hasUnsavedChanges)
         .padding(.horizontal, 16)
         .padding(.top, 24)
         .padding(.bottom, 16)

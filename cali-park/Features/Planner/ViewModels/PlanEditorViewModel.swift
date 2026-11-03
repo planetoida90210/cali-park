@@ -43,61 +43,65 @@ final class PlanEditorViewModel {
 
     // MARK: Dependencies & identity
     private let store: WorkoutPlanStoring
-    /// Preserved across an edit so `save()` upserts instead of duplicating.
-    private let planID: UUID
-    private let createdAt: Date
-    private let isActive: Bool
+    /// The plan being edited, or a blank one for a new plan. `save()` edits a
+    /// copy of it, so its identity and every field this editor does not show
+    /// (`isActive`, `createdAt`, `reminderTime`, exercise targets, …) survive.
+    private let original: WorkoutPlan
     /// Anchor for `everyNDays`; kept from the existing plan, else today.
     private let intervalAnchor: Date
+    /// The editable fields as the editor opened them, for `hasUnsavedChanges`.
+    @ObservationIgnored private var baseline: Draft?
+
+    /// The editable part of a plan, compared to tell whether anything changed.
+    private struct Draft: Equatable {
+        let name: String
+        let exercises: [PlannedExercise]
+        let schedule: WorkoutSchedule
+    }
 
     // MARK: Init
-    init(plan: WorkoutPlan?, store: WorkoutPlanStoring, calendar: Calendar = .current) {
+    init(plan: WorkoutPlan?, store: WorkoutPlanStoring, calendar: Calendar = .current, now: Date = .now) {
         self.store = store
-        let today = calendar.startOfDay(for: .now)
+        let today = calendar.startOfDay(for: now)
+        let original = plan ?? WorkoutPlan(name: "", schedule: .weekly([]), createdAt: now)
+        self.original = original
 
-        guard let plan else {
-            planID = UUID()
-            createdAt = .now
-            isActive = true
-            name = ""
-            exercises = []
-            scheduleMode = .weekly
-            selectedWeekdays = []
-            interval = 2
-            onceDate = today
+        name = original.name
+        exercises = original.exercises
+        scheduleMode = .weekly
+        selectedWeekdays = []
+        interval = 2
+        onceDate = today
+        if case .everyNDays(_, let anchor) = original.schedule {
+            intervalAnchor = anchor
+        } else {
             intervalAnchor = today
-            return
         }
 
-        planID = plan.id
-        createdAt = plan.createdAt
-        isActive = plan.isActive
-        name = plan.name
-        exercises = plan.exercises
-
-        switch plan.schedule {
+        switch original.schedule {
         case .weekly(let days):
-            scheduleMode = .weekly
             selectedWeekdays = days
-            interval = 2
-            onceDate = today
-            intervalAnchor = today
-        case .everyNDays(let value, let anchor):
+        case .everyNDays(let value, _):
             scheduleMode = .everyNDays
-            selectedWeekdays = []
             interval = value
-            onceDate = today
-            intervalAnchor = anchor
         case .once(let date):
             scheduleMode = .once
-            selectedWeekdays = []
-            interval = 2
             onceDate = date ?? today
-            intervalAnchor = today
         }
+
+        baseline = draft
     }
 
     // MARK: Derived state
+    private var draft: Draft {
+        Draft(name: trimmedName, exercises: exercises, schedule: schedule)
+    }
+
+    /// Whether closing now would lose an edit: the name, exercises or the
+    /// resulting schedule differ from how the editor opened, and nothing is
+    /// saved yet. Flipping a mode back and forth is not a change.
+    var hasUnsavedChanges: Bool { !didSave && draft != baseline }
+
     var trimmedName: String {
         name.trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -155,18 +159,21 @@ final class PlanEditorViewModel {
         ExerciseCatalog.exercise(withID: planned.exerciseID)
     }
 
+    /// The plan `save()` would store: the original with only the edited
+    /// fields replaced.
+    var editedPlan: WorkoutPlan {
+        var plan = original
+        plan.name = trimmedName
+        plan.exercises = exercises
+        plan.schedule = schedule
+        return plan
+    }
+
     /// Upserts the plan through the store. No-op unless `canSave`.
     func save() {
         guard canSave else { return }
 
-        let plan = WorkoutPlan(
-            id: planID,
-            name: trimmedName,
-            exercises: exercises,
-            schedule: schedule,
-            isActive: isActive,
-            createdAt: createdAt
-        )
+        let plan = editedPlan
 
         do {
             try store.save(plan)

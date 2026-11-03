@@ -15,6 +15,9 @@ final class WorkoutLogViewModel {
     /// Set after a successful save so the sheet can dismiss itself.
     private(set) var didSave = false
 
+    /// Whether closing now would drop typed sets that are not saved yet.
+    var hasUnsavedChanges: Bool { !didSave && input != SetPadInput() }
+
     // MARK: Dependencies
     private let store: WorkoutLogStoring
 

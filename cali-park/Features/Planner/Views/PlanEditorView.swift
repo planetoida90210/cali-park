@@ -29,8 +29,13 @@ struct PlanEditorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Anuluj") { dismiss() }
-                        .foregroundStyle(Color.textSecondary)
+                    DiscardDraftButton(
+                        hasUnsavedChanges: viewModel.hasUnsavedChanges,
+                        title: "Odrzucić zmiany w planie?",
+                        message: "Wprowadzone zmiany nie zostaną zapisane.",
+                        onDiscard: { dismiss() }
+                    )
+                    .foregroundStyle(Color.textSecondary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Zapisz") { viewModel.save() }
@@ -57,6 +62,8 @@ struct PlanEditorView: View {
                 Text("Spróbuj ponownie.")
             }
         }
+        // A swipe must not drop unsaved edits; "Anuluj" asks first.
+        .interactiveDismissDisabled(viewModel.hasUnsavedChanges)
     }
 
     // Bridges the optional `errorMessage` to a Bool binding for `.alert`.
