@@ -118,6 +118,7 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - nie zrobione: B-8 (plan jednorazowy z datą w przeszłości), B-9 (strefa czasowa); przypomnienie tygodniowe odpala też w dzień, w którym plan już jest zrobiony,
   - testy: 393 (656 przypadków).
 - **Prototyp mapy** do „Wygląd mapy parków” (`bb42651`, `2e553c8`): tylko w buildzie Debug.
+- **Prototyp zgłoszenia Parku** do „Formularz zgłoszenia parku” (`19d525a`, 2026-11-04): tylko w buildzie Debug (argument `-PrototypeParkSubmission`), dwa układy formularza (A · Kroki, B · Jeden arkusz), 24 zrzuty w [prototypes/park-submission](prototypes/park-submission/README.md).
 - **Propozycje do potwierdzenia:** drabiny i programy (`29e6d99`), model Parku i wiek Konta (`824e987`).
 
 ## Jeszcze nieokreślone
