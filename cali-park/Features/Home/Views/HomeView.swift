@@ -30,6 +30,8 @@ struct HomeView: View {
 
     private let environment: AppEnvironment
 
+    @Environment(\.scenePhase) private var scenePhase
+
     init(environment: AppEnvironment) {
         self.environment = environment
         _dashboard = State(initialValue: environment.makeHomeDashboardViewModel())
@@ -51,6 +53,7 @@ struct HomeView: View {
                                 weeklyReps: dashboard.weeklyPullUps,
                                 weeklyProgress: weeklyProgress,
                                 progressionHint: dashboard.progressionHint,
+                                now: dashboard.now,
                                 onStartPlan: { startingPlan = $0 }
                             )
                             .padding(.horizontal, 16)
@@ -122,6 +125,14 @@ struct HomeView: View {
                 // Picks up entries logged in the Exercises tab.
                 dashboard.reload()
             }
+            // onAppear does not fire when the app returns from background, and
+            // nothing observed changes at midnight, so "today" would go stale.
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active { dashboard.reload() }
+            }
+            .onReceive(Self.dayChanges) { _ in
+                dashboard.reload()
+            }
             .alert(dashboard.errorMessage ?? "", isPresented: errorBinding) {
                 Button("Rozumiem", role: .cancel) {}
             } message: {
@@ -130,6 +141,14 @@ struct HomeView: View {
         }
         .environmentObject(modulePreferences)
     }
+
+    /// Fires when the calendar day rolls over (or the clock or time zone jumps)
+    /// while the app stays in the foreground. The calendar-day notification
+    /// may arrive on any thread, so it is delivered on main.
+    private static let dayChanges = NotificationCenter.default
+        .publisher(for: .NSCalendarDayChanged)
+        .merge(with: NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification))
+        .receive(on: DispatchQueue.main)
 
     // Bridges the optional `errorMessage` to a Bool binding for `.alert`.
     private var errorBinding: Binding<Bool> {

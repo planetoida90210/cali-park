@@ -4,6 +4,9 @@ import SwiftUI
 /// Streak and this month's training calendar, computed from workout log dates.
 struct StreakModuleContent: View {
     let streak: WorkoutStreak
+    /// Reference day for the month grid and its "today" ring.
+    var today: Date = .now
+    var calendar: Calendar = .current
 
     var body: some View {
         VStack(spacing: 16) {
@@ -11,7 +14,7 @@ struct StreakModuleContent: View {
                 StreakEmptyState()
             } else {
                 StreakSummaryRow(streak: streak)
-                StreakMonthCalendar(trainedDays: streak.trainedDays)
+                StreakMonthCalendar(trainedDays: streak.trainedDays, today: today, calendar: calendar)
             }
         }
         .padding(16)
@@ -57,12 +60,12 @@ private struct StreakSummaryRow: View {
 /// Days of the current month; trained days get an accent dot.
 private struct StreakMonthCalendar: View {
     let trainedDays: Set<Date>
-
-    private let calendar = Calendar.current
+    let today: Date
+    let calendar: Calendar
 
     var body: some View {
         VStack(spacing: 8) {
-            Text(Date.now, format: .dateTime.month(.wide).year())
+            Text(today, format: .dateTime.month(.wide).year())
                 .font(.footnote)
                 .foregroundStyle(Color.textSecondary)
 
@@ -71,7 +74,7 @@ private struct StreakMonthCalendar: View {
                     StreakDayCell(
                         dayNumber: calendar.component(.day, from: day),
                         isTrained: trainedDays.contains(day),
-                        isToday: calendar.isDateInToday(day)
+                        isToday: calendar.isDate(day, inSameDayAs: today)
                     )
                 }
             }
@@ -79,8 +82,8 @@ private struct StreakMonthCalendar: View {
     }
 
     private var daysInCurrentMonth: [Date] {
-        guard let interval = calendar.dateInterval(of: .month, for: .now),
-              let dayCount = calendar.range(of: .day, in: .month, for: .now)?.count
+        guard let interval = calendar.dateInterval(of: .month, for: today),
+              let dayCount = calendar.range(of: .day, in: .month, for: today)?.count
         else { return [] }
 
         return (0..<dayCount).compactMap {

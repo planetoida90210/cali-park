@@ -5,6 +5,11 @@ import Observation
 /// Feeds the Home modules (Quick Log, streak, next workout, hero card) from
 /// the same `WorkoutLogStoring` the Exercises tab writes to. Reload on appear
 /// picks up entries saved while another tab was active.
+///
+/// Everything "today"-relative (hero, streak, next plan, weekly count) reads
+/// the cached `now`, which only moves on `reload()`. The view reloads when the
+/// scene becomes active and when the calendar day changes, so Home never keeps
+/// showing yesterday's state while the app sat in memory overnight.
 @MainActor
 @Observable
 final class HomeDashboardViewModel {
@@ -20,27 +25,38 @@ final class HomeDashboardViewModel {
     /// Whether the last reload failed for any store. Data that did load is
     /// shown; the rest keeps its previous value (empty on first load).
     private(set) var hasLoadError = false
+    /// The reference instant for every "today" question, refreshed by
+    /// `reload()` from the injected clock. Observed, so moving it re-renders
+    /// Home even when no data changed (e.g. after midnight).
+    private(set) var now: Date
 
     // MARK: Dependencies
     private let store: WorkoutLogStoring
     private let planStore: WorkoutPlanStoring
     private let placementStore: PlacementStoring
-    private let calendar: Calendar
+    let calendar: Calendar
+    /// Wall-clock source; tests inject a controllable one.
+    private let clock: () -> Date
 
     // MARK: Init
     init(store: WorkoutLogStoring,
          planStore: WorkoutPlanStoring,
          placementStore: PlacementStoring = InMemorySkillPlacementStore(),
-         calendar: Calendar = .current) {
+         calendar: Calendar = .current,
+         clock: @escaping () -> Date = { .now }) {
         self.store = store
         self.planStore = planStore
         self.placementStore = placementStore
         self.calendar = calendar
+        self.clock = clock
+        self.now = clock()
         reload()
     }
 
     // MARK: Intentions
+    /// Re-reads every store and moves `now` to the current time.
     func reload() {
+        now = clock()
         var failed = false
         do { entries = try store.load().sorted { $0.date > $1.date } } catch { failed = true }
         do { plans = try planStore.load() } catch { failed = true }
@@ -103,7 +119,7 @@ final class HomeDashboardViewModel {
 
     // MARK: Streak
     var streak: WorkoutStreak {
-        streak(asOf: .now)
+        streak(asOf: now)
     }
 
     /// Testable core of `streak` with an explicit reference date, computed on
@@ -115,7 +131,7 @@ final class HomeDashboardViewModel {
     // MARK: Hero card
     /// Pull-up reps logged in the current calendar week.
     var weeklyPullUps: Int {
-        guard let week = Calendar.current.dateInterval(of: .weekOfYear, for: .now) else { return 0 }
+        guard let week = calendar.dateInterval(of: .weekOfYear, for: now) else { return 0 }
         return entries
             .filter { $0.exerciseID == ExerciseCatalog.pullUpsID && week.contains($0.date) }
             .reduce(0) { $0 + $1.totalReps }
@@ -207,7 +223,7 @@ final class HomeDashboardViewModel {
     /// The active plan whose next occurrence is soonest, or `nil` when no plan
     /// is scheduled. Ties break on creation order for a stable result.
     var nextPlannedWorkout: PlannedWorkout? {
-        nextPlannedWorkout(asOf: .now)
+        nextPlannedWorkout(asOf: now)
     }
 
     /// Testable core of `nextPlannedWorkout` with an explicit reference date.
@@ -223,12 +239,17 @@ final class HomeDashboardViewModel {
     }
 
     // MARK: Hero state
+    /// The hero state for the cached `now`.
+    func heroState() -> HomeHeroState {
+        heroState(asOf: now)
+    }
+
     /// The contextual hero state for `reference`'s day, resolved from logs and
     /// plans. Pure and deterministic given the injected `calendar` and the
     /// explicit date, so it can be exhaustively tested. Mirrors the decision
     /// tree in the plan: plan today → done? → trained today? → any plan? →
     /// empty journal?
-    func heroState(asOf reference: Date = .now) -> HomeHeroState {
+    func heroState(asOf reference: Date) -> HomeHeroState {
         let entriesToday = entries.filter { calendar.isDate($0.date, inSameDayAs: reference) }
         let planned = nextPlannedWorkout(asOf: reference)
         let planToday = planned.flatMap { calendar.isDate($0.date, inSameDayAs: reference) ? $0.plan : nil }

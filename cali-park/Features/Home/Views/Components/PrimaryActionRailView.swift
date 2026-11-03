@@ -27,7 +27,9 @@ struct PrimaryActionRailView: View {
             }
         }
         .padding(.horizontal, 16)
-        .sheet(isPresented: $showingQuickWorkout) {
+        // Reload on dismiss too: the summary can delete the workout just
+        // saved, and closing the sheet fires no onAppear on Home.
+        .sheet(isPresented: $showingQuickWorkout, onDismiss: { dashboard.reload() }) {
             QuickWorkoutView(
                 viewModel: dashboard.makeQuickWorkoutViewModel(),
                 onFinish: { dashboard.reload() }

@@ -14,7 +14,7 @@ struct NextWorkoutModuleContent: View {
     var body: some View {
         Group {
             if let planned = dashboard.nextPlannedWorkout {
-                PlannedWorkoutContent(planned: planned) {
+                PlannedWorkoutContent(planned: planned, today: dashboard.now, calendar: dashboard.calendar) {
                     startingPlan = planned.plan
                 }
             } else if let suggestion = dashboard.suggestedExercise {
@@ -43,6 +43,8 @@ struct NextWorkoutModuleContent: View {
 // MARK: - PlannedWorkoutContent
 private struct PlannedWorkoutContent: View {
     let planned: HomeDashboardViewModel.PlannedWorkout
+    let today: Date
+    let calendar: Calendar
     let onStart: () -> Void
 
     var body: some View {
@@ -60,7 +62,7 @@ private struct PlannedWorkoutContent: View {
                         .font(.bodyLarge)
                         .foregroundStyle(Color.textPrimary)
 
-                    Text("\(WorkoutScheduleFormatter.dayLabel(planned.date)) · \(PolishPlural.exercises(planned.plan.exerciseCount))")
+                    Text("\(WorkoutScheduleFormatter.dayLabel(planned.date, asOf: today, calendar: calendar)) · \(PolishPlural.exercises(planned.plan.exerciseCount))")
                         .font(.bodySmall)
                         .foregroundStyle(Color.textSecondary)
                 }

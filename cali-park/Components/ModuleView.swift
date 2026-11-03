@@ -144,7 +144,7 @@ struct ModuleView: View {
         case "parks":
             ParksModuleContent()
         case "streak":
-            StreakModuleContent(streak: dashboard.streak)
+            StreakModuleContent(streak: dashboard.streak, today: dashboard.now, calendar: dashboard.calendar)
         case "friends":
             LeaderboardModuleContent()
         case "feed":
