@@ -2,17 +2,21 @@ import SwiftUI
 
 // MARK: - OnboardingView
 /// First-run flow: welcome, placement (where the athlete already is on each
-/// progression path), goals, and location permission.
+/// progression path), a suggested ready-made program, goals, and location
+/// permission.
 ///
 /// The placement page replaces the old three-card "fitness level" question,
 /// whose answer was thrown away. Its answers are saved through `PlacementStoring`
 /// via `PlacementCalibrationViewModel`, so a strong athlete starts partway up
-/// each ladder instead of from the bottom.
+/// each ladder instead of from the bottom. The program step suggests one
+/// program from those answers (`ProgramPrescriber.suggestedProgram`); the
+/// chosen one becomes plans on the declared rungs when onboarding finishes.
 struct OnboardingView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
 
     @State private var currentPage = 0
     @State private var calibration: PlacementCalibrationViewModel
+    @State private var programChoice: ProgramChoiceViewModel
     @State private var selectedGoals: [String] = []
     @State private var locationPermission = false
 
@@ -28,10 +32,13 @@ struct OnboardingView: View {
         "Przygotowanie do zawodów"
     ]
 
-    private let pageCount = 4
+    private let pageCount = 5
+    /// The program step comes right after the level test.
+    private let programPage = 2
 
     init(environment: AppEnvironment) {
         _calibration = State(initialValue: environment.makePlacementCalibrationViewModel())
+        _programChoice = State(initialValue: environment.makeProgramChoiceViewModel())
     }
 
     var body: some View {
@@ -42,10 +49,18 @@ struct OnboardingView: View {
                 TabView(selection: $currentPage) {
                     welcomeView.tag(0)
                     placementView.tag(1)
-                    goalsView.tag(2)
-                    locationPermissionView.tag(3)
+                    ProgramChoiceView(viewModel: programChoice).tag(programPage)
+                    goalsView.tag(3)
+                    locationPermissionView.tag(4)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
+                .onChange(of: currentPage) { _, page in
+                    // The suggestion follows the level test until the athlete
+                    // picks a program themselves.
+                    if page == programPage {
+                        programChoice.updateSuggestion(for: calibration.placement)
+                    }
+                }
 
                 VStack {
                     pageIndicators
@@ -58,6 +73,18 @@ struct OnboardingView: View {
             }
             .padding()
         }
+        .alert(programChoice.errorMessage ?? "", isPresented: programErrorBinding) {
+            Button("Rozumiem", role: .cancel) { hasCompletedOnboarding = true }
+        }
+    }
+
+    // Bridges the optional program error to a Bool binding for `.alert`.
+    // Closing the alert finishes onboarding without the plan.
+    private var programErrorBinding: Binding<Bool> {
+        Binding(
+            get: { programChoice.errorMessage != nil },
+            set: { if !$0 { programChoice.errorMessage = nil } }
+        )
     }
 
     // MARK: - Navigation chrome
@@ -93,12 +120,20 @@ struct OnboardingView: View {
                 }
             }
             .buttonStyle(PrimaryButtonStyle())
+            .disabled(programChoice.isCreating)
         }
     }
 
+    /// Saves the placement first, so the chosen program's plans start on the
+    /// rungs just declared, then creates them. A failure shows an alert that
+    /// finishes onboarding when closed.
     private func finish() {
         calibration.save()
-        hasCompletedOnboarding = true
+        Task {
+            if await programChoice.createChosenProgram() {
+                hasCompletedOnboarding = true
+            }
+        }
     }
 
     // MARK: - Pages

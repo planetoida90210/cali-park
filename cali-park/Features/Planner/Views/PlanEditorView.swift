@@ -21,6 +21,9 @@ struct PlanEditorView: View {
         NavigationStack {
             Form {
                 PlanNameSection(name: $viewModel.name)
+                if let origin = viewModel.programOrigin {
+                    PlanOriginSection(line: origin.line, credit: origin.credit)
+                }
                 PlanExercisesSection(viewModel: viewModel) { showingPicker = true }
                 PlanScheduleSection(viewModel: viewModel)
                 PlanReminderSection(viewModel: viewModel)
@@ -107,7 +110,9 @@ private struct PlanExercisesSection: View {
     var body: some View {
         Section {
             ForEach(viewModel.exercises) { planned in
-                PlanExerciseRow(exercise: viewModel.exercise(for: planned))
+                PlanExerciseRow(exercise: viewModel.exercise(for: planned),
+                                target: viewModel.targetSummary(for: planned),
+                                ladder: viewModel.ladderName(for: planned))
                     .listRowBackground(Color.componentBackground)
             }
             .onDelete { viewModel.remove(atOffsets: $0) }
@@ -127,9 +132,30 @@ private struct PlanExercisesSection: View {
     }
 }
 
+// MARK: - PlanOriginSection
+/// Which program the plan came from, with the program's credit line.
+private struct PlanOriginSection: View {
+    let line: String
+    let credit: String
+
+    var body: some View {
+        Section {
+            Label(line, systemImage: "list.bullet.clipboard")
+                .foregroundStyle(Color.textPrimary)
+                .listRowBackground(Color.componentBackground)
+        } footer: {
+            Text(credit)
+        }
+    }
+}
+
 // MARK: - PlanExerciseRow
 private struct PlanExerciseRow: View {
     let exercise: Exercise?
+    /// What to do, e.g. "Para 1 · 3 × 5–8 · przerwa 90 s".
+    var target: String?
+    /// The ladder the item follows, for an item from a program.
+    var ladder: String?
 
     var body: some View {
         HStack(spacing: 12) {
@@ -138,11 +164,26 @@ private struct PlanExerciseRow: View {
                 size: .row
             )
 
-            Text(exercise?.name ?? "Ćwiczenie")
-                .font(.bodyLarge)
-                .foregroundStyle(Color.textPrimary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(exercise?.name ?? "Ćwiczenie")
+                    .font(.bodyLarge)
+                    .foregroundStyle(Color.textPrimary)
+
+                if let target {
+                    Text(target)
+                        .font(.bodySmall)
+                        .foregroundStyle(Color.textSecondary)
+                }
+
+                if let ladder {
+                    Label("Podąża za Twoim szczeblem: \(ladder)", systemImage: "stairs")
+                        .font(.bodySmall)
+                        .foregroundStyle(Color.textSecondary)
+                }
+            }
         }
         .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
     }
 }
 

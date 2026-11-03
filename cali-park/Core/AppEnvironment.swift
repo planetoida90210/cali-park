@@ -119,6 +119,25 @@ final class AppEnvironment: ObservableObject {
         PlanEditorViewModel(plan: plan, service: workoutPlanService)
     }
 
+    /// Creates a ready-made program's plans on the athlete's current rungs.
+    func makeProgramStarter() -> ProgramStarter {
+        ProgramStarter(
+            planService: workoutPlanService,
+            logStore: workoutLogStore,
+            placementStore: placementStore
+        )
+    }
+
+    /// Detail screen of one ready-made program, with "Utwórz plan".
+    func makeProgramDetailViewModel(program: TrainingProgram) -> ProgramDetailViewModel {
+        ProgramDetailViewModel(program: program, starter: makeProgramStarter())
+    }
+
+    /// Onboarding's program suggestion after the level test.
+    func makeProgramChoiceViewModel() -> ProgramChoiceViewModel {
+        ProgramChoiceViewModel(starter: makeProgramStarter())
+    }
+
     // MARK: Preview
     static let preview = AppEnvironment()
 }

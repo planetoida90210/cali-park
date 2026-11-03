@@ -17,6 +17,13 @@ struct WorkoutPlan: Identifiable, Codable, Equatable, Hashable {
     /// The schedule stays day-granular; this adds the notification's clock time.
     /// Optional so plans saved before reminders existed decode as `nil`.
     var reminderTime: DateComponents?
+    /// The ready-made program this plan was created from (`ProgramID` raw
+    /// value), or `nil` for a plan the user built. Kept as a string so a plan
+    /// from a program this build doesn't know still loads. Optional, like
+    /// every field added after the first release, so older plans decode.
+    var programID: String?
+    /// The template version of `programID` the plan was created from.
+    var programVersion: Int?
 
     init(id: UUID = UUID(),
          name: String,
@@ -24,7 +31,9 @@ struct WorkoutPlan: Identifiable, Codable, Equatable, Hashable {
          schedule: WorkoutSchedule = .once(nil),
          isActive: Bool = true,
          createdAt: Date = .now,
-         reminderTime: DateComponents? = nil) {
+         reminderTime: DateComponents? = nil,
+         programID: String? = nil,
+         programVersion: Int? = nil) {
         self.id = id
         self.name = name
         self.exercises = exercises
@@ -32,6 +41,8 @@ struct WorkoutPlan: Identifiable, Codable, Equatable, Hashable {
         self.isActive = isActive
         self.createdAt = createdAt
         self.reminderTime = reminderTime
+        self.programID = programID
+        self.programVersion = programVersion
     }
 
     var exerciseCount: Int { exercises.count }

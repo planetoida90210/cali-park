@@ -95,6 +95,11 @@ enum ExerciseCatalog {
     static let elevatedPikePushUpsID = UUID(uuidString: "E0000000-0000-4000-8000-000000000075")!
     static let wallHandstandPushUpNegativesID = UUID(uuidString: "E0000000-0000-4000-8000-000000000076")!
 
+    // MARK: Stable identifiers — program exercises (ticket 016)
+    // Exercises a ready-made program needs that sit on no ladder. Variants of
+    // a main movement, so the library list does not grow.
+    static let plankShoulderTapsID = UUID(uuidString: "E0000000-0000-4000-8000-000000000077")!
+
     // MARK: Equipment keys
     /// A vertical pole for the human flag (OSM `fitness_station=fitness_pole`).
     static let verticalPoleEquipment = "fitness_pole"
@@ -1381,6 +1386,24 @@ enum ExerciseCatalog {
             ],
             symbolName: "figure.gymnastics",
             variantOf: wallHandstandPushUpsID
+        ),
+
+        // MARK: Ćwiczenia programów (poza drabinami)
+        Exercise(
+            id: plankShoulderTapsID,
+            name: "Deska z dotknięciem barku",
+            category: .basic,
+            muscleGroups: [.core, .shoulders],
+            description: "Podpór na prostych rękach, w którym na zmianę dotykasz dłonią przeciwnego barku. Uczy trzymać biodra nieruchomo, gdy podpór robi się jednostronny.",
+            instructions: [
+                "Podpór na prostych rękach, dłonie pod barkami, stopy nieco szerzej niż biodra.",
+                "Napnij brzuch i pośladki, ciało w linii.",
+                "Unieś jedną dłoń i dotknij nią przeciwnego barku, biodra się nie kołyszą.",
+                "Odłóż dłoń i zmień stronę."
+            ],
+            symbolName: "figure.core.training",
+            variantOf: plankID,
+            unilateralSide: .side
         )
     ]
 }

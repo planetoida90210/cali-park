@@ -50,28 +50,53 @@ final class QuickWorkoutViewModel {
     /// Seeds the session from a plan: each planned exercise becomes an item,
     /// prefilled from its targets or left pending for the user to log. Keeps
     /// the plan's `id` so finished entries record which plan they belong to.
-    init(store: WorkoutLogStoring, plan: WorkoutPlan) {
+    ///
+    /// With `pathStates`, items that follow a ladder (from a ready-made
+    /// program) train the athlete's current rung instead of the one they were
+    /// created on, and `logs` drive the "+1 rep" prefill. Without them, every
+    /// item trains its stored exercise.
+    init(store: WorkoutLogStoring,
+         plan: WorkoutPlan,
+         pathStates: [ProgressionPathID: PathState]? = nil,
+         logs: [WorkoutLogEntry] = []) {
         self.store = store
         self.planID = plan.id
-        let seeded = plan.exercises.compactMap(Self.draftItem(from:))
+        let seeded = plan.exercises.compactMap { Self.draftItem(from: $0, pathStates: pathStates, logs: logs) }
         self.items = seeded
         self.initialItems = seeded
     }
 
-    /// Maps a planned exercise to a session item. Returns `nil` when the
+    /// Maps a planned exercise to a session item, moving a ladder item to the
+    /// current rung when `pathStates` are known. Returns `nil` when the
     /// exercise is no longer in the catalog.
-    static func draftItem(from planned: PlannedExercise) -> DraftItem? {
-        guard let exercise = ExerciseCatalog.exercise(withID: planned.exerciseID) else { return nil }
-        return DraftItem(exercise: exercise, sets: prefilledSets(from: planned))
+    static func draftItem(from planned: PlannedExercise,
+                          pathStates: [ProgressionPathID: PathState]? = nil,
+                          logs: [WorkoutLogEntry] = []) -> DraftItem? {
+        let resolved = pathStates.map { ProgramPrescriber.resolved(planned, pathStates: $0) } ?? planned
+        guard let exercise = ExerciseCatalog.exercise(withID: resolved.exerciseID) else { return nil }
+        return DraftItem(exercise: exercise,
+                         sets: prefilledSets(from: resolved, measurement: exercise.measurement, logs: logs))
     }
 
-    /// Target sets/reps become concrete sets to confirm; without both targets
+    /// Target sets become concrete sets to confirm, in the exercise's unit:
+    /// reps for a rep exercise, seconds held for a hold (audit A-8). A range
+    /// prefills its bottom, or one rep more than the last session (see
+    /// `ProgramPrescriber.suggestedValue`). Without a set count and a value
     /// the item stays pending so the user logs it on the SetPad.
-    static func prefilledSets(from planned: PlannedExercise) -> [LoggedSet] {
-        guard let targetSets = planned.targetSets, targetSets > 0,
-              let targetReps = planned.targetReps, targetReps > 0
+    static func prefilledSets(from planned: PlannedExercise,
+                              measurement: ExerciseMeasurement = .reps,
+                              logs: [WorkoutLogEntry] = []) -> [LoggedSet] {
+        guard let targetSets = planned.targetSets, targetSets > 0 else { return [] }
+        var target = planned
+        // A hold planned before hold targets existed carries its seconds in
+        // `targetReps`.
+        if measurement == .seconds, target.targetSeconds == nil {
+            target.targetSeconds = target.targetReps
+        }
+        guard let value = ProgramPrescriber.suggestedValue(for: target, measurement: measurement, logs: logs),
+              value > 0
         else { return [] }
-        return Array(repeating: LoggedSet(reps: targetReps), count: targetSets)
+        return Array(repeating: LoggedSet(value: value, measurement: measurement), count: targetSets)
     }
 
     // MARK: Derived state

@@ -187,7 +187,9 @@ struct LadderRevisionContentTests {
             E.archerPullUpsID: .arm, E.archerRowsID: .arm,
             E.lungesID: .leg, E.splitSquatID: .leg, E.bulgarianSplitSquatID: .leg, E.stepUpsID: .leg,
             E.assistedPistolSquatsID: .leg, E.pistolSquatsID: .leg,
-            E.oneFootSupportedLSitID: .side, E.oneLegLSitID: .side
+            E.oneFootSupportedLSitID: .side, E.oneLegLSitID: .side,
+            // Off the ladders, added for the "Minimum" program (ticket 016).
+            E.plankShoulderTapsID: .side
         ]
         let actual = Dictionary(uniqueKeysWithValues: E.all.compactMap { exercise in
             exercise.unilateralSide.map { (exercise.id, $0) }

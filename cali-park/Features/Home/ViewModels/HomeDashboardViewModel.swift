@@ -78,9 +78,12 @@ final class HomeDashboardViewModel {
     }
 
     /// Quick workout session seeded with a plan's exercises; the user confirms
-    /// each exercise's sets on the SetPad before finishing.
+    /// each exercise's sets on the SetPad before finishing. Items from a
+    /// program follow the athlete's current rung. When a store failed to
+    /// load, the ladder state is unknown, so items keep their stored exercise.
     func makeQuickWorkoutViewModel(plan: WorkoutPlan) -> QuickWorkoutViewModel {
-        QuickWorkoutViewModel(store: store, plan: plan)
+        let pathStates = hasLoadError ? nil : ProgressionEngine.pathStates(logs: entries, placement: placement)
+        return QuickWorkoutViewModel(store: store, plan: plan, pathStates: pathStates, logs: entries)
     }
 
     /// Detail screen for a workout opened from the "Ostatni trening" card.

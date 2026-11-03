@@ -2,10 +2,16 @@ import SwiftUI
 
 // MARK: - WorkoutPlansView
 /// "Plany treningowe": the list of saved workout plans. Tap a plan to edit it,
-/// "+" to create one, swipe to delete. Pushed from the Exercises tab.
+/// "+" to create one, swipe to delete. "Gotowe programy" creates plans from a
+/// ready-made program and then opens the first one in the editor. Pushed from
+/// the Exercises tab and from Home.
 struct WorkoutPlansView: View {
     @State private var viewModel: WorkoutPlansViewModel
     @State private var editorRoute: PlanEditorRoute?
+    @State private var showingPrograms = false
+    /// A plan just created from a program, opened in the editor once the
+    /// program sheet has closed.
+    @State private var planCreatedFromProgram: WorkoutPlan?
 
     private let environment: AppEnvironment
 
@@ -17,7 +23,8 @@ struct WorkoutPlansView: View {
     var body: some View {
         Group {
             if viewModel.plans.isEmpty {
-                WorkoutPlansEmptyState { editorRoute = .new }
+                WorkoutPlansEmptyState(onCreate: { editorRoute = .new },
+                                       onBrowsePrograms: { showingPrograms = true })
             } else {
                 planList
             }
@@ -36,6 +43,13 @@ struct WorkoutPlansView: View {
                 .accessibilityLabel("Nowy plan")
             }
         }
+        .sheet(isPresented: $showingPrograms, onDismiss: openCreatedPlan) {
+            ProgramBrowserView(environment: environment) { plans in
+                planCreatedFromProgram = plans.first
+                viewModel.reload()
+                showingPrograms = false
+            }
+        }
         .sheet(item: $editorRoute) { route in
             PlanEditorView(viewModel: environment.makePlanEditorViewModel(plan: route.plan)) {
                 viewModel.reload()
@@ -49,24 +63,42 @@ struct WorkoutPlansView: View {
         }
     }
 
+    /// Opens the plan created from a program in the editor.
+    private func openCreatedPlan() {
+        guard let plan = planCreatedFromProgram else { return }
+        planCreatedFromProgram = nil
+        editorRoute = .edit(plan)
+    }
+
     // MARK: Plan list
     private var planList: some View {
         List {
-            ForEach(viewModel.plans) { plan in
+            Section {
                 Button {
-                    editorRoute = .edit(plan)
+                    showingPrograms = true
                 } label: {
-                    WorkoutPlanRow(plan: plan,
-                                   summary: viewModel.scheduleSummary(for: plan),
-                                   reminder: viewModel.reminderSummary(for: plan))
+                    ProgramsEntryRow()
                 }
                 .listRowBackground(Color.componentBackground)
-                .listRowSeparatorTint(Color.divider)
             }
-            .onDelete { offsets in
-                let doomed = offsets.map { viewModel.plans[$0] }
-                Task {
-                    for plan in doomed { await viewModel.delete(plan) }
+
+            Section {
+                ForEach(viewModel.plans) { plan in
+                    Button {
+                        editorRoute = .edit(plan)
+                    } label: {
+                        WorkoutPlanRow(plan: plan,
+                                       summary: viewModel.scheduleSummary(for: plan),
+                                       reminder: viewModel.reminderSummary(for: plan))
+                    }
+                    .listRowBackground(Color.componentBackground)
+                    .listRowSeparatorTint(Color.divider)
+                }
+                .onDelete { offsets in
+                    let doomed = offsets.map { viewModel.plans[$0] }
+                    Task {
+                        for plan in doomed { await viewModel.delete(plan) }
+                    }
                 }
             }
         }
@@ -143,9 +175,42 @@ private struct WorkoutPlanRow: View {
     }
 }
 
+// MARK: - ProgramsEntryRow
+/// The way into "Gotowe programy" above the plan list.
+private struct ProgramsEntryRow: View {
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "list.bullet.clipboard")
+                .font(.title3)
+                .foregroundStyle(Color.accent)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Gotowe programy")
+                    .font(.bodyLarge)
+                    .foregroundStyle(Color.textPrimary)
+                Text("Minimum, Fundamenty, Pierwsze podciągnięcie, Skille")
+                    .font(.bodySmall)
+                    .foregroundStyle(Color.textSecondary)
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.bodySmall)
+                .foregroundStyle(Color.textTertiary)
+                .accessibilityHidden(true)
+        }
+        .padding(.vertical, 4)
+        .contentShape(.rect)
+        .accessibilityElement(children: .combine)
+    }
+}
+
 // MARK: - WorkoutPlansEmptyState
 private struct WorkoutPlansEmptyState: View {
     let onCreate: () -> Void
+    let onBrowsePrograms: () -> Void
 
     var body: some View {
         VStack(spacing: 16) {
@@ -173,6 +238,12 @@ private struct WorkoutPlansEmptyState: View {
                     .clipShape(.rect(cornerRadius: 12))
             }
             .padding(.top, 8)
+
+            Button(action: onBrowsePrograms) {
+                Label("Wybierz gotowy program", systemImage: "list.bullet.clipboard")
+                    .font(.buttonMedium)
+                    .foregroundStyle(Color.accent)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

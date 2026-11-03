@@ -194,6 +194,37 @@ final class PlanEditorViewModel {
         ExerciseCatalog.exercise(withID: planned.exerciseID)
     }
 
+    // MARK: Program origin
+    /// The ready-made program the plan was created from, or `nil` for a plan
+    /// the user built.
+    var program: TrainingProgram? {
+        ProgramCatalog.program(for: original)
+    }
+
+    /// "Program Fundamenty · wersja 1" plus the program's credit line, for a
+    /// plan created from a program.
+    var programOrigin: (line: String, credit: String)? {
+        program.map { (ProgramFormat.originLine(for: $0, version: original.programVersion), $0.creditLine) }
+    }
+
+    /// What to do on an item, e.g. "3 × 5–8 · przerwa 90 s", or `nil` for an
+    /// item without targets.
+    func targetSummary(for planned: PlannedExercise) -> String? {
+        let parts = [
+            ProgramFormat.groupLabel(for: planned, in: exercises),
+            ProgramFormat.doseSummary(for: planned, exercise: exercise(for: planned)),
+            ProgramFormat.restSummary(for: planned)
+        ].compactMap { $0 }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+
+    /// The ladder an item follows ("Podciąganie"), or `nil` for a fixed
+    /// exercise. Such an item trains the athlete's current rung when a
+    /// session starts.
+    func ladderName(for planned: PlannedExercise) -> String? {
+        planned.pathID.flatMap(ProgressionCatalog.path(withID:))?.name
+    }
+
     /// The plan `save()` would store: the original with only the edited
     /// fields replaced.
     var editedPlan: WorkoutPlan {
