@@ -349,14 +349,14 @@ struct SkillPlacementStoreTests {
         defer { try? FileManager.default.removeItem(at: directory) }
 
         let store = FileSkillPlacementStore(directory: directory)
-        #expect(store.load() == nil)
+        #expect(try store.load() == nil)
 
         // ISO 8601 stores whole seconds, so a sub-second `.now` wouldn't roundtrip.
         let placement = SkillPlacement(declaredRungByPath: [.core: 1],
                                        ownedEquipment: ["Pull-up bar"],
                                        declaredAt: Date(timeIntervalSince1970: 1_000_000))
         try store.save(placement)
-        #expect(store.load() == placement)
+        #expect(try store.load() == placement)
     }
 }
 
@@ -387,10 +387,10 @@ struct SkillProgressStoreTests {
         defer { try? FileManager.default.removeItem(at: directory) }
 
         let store = FileSkillProgressStore(directory: directory)
-        #expect(store.load() == nil)
+        #expect(try store.load() == nil)
 
         let progress = SkillProgress(celebratedRungs: [RungReference(pathID: .planche, rungIndex: 1)], celebratedLevel: 2)
         try store.save(progress)
-        #expect(store.load() == progress)
+        #expect(try store.load() == progress)
     }
 }

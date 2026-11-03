@@ -11,6 +11,9 @@ final class WorkoutHistoryViewModel {
     // MARK: State
     private(set) var entries: [WorkoutLogEntry] = []
     var errorMessage: String?
+    /// Whether the last reload failed. The list then keeps what it showed
+    /// before (nothing, on first load) instead of claiming the journal is empty.
+    private(set) var hasLoadError = false
 
     // MARK: Dependencies
     private let store: WorkoutLogStoring
@@ -25,7 +28,14 @@ final class WorkoutHistoryViewModel {
     /// Re-reads the store; call when the view appears so entries saved from
     /// the SetPad (or deleted on the detail screen) show up without extra wiring.
     func reload() {
-        entries = store.load().sorted { $0.date > $1.date }
+        do {
+            entries = try store.load().sorted { $0.date > $1.date }
+            hasLoadError = false
+        } catch {
+            // Alert once per failure streak, not on every appear.
+            if !hasLoadError { errorMessage = StoreLoadFailure.message }
+            hasLoadError = true
+        }
     }
 
     func delete(_ entry: WorkoutLogEntry) {

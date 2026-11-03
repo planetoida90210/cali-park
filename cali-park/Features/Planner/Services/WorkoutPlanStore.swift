@@ -5,8 +5,9 @@ import Foundation
 /// view models stay testable with the in-memory stub, and the backend can be
 /// swapped later (local JSON now → Supabase/Firebase when it lands).
 protocol WorkoutPlanStoring {
-    /// Returns all saved plans; empty when none exist yet.
-    func load() -> [WorkoutPlan]
+    /// Returns all saved plans; empty when none exist yet. Throws when saved
+    /// plans exist but cannot be read.
+    func load() throws -> [WorkoutPlan]
 
     /// Inserts the plan, or replaces the existing one with the same `id`.
     func save(_ plan: WorkoutPlan) throws
@@ -17,55 +18,34 @@ protocol WorkoutPlanStoring {
 
 // MARK: - FileWorkoutPlanStore
 /// Default `WorkoutPlanStoring` implementation: a single JSON file in the
-/// app's documents directory. Adequate for a handful of personal plans;
-/// deliberately not Core Data.
+/// app's documents directory, through `JSONFileStore`. Adequate for a handful
+/// of personal plans; deliberately not Core Data.
 struct FileWorkoutPlanStore: WorkoutPlanStoring {
-    private let fileURL: URL
+    private let file: JSONFileStore<[WorkoutPlan]>
 
     init(directory: URL = .documentsDirectory, fileName: String = "workout-plans.json") {
-        fileURL = directory.appending(path: fileName)
+        file = JSONFileStore(fileURL: directory.appending(path: fileName), logCategory: "WorkoutPlanStore")
     }
 
-    func load() -> [WorkoutPlan] {
-        guard let data = try? Data(contentsOf: fileURL) else { return [] }
-        return (try? Self.decoder.decode([WorkoutPlan].self, from: data)) ?? []
+    func load() throws -> [WorkoutPlan] {
+        try file.read() ?? []
     }
 
     /// Upsert by `id`: replaces the matching plan in place (keeping order) or
     /// appends a new one, then writes the whole file atomically.
     func save(_ plan: WorkoutPlan) throws {
-        var plans = load()
-        if let index = plans.firstIndex(where: { $0.id == plan.id }) {
-            plans[index] = plan
-        } else {
-            plans.append(plan)
+        try file.update(initial: []) { plans in
+            if let index = plans.firstIndex(where: { $0.id == plan.id }) {
+                plans[index] = plan
+            } else {
+                plans.append(plan)
+            }
         }
-        try writeAll(plans)
     }
 
     func delete(id: UUID) throws {
-        var plans = load()
-        plans.removeAll { $0.id == id }
-        try writeAll(plans)
+        try file.update(initial: []) { $0.removeAll { $0.id == id } }
     }
-
-    private func writeAll(_ plans: [WorkoutPlan]) throws {
-        let data = try Self.encoder.encode(plans)
-        try data.write(to: fileURL, options: .atomic)
-    }
-
-    // ISO 8601 dates keep the JSON file human-readable and stable across formats.
-    private static let encoder: JSONEncoder = {
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        return encoder
-    }()
-
-    private static let decoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return decoder
-    }()
 }
 
 // MARK: - InMemoryWorkoutPlanStore

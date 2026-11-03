@@ -10,6 +10,8 @@ final class WorkoutPlansViewModel {
     // MARK: State
     private(set) var plans: [WorkoutPlan] = []
     var errorMessage: String?
+    /// Whether the last reload failed; the list then keeps its previous plans.
+    private(set) var hasLoadError = false
 
     // MARK: Dependencies
     private let store: WorkoutPlanStoring
@@ -23,7 +25,14 @@ final class WorkoutPlansViewModel {
     // MARK: Intentions
     /// Re-reads the store; call on appear so plans saved in the editor show up.
     func reload() {
-        plans = store.load().sorted { $0.createdAt > $1.createdAt }
+        do {
+            plans = try store.load().sorted { $0.createdAt > $1.createdAt }
+            hasLoadError = false
+        } catch {
+            // Alert once per failure streak, not on every appear.
+            if !hasLoadError { errorMessage = StoreLoadFailure.message }
+            hasLoadError = true
+        }
     }
 
     func delete(_ plan: WorkoutPlan) {

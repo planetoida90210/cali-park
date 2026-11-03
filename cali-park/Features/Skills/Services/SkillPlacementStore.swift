@@ -10,8 +10,9 @@ import Foundation
 /// plain JSON file in the documents directory is the right store.
 protocol PlacementStoring {
     /// The saved placement, or `nil` when the athlete never declared one (used
-    /// to prompt calibration on first contact with the Skills tab).
-    func load() -> SkillPlacement?
+    /// to prompt calibration on first contact with the Skills tab). Throws when
+    /// a saved placement exists but cannot be read — that is not "never declared".
+    func load() throws -> SkillPlacement?
 
     /// Persists the placement, replacing any previous declaration.
     func save(_ placement: SkillPlacement) throws
@@ -19,36 +20,22 @@ protocol PlacementStoring {
 
 // MARK: - FileSkillPlacementStore
 /// Default `PlacementStoring` implementation: a single JSON file in the app's
-/// documents directory. Deliberately not Core Data — one small value per user.
+/// documents directory, through `JSONFileStore`. Deliberately not Core Data —
+/// one small value per user.
 struct FileSkillPlacementStore: PlacementStoring {
-    private let fileURL: URL
+    private let file: JSONFileStore<SkillPlacement>
 
     init(directory: URL = .documentsDirectory, fileName: String = "skill-placement.json") {
-        fileURL = directory.appending(path: fileName)
+        file = JSONFileStore(fileURL: directory.appending(path: fileName), logCategory: "SkillPlacementStore")
     }
 
-    func load() -> SkillPlacement? {
-        guard let data = try? Data(contentsOf: fileURL) else { return nil }
-        return try? Self.decoder.decode(SkillPlacement.self, from: data)
+    func load() throws -> SkillPlacement? {
+        try file.read()
     }
 
     func save(_ placement: SkillPlacement) throws {
-        let data = try Self.encoder.encode(placement)
-        try data.write(to: fileURL, options: .atomic)
+        try file.write(placement)
     }
-
-    // ISO 8601 dates keep the JSON file human-readable and stable across formats.
-    private static let encoder: JSONEncoder = {
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        return encoder
-    }()
-
-    private static let decoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return decoder
-    }()
 }
 
 // MARK: - InMemorySkillPlacementStore

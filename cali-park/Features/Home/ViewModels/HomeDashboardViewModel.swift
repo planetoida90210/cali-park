@@ -15,6 +15,11 @@ final class HomeDashboardViewModel {
     /// The athlete's declared placement, cached on reload so the achievements
     /// module and hero hint read it without touching disk on every render.
     private var placement: SkillPlacement?
+    /// Set when a store fails to load, for the Home alert.
+    var errorMessage: String?
+    /// Whether the last reload failed for any store. Data that did load is
+    /// shown; the rest keeps its previous value (empty on first load).
+    private(set) var hasLoadError = false
 
     // MARK: Dependencies
     private let store: WorkoutLogStoring
@@ -36,9 +41,13 @@ final class HomeDashboardViewModel {
 
     // MARK: Intentions
     func reload() {
-        entries = store.load().sorted { $0.date > $1.date }
-        plans = planStore.load()
-        placement = placementStore.load()
+        var failed = false
+        do { entries = try store.load().sorted { $0.date > $1.date } } catch { failed = true }
+        do { plans = try planStore.load() } catch { failed = true }
+        do { placement = try placementStore.load() } catch { failed = true }
+        // Alert once per failure streak, not on every appear.
+        if failed, !hasLoadError { errorMessage = StoreLoadFailure.message }
+        hasLoadError = failed
     }
 
     /// SetPad session for logging straight from Home (Quick Log).

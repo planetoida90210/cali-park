@@ -122,8 +122,21 @@ struct HomeView: View {
                 // Picks up entries logged in the Exercises tab.
                 dashboard.reload()
             }
+            .alert(dashboard.errorMessage ?? "", isPresented: errorBinding) {
+                Button("Rozumiem", role: .cancel) {}
+            } message: {
+                Text("Spróbuj ponownie.")
+            }
         }
         .environmentObject(modulePreferences)
+    }
+
+    // Bridges the optional `errorMessage` to a Bool binding for `.alert`.
+    private var errorBinding: Binding<Bool> {
+        Binding(
+            get: { dashboard.errorMessage != nil },
+            set: { if !$0 { dashboard.errorMessage = nil } }
+        )
     }
 
     /// Weekly pull-up goal progress (goal stays mocked until the Profile sprint).

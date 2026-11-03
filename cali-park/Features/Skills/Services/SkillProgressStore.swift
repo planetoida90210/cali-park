@@ -9,7 +9,8 @@ import Foundation
 /// which celebrations have played. A plain JSON file is the right store.
 protocol SkillProgressStoring {
     /// The saved progress record, or `nil` when nothing has been celebrated yet.
-    func load() -> SkillProgress?
+    /// Throws when a saved record exists but cannot be read.
+    func load() throws -> SkillProgress?
 
     /// Persists the progress record.
     func save(_ progress: SkillProgress) throws
@@ -17,22 +18,20 @@ protocol SkillProgressStoring {
 
 // MARK: - FileSkillProgressStore
 /// Default `SkillProgressStoring` implementation: a single JSON file in the
-/// app's documents directory.
+/// app's documents directory, through `JSONFileStore`.
 struct FileSkillProgressStore: SkillProgressStoring {
-    private let fileURL: URL
+    private let file: JSONFileStore<SkillProgress>
 
     init(directory: URL = .documentsDirectory, fileName: String = "skill-progress.json") {
-        fileURL = directory.appending(path: fileName)
+        file = JSONFileStore(fileURL: directory.appending(path: fileName), logCategory: "SkillProgressStore")
     }
 
-    func load() -> SkillProgress? {
-        guard let data = try? Data(contentsOf: fileURL) else { return nil }
-        return try? JSONDecoder().decode(SkillProgress.self, from: data)
+    func load() throws -> SkillProgress? {
+        try file.read()
     }
 
     func save(_ progress: SkillProgress) throws {
-        let data = try JSONEncoder().encode(progress)
-        try data.write(to: fileURL, options: .atomic)
+        try file.write(progress)
     }
 }
 

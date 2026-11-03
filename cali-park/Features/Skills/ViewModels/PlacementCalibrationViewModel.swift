@@ -35,8 +35,9 @@ final class PlacementCalibrationViewModel {
         self.store = store
         self.now = now
         // Pre-fill the unambiguous equipment answer from any prior declaration so
-        // re-calibration starts from what the athlete already told us.
-        ownsBand = store.load()?.ownsEquipment(PlacementCalibration.bandEquipment) ?? false
+        // re-calibration starts from what the athlete already told us. An
+        // unreadable placement only loses the pre-fill; saving reports the error.
+        ownsBand = (try? store.load())?.ownsEquipment(PlacementCalibration.bandEquipment) ?? false
     }
 
     // MARK: Answers

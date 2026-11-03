@@ -28,7 +28,7 @@ struct SkillPathsView: View {
                 VStack(spacing: 24) {
                     SkillLevelHeader(level: viewModel.level)
 
-                    if !viewModel.hasPlacement {
+                    if viewModel.needsCalibration {
                         CalibrationPrompt { showingCalibration = true }
                     }
 
@@ -66,7 +66,7 @@ struct SkillPathsView: View {
             }
             .onAppear {
                 viewModel.load()
-                if !viewModel.hasPlacement, !hasOfferedCalibration {
+                if viewModel.needsCalibration, !hasOfferedCalibration {
                     hasOfferedCalibration = true
                     showingCalibration = true
                 }
@@ -74,8 +74,21 @@ struct SkillPathsView: View {
             .sheet(isPresented: $showingCalibration, onDismiss: { viewModel.load() }) {
                 PlacementCalibrationSheet(viewModel: environment.makePlacementCalibrationViewModel())
             }
+            .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
+                Button("Rozumiem", role: .cancel) {}
+            } message: {
+                Text("Spróbuj ponownie.")
+            }
         }
         .rewardOverlay(viewModel)
+    }
+
+    // Bridges the optional `errorMessage` to a Bool binding for `.alert`.
+    private var errorBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        )
     }
 }
 

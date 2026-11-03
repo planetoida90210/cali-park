@@ -17,7 +17,7 @@ struct PersistenceController {
 
     let container: NSPersistentContainer
 
-    private static let logger = Logger(subsystem: "com.michalbryk.cali-park", category: "Persistence")
+    private static let logger = AppLog.logger(category: "Persistence")
 
     init(inMemory: Bool = false) {
         container = NSPersistentContainer(name: "cali_park")

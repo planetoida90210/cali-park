@@ -232,17 +232,17 @@ struct WorkoutPlanStoreTests {
 
         // A fresh instance reads what the first one wrote.
         let reader = FileWorkoutPlanStore(directory: directory)
-        #expect(reader.load().count == 1)
-        #expect(reader.load().first?.name == "Full body")
+        #expect(try reader.load().count == 1)
+        #expect(try reader.load().first?.name == "Full body")
 
         try reader.delete(id: plan.id)
-        #expect(FileWorkoutPlanStore(directory: directory).load().isEmpty)
+        #expect(try FileWorkoutPlanStore(directory: directory).load().isEmpty)
     }
 
     @Test
-    func loadIsEmptyWhenNoFileExists() {
+    func loadIsEmptyWhenNoFileExists() throws {
         let directory = FileManager.default.temporaryDirectory
             .appending(path: UUID().uuidString)
-        #expect(FileWorkoutPlanStore(directory: directory).load().isEmpty)
+        #expect(try FileWorkoutPlanStore(directory: directory).load().isEmpty)
     }
 }

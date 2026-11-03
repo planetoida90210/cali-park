@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import os
 
 // MARK: - SkillPathsViewModel
 /// Drives the Skills tab: turns the workout log and the athlete's placement into
@@ -31,6 +32,11 @@ final class SkillPathsViewModel {
     /// XP gained by the most recent save, to show as a toast; `nil` when there
     /// is nothing fresh to announce (or a celebration is carrying the moment).
     private(set) var xpToastAmount: Int?
+    /// Set when the log or placement fails to load, for the Skills alert.
+    var errorMessage: String?
+    /// Whether the last load failed. The tab then keeps its previous state and
+    /// must not offer calibration: an unreadable placement is not a missing one.
+    private(set) var hasLoadError = false
 
     /// Advances waiting behind `currentCelebration`, shown one at a time.
     private var pendingCelebrations: [CelebrationEvent] = []
@@ -41,6 +47,8 @@ final class SkillPathsViewModel {
     /// The most recent logs, kept so any single rung can be scored on demand
     /// (the ladder detail shows a best for every rung, not just the current one).
     private var logs: [WorkoutLogEntry] = []
+
+    private let logger = AppLog.logger(category: "SkillPaths")
 
     // MARK: Dependencies
     private let logStore: WorkoutLogStoring
@@ -61,8 +69,17 @@ final class SkillPathsViewModel {
     /// Recomputes every path's state, the level, and any fresh advances from the
     /// current logs and placement.
     func load() {
-        logs = logStore.load()
-        let placement = placementStore.load()
+        let placement: SkillPlacement?
+        do {
+            logs = try logStore.load()
+            placement = try placementStore.load()
+            hasLoadError = false
+        } catch {
+            // Alert once per failure streak, not on every appear.
+            if !hasLoadError { errorMessage = StoreLoadFailure.message }
+            hasLoadError = true
+            return
+        }
         let states = ProgressionEngine.pathStates(logs: logs, placement: placement)
 
         let previous = summaries
@@ -83,13 +100,26 @@ final class SkillPathsViewModel {
     /// Compares logs against the "already celebrated" record, queues any fresh
     /// advances, and persists the updated record so each is celebrated once.
     /// The placement is a floor only — it never adds a celebration.
+    /// An unreadable record is skipped, not treated as "nothing celebrated":
+    /// that would re-baseline silently and overwrite it.
     private func enqueueFreshCelebrations(placement: SkillPlacement?) {
+        let celebrated: SkillProgress?
+        do {
+            celebrated = try progressStore.load()
+        } catch {
+            logger.error("Skipping rewards, progress unreadable: \(String(describing: error), privacy: .public)")
+            return
+        }
         let evaluation = RewardEvaluator.evaluate(
             logs: logs,
             placement: placement,
-            celebrated: progressStore.load()
+            celebrated: celebrated
         )
-        try? progressStore.save(evaluation.updatedProgress)
+        do {
+            try progressStore.save(evaluation.updatedProgress)
+        } catch {
+            logger.error("Cannot save reward progress: \(String(describing: error), privacy: .public)")
+        }
 
         guard !evaluation.pendingEvents.isEmpty else { return }
         pendingCelebrations.append(contentsOf: evaluation.pendingEvents)
@@ -109,6 +139,10 @@ final class SkillPathsViewModel {
         }
         xpToastAmount = currentCelebration == nil ? total - previous : nil
     }
+
+    /// Whether to offer the calibration prompt: no placement declared yet, and
+    /// not merely an unreadable one.
+    var needsCalibration: Bool { !hasPlacement && !hasLoadError }
 
     /// Whether more advances wait behind the one on screen.
     var hasQueuedCelebrations: Bool { !pendingCelebrations.isEmpty }

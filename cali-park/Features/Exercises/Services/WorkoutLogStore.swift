@@ -6,7 +6,9 @@ import Foundation
 /// (local JSON now → Supabase/Firebase when the backend lands).
 protocol WorkoutLogStoring {
     /// Returns all persisted entries; empty when nothing has been logged yet.
-    func load() -> [WorkoutLogEntry]
+    /// Throws when saved entries exist but cannot be read, so callers never
+    /// mistake a broken file for an empty journal.
+    func load() throws -> [WorkoutLogEntry]
 
     /// Persists a new entry.
     func append(_ entry: WorkoutLogEntry) throws
@@ -32,58 +34,34 @@ extension WorkoutLogStoring {
 
 // MARK: - FileWorkoutLogStore
 /// Default `WorkoutLogStoring` implementation: a single JSON file in the
-/// app's documents directory. Adequate for a personal training log
-/// (tens–hundreds of entries); deliberately not Core Data.
+/// app's documents directory, through `JSONFileStore`. Adequate for a personal
+/// training log (tens–hundreds of entries); deliberately not Core Data. A file
+/// that cannot be read makes every call throw instead of being overwritten.
 struct FileWorkoutLogStore: WorkoutLogStoring {
-    private let fileURL: URL
+    private let file: JSONFileStore<[WorkoutLogEntry]>
 
     init(directory: URL = .documentsDirectory, fileName: String = "workout-log.json") {
-        fileURL = directory.appending(path: fileName)
+        file = JSONFileStore(fileURL: directory.appending(path: fileName), logCategory: "WorkoutLogStore")
     }
 
-    func load() -> [WorkoutLogEntry] {
-        guard let data = try? Data(contentsOf: fileURL) else { return [] }
-        return (try? Self.decoder.decode([WorkoutLogEntry].self, from: data)) ?? []
+    func load() throws -> [WorkoutLogEntry] {
+        try file.read() ?? []
     }
 
     func append(_ entry: WorkoutLogEntry) throws {
-        var entries = load()
-        entries.append(entry)
-        try save(entries)
+        try file.update(initial: []) { $0.append(entry) }
     }
 
     /// One atomic write for the whole session — no partial persistence if the
     /// write fails midway.
     func append(contentsOf newEntries: [WorkoutLogEntry]) throws {
         guard !newEntries.isEmpty else { return }
-        var entries = load()
-        entries.append(contentsOf: newEntries)
-        try save(entries)
+        try file.update(initial: []) { $0.append(contentsOf: newEntries) }
     }
 
     func delete(id: UUID) throws {
-        var entries = load()
-        entries.removeAll { $0.id == id }
-        try save(entries)
+        try file.update(initial: []) { $0.removeAll { $0.id == id } }
     }
-
-    private func save(_ entries: [WorkoutLogEntry]) throws {
-        let data = try Self.encoder.encode(entries)
-        try data.write(to: fileURL, options: .atomic)
-    }
-
-    // ISO 8601 dates keep the JSON file human-readable and stable across formats.
-    private static let encoder: JSONEncoder = {
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        return encoder
-    }()
-
-    private static let decoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return decoder
-    }()
 }
 
 // MARK: - InMemoryWorkoutLogStore

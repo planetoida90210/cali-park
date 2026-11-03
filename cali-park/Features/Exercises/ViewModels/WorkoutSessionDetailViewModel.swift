@@ -14,6 +14,8 @@ final class WorkoutSessionDetailViewModel {
     var errorMessage: String?
     /// Set after a successful delete so the screen can close itself.
     private(set) var didDelete = false
+    /// Whether the last reload failed; the screen then keeps its previous state.
+    private(set) var hasLoadError = false
 
     // MARK: Dependencies
     private let sessionID: UUID
@@ -30,7 +32,13 @@ final class WorkoutSessionDetailViewModel {
     /// Re-reads the store in saved order, so exercises list the way they were
     /// added to the workout.
     func reload() {
-        session = WorkoutSession.session(withID: sessionID, in: store.load())
+        do {
+            session = WorkoutSession.session(withID: sessionID, in: try store.load())
+            hasLoadError = false
+        } catch {
+            if !hasLoadError { errorMessage = StoreLoadFailure.message }
+            hasLoadError = true
+        }
     }
 
     /// Removes every entry of the workout. On failure the screen re-reads the

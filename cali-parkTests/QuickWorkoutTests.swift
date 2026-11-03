@@ -198,7 +198,7 @@ struct WorkoutLogStoreBatchTests {
 
         try store.append(contentsOf: entries)
 
-        let reloaded = FileWorkoutLogStore(directory: directory).load()
+        let reloaded = try FileWorkoutLogStore(directory: directory).load()
         #expect(reloaded.count == 2)
         #expect(Set(reloaded.compactMap(\.sessionID)) == [sessionID])
     }

@@ -164,7 +164,7 @@ struct FileWorkoutLogStoreTests {
     @Test
     func loadFromEmptyDirectoryReturnsNoEntries() throws {
         let store = try makeStore()
-        #expect(store.load().isEmpty)
+        #expect(try store.load().isEmpty)
     }
 
     @Test
@@ -176,7 +176,7 @@ struct FileWorkoutLogStoreTests {
         try store.append(first)
         try store.append(second)
 
-        #expect(store.load() == [first, second])
+        #expect(try store.load() == [first, second])
     }
 
     @Test
@@ -189,7 +189,7 @@ struct FileWorkoutLogStoreTests {
 
         try store.delete(id: remove.id)
 
-        #expect(store.load() == [keep])
+        #expect(try store.load() == [keep])
     }
 
     @Test
@@ -200,7 +200,7 @@ struct FileWorkoutLogStoreTests {
 
         try store.delete(id: UUID())
 
-        #expect(store.load() == [entry])
+        #expect(try store.load() == [entry])
     }
 
     @Test
@@ -213,7 +213,7 @@ struct FileWorkoutLogStoreTests {
         try FileWorkoutLogStore(directory: directory).append(entry)
 
         let reopened = FileWorkoutLogStore(directory: directory)
-        #expect(reopened.load() == [entry])
+        #expect(try reopened.load() == [entry])
     }
 
     @Test
