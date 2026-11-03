@@ -89,6 +89,7 @@ Zdecydowany spec CaliPark 1.0: zakres, backend, model danych, wygląd kluczowych
 - [Home w 1.0](tickets/024-home-v1.md): moduły dalej do przestawiania (z alternatywą dla VoiceOver), bez mocków, cel tygodniowy w osobnym tickecie.
 - [Profil i ustawienia w 1.0](tickets/025-profile-settings-v1.md): statystyki, cel, historia, eksport i import, pomoc, „O apce”; Konto ze Społecznością.
 - [Onboarding w 1.0](tickets/026-onboarding-v1.md): powitanie, test poziomu, program, cel tygodniowy; zgody i Konto dopiero przy użyciu.
+- [Cel tygodniowy](tickets/027-weekly-goal.md): 1–3 cele (dni, plany, objętość), pierwszy tydzień rozgrzewkowy, pauza do 90 dni bez utraty serii, seria tygodni w hero (wzór: Apple Watch).
 
 ## Postęp wykonania
 
