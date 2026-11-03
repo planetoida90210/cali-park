@@ -2,8 +2,8 @@
 title: Home w 1.0
 type: grilling
 mode: HITL
-status: open
-assignee: 
+status: closed
+assignee: planetoida90210
 blocked_by: []
 ---
 
@@ -26,3 +26,11 @@ Co jest na ekranie Start w TestFlighcie z samym treningiem i w 1.0?
 - **Cel tygodniowy:** liczba dni treningowych w tygodniu, domyślnie z wybranego programu (016), do zmiany w Profilu.
 - **Bez imienia** w powitaniu, bo nie ma Konta. Pseudonim pojawi się razem ze Społecznością.
 - **Pogoda i najbliższy Park** wracają ze Społecznością i po zakupie konta (WeatherKit wymaga płatnego konta).
+
+## Rozstrzygnięcie (2026-11-04)
+
+**Moduły zostają do przestawiania.** Właściciel: „każdy może dowolnie zarządzać swoim dashboardem, o to w tym chodzi”.
+
+- Przestawianie dostaje alternatywę dla VoiceOver (akcje „Przesuń wyżej / niżej”, E-12).
+- Znika „Michał” i każdy mock. Moduł „Pogoda i siłownia” pokazuje najbliższy Park z danych OSM; pogoda z WeatherKit dochodzi po zakupie konta (017).
+- Cel tygodniowy: osobny ticket [027](027-weekly-goal.md), bo ma być „elastyczniejszy i dobrze logicznie przekminiony”.

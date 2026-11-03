@@ -2,8 +2,8 @@
 title: Profil i ustawienia w 1.0
 type: grilling
 mode: HITL
-status: open
-assignee: 
+status: closed
+assignee: planetoida90210
 blocked_by: []
 ---
 
@@ -30,3 +30,9 @@ Profil to atrapa: koło z ikoną, „Twój profil” i sześć martwych wierszy 
 **Ze Społecznością (później):** Pseudonim, Sign in with Apple, wylogowanie, usunięcie Konta z treściami (wymóg App Store), blokowanie użytkowników, regulamin i polityka prywatności.
 
 Bez „Ustawień powiadomień”: przypomnienia są przy każdym planie (019).
+
+## Rozstrzygnięcie (2026-11-04)
+
+**Wszystko z propozycji.** Właściciel: „robimy wszystko tip top”.
+
+Statystyki, cel tygodniowy (027), skrót do historii, eksport i import, „Pomoc i opinie”, „O apce” ze źródłami i licencjami, „Moje zgłoszenia” (013). Konto, Pseudonim, wylogowanie, usunięcie Konta i blokowanie przychodzą ze Społecznością.

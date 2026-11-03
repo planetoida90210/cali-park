@@ -2,8 +2,8 @@
 title: Onboarding w 1.0
 type: grilling
 mode: HITL
-status: open
-assignee: 
+status: closed
+assignee: planetoida90210
 blocked_by: []
 ---
 
@@ -31,3 +31,9 @@ Powitanie → „Co już potrafisz?” (test poziomu) → „Jakie są Twoje cel
 4. Cel tygodniowy: ile dni w tygodniu, domyślnie z programu.
 - **Pytanie o cele znika**, bo jego rolę przejmuje wybór programu.
 - **Lokalizacja i Konto znikają z onboardingu.** O lokalizację pytamy przy pierwszym otwarciu mapy, a o Konto przy pierwszej akcji w Społeczności (opinia, zdjęcie, zgłoszenie).
+
+## Rozstrzygnięcie (2026-11-04)
+
+**Propozycja przyjęta.** Właściciel: „dawaj, napierdalaj wszystko, żeby było ok, bez skipowania na później”.
+
+Powitanie → test poziomu → propozycja programu (inny albo żaden) → cel tygodniowy (027). Pytanie o cele znika. Pytanie „Mam gumę” znika z kalibracji, a guma zostaje widoczną opcją na drabinie. O lokalizację pytamy przy pierwszym otwarciu mapy, o Konto przy pierwszej akcji w Społeczności (checkbox „mam 16 lat”).

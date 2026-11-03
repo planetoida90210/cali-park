@@ -41,3 +41,5 @@ Stabilne ID szczebli są już na `main` (`d4e1011`): placement i rekord celebrac
 ## Wdrożenie (2026-11-04)
 
 Zmergowane na `main` jako `c6182dd`: drabiny, `PROGRESSIONS.md`, etykiety źródeł, `isUnilateral`, klucze sprzętu, A-3 (silnik pomija tory równoległe) i kalibracja po ID szczebli. Odpowiedź „Mam gumę” w kalibracji niczego już nie zmienia; do przeróbki razem z onboardingiem (026).
+
+Celebracja za wstawione niższe szczeble (np. „Zwis z wygięciem” +100 XP bez treningu) przyjęta przez właściciela 2026-11-04.

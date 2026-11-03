@@ -2,8 +2,8 @@
 title: Formularz zgłoszenia parku
 type: prototype
 mode: HITL
-status: open
-assignee: 
+status: closed
+assignee: planetoida90210
 blocked_by: [012]
 ---
 
@@ -32,3 +32,11 @@ Klikalny przepływ w SwiftUI na mapie A „Wyciszona”, ze zmyślonymi danymi. 
 - **Wymagane tylko:** pinezka, drążek albo poręcze plus zdjęcie, źródło (ustawiane samo). Reszta opcjonalna, bez wolnego opisu.
 - **Dwa układy formularza:** A · Kroki (jedno pytanie na ekran) i B · Jeden arkusz (wszystko na jednym ekranie).
 - **Rekomendacja workera:** A · Kroki, z listą wymaganych rzeczy z B.
+
+## Rozstrzygnięcie (2026-11-04)
+
+**Układ B · Jeden arkusz.** Właściciel: „b chyba lepsze”.
+
+- Zdjęcia z aparatu **i z galerii** („z telefonu, w sensie z galerii”). Jeśli zdjęcie z galerii ma lokalizację, telefon sprawdza, czy zrobiono je do ok. 200 m od pinezki, a Moderator dostaje tylko flagę; zdjęcie bez lokalizacji dostaje flagę „brak lokalizacji”. GPS i EXIF usuwamy przed wysłaniem.
+- Same poręcze (też do dipów) robią Park: „można tam zrobić jakościowy trening i będą ciekawe miejsca”.
+- Reszta jak w rekomendacji: o Konto pytamy przy „Wyślij”, limit 5 Zgłoszeń dziennie, duplikaty w promieniu 50 m wobec Parków opublikowanych i czekających, bez godzin otwarcia, zgoda ODbL jednym zdaniem w podsumowaniu plus regulamin, status w „Moje zgłoszenia” w Profilu z kropką na ikonie (push później).

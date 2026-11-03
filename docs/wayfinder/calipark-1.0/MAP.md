@@ -84,6 +84,11 @@ Zdecydowany spec CaliPark 1.0: zakres, backend, model danych, wygląd kluczowych
 - [Import z OSM i otwarte dane Parków (ODbL)](tickets/020-osm-odbl.md): tak, cotygodniowy, dane Parków jako plik na ODbL.
 - [Minimalny wiek Konta i kategoria wiekowa apki](tickets/021-account-age.md): 16+, apka 16+ (decyzja właściciela wbrew rekomendacji 13+).
 - [Kolejność wydań: TestFlight z samym treningiem, potem Społeczność](tickets/022-release-order.md): TestFlight z samym treningiem, sync najpierw Ad Hoc, potem Społeczność.
+- [Formularz zgłoszenia parku](tickets/013-submission-form.md): układ B (jeden arkusz), zdjęcia z aparatu i galerii, same poręcze też robią Park, Konto przy „Wyślij”.
+- [Plan fundamentu: kolejność P0, Swift 6, CI](tickets/018-foundation-plan.md): F0–F5 przed TestFlightem; zakładka Parków zostaje z mapą Parków z OSM tylko do odczytu, nazwa „Siłownie” zostaje, eksport i import w 1.0.
+- [Home w 1.0](tickets/024-home-v1.md): moduły dalej do przestawiania (z alternatywą dla VoiceOver), bez mocków, cel tygodniowy w osobnym tickecie.
+- [Profil i ustawienia w 1.0](tickets/025-profile-settings-v1.md): statystyki, cel, historia, eksport i import, pomoc, „O apce”; Konto ze Społecznością.
+- [Onboarding w 1.0](tickets/026-onboarding-v1.md): powitanie, test poziomu, program, cel tygodniowy; zgody i Konto dopiero przy użyciu.
 
 ## Postęp wykonania
 
@@ -132,7 +137,7 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
 
 ## Jeszcze nieokreślone
 
-Wyjęte z mgły 2026-11-04 jako tickety: [Karta parku](tickets/023-park-card.md), [Home w 1.0](tickets/024-home-v1.md), [Profil i ustawienia w 1.0](tickets/025-profile-settings-v1.md), [Onboarding w 1.0](tickets/026-onboarding-v1.md).
+Wyjęte z mgły 2026-11-04 jako tickety: [Karta parku](tickets/023-park-card.md), [Home w 1.0](tickets/024-home-v1.md), [Profil i ustawienia w 1.0](tickets/025-profile-settings-v1.md), [Onboarding w 1.0](tickets/026-onboarding-v1.md), [Cel tygodniowy](tickets/027-weekly-goal.md).
 
 - **Identyfikacja wizualna:** ikona, spójny styl całej apki, czyli to samo „stylowo” co przy mapie.
 - **Diagnostyka:** zgłaszanie crashy i analityka zgodne z RODO.

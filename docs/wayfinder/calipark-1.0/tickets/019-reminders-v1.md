@@ -19,3 +19,7 @@ Czy lokalne przypomnienia o zaplanowanym treningu wchodzą do 1.0? Warstwa plano
 
 - Przełącznik i godzina w planie. O zgodę na powiadomienia pytamy dopiero przy pierwszym włączeniu.
 - Bez serwera. Edytor planu już nie gubi `reminderTime` (B-6, naprawione `5012b44`); zostaje B-7 i orkiestracja w `WorkoutPlanService`.
+
+## Doprecyzowanie (2026-11-04)
+
+Wdrożone w `bfb3796`. Właściciel: „bez skipowania na później”, więc przypomnienie **nie dzwoni w dzień, w którym plan jest już zrobiony**. Technicznie: zamiast powtarzanych triggerów iOS planujemy przypomnienia na konkretne daty (limit 64, najbliższe pierwsze) i dokładamy je przy starcie, powrocie do apki i w tle (`BGAppRefreshTask`). Domyślna godzina 18:00 i „Dziś · Zrobione / Następny: …” zostają.
