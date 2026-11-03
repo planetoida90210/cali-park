@@ -1,0 +1,128 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A new push to the same branch or PR cancels the run it supersedes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # macos-26 is the newest GA macOS image. It ships Xcode 26.0-26.6 and the
+  # iOS 26.2/26.4/26.5 simulator runtimes:
+  # https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md
+  # To move to a newer Xcode, change the runner image and XCODE_VERSION together.
+  XCODE_VERSION: "26.6"
+  # Same runtime the project is tested on locally. If the image drops it, the
+  # picker falls back to the newest installed iOS runtime.
+  SIMULATOR_OS: "26.5"
+
+jobs:
+  test:
+    name: Build and unit tests
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select --switch "/Applications/Xcode_${XCODE_VERSION}.app"
+          xcode-select --print-path
+          xcodebuild -version
+          swift --version
+          xcodebuild -showsdks | grep -i ios
+
+      - name: Pick simulator
+        id: simulator
+        run: |
+          xcrun simctl list runtimes
+          udid="$(scripts/ci-pick-simulator.sh "$SIMULATOR_OS")"
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      - name: Build and test
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project cali-park.xcodeproj \
+            -scheme cali-park \
+            -destination "platform=iOS Simulator,id=${{ steps.simulator.outputs.udid }}" \
+            -derivedDataPath "$RUNNER_TEMP/dd" \
+            -resultBundlePath "$RUNNER_TEMP/TestResults.xcresult" \
+            -only-testing:cali-parkTests \
+            CODE_SIGNING_ALLOWED=NO \
+            test 2>&1 | tee "$RUNNER_TEMP/xcodebuild.log"
+
+      - name: Test summary
+        if: always()
+        run: |
+          result="$RUNNER_TEMP/TestResults.xcresult"
+          if [ -d "$result" ]; then
+            xcrun xcresulttool get test-results summary --path "$result" --compact || true
+          else
+            echo "No result bundle; the build probably failed before tests ran."
+          fi
+
+      - name: Fail on build warnings
+        if: always()
+        run: scripts/check-build-warnings.sh "$RUNNER_TEMP/xcodebuild.log"
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: |
+            ${{ runner.temp }}/TestResults.xcresult
+            ${{ runner.temp }}/xcodebuild.log
+          retention-days: 14
+          if-no-files-found: ignore
+
+  # Report-only for now: the job shows its findings but never fails the run.
+  # To make it blocking, see "CI" in CLAUDE.md.
+  lint:
+    name: Lint (report only)
+    runs-on: macos-26
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select --switch "/Applications/Xcode_${XCODE_VERSION}.app"
+          xcodebuild -version
+          echo "swift-format $(xcrun swift-format --version)"
+
+      - name: Project rules
+        if: always()
+        run: scripts/lint-rules.sh --baseline scripts/lint-rules.baseline
+
+      - name: swift-format
+        if: always()
+        run: |
+          set -o pipefail
+          xcrun swift-format lint --recursive --parallel \
+            cali-park cali-parkTests cali-parkUITests 2>&1 | tee "$RUNNER_TEMP/swift-format.log"
+          count="$(grep -c ': warning: ' "$RUNNER_TEMP/swift-format.log" || true)"
+          {
+            echo "### swift-format"
+            echo
+            echo "$count findings. Count per rule:"
+            echo
+            echo '```'
+            grep -oE ': warning: \[[A-Za-z]+\]' "$RUNNER_TEMP/swift-format.log" \
+              | sed 's/: warning: //' | sort | uniq -c | sort -rn || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
