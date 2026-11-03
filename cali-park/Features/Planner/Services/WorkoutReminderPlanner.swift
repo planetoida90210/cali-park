@@ -24,8 +24,8 @@ enum WorkoutReminderPlanner {
                          calendar: Calendar = .current,
                          asOf reference: Date = .now,
                          limit: Int = pendingLimit) -> [WorkoutReminderRequest] {
-        let candidates = plans.flatMap { candidates(for: $0, calendar: calendar, asOf: reference, limit: limit) }
-        return candidates
+        let all = plans.flatMap { Self.candidates(for: $0, calendar: calendar, asOf: reference, limit: limit) }
+        return all
             .sorted { $0.fireDate != $1.fireDate ? $0.fireDate < $1.fireDate : $0.request.id < $1.request.id }
             .prefix(max(0, limit))
             .map(\.request)
