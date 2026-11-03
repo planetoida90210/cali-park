@@ -138,6 +138,7 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - pierwszy run wyłapał linię, której starszy kompilator nie przepuszczał; poprawione.
 - **Prototyp mapy** do „Wygląd mapy parków” (`bb42651`, `2e553c8`): tylko w buildzie Debug.
 - **Prototyp zgłoszenia Parku** do „Formularz zgłoszenia parku” (`19d525a`, 2026-11-04): tylko w buildzie Debug (argument `-PrototypeParkSubmission`), dwa układy formularza (A · Kroki, B · Jeden arkusz), 24 zrzuty w [prototypes/park-submission](prototypes/park-submission/README.md).
+- **Prototyp karty Parku** do „Karta parku” (`0ffae07`, 2026-11-04): tylko w buildzie Debug (`-PrototypeParkCard`), karta kompaktowa i pełna jako arkusz, 4 stany Parku, dwie kolejności sekcji, zgłaszanie poprawek i treści; 31 zrzutów w [prototypes/park-card](prototypes/park-card/README.md).
 - **Propozycje do potwierdzenia:** drabiny i programy (`29e6d99`), model Parku i wiek Konta (`824e987`).
 
 ## Jeszcze nieokreślone
