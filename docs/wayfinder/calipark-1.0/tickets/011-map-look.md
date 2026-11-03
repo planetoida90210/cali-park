@@ -16,3 +16,14 @@ Jak ma wyglądać mapa, żeby była „stylowa”? Są dwie drogi:
 - **Mapbox:** pełny własny styl mapy, ale to zewnętrzne SDK i płatność po darmowym limicie.
 
 Prototyp: 2–3 warianty w SwiftUI na przykładowych pinezkach. Właściciel wybiera.
+
+## Prototyp (2026-11-03)
+
+Trzy warianty w MapKit na 25 zmyślonych Parkach w Warszawie. Opis i uruchomienie: [prototypes/map-look/README.md](../prototypes/map-look/README.md). Kod jest tylko w buildzie Debug (`cali-park/Prototypes/MapLook/`, argument `-PrototypeMapLook`). Ticket zostaje otwarty do wyboru właściciela.
+
+- **A · Wyciszona:** ciemna, wyciszona mapa bez POI, ciemne pinezki z limonkowymi ikonami sprzętu, grupowanie, kompaktowa karta na dole. [Mapa](../prototypes/map-look/A1-wyciszona-mapa.png), [wybrany Park](../prototypes/map-look/A2-wyciszona-wybrany-park.png).
+- **B · Sportowa:** satelita, duże neonowe pinezki, filtry sprzętu i karuzela kart zsynchronizowana z mapą (kamera 3D po wyborze Parku). [Mapa](../prototypes/map-look/B1-sportowa-mapa.png), [wybrany Park](../prototypes/map-look/B2-sportowa-wybrany-park.png).
+- **C · Lista najpierw:** mała mapa na górze i lista najbliższych Parków z odległością i czasem dojścia. [Mapa](../prototypes/map-look/C1-lista-mapa.png), [wybrany Park](../prototypes/map-look/C2-lista-wybrany-park.png).
+- [Ekran wyboru wariantu](../prototypes/map-look/00-picker.png).
+- **Rekomendacja workera:** mix A + C (wyciszona mapa A jako domyślna, lista z C jako przełącznik). B wygląda efektownie, ale etykiety są gorzej czytelne i zużywa więcej baterii i danych. Zostajemy przy MapKit; Mapbox dopiero, jeśli po A nadal chcesz mapę w kolorach apki.
+- Ikony sprzętu to tymczasowe SF Symbols. Docelowo potrzebne własne ikony drążka, poręczy, kółek i drabinek.
