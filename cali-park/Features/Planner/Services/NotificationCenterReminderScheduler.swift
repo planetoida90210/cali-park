@@ -42,8 +42,7 @@ struct SystemNotificationCenter: UserNotificationCentering {
         content.body = request.body
         content.sound = .default
 
-        let trigger = UNCalendarNotificationTrigger(dateMatching: request.dateComponents,
-                                                    repeats: request.repeats)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: request.dateComponents, repeats: false)
         try await center.add(UNNotificationRequest(identifier: request.id, content: content, trigger: trigger))
     }
 
@@ -71,6 +70,10 @@ struct SystemNotificationCenter: UserNotificationCentering {
 /// `WorkoutReminderPlanner.pendingLimit` and soonest first. Reschedules are
 /// chained, so two quick saves can never interleave their remove and add steps
 /// and leave a stale set behind.
+///
+/// The diff is also the migration from the old repeating weekly reminders
+/// (`plan-<uuid>-wd<N>`): no wanted id has that shape any more, so the first
+/// sync after the update removes them.
 actor NotificationCenterReminderScheduler: WorkoutReminderScheduling {
     private static let ownedPrefix = "plan-"
 
@@ -103,13 +106,13 @@ actor NotificationCenterReminderScheduler: WorkoutReminderScheduling {
         }
     }
 
-    func reschedule(for plans: [WorkoutPlan]) async throws {
+    func reschedule(for plans: [WorkoutPlan], entries: [WorkoutLogEntry]) async throws {
         // Set synchronously on the actor, before any suspension, so calls
         // queue in the order they arrive.
         let previous = lastRun
         let run = Task {
             _ = await previous?.result
-            try await apply(plans)
+            try await apply(plans, entries: entries)
         }
         lastRun = run
         try await run.value
@@ -118,8 +121,8 @@ actor NotificationCenterReminderScheduler: WorkoutReminderScheduling {
     /// One reschedule: compute the wanted set, drop stale owned requests, then
     /// register the wanted ones. Without permission nothing is added (the
     /// next foreground sync adds them once the user allows notifications).
-    private func apply(_ plans: [WorkoutPlan]) async throws {
-        let wanted = WorkoutReminderPlanner.requests(for: plans, calendar: calendar, asOf: clock())
+    private func apply(_ plans: [WorkoutPlan], entries: [WorkoutLogEntry]) async throws {
+        let wanted = WorkoutReminderPlanner.requests(for: plans, entries: entries, calendar: calendar, asOf: clock())
         let wantedIDs = Set(wanted.map(\.id))
 
         let stale = await center.pendingRequestIDs()

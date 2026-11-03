@@ -10,21 +10,27 @@ enum WorkoutReminderPlanner {
     /// drops the rest, so the planner never asks for more.
     static let pendingLimit = 64
 
-    /// Reminders for every active plan that has a `reminderTime`, soonest
-    /// first and capped at `limit`, so the reminders that survive the cap are
-    /// the ones about to fire.
+    /// Reminders for every active plan that has a `reminderTime`: one dated,
+    /// non-repeating reminder per upcoming occurrence, soonest first and
+    /// capped at `limit`.
     ///
-    /// - `weekly`: one repeating reminder per chosen weekday.
-    /// - `once`: a single reminder on that day, only when still in the future.
-    /// - `everyNDays`: one dated reminder per upcoming occurrence (a calendar
-    ///   trigger can't repeat every N days). The cap bounds how far ahead they
-    ///   go; every reschedule (on launch, on foreground, after an edit) tops
-    ///   them up again.
+    /// Every schedule type is dated (a repeating trigger would also fire on a
+    /// day the plan is already done). An occurrence on a day where
+    /// `PlanAgenda` counts the plan as done, given `entries`, gets no reminder.
+    ///
+    /// Soonest first also shares the cap fairly: every plan is covered up to
+    /// the same date, so a daily plan can't push out a weekly one that fires
+    /// earlier. The cap bounds how far ahead reminders go; every sync (launch,
+    /// foreground, background refresh, a plan or log change) tops them up.
     static func requests(for plans: [WorkoutPlan],
+                         entries: [WorkoutLogEntry] = [],
                          calendar: Calendar = .current,
                          asOf reference: Date = .now,
                          limit: Int = pendingLimit) -> [WorkoutReminderRequest] {
-        let all = plans.flatMap { Self.candidates(for: $0, calendar: calendar, asOf: reference, limit: limit) }
+        let done = PlanAgenda.DoneDays(entries: entries, calendar: calendar)
+        let all = plans.flatMap {
+            Self.candidates(for: $0, skipping: done, calendar: calendar, asOf: reference, limit: limit)
+        }
         return all
             .sorted { $0.fireDate != $1.fireDate ? $0.fireDate < $1.fireDate : $0.request.id < $1.request.id }
             .prefix(max(0, limit))
@@ -32,21 +38,25 @@ enum WorkoutReminderPlanner {
     }
 
     static func requests(for plan: WorkoutPlan,
+                         entries: [WorkoutLogEntry] = [],
                          calendar: Calendar = .current,
                          asOf reference: Date = .now,
                          limit: Int = pendingLimit) -> [WorkoutReminderRequest] {
-        requests(for: [plan], calendar: calendar, asOf: reference, limit: limit)
+        requests(for: [plan], entries: entries, calendar: calendar, asOf: reference, limit: limit)
     }
 
     // MARK: Candidates
 
-    /// A request paired with when it fires next, for ordering under the cap.
+    /// A request paired with when it fires, for ordering under the cap.
     private struct Candidate {
         let request: WorkoutReminderRequest
         let fireDate: Date
     }
 
+    /// Up to `limit` upcoming reminders for one plan, skipping done days.
+    /// No plan needs more than `limit`, since the merged list is cut there.
     private static func candidates(for plan: WorkoutPlan,
+                                   skipping done: PlanAgenda.DoneDays,
                                    calendar: Calendar,
                                    asOf reference: Date,
                                    limit: Int) -> [Candidate] {
@@ -58,50 +68,24 @@ enum WorkoutReminderPlanner {
 
         let title = plan.name.isEmpty ? "Trening" : plan.name
         let body = "Czas na trening. \(PolishPlural.exercises(plan.exerciseCount))."
-        func request(id: String, components: DateComponents, repeats: Bool) -> WorkoutReminderRequest {
-            WorkoutReminderRequest(id: "plan-\(plan.id.uuidString)-\(id)",
-                                   planID: plan.id,
-                                   title: title,
-                                   body: body,
-                                   dateComponents: components,
-                                   repeats: repeats)
-        }
 
-        switch plan.schedule {
-        case .weekly(let days):
-            return days.sorted { $0.rawValue < $1.rawValue }.compactMap { weekday in
-                var components = DateComponents()
-                components.hour = hour
-                components.minute = minute
-                components.weekday = weekday.rawValue
-                guard let fireDate = calendar.nextDate(after: reference,
-                                                       matching: components,
-                                                       matchingPolicy: .nextTime)
-                else { return nil }
-                return Candidate(request: request(id: "wd\(weekday.rawValue)", components: components, repeats: true),
-                                 fireDate: fireDate)
+        var result: [Candidate] = []
+        var from = reference
+        while result.count < limit,
+              let day = nextFireDay(for: plan.schedule, onOrAfter: from, hour: hour, minute: minute, calendar: calendar),
+              let fire = fireDate(on: day, hour: hour, minute: minute, calendar: calendar),
+              let dayAfter = calendar.date(byAdding: .day, value: 1, to: day) {
+            if !done.contains(plan.id, on: day) {
+                let request = WorkoutReminderRequest(id: "plan-\(plan.id.uuidString)-\(dayKey(fire.components))",
+                                                     planID: plan.id,
+                                                     title: title,
+                                                     body: body,
+                                                     dateComponents: fire.components)
+                result.append(Candidate(request: request, fireDate: fire.date))
             }
-
-        case .once:
-            guard let day = nextFireDay(for: plan.schedule, onOrAfter: reference, hour: hour, minute: minute, calendar: calendar),
-                  let fire = fireDate(on: day, hour: hour, minute: minute, calendar: calendar)
-            else { return [] }
-            return [Candidate(request: request(id: "once", components: fire.components, repeats: false),
-                              fireDate: fire.date)]
-
-        case .everyNDays:
-            var result: [Candidate] = []
-            var from = reference
-            while result.count < limit,
-                  let day = nextFireDay(for: plan.schedule, onOrAfter: from, hour: hour, minute: minute, calendar: calendar),
-                  let fire = fireDate(on: day, hour: hour, minute: minute, calendar: calendar),
-                  let dayAfter = calendar.date(byAdding: .day, value: 1, to: day) {
-                result.append(Candidate(request: request(id: dayKey(fire.components), components: fire.components, repeats: false),
-                                        fireDate: fire.date))
-                from = dayAfter
-            }
-            return result
+            from = dayAfter
         }
+        return result
     }
 
     // MARK: Helpers
@@ -136,8 +120,12 @@ enum WorkoutReminderPlanner {
         return (components, date)
     }
 
-    /// `on-2026-11-04`, so each dated interval reminder has a stable id.
+    /// `on-2026-11-04`, so each dated reminder has a stable id.
     private static func dayKey(_ components: DateComponents) -> String {
-        String(format: "on-%04d-%02d-%02d", components.year ?? 0, components.month ?? 0, components.day ?? 0)
+        func padded(_ value: Int?, to width: Int) -> String {
+            let digits = String(value ?? 0)
+            return String(repeating: "0", count: max(0, width - digits.count)) + digits
+        }
+        return "on-\(padded(components.year, to: 4))-\(padded(components.month, to: 2))-\(padded(components.day, to: 2))"
     }
 }

@@ -33,10 +33,18 @@ protocol WorkoutReminderScheduling: Sendable {
     func requestAuthorization() async -> Bool
 
     /// Makes the app-owned pending reminders match those derived from
-    /// `plans`. Calls never interleave: a second call starts after the first
-    /// one finished. Throws `ReminderSchedulingError` when some reminders
-    /// could not be registered.
-    func reschedule(for plans: [WorkoutPlan]) async throws
+    /// `plans`, leaving out days on which `entries` show the plan done. Calls
+    /// never interleave: a second call starts after the first one finished.
+    /// Throws `ReminderSchedulingError` when some reminders could not be
+    /// registered.
+    func reschedule(for plans: [WorkoutPlan], entries: [WorkoutLogEntry]) async throws
+}
+
+extension WorkoutReminderScheduling {
+    /// Reschedules as if nothing were done yet.
+    func reschedule(for plans: [WorkoutPlan]) async throws {
+        try await reschedule(for: plans, entries: [])
+    }
 }
 
 // MARK: - InMemoryReminderScheduler
@@ -76,9 +84,9 @@ actor InMemoryReminderScheduler: WorkoutReminderScheduling {
         return status.isAuthorized
     }
 
-    func reschedule(for plans: [WorkoutPlan]) async throws {
+    func reschedule(for plans: [WorkoutPlan], entries: [WorkoutLogEntry]) async throws {
         rescheduleCount += 1
-        let requests = WorkoutReminderPlanner.requests(for: plans, calendar: calendar, asOf: clock())
+        let requests = WorkoutReminderPlanner.requests(for: plans, entries: entries, calendar: calendar, asOf: clock())
         if failsToSchedule {
             throw ReminderSchedulingError(failedRequestIDs: requests.map(\.id))
         }

@@ -13,23 +13,32 @@ enum ReminderSyncResult: Equatable, Sendable {
 // MARK: - WorkoutPlanService
 /// The one owner of plan changes: view models save and delete plans through
 /// it, and it re-syncs local reminders after every change. `syncReminders()`
-/// also runs on launch and on foreground, to repair drift (an interval plan's
-/// dated reminders running out, a permission granted in Settings, a missed
-/// reschedule).
+/// also runs on launch, on foreground, in a background app refresh and after
+/// every workout log change, to keep the dated reminders topped up, drop the
+/// one for a plan just done today, and repair drift (a permission granted in
+/// Settings, a missed reschedule).
 ///
-/// Every sync reads the plans from the store when it runs, and syncs run one
+/// Every sync reads the plans and the log when it runs, and syncs run one
 /// after another, so the last one always reflects the latest saved state.
 @MainActor
 final class WorkoutPlanService {
     private let store: WorkoutPlanStoring
+    private let logStore: WorkoutLogStoring
     private let scheduler: WorkoutReminderScheduling
+    private let refreshScheduler: ReminderRefreshScheduling
     private let logger = AppLog.logger(category: "WorkoutPlanService")
     /// The latest queued sync; the next one waits for it.
     private var lastSync: Task<ReminderSyncResult, Never>?
 
-    init(store: WorkoutPlanStoring, scheduler: WorkoutReminderScheduling) {
+    /// `logStore` is read only, to skip reminders on days a plan is done.
+    init(store: WorkoutPlanStoring,
+         logStore: WorkoutLogStoring,
+         scheduler: WorkoutReminderScheduling,
+         refreshScheduler: ReminderRefreshScheduling) {
         self.store = store
+        self.logStore = logStore
         self.scheduler = scheduler
+        self.refreshScheduler = refreshScheduler
     }
 
     // MARK: Plans
@@ -57,9 +66,11 @@ final class WorkoutPlanService {
 
     // MARK: Reminders
 
-    /// Rebuilds the pending reminders from the saved plans. Never prompts for
+    /// Rebuilds the pending reminders from the saved plans and the workout
+    /// log, then asks for the next background refresh. Never prompts for
     /// permission. When the plans can't be read it leaves reminders alone, so
-    /// a broken file never cancels them.
+    /// a broken file never cancels them. When the log can't be read it
+    /// schedules as if nothing were done: a reminder too many beats none.
     @discardableResult
     func syncReminders() async -> ReminderSyncResult {
         let previous = lastSync
@@ -82,6 +93,8 @@ final class WorkoutPlanService {
     }
 
     private func performSync() async -> ReminderSyncResult {
+        defer { refreshScheduler.scheduleNextRefresh() }
+
         let plans: [WorkoutPlan]
         do {
             plans = try store.load()
@@ -89,8 +102,15 @@ final class WorkoutPlanService {
             logger.error("Reminders not synced, plans unreadable: \(error.localizedDescription, privacy: .public)")
             return .failed
         }
+        let entries: [WorkoutLogEntry]
         do {
-            try await scheduler.reschedule(for: plans)
+            entries = try logStore.load()
+        } catch {
+            logger.error("Workout log unreadable, reminders scheduled as if nothing were done: \(error.localizedDescription, privacy: .public)")
+            entries = []
+        }
+        do {
+            try await scheduler.reschedule(for: plans, entries: entries)
             return .synced
         } catch {
             logger.error("Reminders not synced: \(String(describing: error), privacy: .public)")

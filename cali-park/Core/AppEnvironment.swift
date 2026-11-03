@@ -11,6 +11,8 @@ final class AppEnvironment: ObservableObject {
     let reviewsService: ReviewsServicing
     let calendarService: CalendarService
     let favoritesStore: FavoritesStoring
+    /// The workout log. Every write re-syncs plan reminders (a plan done today
+    /// gets no reminder today), so every view model gets this one instance.
     let workoutLogStore: WorkoutLogStoring
     /// Persists reusable, scheduled workout plans (planner feature).
     let workoutPlanStore: WorkoutPlanStoring
@@ -35,16 +37,23 @@ final class AppEnvironment: ObservableObject {
          workoutLogStore: WorkoutLogStoring = FileWorkoutLogStore(),
          workoutPlanStore: WorkoutPlanStoring = FileWorkoutPlanStore(),
          reminderScheduler: WorkoutReminderScheduling = NotificationCenterReminderScheduler(center: SystemNotificationCenter()),
+         reminderRefreshScheduler: ReminderRefreshScheduling = AppRefreshScheduler(),
          placementStore: PlacementStoring = FileSkillPlacementStore(),
          skillProgressStore: SkillProgressStoring = FileSkillProgressStore()) {
         self.communityPhotoService = communityPhotoService
         self.reviewsService = reviewsService
         self.calendarService = calendarService
         self.favoritesStore = favoritesStore
-        self.workoutLogStore = workoutLogStore
         self.workoutPlanStore = workoutPlanStore
         self.reminderScheduler = reminderScheduler
-        self.workoutPlanService = WorkoutPlanService(store: workoutPlanStore, scheduler: reminderScheduler)
+        let planService = WorkoutPlanService(store: workoutPlanStore,
+                                             logStore: workoutLogStore,
+                                             scheduler: reminderScheduler,
+                                             refreshScheduler: reminderRefreshScheduler)
+        self.workoutPlanService = planService
+        self.workoutLogStore = ChangeNotifyingWorkoutLogStore(base: workoutLogStore) { [weak planService] in
+            Task { @MainActor in await planService?.syncReminders() }
+        }
         self.placementStore = placementStore
         self.skillProgressStore = skillProgressStore
     }
@@ -154,6 +163,7 @@ extension AppEnvironment {
             workoutLogStore: InMemoryWorkoutLogStore(initial: logs),
             workoutPlanStore: InMemoryWorkoutPlanStore(initial: plans),
             reminderScheduler: InMemoryReminderScheduler(status: .authorized),
+            reminderRefreshScheduler: InMemoryReminderRefreshScheduler(),
             placementStore: InMemorySkillPlacementStore(initial: placement),
             skillProgressStore: InMemorySkillProgressStore()
         )

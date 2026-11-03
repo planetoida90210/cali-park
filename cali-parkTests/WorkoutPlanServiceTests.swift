@@ -57,23 +57,25 @@ struct WorkoutPlanServiceTests {
     func saveStoresThePlanAndSchedulesItsReminders() async throws {
         let store = InMemoryWorkoutPlanStore()
         let scheduler = Fixtures.scheduler()
-        let service = WorkoutPlanService(store: store, scheduler: scheduler)
+        let service = WorkoutPlanService.testing(store, scheduler: scheduler)
         let plan = Fixtures.plan()
 
         let result = try await service.save(plan)
 
         #expect(result == .synced)
         #expect(store.load() == [plan])
-        #expect(await scheduler.scheduledRequests.map(\.planID) == [plan.id, plan.id])
+        let scheduled = await scheduler.scheduledRequests
+        #expect(!scheduled.isEmpty)
+        #expect(Set(scheduled.map(\.planID)) == [plan.id])
     }
 
     @Test
     func deleteCancelsThePlansReminders() async throws {
         let plan = Fixtures.plan()
         let scheduler = Fixtures.scheduler()
-        let service = WorkoutPlanService(store: InMemoryWorkoutPlanStore(initial: [plan]), scheduler: scheduler)
+        let service = WorkoutPlanService.testing(InMemoryWorkoutPlanStore(initial: [plan]), scheduler: scheduler)
         await service.syncReminders()
-        #expect(await scheduler.scheduledRequests.count == 2)
+        #expect(!(await scheduler.scheduledRequests.isEmpty))
 
         try await service.delete(id: plan.id)
 
@@ -83,7 +85,7 @@ struct WorkoutPlanServiceTests {
     @Test
     func reminderFailureIsReportedButThePlanIsSaved() async throws {
         let store = InMemoryWorkoutPlanStore()
-        let service = WorkoutPlanService(store: store, scheduler: Fixtures.scheduler(failsToSchedule: true))
+        let service = WorkoutPlanService.testing(store, scheduler: Fixtures.scheduler(failsToSchedule: true))
 
         let result = try await service.save(Fixtures.plan())
 
@@ -95,7 +97,7 @@ struct WorkoutPlanServiceTests {
     @Test
     func unreadablePlansLeaveRemindersAlone() async {
         let scheduler = Fixtures.scheduler()
-        let service = WorkoutPlanService(store: UnreadablePlanStore(), scheduler: scheduler)
+        let service = WorkoutPlanService.testing(UnreadablePlanStore(), scheduler: scheduler)
 
         let result = await service.syncReminders()
 
@@ -108,7 +110,7 @@ struct WorkoutPlanServiceTests {
     @Test
     func overlappingSavesEndWithEveryPlansReminders() async throws {
         let scheduler = Fixtures.scheduler()
-        let service = WorkoutPlanService(store: InMemoryWorkoutPlanStore(), scheduler: scheduler)
+        let service = WorkoutPlanService.testing(InMemoryWorkoutPlanStore(), scheduler: scheduler)
         let push = Fixtures.plan("Push", days: [.monday])
         let pull = Fixtures.plan("Pull", days: [.tuesday])
 
@@ -128,7 +130,7 @@ struct PlanEditorReminderTests {
                         store: InMemoryWorkoutPlanStore = InMemoryWorkoutPlanStore(),
                         scheduler: InMemoryReminderScheduler) -> PlanEditorViewModel {
         PlanEditorViewModel(plan: plan,
-                            service: WorkoutPlanService(store: store, scheduler: scheduler),
+                            service: WorkoutPlanService.testing(store, scheduler: scheduler),
                             calendar: Fixtures.calendar,
                             now: Fixtures.now)
     }
@@ -194,7 +196,7 @@ struct PlanEditorReminderTests {
         let saved = try #require(store.load().first)
         #expect(saved.reminderTime == DateComponents(hour: 7, minute: 15))
         #expect(editor.didSave)
-        #expect(await scheduler.scheduledRequests.map(\.dateComponents.hour) == [7])
+        #expect(Set(await scheduler.scheduledRequests.map(\.dateComponents.hour)) == [7])
     }
 
     @Test
@@ -253,7 +255,7 @@ struct WorkoutPlansListReminderTests {
     func deletingAPlanRemovesItsReminders() async {
         let plan = Fixtures.plan()
         let scheduler = Fixtures.scheduler()
-        let service = WorkoutPlanService(store: InMemoryWorkoutPlanStore(initial: [plan]), scheduler: scheduler)
+        let service = WorkoutPlanService.testing(InMemoryWorkoutPlanStore(initial: [plan]), scheduler: scheduler)
         await service.syncReminders()
         let viewModel = WorkoutPlansViewModel(service: service)
 

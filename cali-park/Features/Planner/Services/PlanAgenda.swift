@@ -29,6 +29,32 @@ enum PlanAgenda {
         var isAllDone: Bool { !due.isEmpty && undone.isEmpty }
     }
 
+    // MARK: DoneDays
+    /// Every (plan, day) pair that `isDone` would answer `true` for, indexed
+    /// once so checking many upcoming days (the reminder planner) doesn't
+    /// rescan the whole journal for each one.
+    struct DoneDays {
+        private struct Key: Hashable {
+            let planID: UUID
+            let day: Date
+        }
+
+        private let keys: Set<Key>
+        private let calendar: Calendar
+
+        init(entries: [WorkoutLogEntry], calendar: Calendar = .current) {
+            self.calendar = calendar
+            keys = Set(entries.compactMap { entry in
+                entry.planID.map { Key(planID: $0, day: calendar.startOfDay(for: entry.date)) }
+            })
+        }
+
+        /// Whether an entry on `day`'s calendar day carries `planID`.
+        func contains(_ planID: UUID, on day: Date) -> Bool {
+            keys.contains(Key(planID: planID, day: calendar.startOfDay(for: day)))
+        }
+    }
+
     // MARK: Queries
 
     /// Whether any entry on `day`'s calendar day carries `plan.id`.

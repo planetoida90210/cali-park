@@ -16,6 +16,7 @@ struct cali_parkApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
+        let planService = environment.workoutPlanService
         WindowGroup {
             #if DEBUG
             // Throwaway map-look prototype (ticket 011), opened with `-PrototypeMapLook`.
@@ -33,6 +34,11 @@ struct cali_parkApp: App {
             #else
             appContent
             #endif
+        }
+        // Tops up the dated plan reminders while the app isn't opened. Each
+        // sync requests the next refresh about a day later.
+        .backgroundTask(.appRefresh(AppRefreshScheduler.taskIdentifier)) {
+            await planService.syncReminders()
         }
     }
 
@@ -54,7 +60,7 @@ struct cali_parkApp: App {
         .environmentObject(environment)
         .environment(\.managedObjectContext, persistenceController.container.viewContext)
         // Re-sync plan reminders on launch and on every return to the app:
-        // tops up interval reminders and repairs any drift.
+        // tops up the dated reminders and repairs any drift.
         .task(id: scenePhase) {
             guard scenePhase == .active else { return }
             await environment.workoutPlanService.syncReminders()

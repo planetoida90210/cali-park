@@ -29,9 +29,22 @@
 		007892A72DC803300025762F /* cali-parkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "cali-parkUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		00C0FFEE2EB9A00000000001 /* Exceptions for "cali-park" folder in "cali-park" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0078928A2DC8032E0025762F /* cali-park */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0078928D2DC8032E0025762F /* cali-park */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				00C0FFEE2EB9A00000000001 /* Exceptions for "cali-park" folder in "cali-park" target */,
+			);
 			path = "cali-park";
 			sourceTree = "<group>";
 		};
@@ -400,6 +413,7 @@
 				DEVELOPMENT_TEAM = 2Z64844RK3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "cali-park/Info.plist";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Pozwól CaliPark użyć aparatu, aby udostępniać zdjęcia.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "CaliPark używa Twojej lokalizacji, aby pokazać najbliższe parki na mapie.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -432,6 +446,7 @@
 				DEVELOPMENT_TEAM = 2Z64844RK3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "cali-park/Info.plist";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Pozwól CaliPark użyć aparatu, aby udostępniać zdjęcia.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "CaliPark używa Twojej lokalizacji, aby pokazać najbliższe parki na mapie.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

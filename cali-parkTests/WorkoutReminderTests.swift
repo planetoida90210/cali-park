@@ -50,15 +50,19 @@ private enum ReminderFixtures {
 
 struct WorkoutReminderWeeklyTests {
     @Test
-    func weeklyBuildsOneRepeatingRequestPerDay() {
+    func weeklyBuildsDatedRequestsOnTheChosenDays() throws {
         let plan = ReminderFixtures.plan(schedule: .weekly([.monday, .wednesday]))
-        let requests = WorkoutReminderPlanner.requests(for: plan, calendar: ReminderFixtures.calendar)
+        let requests = WorkoutReminderPlanner.requests(for: plan, calendar: ReminderFixtures.calendar, asOf: ReminderFixtures.day(0))
 
-        #expect(requests.count == 2)
-        #expect(requests.allSatisfy { $0.repeats })
-        #expect(Set(requests.compactMap { $0.dateComponents.weekday }) == [Weekday.monday.rawValue, Weekday.wednesday.rawValue])
+        #expect(requests.count == WorkoutReminderPlanner.pendingLimit)
+        let weekdays = try Set(requests.map { request in
+            let date = try #require(ReminderFixtures.calendar.date(from: request.dateComponents))
+            return ReminderFixtures.calendar.component(.weekday, from: date)
+        })
+        #expect(weekdays == [Weekday.monday.rawValue, Weekday.wednesday.rawValue])
         #expect(requests.allSatisfy { $0.dateComponents.hour == 18 && $0.dateComponents.minute == 30 })
-        #expect(requests.allSatisfy { $0.id.hasPrefix("plan-") && $0.id.contains("-wd") })
+        #expect(requests.allSatisfy { $0.id.hasPrefix("plan-\(plan.id.uuidString)-on-") })
+        #expect(Set(requests.map(\.id)).count == requests.count)
     }
 
     @Test
@@ -95,8 +99,7 @@ struct WorkoutReminderOneOffTests {
                                                        asOf: ReminderFixtures.day(5))
         #expect(requests.count == 1)
         let request = try #require(requests.first)
-        #expect(request.repeats == false)
-        #expect(request.id.hasSuffix("-once"))
+        #expect(request.id.hasSuffix("-on-1970-01-11"))
         #expect(request.dateComponents.day != nil && request.dateComponents.year != nil)
         let fireDate = try #require(ReminderFixtures.calendar.date(from: request.dateComponents))
         #expect(fireDate > ReminderFixtures.day(5))
@@ -121,7 +124,7 @@ struct WorkoutReminderOneOffTests {
                                                        calendar: ReminderFixtures.calendar,
                                                        asOf: ReminderFixtures.day(1))
         #expect(requests.count == WorkoutReminderPlanner.pendingLimit)
-        #expect(requests.allSatisfy { !$0.repeats && $0.id.contains("-on-") })
+        #expect(requests.allSatisfy { $0.id.contains("-on-") })
         #expect(Set(requests.map(\.id)).count == requests.count)
 
         let fireDates = try requests.prefix(3).map { try #require(ReminderFixtures.calendar.date(from: $0.dateComponents)) }
@@ -166,10 +169,16 @@ struct WorkoutReminderContentTests {
     @Test
     func multiplePlansAggregate() {
         let plans = [
-            ReminderFixtures.plan(schedule: .weekly([.monday])),
-            ReminderFixtures.plan(schedule: .weekly([.tuesday, .thursday]))
+            ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(3))),
+            ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(4))),
+            ReminderFixtures.plan(schedule: .weekly([.tuesday]))
         ]
-        #expect(WorkoutReminderPlanner.requests(for: plans, calendar: ReminderFixtures.calendar).count == 3)
+        let requests = WorkoutReminderPlanner.requests(for: plans,
+                                                       calendar: ReminderFixtures.calendar,
+                                                       asOf: ReminderFixtures.day(0),
+                                                       limit: 4)
+        // Day 3 (once), day 4 (once), day 5 (Tuesday), day 12 (Tuesday).
+        #expect(requests.map(\.planID) == [plans[0].id, plans[1].id, plans[2].id, plans[2].id])
     }
 }
 
@@ -178,10 +187,11 @@ struct WorkoutReminderContentTests {
 struct InMemoryReminderSchedulerTests {
     @Test
     func rescheduleRecordsBuiltRequests() async throws {
-        let scheduler = InMemoryReminderScheduler(calendar: ReminderFixtures.calendar)
-        let plan = ReminderFixtures.plan(schedule: .weekly([.monday, .wednesday]))
+        let scheduler = InMemoryReminderScheduler(calendar: ReminderFixtures.calendar, clock: { ReminderFixtures.day(0) })
+        let plans = [ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(3))),
+                     ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(5)))]
 
-        try await scheduler.reschedule(for: [plan])
+        try await scheduler.reschedule(for: plans)
 
         let scheduled = await scheduler.scheduledRequests
         let count = await scheduler.rescheduleCount
@@ -200,8 +210,8 @@ struct InMemoryReminderSchedulerTests {
 
     @Test
     func failingRescheduleThrowsAndKeepsThePreviousRequests() async throws {
-        let scheduler = InMemoryReminderScheduler(calendar: ReminderFixtures.calendar)
-        try await scheduler.reschedule(for: [ReminderFixtures.plan(schedule: .weekly([.monday]))])
+        let scheduler = InMemoryReminderScheduler(calendar: ReminderFixtures.calendar, clock: { ReminderFixtures.day(0) })
+        try await scheduler.reschedule(for: [ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(3)))])
         await scheduler.setFailsToSchedule(true)
 
         await #expect(throws: ReminderSchedulingError.self) {

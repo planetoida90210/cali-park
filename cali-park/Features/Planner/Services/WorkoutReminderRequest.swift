@@ -13,9 +13,8 @@ struct WorkoutReminderRequest: Equatable, Sendable {
     let planID: UUID
     let title: String
     let body: String
-    /// Fire time. For weekly reminders only `weekday`/`hour`/`minute` are set
-    /// (with `repeats == true`); for one-off reminders the full calendar date
-    /// is set (with `repeats == false`).
+    /// Fire time: the full calendar date (`year`/`month`/`day`/`hour`/
+    /// `minute`). Reminders never repeat, so a day the plan is already done
+    /// can simply have none.
     let dateComponents: DateComponents
-    let repeats: Bool
 }

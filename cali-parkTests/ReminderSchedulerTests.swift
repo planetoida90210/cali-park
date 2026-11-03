@@ -134,27 +134,53 @@ struct ReminderPlannerCapTests {
 
     @Test
     func intervalRemindersShareTheBudgetWithWeeklyOnes() {
-        // A daily interval plan alone would fill all 64 slots; the weekly
-        // reminders that fire within the week still make the cut.
+        // A daily interval plan alone would fill all 64 slots; the weekend
+        // reminders still get every weekend within the covered stretch.
         let daily = Fixtures.plan("Daily", schedule: .everyNDays(1, from: Fixtures.day(0)))
         let weekly = Fixtures.plan("Weekly", schedule: .weekly([.saturday, .sunday]), hour: 7)
 
         let requests = WorkoutReminderPlanner.requests(for: [daily, weekly], calendar: Fixtures.calendar, asOf: Fixtures.now)
 
+        // Days 0–49 hold 50 daily reminders and 14 weekend ones (7 weekends,
+        // the first on days 2 and 3).
         #expect(requests.count == 64)
-        #expect(requests.filter { $0.planID == weekly.id }.count == 2)
-        #expect(requests.filter { $0.planID == daily.id }.count == 62)
+        #expect(requests.filter { $0.planID == weekly.id }.count == 14)
+        #expect(requests.filter { $0.planID == daily.id }.count == 50)
+    }
+
+    /// Several plans of every type: the capped set is exactly every plan's
+    /// occurrences up to one shared date, so no plan starves another.
+    @Test
+    func capCoversEveryPlanUpToTheSameDate() throws {
+        let plans = [
+            Fixtures.plan("Daily", schedule: .everyNDays(1, from: Fixtures.day(0)), hour: 20),
+            Fixtures.plan("Every3", schedule: .everyNDays(3, from: Fixtures.day(1)), hour: 7),
+            Fixtures.plan("MonWedFri", schedule: .weekly([.monday, .wednesday, .friday])),
+            Fixtures.plan("Sunday", schedule: .weekly([.sunday]), hour: 10),
+            Fixtures.plan("Once", schedule: .once(Fixtures.day(5)))
+        ]
+
+        let capped = WorkoutReminderPlanner.requests(for: plans, calendar: Fixtures.calendar, asOf: Fixtures.now)
+        let uncapped = WorkoutReminderPlanner.requests(for: plans, calendar: Fixtures.calendar, asOf: Fixtures.now, limit: 1_000)
+
+        #expect(capped.count == 64)
+        #expect(Set(capped.map(\.planID)) == Set(plans.map(\.id)))
+        let horizon = try #require(capped.last.flatMap { Fixtures.calendar.date(from: $0.dateComponents) })
+        let dueByHorizon = uncapped.filter { Fixtures.calendar.date(from: $0.dateComponents)! <= horizon }
+        #expect(capped == dueByHorizon)
     }
 
     @Test
-    func weeklyRemindersRepeatOnThePlansWeekdays() {
+    func weeklyRemindersAreDatedForEachUpcomingWeekday() throws {
         let plan = Fixtures.plan("Push", schedule: .weekly([.monday, .thursday]))
 
         let requests = WorkoutReminderPlanner.requests(for: plan, calendar: Fixtures.calendar, asOf: Fixtures.now)
 
         // Thursday 18:00 is still ahead of Thursday 09:00, so it fires first.
-        #expect(requests.map(\.dateComponents.weekday) == [Weekday.thursday.rawValue, Weekday.monday.rawValue])
-        #expect(requests.allSatisfy { $0.repeats && $0.dateComponents.hour == 18 && $0.dateComponents.day == nil })
+        let fireDates = try requests.prefix(4).map { try #require(Fixtures.calendar.date(from: $0.dateComponents)) }
+        #expect(fireDates == [0, 4, 7, 11].map { Fixtures.day($0, hour: 18) })
+        #expect(requests.count == WorkoutReminderPlanner.pendingLimit)
+        #expect(requests.allSatisfy { $0.dateComponents.hour == 18 && $0.dateComponents.day != nil && $0.id.contains("-on-") })
     }
 }
 
@@ -172,7 +198,7 @@ struct NotificationCenterReminderSchedulerTests {
         try await Fixtures.scheduler(center: center).reschedule(for: [kept])
 
         let pending = await center.pending
-        #expect(pending.values.map(\.planID) == [kept.id])
+        #expect(Set(pending.values.map(\.planID)) == [kept.id])
         #expect(await center.foreignIDs == ["other-feature"])
     }
 
@@ -186,10 +212,10 @@ struct NotificationCenterReminderSchedulerTests {
         plan.reminderTime = DateComponents(hour: 7, minute: 45)
         try await scheduler.reschedule(for: [plan])
 
+        // Same days, so the same ids: every request is replaced, none added.
         let pending = await center.pending
-        #expect(pending.count == 1)
-        #expect(pending.values.first?.dateComponents.hour == 7)
-        #expect(pending.values.first?.dateComponents.minute == 45)
+        #expect(pending.count == WorkoutReminderPlanner.pendingLimit)
+        #expect(pending.values.allSatisfy { $0.dateComponents.hour == 7 && $0.dateComponents.minute == 45 })
     }
 
     @Test
@@ -207,13 +233,16 @@ struct NotificationCenterReminderSchedulerTests {
     func failedAddsAreReportedAndTheRestStillScheduled() async throws {
         let failing = Fixtures.plan("Failing", schedule: .weekly([.friday]))
         let fine = Fixtures.plan("Fine", schedule: .weekly([.monday]))
-        let failingID = try #require(WorkoutReminderPlanner.requests(for: failing, calendar: Fixtures.calendar).first?.id)
+        let failingID = try #require(WorkoutReminderPlanner.requests(for: failing, calendar: Fixtures.calendar, asOf: Fixtures.now).first?.id)
         let center = FakeNotificationCenter(failingIDs: [failingID])
 
         await #expect(throws: ReminderSchedulingError(failedRequestIDs: [failingID])) {
             try await Fixtures.scheduler(center: center).reschedule(for: [failing, fine])
         }
-        #expect(await center.pending.values.map(\.planID) == [fine.id])
+        let pending = await center.pending
+        #expect(pending[failingID] == nil)
+        #expect(pending.count == WorkoutReminderPlanner.pendingLimit - 1)
+        #expect(Set(pending.values.map(\.planID)) == [failing.id, fine.id])
     }
 
     @Test
@@ -235,6 +264,52 @@ struct NotificationCenterReminderSchedulerTests {
         // The final state is one plan's full set, never a mix of both.
         let planIDs = Set(await center.pending.values.map(\.planID))
         #expect(planIDs == [first.id] || planIDs == [second.id])
+    }
+
+    /// Before dated reminders, weekly plans had one repeating request per
+    /// weekday (`plan-<uuid>-wd<N>`). The first sync after the update must
+    /// remove them, or they would keep firing on done days.
+    @Test(arguments: [ReminderAuthorizationStatus.authorized, .denied])
+    func firstSyncRemovesLegacyRepeatingRequests(status: ReminderAuthorizationStatus) async throws {
+        let plan = Fixtures.plan("Push", schedule: .weekly([.monday, .thursday]))
+        let legacy = [Weekday.monday, .thursday].map { weekday in
+            WorkoutReminderRequest(id: "plan-\(plan.id.uuidString)-wd\(weekday.rawValue)",
+                                   planID: plan.id,
+                                   title: plan.name,
+                                   body: "",
+                                   dateComponents: DateComponents(hour: 18, minute: 0, weekday: weekday.rawValue))
+        }
+        let center = FakeNotificationCenter(status: status)
+        await center.seed(legacy, foreign: ["other-feature"])
+
+        try await Fixtures.scheduler(center: center).reschedule(for: [plan])
+
+        let ids = await center.ownedIDs
+        #expect(ids.isDisjoint(with: legacy.map(\.id)))
+        #expect(ids.allSatisfy { $0.contains("-on-") })
+        #expect(ids.count == (status.isAuthorized ? WorkoutReminderPlanner.pendingLimit : 0))
+        #expect(await center.foreignIDs == ["other-feature"])
+    }
+
+    /// Finishing today's plan and syncing drops today's pending reminder.
+    @Test
+    func doneTodayRemovesTodaysPendingReminder() async throws {
+        let center = FakeNotificationCenter()
+        let scheduler = Fixtures.scheduler(center: center)
+        let plan = Fixtures.plan("Push", schedule: .weekly([.thursday]))
+        try await scheduler.reschedule(for: [plan])
+        let todayID = "plan-\(plan.id.uuidString)-on-1970-01-01"
+        #expect(await center.pending[todayID] != nil)
+
+        let done = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
+                                   date: Fixtures.day(0, hour: 8),
+                                   sets: [LoggedSet(reps: 5)],
+                                   planID: plan.id)
+        try await scheduler.reschedule(for: [plan], entries: [done])
+
+        let pending = await center.pending
+        #expect(pending[todayID] == nil)
+        #expect(pending.count == WorkoutReminderPlanner.pendingLimit)
     }
 
     @Test
