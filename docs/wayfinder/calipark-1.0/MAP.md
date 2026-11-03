@@ -73,6 +73,20 @@ Zdecydowany spec CaliPark 1.0: zakres, backend, model danych, wygląd kluczowych
   - utwardzone pliki JSON (Faza 0: bez cichego wipe'u, wersjonowanie, stabilne ID szczebli),
   - SwiftData odrzucone.
 
+## Postęp wykonania
+
+Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warningów, wszystkie testy jednostkowe zielone.
+
+- **Faza 0a: bezpieczeństwo danych i blokery uploadu** (`daf0492`, `7a802c5`, `e6fc8a9`, 2026-11-03):
+  - wspólny `JSONFileStore` dla 4 store'ów: uszkodzony plik jest odkładany na bok, nigdy nie nadpisywany, błąd pokazuje alert i trafia do logów (B-2, C-1, D-4, F-1, G-4, G-10),
+  - wersjonowana koperta `schemaVersion: 1`, stary format dalej się czyta (C-4),
+  - testy na prawdziwych plikach z dysku (G-13),
+  - `PrivacyInfo.xcprivacy` z `UserDefaults` `CA92.1` (C-2, G-1),
+  - tylko iPhone i pion, bez Maca i Vision Pro (G-11), poprawione teksty uprawnień (G-6),
+  - testy: 302 (544 przypadki), było 270 (512).
+- **Prototyp mapy** do „Wygląd mapy parków” (`bb42651`, `2e553c8`): tylko w buildzie Debug.
+- **Propozycje do potwierdzenia:** drabiny i programy (`29e6d99`), model Parku i wiek Konta (`824e987`).
+
 ## Jeszcze nieokreślone
 
 - **Karta parku:** co dokładnie pokazuje (zdjęcia, sprzęt, opinie, pogoda, status weryfikacji) i w jakiej kolejności. Zależy od modelu Parku i decyzji o weryfikacji.
