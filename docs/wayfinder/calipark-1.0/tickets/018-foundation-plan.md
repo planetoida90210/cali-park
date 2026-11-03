@@ -24,3 +24,7 @@ W jakiej kolejności i w ilu sprintach robimy fundament przed backendem? Element
 ## Kontekst z researchu (2026-11-03)
 
 Z researchu: privacy manifest, `TARGETED_DEVICE_FAMILY = 1` i usunięcie mocków oraz uśpionego kodu Premium/Społeczności to warunki uploadu i review. Stabilne ID szczebli muszą wejść przed rewizją drabin. Faza 0 syncu nie wymaga płatnego konta.
+
+## Propozycja (2026-11-04)
+
+[proposals/018-foundation-plan.md](../proposals/018-foundation-plan.md). Kolejność techniczna jest już ustalona przez koordynatora (właściciel oddał wybory techniczne): F0 CI na GitHub Actions, F1 apka bez mocków, F2 jeden dziennik (`TrainingJournal`, `ProgressService`, `RewardCenter`), F3 Swift 6, F4 dane w Application Support z eksportem i importem, F5 String Catalog i dostępność. Do właściciela: zakładka Parków w TestFlighcie, nazwa „Parki” i eksport/import. Kroki F1 zależą od ticketów 024–026.

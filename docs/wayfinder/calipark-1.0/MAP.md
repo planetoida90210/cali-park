@@ -122,10 +122,8 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
 
 ## Jeszcze nieokreślone
 
-- **Karta parku:** co dokładnie pokazuje (zdjęcia, sprzęt, opinie, pogoda, status weryfikacji) i w jakiej kolejności. Zależy od modelu Parku i decyzji o weryfikacji.
-- **Home w 1.0:** które moduły zostają po wycięciu mocków. Pogoda będzie prawdziwa, a leaderboard i feed są w v1.1. Do tego co z „celem tygodniowym”.
-- **Profil i ustawienia w 1.0:** Pseudonim, wylogowanie, usunięcie Konta, eksport danych, powiadomienia.
-- **Onboarding:** kiedy prosić o lokalizację, powiadomienia i Konto oraz co z dzisiejszymi pytaniami o cele.
+Wyjęte z mgły 2026-11-04 jako tickety: [Karta parku](tickets/023-park-card.md), [Home w 1.0](tickets/024-home-v1.md), [Profil i ustawienia w 1.0](tickets/025-profile-settings-v1.md), [Onboarding w 1.0](tickets/026-onboarding-v1.md).
+
 - **Identyfikacja wizualna:** ikona, spójny styl całej apki, czyli to samo „stylowo” co przy mapie.
 - **Diagnostyka:** zgłaszanie crashy i analityka zgodne z RODO.
 - **Wydanie:** strona z polityką prywatności i regulaminem; opis, screeny (od kwietnia 2027 także iPhone Duo) i kategoria w App Store; zbieranie feedbacku od ekipy z TestFlight.
