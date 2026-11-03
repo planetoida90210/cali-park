@@ -3,6 +3,11 @@ name: CI
 on:
   push:
     branches: [main]
+    # Docs-only pushes (wayfinder map, tickets, audit) need no build.
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '**/*.png'
   pull_request:
   workflow_dispatch:
 
