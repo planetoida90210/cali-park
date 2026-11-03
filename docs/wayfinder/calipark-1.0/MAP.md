@@ -26,7 +26,8 @@ Zdecydowany spec CaliPark 1.0: zakres, backend, model danych, wygląd kluczowych
   - bezpieczeństwo z kontrolą dostępu na poziomie wierszy,
   - trening zawsze darmowy i bez Konta,
   - commity prosto na `main`, bez trailerów.
-- **Planowanie, nie wykonanie.** Mapa kończy się na specu, a kod piszemy w sprintach po jej zamknięciu.
+- **Planowanie, ale z równoległym wykonaniem prac „bez żalu”.** Mapa kończy się na specu. Właściciel (2026-11-03) zgodził się, żeby równolegle do niej szły w wątkach-workerach prace potrzebne przy każdej decyzji: Faza 0 fundamentu (P0 z audytu, privacy manifest, iPhone-only), prototypy do ticketów i propozycje do potwierdzenia.
+- **Koordynacja.** Jeden wątek-koordynator prowadzi mapę, zleca pracę workerom, merguje na `main` i jako jedyny zadaje właścicielowi pytania. Workerzy nigdy nie pytają właściciela, tylko zgłaszają pytania koordynatorowi. Gdy kontekst koordynatora dojdzie do ok. 200–250k tokenów, przekazuje rolę świeżemu wątkowi przez handoff.
 
 ## Decyzje do tej pory
 
@@ -62,6 +63,15 @@ Zdecydowany spec CaliPark 1.0: zakres, backend, model danych, wygląd kluczowych
   - Konto 16+ daje apkę 16+,
   - RODO: polityka, umowy powierzenia i usuwanie EXIF,
   - DSA: zgłoszenia także bez Konta i uzasadnienia usunięć.
+- [Wybór backendu](tickets/007-backend-choice.md):
+  - Supabase Cloud Pro, Frankfurt,
+  - 8 GB na bazę i 100 GB na zdjęcia (ok. 300 tys. zdjęć),
+  - RLS, własne limity, DSA, DPA,
+  - odrzucone: Rust/Hetzner, PocketBase, Firebase, CloudKit public.
+- [Technologia syncu treningów](tickets/009-sync-tech.md): CKSyncEngine na prywatnym iCloud, pliki JSON jako źródło prawdy, bez Konta.
+- [Warstwa danych treningów: naprawione pliki JSON czy SwiftData](tickets/010-training-persistence.md):
+  - utwardzone pliki JSON (Faza 0: bez cichego wipe'u, wersjonowanie, stabilne ID szczebli),
+  - SwiftData odrzucone.
 
 ## Jeszcze nieokreślone
 
