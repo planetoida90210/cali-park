@@ -36,3 +36,7 @@ Cel jest wpisany na sztywno w mocku (`MockData.weeklyGoal = 75`, czyli 75 podci�
 - **Gdzie się ustawia:** w onboardingu (krok po programie), w Profilu i długim przytrzymaniem pierścienia w hero.
 
 **Dane:** nowy mały store (`WeeklyGoalStoring`, `File…` na `JSONFileStore`) z historią wersji celu i oznaczonymi tygodniami przerwy. Postęp liczy czysta funkcja z `calendar:` i `asOf:`.
+
+## Odpowiedzi właściciela (2026-11-04, częściowe)
+
+Przyjęte: rodzaje celu (1–3 cele, jeden główny), tydzień przerwy bez utraty serii, seria tygodni w hero, celebracja bez XP. Do wyjaśnienia: wartość domyślna, pierwszy tydzień i zmiana celu w trakcie tygodnia.
