@@ -108,8 +108,17 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - „Ustaw poziom” startuje z zapisanych odpowiedzi i nie kasuje ścieżek, których nie ruszasz (A-1, C-6),
   - koniec fałszywego „+100 XP” po obniżeniu poziomu (A-2),
   - celebracja liczy się jako pokazana dopiero po zamknięciu, a plik postępu nie jest przepisywany przy każdym wczytaniu (A-4, C-7),
-  - nie zrobione: A-7 (stare mapowanie kubełków, nie da się go pewnie rozpoznać), podwójny toast XP (F-4, D-V1, A-10, wymaga wspólnego koordynatora nagród), A-3 (guma, czeka na decyzję w 015),
+  - nie zrobione: A-7 (stare mapowanie kubełków, nie da się go pewnie rozpoznać), podwójny toast XP (F-4, D-V1, A-10, wymaga wspólnego koordynatora nagród); A-3 zrobione w rewizji drabin,
   - testy: 355 (618 przypadków).
+- **Rewizja drabin** (`c6182dd`, 2026-11-04, „Rewizja drabin progresji”):
+  - 11 nowych szczebli, L-sit w kolejności GMB (pełny 3 × 20 s), wejścia na podwyższenie jako tor równoległy; `PROGRESSIONS.md` i katalog 1:1,
+  - przy każdym kryterium źródło („Skąd to kryterium?”: RR, OG2, GMB, SBW, Cali Move, konwencja CaliPark), tempo negatywów i pauza w opisie,
+  - ruchy jednostronne z dopiskiem „na rękę / na nogę / na stronę”, format logów bez zmian,
+  - sprzęt: „Pionowy drążek” (`fitness_pole`), „Drabinki gimnastyczne” (`wall_bars`), „Drabinka pozioma”,
+  - silnik pomija tory równoległe przy wyborze aktualnego szczebla, więc guma nie jest już obowiązkowa (A-3),
+  - kalibracja wskazuje szczeble po ID; dipy „12+” startują od podporu na kółkach,
+  - jednorazowy skok XP za nowe niższe szczeble (np. +100 XP przy pełnych podciągnięciach, maks. +1100 XP), przyjęty w 015,
+  - testy: 426 (722 przypadki).
 - **Planer: zaliczenie planu i przypomnienia** (`bfb3796`, 2026-11-04):
   - plan jest zaliczony na dany dzień, gdy któryś wpis z tego dnia ma jego id; Home proponuje następny niezaliczony plan na dziś, a po wszystkich pokazuje „Dziś · Zrobione” (B-5),
   - przełącznik „Przypomnienie” i godzina w edytorze planu, zgoda pytana dopiero przy pierwszym włączeniu, a przy odmowie krótkie wyjaśnienie z linkiem do Ustawień („Przypomnienia o treningu w 1.0”),

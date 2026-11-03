@@ -37,3 +37,7 @@ Stabilne ID szczebli są już na `main` (`d4e1011`): placement i rekord celebrac
 - Szczeble bez źródła zostają z etykietą „konwencja CaliPark”. Guma zostaje torem równoległym, a silnik przestaje ją pokazywać jako obowiązkowy krok (A-3).
 - Nowe klucze sprzętu jak w modelu Parku (ticket 012).
 - Migracja danych: stabilne ID szczebli są już na `main` (`d4e1011`), więc wstawianie szczebli nie przesuwa zapisów. Obecni użytkownicy dostaną jednorazowy skok XP za nowe niższe szczeble.
+
+## Wdrożenie (2026-11-04)
+
+Zmergowane na `main` jako `c6182dd`: drabiny, `PROGRESSIONS.md`, etykiety źródeł, `isUnilateral`, klucze sprzętu, A-3 (silnik pomija tory równoległe) i kalibracja po ID szczebli. Odpowiedź „Mam gumę” w kalibracji niczego już nie zmienia; do przeróbki razem z onboardingiem (026).
