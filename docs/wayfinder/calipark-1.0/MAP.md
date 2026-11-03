@@ -26,6 +26,7 @@ Zdecydowany spec CaliPark 1.0: zakres, backend, model danych, wygląd kluczowych
   - bezpieczeństwo z kontrolą dostępu na poziomie wierszy,
   - trening zawsze darmowy i bez Konta,
   - commity prosto na `main`, bez trailerów.
+- **Właściciel kupi Apple Developer Program później** (2026-11-04, brak budżetu). Do zakupu robimy tylko to, co nie wymaga płatnego konta.
 - **Planowanie, ale z równoległym wykonaniem prac „bez żalu”.** Mapa kończy się na specu. Właściciel (2026-11-03) zgodził się, żeby równolegle do niej szły w wątkach-workerach prace potrzebne przy każdej decyzji: Faza 0 fundamentu (P0 z audytu, privacy manifest, iPhone-only), prototypy do ticketów i propozycje do potwierdzenia.
 - **Koordynacja.** Jeden wątek-koordynator prowadzi mapę, zleca pracę workerom, merguje na `main` i jako jedyny zadaje właścicielowi pytania. Workerzy nigdy nie pytają właściciela, tylko zgłaszają pytania koordynatorowi. Gdy kontekst koordynatora dojdzie do ok. 200–250k tokenów, przekazuje rolę świeżemu wątkowi przez handoff.
 
@@ -72,6 +73,17 @@ Zdecydowany spec CaliPark 1.0: zakres, backend, model danych, wygląd kluczowych
 - [Warstwa danych treningów: naprawione pliki JSON czy SwiftData](tickets/010-training-persistence.md):
   - utwardzone pliki JSON (Faza 0: bez cichego wipe'u, wersjonowanie, stabilne ID szczebli),
   - SwiftData odrzucone.
+
+- [Panel moderacji: w apce, strona www czy oba](tickets/008-moderation-panel.md): strona www dla Moderatorów, w apce tylko zgłaszanie.
+- [Wygląd mapy parków](tickets/011-map-look.md): wariant A (wyciszona) na MapKit, lista z C jako przełącznik.
+- [Model Parku i sprzętu](tickets/012-park-model.md): model z propozycji; Park = drążek albo poręcze (definicja bez zmian).
+- [Status „Zweryfikowany” i poprawki do parków](tickets/014-verified-parks.md): tak, status dla Parków odwiedzonych przez ekipę i poprawki przez kolejkę moderacji.
+- [Rewizja drabin progresji](tickets/015-ladders-revision.md): z propozycji, 11 nowych szczebli, statyki 3×20 s, guma jako tor równoległy.
+- [Gotowe programy treningowe w 1.0](tickets/016-programs-v1.md): Minimum, Fundamenty, Pierwsze podciągnięcie i Skille.
+- [Przypomnienia o treningu w 1.0](tickets/019-reminders-v1.md): tak, lokalne, zgoda przy pierwszym włączeniu.
+- [Import z OSM i otwarte dane Parków (ODbL)](tickets/020-osm-odbl.md): tak, cotygodniowy, dane Parków jako plik na ODbL.
+- [Minimalny wiek Konta i kategoria wiekowa apki](tickets/021-account-age.md): 16+, apka 16+ (decyzja właściciela wbrew rekomendacji 13+).
+- [Kolejność wydań: TestFlight z samym treningiem, potem Społeczność](tickets/022-release-order.md): TestFlight z samym treningiem, sync najpierw Ad Hoc, potem Społeczność.
 
 ## Postęp wykonania
 

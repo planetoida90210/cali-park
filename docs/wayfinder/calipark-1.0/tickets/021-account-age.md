@@ -2,8 +2,8 @@
 title: Minimalny wiek Konta i kategoria wiekowa apki
 type: grilling
 mode: HITL
-status: open
-assignee: 
+status: closed
+assignee: planetoida90210
 blocked_by: [006]
 ---
 
@@ -28,3 +28,13 @@ Propozycja ze źródłami: [proposals/021-age.md](../proposals/021-age.md). Tick
 - **Art. 8 RODO (16 lat) nas nie dotyczy**, bo Społeczność stoi na umowie i uzasadnionym interesie, nie na zgodzie [interpretacja]. Kodeks cywilny traktuje 13–17 lat jednakowo, więc próg 16 nie usuwa ryzyka umowy z małoletnim.
 - **Nowe ryzyko:** rządowy projekt ustawy (planowane przyjęcie I kw. 2027) ma wprowadzić 15 lat dla serwisów społecznościowych. v1 raczej nie podpada, feed z v1.1 bliżej.
 - **Rekomendacja:** Konto i apka **13+**, z deklaracją wieku (checkbox), bez zapisywania daty urodzenia. Plan B bez ryzyka interpretacyjnego: 16+ dla wszystkiego.
+
+## Rozstrzygnięcie (2026-11-04)
+
+**Konto od 16 lat, więc apka ma kategorię 16+, razem z treningiem.** Właściciel wybrał to wbrew rekomendacji 13+: „16+ jest ok dla mnie, skoro ma być ustawa” (rządowy projekt 15+ dla serwisów społecznościowych; Apple nie ma kategorii 15+).
+
+- W App Store Connect nadpisujemy wyliczoną kategorię na 16+ (Apple: „must override”, we wszystkich regionach).
+- Przy zakładaniu Konta deklaracja „mam 16 lat” (checkbox), bez zapisywania daty urodzenia.
+- Regulamin podaje 16 lat jako minimalny wiek Konta.
+- Konsekwencja: osoby poniżej 16 lat nie pobiorą apki, także do samego treningu. Do ponownego rozważenia, jeśli ustawa nie przejdzie albo okaże się, że nas nie obejmuje.
+- Konsultacja z polskim prawnikiem w sprawie regulaminu przed wysłaniem do App Store (TestFlight jej nie potrzebuje).

@@ -2,8 +2,8 @@
 title: Model Parku i sprzętu
 type: grilling
 mode: HITL
-status: open
-assignee: 
+status: closed
+assignee: planetoida90210
 blocked_by: [004]
 ---
 
@@ -33,3 +33,14 @@ Propozycja: [proposals/012-park-model.md](../proposals/012-park-model.md). Ticke
 - **Nazwa:** nazwa z OSM, potem nazwa zatwierdzona przez Moderatora, potem nazwa generowana z danych OSM (np. „Street workout · Park Skaryszewski”). Nic z MapKit nie trafia do bazy.
 - **Moderacja:** stany `candidate/draft/pending/published/rejected/removed` i zapis decyzji z polami z art. 17 DSA. Weryfikacja (`osm/community/verified`) to osobna oś, wiąże się z ticketem 014.
 - Tabela błędów obecnych modeli w `cali-park/Features/Parks/Models/`.
+
+## Rozstrzygnięcie (2026-11-04)
+
+**Model z [propozycji](../proposals/012-park-model.md), z jedną zmianą: Park to miejsce z drążkiem albo poręczami.** Właściciel: „park to miejsce, gdzie można zrobić trening, czyli jest drążek”. Definicja w `GLOSSARY.md` zostaje bez zmian; same kółka, sama drabinka pozioma albo same drabinki gimnastyczne nie robią Parku.
+
+- Wymagane: położenie, dowód, że to Park, źródło i status. Reszta opcjonalna.
+- Bez dowolnego opisu tekstowego i bez tagów cień, parking, wiatr.
+- Nazwy generowane automatycznie (np. „Street workout · Park Skaryszewski”); użytkownik może zaproponować oficjalną nazwę z tabliczki. Nic z MapKit w bazie.
+- Liczba i wysokość drążków opcjonalnie: niski, średni, wysoki.
+- Klucze sprzętu 1:1 z OSM, w tym „Pionowy drążek” (`fitness_pole`) dla flagi, „Drabinki gimnastyczne” i „Drabinka pozioma” zamiast „Monkey bars”.
+- Moderacja: `candidate/draft/pending/published/rejected/removed` z zapisem decyzji (DSA). Weryfikacja to osobna oś (ticket 014).
