@@ -16,16 +16,33 @@ struct cali_parkApp: App {
 
     var body: some Scene {
         WindowGroup {
-            Group {
-                if hasCompletedOnboarding {
-                    MainTabView(environment: environment)
-                } else {
-                    OnboardingView(environment: environment)
-                }
+            #if DEBUG
+            // Throwaway map-look prototype (ticket 011), opened with `-PrototypeMapLook`.
+            if Self.mapLookOptions.isEnabled {
+                MapLookPrototypeRoot(options: Self.mapLookOptions)
+            } else {
+                appContent
             }
-            .preferredColorScheme(.dark)
-            .environmentObject(environment)
-            .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            #else
+            appContent
+            #endif
         }
+    }
+
+    #if DEBUG
+    private static let mapLookOptions = MapLookLaunchOptions()
+    #endif
+
+    private var appContent: some View {
+        Group {
+            if hasCompletedOnboarding {
+                MainTabView(environment: environment)
+            } else {
+                OnboardingView(environment: environment)
+            }
+        }
+        .preferredColorScheme(.dark)
+        .environmentObject(environment)
+        .environment(\.managedObjectContext, persistenceController.container.viewContext)
     }
 }
