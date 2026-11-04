@@ -18,6 +18,8 @@ struct HeroPlanTodayView: View {
     let onStart: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// Bumped on appear to play the pulse once more.
+    @State private var pulseTrigger = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -57,21 +59,26 @@ struct HeroPlanTodayView: View {
         }
     }
 
-    /// A gentle, looping pulse to draw the eye to the primary action. Static
-    /// when the user prefers reduced motion.
+    /// A gentle pulse to draw the eye to the primary action: a few beats
+    /// each time the hero appears, then still. Static when the user prefers
+    /// reduced motion.
     @ViewBuilder
     private var playIcon: some View {
         let icon = Image(systemName: "play.fill").accessibilityHidden(true)
         if reduceMotion {
             icon
         } else {
-            icon.phaseAnimator([false, true]) { view, pulsing in
+            icon.phaseAnimator(PulsePhases.beats(Self.pulseBeats), trigger: pulseTrigger) { view, pulsing in
                 view.scaleEffect(pulsing ? 1.12 : 1)
             } animation: { _ in
-                .easeInOut(duration: 0.9)
+                .easeInOut(duration: 0.45)
             }
+            .onAppear { pulseTrigger += 1 }
         }
     }
+
+    /// How many times "Rozpocznij" pulses after it appears.
+    static let pulseBeats = 3
 }
 
 // MARK: - Preview

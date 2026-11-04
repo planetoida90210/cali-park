@@ -17,7 +17,7 @@ struct WeeklyGoalRing: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Color.appBackground, lineWidth: lineWidth)
+                .stroke(Color.divider, lineWidth: lineWidth)
 
             Circle()
                 .trim(from: 0, to: clamped)
