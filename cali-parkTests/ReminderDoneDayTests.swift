@@ -15,15 +15,11 @@ import Testing
 // MARK: - Fixtures
 
 private enum Fixtures {
-    static let calendar: Calendar = {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC")!
-        return calendar
-    }()
+    static let calendar = TestCalendar.utc
 
     /// Epoch day `n` at `hour` UTC. Day 0 is a Thursday.
     static func day(_ n: Int, hour: Int = 0) -> Date {
-        Date(timeIntervalSince1970: Double(n) * 86_400 + Double(hour) * 3_600)
+        TestDate.epochDay(n, hour: hour)
     }
 
     /// Thursday 09:00.
@@ -55,14 +51,6 @@ private enum Fixtures {
     static func scheduler() -> InMemoryReminderScheduler {
         InMemoryReminderScheduler(status: .authorized, calendar: calendar, clock: { now })
     }
-}
-
-/// A log store whose file cannot be read.
-private struct FailingReminderLogStore: WorkoutLogStoring {
-    struct Unreadable: Error {}
-    func load() throws -> [WorkoutLogEntry] { throw Unreadable() }
-    func append(_ entry: WorkoutLogEntry) throws { throw Unreadable() }
-    func delete(id: UUID) throws { throw Unreadable() }
 }
 
 /// Counts calls from a `@Sendable` closure.
@@ -185,7 +173,7 @@ struct WorkoutPlanServiceDoneDayTests {
         let plan = Fixtures.plan()
         let scheduler = Fixtures.scheduler()
         let service = WorkoutPlanService.testing(InMemoryWorkoutPlanStore(initial: [plan]),
-                                                 logStore: FailingReminderLogStore(),
+                                                 logStore: UnreadableWorkoutLogStore(),
                                                  scheduler: scheduler)
 
         #expect(await service.syncReminders() == .synced)
@@ -247,11 +235,11 @@ struct TrainingJournalChangeTests {
     @Test
     func failedWritesDoNotNotify() {
         let counter = CallCounter()
-        let journal = TrainingJournal(store: FailingReminderLogStore())
+        let journal = TrainingJournal(store: UnreadableWorkoutLogStore())
         journal.onChange { counter.increment() }
 
-        #expect(throws: FailingReminderLogStore.Unreadable.self) { try journal.log(Fixtures.entry(planID: nil)) }
-        #expect(throws: FailingReminderLogStore.Unreadable.self) { try journal.delete(ids: [UUID()]) }
+        #expect(throws: UnreadableWorkoutLogStore.Unreadable.self) { try journal.log(Fixtures.entry(planID: nil)) }
+        #expect(throws: UnreadableWorkoutLogStore.Unreadable.self) { try journal.delete(ids: [UUID()]) }
         #expect(counter.count == 0)
     }
 }
@@ -299,7 +287,7 @@ struct AppEnvironmentReminderSyncTests {
     @Test
     func syncReadsTheJournalNotTheLogFile() async throws {
         let plan = Fixtures.plan()
-        let logStore = LoadCountingWorkoutLogStore()
+        let logStore = SpyWorkoutLogStore()
         let scheduler = Fixtures.scheduler()
         let environment = AppEnvironment(favoriteParkStore: InMemoryFavoriteParkStore(),
                                          favoriteExerciseStore: InMemoryFavoriteExerciseStore(),
@@ -319,23 +307,6 @@ struct AppEnvironmentReminderSyncTests {
         // The entry logged a moment ago still counts: today is done.
         #expect(await scheduler.scheduledRequests.compactMap(Fixtures.fireDay).first == 1)
     }
-}
-
-/// An in-memory log store that counts full loads.
-private final class LoadCountingWorkoutLogStore: WorkoutLogStoring {
-    private let base = InMemoryWorkoutLogStore()
-    private(set) var loadCount = 0
-
-    func load() throws -> [WorkoutLogEntry] {
-        loadCount += 1
-        return base.load()
-    }
-
-    func append(_ entry: WorkoutLogEntry) throws { try base.append(entry) }
-    func append(contentsOf entries: [WorkoutLogEntry]) throws { try base.append(contentsOf: entries) }
-    func delete(id: UUID) throws { try base.delete(id: id) }
-    func delete(ids: Set<UUID>) throws { try base.delete(ids: ids) }
-    func replaceAll(with entries: [WorkoutLogEntry]) throws { try base.replaceAll(with: entries) }
 }
 
 // MARK: - Background refresh

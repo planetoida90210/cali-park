@@ -257,11 +257,7 @@ struct ProgressionEngineExperienceTests {
 
 struct ProgressionEngineBadgeTests {
     /// Fixed UTC clock so streak-based badges never depend on run time.
-    private static let calendar: Calendar = {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC")!
-        return calendar
-    }()
+    private static let calendar = TestCalendar.utc
 
     private static let today = Date(timeIntervalSince1970: 200 * 86_400 + 12 * 3_600)
 
@@ -318,6 +314,7 @@ struct ProgressionEngineBadgeTests {
 
 // MARK: - Placement store
 
+@Suite(.temporaryDirectories)
 struct SkillPlacementStoreTests {
     @Test
     func placementRoundtripsThroughJSON() throws {
@@ -344,10 +341,7 @@ struct SkillPlacementStoreTests {
 
     @Test
     func fileStoreRoundtripsAndReportsAbsence() throws {
-        let directory = FileManager.default.temporaryDirectory
-            .appending(path: UUID().uuidString)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: directory) }
+        let directory = try TemporaryDirectory.make()
 
         let store = FileSkillPlacementStore(directory: directory)
         #expect(try store.load() == nil)
@@ -363,6 +357,7 @@ struct SkillPlacementStoreTests {
 
 // MARK: - Skill-progress store
 
+@Suite(.temporaryDirectories)
 struct SkillProgressStoreTests {
     @Test
     func progressRoundtripsThroughJSON() throws {
@@ -382,10 +377,7 @@ struct SkillProgressStoreTests {
 
     @Test
     func fileStoreRoundtripsAndReportsAbsence() throws {
-        let directory = FileManager.default.temporaryDirectory
-            .appending(path: UUID().uuidString)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: directory) }
+        let directory = try TemporaryDirectory.make()
 
         let store = FileSkillProgressStore(directory: directory)
         #expect(try store.load() == nil)

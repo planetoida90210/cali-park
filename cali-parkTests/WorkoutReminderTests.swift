@@ -13,15 +13,11 @@ import Testing
 
 private enum ReminderFixtures {
     /// UTC Gregorian calendar so weekday/day math never depends on the machine.
-    static let calendar: Calendar = {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC")!
-        return calendar
-    }()
+    static let calendar = TestCalendar.utc
 
     /// Midnight UTC of `1970-01-01 + n days` (epoch day 0 is a Thursday).
     static func day(_ n: Int) -> Date {
-        Date(timeIntervalSince1970: Double(n) * 86_400)
+        TestDate.epochDay(n)
     }
 
     /// A moment on day `n` at the given hour (UTC).

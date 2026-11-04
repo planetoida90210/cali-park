@@ -13,13 +13,6 @@ import Foundation
 import Testing
 @testable import cali_park
 
-// MARK: - Case probes (test-only)
-
-private extension HomeHeroState {
-    var isPlanToday: Bool { if case .planToday = self { return true } else { return false } }
-    var isCompletedToday: Bool { if case .completedToday = self { return true } else { return false } }
-}
-
 @MainActor
 struct HomeHeroActionsTests {
     private func dashboard(logStore: WorkoutLogStoring,

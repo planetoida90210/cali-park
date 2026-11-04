@@ -6,14 +6,10 @@ import Foundation
 /// fixed whole-second "today", and ladder states built from placements the
 /// onboarding level test can produce.
 enum ProgramFixtures {
-    static let calendar: Calendar = {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC")!
-        return calendar
-    }()
+    static let calendar = TestCalendar.utc
 
     /// 2026-11-04T12:00:00Z, a Wednesday.
-    static let today = Date(timeIntervalSince1970: 1_793_793_600)
+    static let today = TestDate.reference
 
     /// Nothing declared, nothing logged: every ladder at its first rung.
     static let newcomer: [ProgressionPathID: PathState] = states()
@@ -58,14 +54,6 @@ enum ProgramFixtures {
 }
 
 // MARK: - Broken stores
-/// A journal that exists but can't be read.
-struct UnreadableLogStore: WorkoutLogStoring {
-    struct ReadError: Error {}
-    func load() throws -> [WorkoutLogEntry] { throw ReadError() }
-    func append(_ entry: WorkoutLogEntry) throws { throw ReadError() }
-    func delete(id: UUID) throws { throw ReadError() }
-}
-
 /// A plan store that reads fine but refuses every write.
 final class ReadOnlyPlanStore: WorkoutPlanStoring {
     struct WriteError: Error {}

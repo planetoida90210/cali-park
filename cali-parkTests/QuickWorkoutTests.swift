@@ -10,16 +10,6 @@ import Foundation
 import Testing
 @testable import cali_park
 
-// MARK: - Shared stubs
-
-/// Always fails — verifies error surfacing (pattern: `FailingReviewsService`).
-private struct FailingWorkoutLogStore: WorkoutLogStoring {
-    struct SampleError: Error {}
-    func load() -> [WorkoutLogEntry] { [] }
-    func append(_ entry: WorkoutLogEntry) throws { throw SampleError() }
-    func delete(id: UUID) throws { throw SampleError() }
-}
-
 // MARK: - WorkoutLogEntry Codable (backward compatibility)
 
 struct WorkoutLogEntryCodableTests {
@@ -177,7 +167,7 @@ struct QuickWorkoutViewModelTests {
 
     @Test
     func finishFailureSurfacesErrorAndSavesNothing() {
-        let viewModel = QuickWorkoutViewModel(store: FailingWorkoutLogStore())
+        let viewModel = QuickWorkoutViewModel(store: ReadOnlyWorkoutLogStore())
         viewModel.addExercise(ExerciseCatalog.all[0], sets: sets(6))
 
         viewModel.finish()
@@ -189,6 +179,7 @@ struct QuickWorkoutViewModelTests {
 
 // MARK: - Batch append
 
+@Suite(.temporaryDirectories)
 struct WorkoutLogStoreBatchTests {
     @Test
     func inMemoryBatchAppendPersistsAll() throws {
@@ -205,10 +196,7 @@ struct WorkoutLogStoreBatchTests {
 
     @Test
     func fileStoreBatchAppendPersistsAllInOneWrite() throws {
-        let directory = FileManager.default.temporaryDirectory
-            .appending(path: UUID().uuidString)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: directory) }
+        let directory = try TemporaryDirectory.make()
 
         let store = FileWorkoutLogStore(directory: directory)
         let sessionID = UUID()

@@ -13,15 +13,11 @@ import Testing
 
 private enum Fixtures {
     /// UTC calendar so weekday/day math never depends on the machine's timezone.
-    static let calendar: Calendar = {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC")!
-        return calendar
-    }()
+    static let calendar = TestCalendar.utc
 
     /// Epoch day `n`. Day 0 (1970-01-01) is a Thursday (`.weekday` == 5).
     static func day(_ n: Int) -> Date {
-        Date(timeIntervalSince1970: Double(n) * 86_400)
+        TestDate.epochDay(n)
     }
 
     /// A moment partway through day `n`, to prove same-day matching ignores the
@@ -29,15 +25,6 @@ private enum Fixtures {
     static func middayOf(_ n: Int) -> Date {
         day(n) + 12 * 3_600
     }
-}
-
-// MARK: - Case probes (test-only)
-
-private extension HomeHeroState {
-    var isPlanToday: Bool { if case .planToday = self { return true } else { return false } }
-    var isCompletedToday: Bool { if case .completedToday = self { return true } else { return false } }
-    var isRestDay: Bool { if case .restDay = self { return true } else { return false } }
-    var isFreeMode: Bool { if case .freeMode = self { return true } else { return false } }
 }
 
 // MARK: - heroState resolution

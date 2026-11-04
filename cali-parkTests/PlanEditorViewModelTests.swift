@@ -21,14 +21,10 @@ private struct FailingWorkoutPlanStore: WorkoutPlanStoring {
 }
 
 private enum Fixtures {
-    static let calendar: Calendar = {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC")!
-        return calendar
-    }()
+    static let calendar = TestCalendar.utc
 
     static func day(_ n: Int) -> Date {
-        Date(timeIntervalSince1970: Double(n) * 86_400)
+        TestDate.epochDay(n)
     }
 }
 

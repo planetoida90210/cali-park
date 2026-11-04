@@ -21,11 +21,7 @@ private final class TestClock {
 }
 
 private enum Fixtures {
-    static let calendar: Calendar = {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC")!
-        return calendar
-    }()
+    static let calendar = TestCalendar.utc
 
     /// 2026-11-02T21:00:00Z, a Monday evening.
     static let mondayEvening = Date(timeIntervalSince1970: 1_793_653_200)
@@ -36,12 +32,6 @@ private enum Fixtures {
         WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, date: date,
                         sets: [LoggedSet(reps: 8)], sessionID: UUID(), planID: planID)
     }
-}
-
-private extension HomeHeroState {
-    var isPlanToday: Bool { if case .planToday = self { return true } else { return false } }
-    var isCompletedToday: Bool { if case .completedToday = self { return true } else { return false } }
-    var isRestDay: Bool { if case .restDay = self { return true } else { return false } }
 }
 
 // MARK: - Day rollover (B-3 / D-17)

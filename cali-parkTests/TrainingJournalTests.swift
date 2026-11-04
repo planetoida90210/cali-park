@@ -36,14 +36,6 @@ private enum JournalFixture {
     }
 }
 
-/// A store whose file can't be read; writes fail the same way.
-private struct UnreadableJournalStore: WorkoutLogStoring {
-    struct Unreadable: Error {}
-    func load() throws -> [WorkoutLogEntry] { throw Unreadable() }
-    func append(_ entry: WorkoutLogEntry) throws { throw Unreadable() }
-    func delete(id: UUID) throws { throw Unreadable() }
-}
-
 /// Fails to load until `isReadable` is set, then behaves like memory.
 private final class FlakyJournalStore: WorkoutLogStoring {
     struct Unreadable: Error {}
@@ -60,23 +52,10 @@ private final class FlakyJournalStore: WorkoutLogStoring {
     func delete(id: UUID) throws { entries.removeAll { $0.id == id } }
 }
 
-/// Counts whole-file writes, to prove a delete is one write.
-private final class CountingJournalStore: WorkoutLogStoring {
-    private(set) var writes = 0
-    private var entries: [WorkoutLogEntry]
-
-    init(initial: [WorkoutLogEntry]) { entries = initial }
-
-    func load() -> [WorkoutLogEntry] { entries }
-    func append(_ entry: WorkoutLogEntry) throws { writes += 1; entries.append(entry) }
-    func delete(id: UUID) throws { writes += 1; entries.removeAll { $0.id == id } }
-    func delete(ids: Set<UUID>) throws { writes += 1; entries.removeAll { ids.contains($0.id) } }
-}
-
 // MARK: - TrainingJournal
 
 @MainActor
-@Suite("TrainingJournal is the one write path for workouts")
+@Suite("TrainingJournal is the one write path for workouts", .temporaryDirectories)
 struct TrainingJournalTests {
     @Test
     func loggingAppendsInSavedOrderAndBumpsTheRevision() throws {
@@ -116,22 +95,20 @@ struct TrainingJournalTests {
         let a = JournalFixture.pullUps([8], session: session)
         let b = JournalFixture.dips([10], session: session)
         let keep = JournalFixture.pullUps([5])
-        let store = CountingJournalStore(initial: [a, b, keep])
+        let store = SpyWorkoutLogStore(initial: [a, b, keep])
         let journal = TrainingJournal(store: store)
         let start = journal.revision
 
         try journal.delete(ids: [a.id, b.id])
 
-        #expect(store.writes == 1)
+        #expect(store.writes == [.delete([a.id, b.id])])
         #expect(journal.entries == [keep])
         #expect(journal.revision == start + 1)
     }
 
     @Test
     func deletingAWholeWorkoutFromTheFileIsAllOrNothing() throws {
-        let directory = FileManager.default.temporaryDirectory
-            .appending(path: "TrainingJournalTests-\(UUID().uuidString)", directoryHint: .isDirectory)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let directory = try TemporaryDirectory.make("TrainingJournalTests")
         let session = UUID()
         let a = JournalFixture.pullUps([8], session: session)
         let b = JournalFixture.dips([10], session: session)
@@ -147,12 +124,12 @@ struct TrainingJournalTests {
 
     @Test
     func anUnreadableJournalIsAFailureNotAnEmptyJournal() {
-        let journal = TrainingJournal(store: UnreadableJournalStore())
+        let journal = TrainingJournal(store: UnreadableWorkoutLogStore())
 
         #expect(journal.hasLoadFailure)
         #expect(journal.loadFailure?.message == StoreLoadFailure.message)
         #expect(journal.entries.isEmpty)
-        #expect(throws: UnreadableJournalStore.Unreadable.self) { try journal.log(JournalFixture.pullUps([5])) }
+        #expect(throws: UnreadableWorkoutLogStore.Unreadable.self) { try journal.log(JournalFixture.pullUps([5])) }
     }
 
     @Test
@@ -284,7 +261,7 @@ struct ProgressServiceTests {
             JournalFixture.dips([6, 6, 6], date: JournalFixture.day + 86_400)
         ]
         let placement = SkillPlacement(declaredRungByPath: [.legs: 2])
-        let calendar = Calendar(identifier: .gregorian)
+        let calendar = TestCalendar.utc
         let today = JournalFixture.day + 2 * 86_400
 
         let snapshot = ProgressionEngine.snapshot(logs: logs, placement: placement, calendar: calendar, today: today)
@@ -404,7 +381,7 @@ struct RewardCenterTests {
     @Test
     func rewardsWaitWhileTheJournalIsUnreadable() {
         let progressStore = InMemorySkillProgressStore()
-        let stack = TrainingStack(logStore: UnreadableJournalStore(), progressStore: progressStore)
+        let stack = TrainingStack(logStore: UnreadableWorkoutLogStore(), progressStore: progressStore)
 
         #expect(stack.rewards.currentCelebration == nil)
         // No baseline from a journal that only looks empty.

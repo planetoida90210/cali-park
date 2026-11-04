@@ -12,11 +12,7 @@ import Testing
 struct WorkoutStreakTests {
     /// Fixed clock so results never depend on when the tests run.
     /// "Today" is day 100 of a UTC calendar.
-    private static let calendar: Calendar = {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC")!
-        return calendar
-    }()
+    private static let calendar = TestCalendar.utc
 
     private static let today = Date(timeIntervalSince1970: 100 * 86_400 + 12 * 3_600)
 

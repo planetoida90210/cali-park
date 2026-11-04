@@ -30,9 +30,7 @@ private enum IntegrityFixture {
     static let pullUpRung = RungReference(pathID: .pullUp, stepID: ExerciseCatalog.pullUpsID)
 
     static func makeDirectory() throws -> URL {
-        let directory = FileManager.default.temporaryDirectory
-            .appending(path: "SkillDataIntegrityTests-\(UUID().uuidString)", directoryHint: .isDirectory)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let directory = try TemporaryDirectory.make("SkillDataIntegrityTests")
         return directory
     }
 
@@ -67,7 +65,7 @@ private final class UnreadablePlacementStore: PlacementStoring {
 
 // MARK: - Stable rung identity (A-6, C-5)
 
-@Suite("Rungs are stored by step ID, and version 1 indices migrate")
+@Suite("Rungs are stored by step ID, and version 1 indices migrate", .temporaryDirectories)
 struct StableRungIdentityTests {
     private typealias E = ExerciseCatalog
 

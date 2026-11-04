@@ -5,15 +5,9 @@ import Testing
 // MARK: - Fixtures
 
 private enum Zones {
-    static func calendar(_ identifier: String) -> Calendar {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: identifier)!
-        return calendar
-    }
-
-    static let warsaw = calendar("Europe/Warsaw")
-    static let london = calendar("Europe/London")
-    static let newYork = calendar("America/New_York")
+    static let warsaw = TestCalendar.warsaw
+    static let london = TestCalendar.gregorian(in: "Europe/London")
+    static let newYork = TestCalendar.gregorian(in: "America/New_York")
 
     /// 10 Nov 2026.
     static let november10 = CalendarDay(year: 2026, month: 11, day: 10)!
@@ -24,9 +18,7 @@ private enum Zones {
     }
 
     static func directory() throws -> URL {
-        let url = FileManager.default.temporaryDirectory
-            .appending(path: "CalendarDayScheduleTests-\(UUID().uuidString)", directoryHint: .isDirectory)
-        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        let url = try TemporaryDirectory.make("CalendarDayScheduleTests")
         return url
     }
 
@@ -96,7 +88,7 @@ struct CalendarDayTests {
 
 // MARK: - B-9: schedules across time zones
 
-@Suite("Day-only schedules keep their day after a time-zone change (B-9)")
+@Suite("Day-only schedules keep their day after a time-zone change (B-9)", .temporaryDirectories)
 struct ScheduleTimeZoneTests {
     @Test
     func aOneOffPlanStaysOnItsDayAfterTravellingWest() {
@@ -191,7 +183,7 @@ struct ScheduleTimeZoneTests {
 // MARK: - B-8: one-off plans in the past
 
 @MainActor
-@Suite("One-off plans can't be saved in the past (B-8)")
+@Suite("One-off plans can't be saved in the past (B-8)", .temporaryDirectories)
 struct PastOneOffPlanTests {
     private let calendar = Zones.warsaw
     /// 4 Nov 2026, 15:00 in Warsaw.

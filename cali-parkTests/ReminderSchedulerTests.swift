@@ -14,15 +14,11 @@ import Testing
 // MARK: - Fixtures
 
 private enum Fixtures {
-    static let calendar: Calendar = {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC")!
-        return calendar
-    }()
+    static let calendar = TestCalendar.utc
 
     /// Epoch day `n` at midnight UTC. Day 0 is a Thursday.
     static func day(_ n: Int, hour: Int = 0) -> Date {
-        Date(timeIntervalSince1970: Double(n) * 86_400 + Double(hour) * 3_600)
+        TestDate.epochDay(n, hour: hour)
     }
 
     static let now = day(0, hour: 9) // Thursday 09:00

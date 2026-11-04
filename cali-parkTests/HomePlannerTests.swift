@@ -12,15 +12,11 @@ import Testing
 
 private enum Fixtures {
     /// UTC calendar so weekday math never depends on the machine's timezone.
-    static let calendar: Calendar = {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC")!
-        return calendar
-    }()
+    static let calendar = TestCalendar.utc
 
     /// Epoch day `n`. Day 0 (1970-01-01) is a Thursday (`.weekday` == 5).
     static func day(_ n: Int) -> Date {
-        Date(timeIntervalSince1970: Double(n) * 86_400)
+        TestDate.epochDay(n)
     }
 }
 

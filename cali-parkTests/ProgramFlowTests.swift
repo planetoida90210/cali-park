@@ -37,7 +37,7 @@ struct ProgramStarterTests {
     @Test
     func unreadableJournalCreatesNothing() async {
         let store = InMemoryWorkoutPlanStore()
-        let starter = makeStarter(plans: store, logs: UnreadableLogStore())
+        let starter = makeStarter(plans: store, logs: UnreadableWorkoutLogStore())
 
         await #expect(throws: ProgramStartError.ladderStateUnreadable) {
             try await starter.start(ProgramCatalog.fundamentals)
@@ -113,7 +113,7 @@ struct ProgramDetailViewModelTests {
     func unreadableJournalShowsAnErrorAndBlocksCreating() async {
         let store = InMemoryWorkoutPlanStore()
         let viewModel = ProgramDetailViewModel(program: ProgramCatalog.fundamentals,
-                                               starter: makeStarter(plans: store, logs: UnreadableLogStore()))
+                                               starter: makeStarter(plans: store, logs: UnreadableWorkoutLogStore()))
 
         #expect(viewModel.hasLoadError)
         #expect(viewModel.errorMessage == StoreLoadFailure.message)
@@ -310,7 +310,7 @@ struct ProgramSessionTests {
         let plan = try Self.firstPullUpPlan()
         let placement = SkillPlacement(declaredStepByPath: [.pullUp: E.archHangID], declaredAt: ProgramFixtures.today)
         let dashboard = HomeDashboardViewModel(
-            store: UnreadableLogStore(),
+            store: UnreadableWorkoutLogStore(),
             planService: .testing(InMemoryWorkoutPlanStore(initial: [plan])),
             placementStore: InMemorySkillPlacementStore(initial: placement),
             goalStore: InMemoryWeeklyGoalStore(),

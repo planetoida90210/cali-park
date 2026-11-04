@@ -208,11 +208,10 @@ struct WeeklyGoalCelebrationMarkTests {
 
 // MARK: - Store
 
+@Suite(.temporaryDirectories)
 struct WeeklyGoalStoreTests {
     private func makeDirectory() throws -> URL {
-        let directory = FileManager.default.temporaryDirectory
-            .appending(path: "WeeklyGoalStoreTests-\(UUID().uuidString)", directoryHint: .isDirectory)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let directory = try TemporaryDirectory.make("WeeklyGoalStoreTests")
         return directory
     }
 

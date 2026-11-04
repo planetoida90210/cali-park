@@ -6,9 +6,7 @@ import Testing
 
 private enum ExerciseFavoritesSupport {
     static func makeDirectory() throws -> URL {
-        let directory = FileManager.default.temporaryDirectory
-            .appending(path: "ExerciseFavoritesTests-\(UUID().uuidString)", directoryHint: .isDirectory)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let directory = try TemporaryDirectory.make("ExerciseFavoritesTests")
         return directory
     }
 
@@ -52,7 +50,7 @@ private enum ExerciseFavoritesSupport {
 
 // MARK: - FileFavoriteExerciseStore
 
-@Suite("Favorite exercises file store")
+@Suite("Favorite exercises file store", .temporaryDirectories)
 struct FileFavoriteExerciseStoreTests {
     @Test("A missing file reads as no favorites")
     func missingFile() throws {

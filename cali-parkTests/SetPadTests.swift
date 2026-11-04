@@ -12,14 +12,14 @@ import Testing
 // MARK: - Key sequences
 
 /// One SetPad key press, so sequences read like the real interaction.
-enum Key {
+enum SetPadKey {
     case digit(Int)
     case plus
     case backspace
     case clear
 }
 
-private func run(_ keys: [Key]) -> SetPadInput {
+private func run(_ keys: [SetPadKey]) -> SetPadInput {
     var input = SetPadInput()
     for key in keys {
         switch key {
@@ -35,7 +35,7 @@ private func run(_ keys: [Key]) -> SetPadInput {
 struct SetPadInputTests {
     @Test(arguments: [
         // (sequence, committed sets, pending entry)
-        ([Key.digit(6), .plus, .digit(6), .plus, .digit(8)], [6, 6], "8"),
+        ([SetPadKey.digit(6), .plus, .digit(6), .plus, .digit(8)], [6, 6], "8"),
         // the trailing 8 has no `+` yet — still counts when saving
         ([.digit(1), .digit(2), .plus], [12], ""),
         // `+` with an empty entry is blocked
@@ -54,7 +54,7 @@ struct SetPadInputTests {
         ([.digit(0)], [], ""),
         ([.digit(1), .digit(0), .plus], [10], "")
     ])
-    func keySequences(keys: [Key], committed: [Int], entry: String) {
+    func keySequences(keys: [SetPadKey], committed: [Int], entry: String) {
         let input = run(keys)
         #expect(input.committedSets == committed)
         #expect(input.currentEntry == entry)
@@ -85,14 +85,6 @@ struct SetPadInputTests {
 
 // MARK: - WorkoutLogViewModel
 
-/// Always fails — verifies error surfacing (pattern: `FailingReviewsService`).
-private struct FailingWorkoutLogStore: WorkoutLogStoring {
-    struct SampleError: Error {}
-    func load() -> [WorkoutLogEntry] { [] }
-    func append(_ entry: WorkoutLogEntry) throws { throw SampleError() }
-    func delete(id: UUID) throws { throw SampleError() }
-}
-
 @MainActor
 struct WorkoutLogViewModelTests {
     @Test
@@ -115,7 +107,7 @@ struct WorkoutLogViewModelTests {
     @Test
     func saveFailureSurfacesErrorAndDoesNotDismiss() {
         let viewModel = WorkoutLogViewModel(exercise: ExerciseCatalog.all[0],
-                                            store: FailingWorkoutLogStore())
+                                            store: ReadOnlyWorkoutLogStore())
         viewModel.input.appendDigit(6)
         viewModel.save()
 
@@ -167,7 +159,7 @@ struct WorkoutHistoryViewModelTests {
 
     @Test
     func deleteFailureSurfacesError() {
-        let viewModel = WorkoutHistoryViewModel(store: FailingWorkoutLogStore())
+        let viewModel = WorkoutHistoryViewModel(store: ReadOnlyWorkoutLogStore())
         let entry = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
                                     sets: [LoggedSet(reps: 5)])
 

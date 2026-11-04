@@ -46,12 +46,6 @@ private enum BackupFixtures {
         edit(&object)
         return try JSONSerialization.data(withJSONObject: object)
     }
-
-    static func temporaryDirectory() throws -> URL {
-        let url = FileManager.default.temporaryDirectory.appending(path: "backup-tests-\(UUID().uuidString)")
-        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
-        return url
-    }
 }
 
 /// The stores of one restore, wired through a real `AppEnvironment` so the
@@ -294,7 +288,7 @@ private final class BundleToken {}
 
 // MARK: - Service
 @MainActor
-@Suite("Training backup restore")
+@Suite("Training backup restore", .temporaryDirectories)
 struct TrainingBackupServiceTests {
     @Test("Restore replaces every store and the export reads it back")
     func restoreReplacesEverything() async throws {
@@ -390,7 +384,7 @@ struct TrainingBackupServiceTests {
     func unreadableCurrentData() async throws {
         let saved = SkillPlacement(declaredRungByPath: [.core: 1], declaredAt: StoreFixtures.october1)
         let placement = InMemorySkillPlacementStore(initial: saved)
-        let rig = BackupRig(log: UnreadableLogStore(), placement: placement)
+        let rig = BackupRig(log: UnreadableWorkoutLogStore(), placement: placement)
 
         await #expect(throws: TrainingBackupRestoreError.currentDataUnreadable) {
             try await rig.service.restore(BackupFixtures.full)
@@ -400,8 +394,8 @@ struct TrainingBackupServiceTests {
 
     @Test("Export and import roundtrip through the real file stores")
     func fileStoreRoundtrip() async throws {
-        let source = try BackupFixtures.temporaryDirectory()
-        let target = try BackupFixtures.temporaryDirectory()
+        let source = try TemporaryDirectory.make("backup-tests")
+        let target = try TemporaryDirectory.make("backup-tests")
         defer {
             try? FileManager.default.removeItem(at: source)
             try? FileManager.default.removeItem(at: target)
@@ -431,7 +425,7 @@ struct TrainingBackupServiceTests {
 
     @Test("Replacing a file store with nothing deletes its file")
     func fileStoreClear() throws {
-        let directory = try BackupFixtures.temporaryDirectory()
+        let directory = try TemporaryDirectory.make("backup-tests")
         defer { try? FileManager.default.removeItem(at: directory) }
         let store = FileSkillPlacementStore(directory: directory)
         try store.save(StoreFixtures.placement)
@@ -445,7 +439,7 @@ struct TrainingBackupServiceTests {
 
     @Test("A broken file store refuses to be replaced, so the import rolls back")
     func brokenFileStoreRefusesReplace() throws {
-        let directory = try BackupFixtures.temporaryDirectory()
+        let directory = try TemporaryDirectory.make("backup-tests")
         defer { try? FileManager.default.removeItem(at: directory) }
         try Data("{ broken".utf8).write(to: directory.appending(path: "weekly-goal.json"))
         let store = FileWeeklyGoalStore(directory: directory)
@@ -457,7 +451,7 @@ struct TrainingBackupServiceTests {
 
 // MARK: - View model
 @MainActor
-@Suite("Export and import screen")
+@Suite("Export and import screen", .temporaryDirectories)
 struct TrainingBackupViewModelTests {
     private func viewModel(_ rig: BackupRig, directory: URL) -> TrainingBackupViewModel {
         TrainingBackupViewModel(
@@ -471,7 +465,7 @@ struct TrainingBackupViewModelTests {
 
     @Test("Export writes a dated file that decodes to the saved data")
     func export() async throws {
-        let directory = try BackupFixtures.temporaryDirectory()
+        let directory = try TemporaryDirectory.make("backup-tests")
         defer { try? FileManager.default.removeItem(at: directory) }
         let rig = BackupRig()
         try await rig.service.restore(BackupFixtures.full)
@@ -487,9 +481,9 @@ struct TrainingBackupViewModelTests {
 
     @Test("Export offers no file when the data cannot be read")
     func exportUnreadable() throws {
-        let directory = try BackupFixtures.temporaryDirectory()
+        let directory = try TemporaryDirectory.make("backup-tests")
         defer { try? FileManager.default.removeItem(at: directory) }
-        let model = viewModel(BackupRig(log: UnreadableLogStore()), directory: directory)
+        let model = viewModel(BackupRig(log: UnreadableWorkoutLogStore()), directory: directory)
 
         model.prepareExport()
 
@@ -500,7 +494,7 @@ struct TrainingBackupViewModelTests {
     @Test("Reviewing a file asks first and writes nothing")
     func reviewAsksFirst() throws {
         let rig = BackupRig.withOldData()
-        let model = viewModel(rig, directory: FileManager.default.temporaryDirectory)
+        let model = viewModel(rig, directory: try TemporaryDirectory.make("backup-tests"))
 
         model.review(try BackupFixtures.data())
 
@@ -513,7 +507,7 @@ struct TrainingBackupViewModelTests {
     @Test("Cancel drops the reviewed file")
     func cancel() throws {
         let rig = BackupRig.withOldData()
-        let model = viewModel(rig, directory: FileManager.default.temporaryDirectory)
+        let model = viewModel(rig, directory: try TemporaryDirectory.make("backup-tests"))
         model.review(try BackupFixtures.data())
 
         model.cancelImport()
@@ -524,7 +518,7 @@ struct TrainingBackupViewModelTests {
 
     @Test("Confirming replaces the data and reports what was imported")
     func confirm() async throws {
-        let directory = try BackupFixtures.temporaryDirectory()
+        let directory = try TemporaryDirectory.make("backup-tests")
         defer { try? FileManager.default.removeItem(at: directory) }
         let rig = BackupRig.withOldData()
         let model = viewModel(rig, directory: directory)
@@ -541,7 +535,7 @@ struct TrainingBackupViewModelTests {
 
     @Test("A bad file shows its reason and leaves nothing pending")
     func badFile() throws {
-        let model = viewModel(BackupRig(), directory: FileManager.default.temporaryDirectory)
+        let model = viewModel(BackupRig(), directory: try TemporaryDirectory.make("backup-tests"))
 
         model.review(try BackupFixtures.editedData { $0["schemaVersion"] = 7 })
 
@@ -551,7 +545,7 @@ struct TrainingBackupViewModelTests {
 
     @Test("A picked file is read from disk")
     func reviewFile() throws {
-        let directory = try BackupFixtures.temporaryDirectory()
+        let directory = try TemporaryDirectory.make("backup-tests")
         defer { try? FileManager.default.removeItem(at: directory) }
         let url = directory.appending(path: "calipark-backup-2026-10-02.json")
         try BackupFixtures.data().write(to: url)

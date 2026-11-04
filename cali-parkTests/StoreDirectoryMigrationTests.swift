@@ -11,8 +11,7 @@ private struct MigrationRig {
     let destination: URL
 
     init() throws {
-        root = FileManager.default.temporaryDirectory
-            .appending(path: "StoreDirectoryMigrationTests-\(UUID().uuidString)", directoryHint: .isDirectory)
+        root = try TemporaryDirectory.make("StoreDirectoryMigrationTests")
         documents = root.appending(path: "Documents", directoryHint: .isDirectory)
         applicationSupport = root.appending(path: "Library/Application Support", directoryHint: .isDirectory)
         destination = applicationSupport.appending(path: "CaliPark", directoryHint: .isDirectory)
@@ -60,7 +59,7 @@ private final class FailingCreateFileManager: FileManager {
 
 // MARK: - StoreDirectoryMigration
 
-@Suite("Store files move from Documents to Application Support")
+@Suite("Store files move from Documents to Application Support", .temporaryDirectories)
 struct StoreDirectoryMigrationTests {
     @Test
     func freshInstallCreatesTheStoreDirectoryAndUsesIt() throws {
@@ -216,7 +215,7 @@ private final class MigrationBundleToken {}
 
 // MARK: - CoreDataScaffoldCleanup
 
-@Suite("The empty Core Data store is deleted once")
+@Suite("The empty Core Data store is deleted once", .temporaryDirectories)
 struct CoreDataScaffoldCleanupTests {
     private func makeDefaults() throws -> UserDefaults {
         let name = "CoreDataScaffoldCleanupTests-\(UUID().uuidString)"

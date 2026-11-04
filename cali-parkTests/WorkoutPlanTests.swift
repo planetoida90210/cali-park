@@ -14,17 +14,13 @@ import Testing
 private enum PlannerFixtures {
     /// UTC Gregorian calendar so weekday math never depends on the machine's
     /// locale or time zone.
-    static let calendar: Calendar = {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC")!
-        return calendar
-    }()
+    static let calendar = TestCalendar.utc
 
     /// Midnight UTC of `1970-01-01 + n days`. Epoch day 0 is a Thursday, so
     /// offsets map to known weekdays: 0=Thu, 1=Fri, 2=Sat, 3=Sun, 4=Mon,
     /// 5=Tue, 6=Wed.
     static func day(_ n: Int) -> Date {
-        Date(timeIntervalSince1970: Double(n) * 86_400)
+        TestDate.epochDay(n)
     }
 }
 
@@ -193,6 +189,7 @@ struct WorkoutPlanCodableTests {
 
 // MARK: - Store
 
+@Suite(.temporaryDirectories)
 struct WorkoutPlanStoreTests {
     @Test
     func inMemoryUpsertAndDelete() throws {
@@ -215,10 +212,7 @@ struct WorkoutPlanStoreTests {
 
     @Test
     func fileStorePersistsAcrossInstances() throws {
-        let directory = FileManager.default.temporaryDirectory
-            .appending(path: UUID().uuidString)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: directory) }
+        let directory = try TemporaryDirectory.make()
 
         let plan = WorkoutPlan(
             name: "Full body",
@@ -240,8 +234,7 @@ struct WorkoutPlanStoreTests {
 
     @Test
     func loadIsEmptyWhenNoFileExists() throws {
-        let directory = FileManager.default.temporaryDirectory
-            .appending(path: UUID().uuidString)
+        let directory = try TemporaryDirectory.unusedURL()
         #expect(try FileWorkoutPlanStore(directory: directory).load().isEmpty)
     }
 }

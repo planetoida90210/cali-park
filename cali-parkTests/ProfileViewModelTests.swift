@@ -78,7 +78,7 @@ struct ProfileViewModelTests {
 
     @Test("An unreadable log shows an error instead of claiming zero workouts silently")
     func unreadableLog() {
-        let (model, _) = profile(log: UnreadableLogStore())
+        let (model, _) = profile(log: UnreadableWorkoutLogStore())
 
         #expect(model.errorMessage == StoreLoadFailure.message)
         #expect(model.hasLoadError)

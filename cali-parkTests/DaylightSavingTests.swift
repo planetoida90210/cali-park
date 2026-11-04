@@ -6,11 +6,7 @@ import Testing
 /// day has 23 hours, and 2026-10-25, when it has 25). Every other date suite
 /// runs on UTC, which has no clock change.
 struct DaylightSavingTests {
-    private static let warsaw: Calendar = {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "Europe/Warsaw")!
-        return calendar
-    }()
+    private static let warsaw = TestCalendar.warsaw
 
     /// Local wall-clock time in Warsaw.
     private static func local(_ year: Int, _ month: Int, _ day: Int, _ hour: Int = 12, _ minute: Int = 0) throws -> Date {

@@ -8,9 +8,7 @@ private final class BundleToken {}
 
 private enum StoreTestSupport {
     static func makeDirectory() throws -> URL {
-        let directory = FileManager.default.temporaryDirectory
-            .appending(path: "JSONFileStoreTests-\(UUID().uuidString)", directoryHint: .isDirectory)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let directory = try TemporaryDirectory.make("JSONFileStoreTests")
         return directory
     }
 
@@ -45,7 +43,7 @@ private enum StoreTestSupport {
 
 // MARK: - Golden fixtures (legacy on-disk format)
 
-@Suite("Golden fixtures decode through the real stores")
+@Suite("Golden fixtures decode through the real stores", .temporaryDirectories)
 struct GoldenFixtureTests {
     @Test
     func workoutLogFixtureDecodes() throws {
@@ -59,10 +57,7 @@ struct GoldenFixtureTests {
     func workoutPlansFixtureDecodes() throws {
         let directory = try StoreTestSupport.makeDirectory()
         _ = try StoreTestSupport.installFixture("workout-plans-legacy", as: "workout-plans.json", in: directory)
-        var utc = Calendar(identifier: .gregorian)
-        utc.timeZone = .gmt
-
-        #expect(try FileWorkoutPlanStore(directory: directory, calendar: utc).load() == StoreFixtures.workoutPlans)
+        #expect(try FileWorkoutPlanStore(directory: directory, calendar: TestCalendar.utc).load() == StoreFixtures.workoutPlans)
     }
 
     @Test
@@ -115,7 +110,7 @@ struct GoldenFixtureTests {
 
 // MARK: - Envelope round-trip
 
-@Suite("Versioned envelope round-trip")
+@Suite("Versioned envelope round-trip", .temporaryDirectories)
 struct EnvelopeRoundTripTests {
     @Test
     func workoutLogRoundTripsThroughEnvelope() throws {
@@ -173,7 +168,7 @@ struct EnvelopeRoundTripTests {
 
 // MARK: - Missing file
 
-@Suite("Missing file means first launch")
+@Suite("Missing file means first launch", .temporaryDirectories)
 struct MissingFileTests {
     @Test
     func missingFilesReadAsEmpty() throws {
@@ -199,7 +194,7 @@ struct MissingFileTests {
 
 // MARK: - Corrupt file is preserved
 
-@Suite("Corrupt file is preserved, never overwritten")
+@Suite("Corrupt file is preserved, never overwritten", .temporaryDirectories)
 struct CorruptFileTests {
     private static let garbage = #"[{"id": "not-a-uuid", "sets": "#
 
@@ -368,14 +363,6 @@ struct CorruptFileTests {
 
 // MARK: - View models surface load failures
 
-/// Throws on every read, like a file store over a corrupt file.
-private struct BrokenLogStore: WorkoutLogStoring {
-    struct ReadError: Error {}
-    func load() throws -> [WorkoutLogEntry] { throw ReadError() }
-    func append(_ entry: WorkoutLogEntry) throws { throw ReadError() }
-    func delete(id: UUID) throws { throw ReadError() }
-}
-
 private struct BrokenPlanStore: WorkoutPlanStoring {
     struct ReadError: Error {}
     func load() throws -> [WorkoutPlan] { throw ReadError() }
@@ -398,11 +385,11 @@ private final class BrokenProgressStore: SkillProgressStoring {
 }
 
 @MainActor
-@Suite("View models show an error instead of an empty journal")
+@Suite("View models show an error instead of an empty journal", .temporaryDirectories)
 struct StoreLoadFailureViewModelTests {
     @Test
     func historyReportsLoadFailureOnce() {
-        let viewModel = WorkoutHistoryViewModel(store: BrokenLogStore())
+        let viewModel = WorkoutHistoryViewModel(store: UnreadableWorkoutLogStore())
 
         #expect(viewModel.hasLoadError)
         #expect(viewModel.errorMessage == StoreLoadFailure.message)
@@ -424,7 +411,7 @@ struct StoreLoadFailureViewModelTests {
 
     @Test
     func sessionDetailReportsLoadFailure() {
-        let viewModel = WorkoutSessionDetailViewModel(sessionID: UUID(), store: BrokenLogStore())
+        let viewModel = WorkoutSessionDetailViewModel(sessionID: UUID(), store: UnreadableWorkoutLogStore())
 
         #expect(viewModel.hasLoadError)
         #expect(viewModel.errorMessage == StoreLoadFailure.message)

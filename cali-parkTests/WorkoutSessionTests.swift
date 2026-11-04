@@ -26,14 +26,6 @@ private final class UndeletableWorkoutLogStore: WorkoutLogStoring {
     func delete(id: UUID) throws { throw SampleError() }
 }
 
-/// Rejects every write — a finish that never persisted must not show a summary.
-private struct ReadOnlyWorkoutLogStore: WorkoutLogStoring {
-    struct SampleError: Error {}
-    func load() -> [WorkoutLogEntry] { [] }
-    func append(_ entry: WorkoutLogEntry) throws { throw SampleError() }
-    func delete(id: UUID) throws { throw SampleError() }
-}
-
 // MARK: - WorkoutSession grouping
 
 struct WorkoutSessionGroupingTests {

@@ -12,12 +12,7 @@ import Testing
 struct StreakMonthGridTests {
     /// A gregorian UTC calendar that starts weeks on Sunday, as in the US, to
     /// show the grid does not follow the locale's first weekday.
-    private static let calendar: Calendar = {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC")!
-        calendar.firstWeekday = 1
-        return calendar
-    }()
+    private static let calendar = TestCalendar.utc
 
     private func date(_ year: Int, _ month: Int, _ day: Int) throws -> Date {
         try #require(Self.calendar.date(from: DateComponents(year: year, month: month, day: day)))

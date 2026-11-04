@@ -149,12 +149,11 @@ struct ExerciseCatalogTests {
 
 // MARK: - FileWorkoutLogStore roundtrip
 
+@Suite(.temporaryDirectories)
 struct FileWorkoutLogStoreTests {
     /// Fresh store in a unique temporary directory per test.
     private func makeStore() throws -> FileWorkoutLogStore {
-        let directory = URL.temporaryDirectory
-            .appending(path: "workout-log-tests-\(UUID().uuidString)")
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let directory = try TemporaryDirectory.make("workout-log-tests")
         return FileWorkoutLogStore(directory: directory)
     }
 
@@ -214,9 +213,7 @@ struct FileWorkoutLogStoreTests {
 
     @Test
     func persistenceSurvivesStoreReinstantiation() throws {
-        let directory = URL.temporaryDirectory
-            .appending(path: "workout-log-tests-\(UUID().uuidString)")
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let directory = try TemporaryDirectory.make("workout-log-tests")
 
         let entry = makeEntry()
         try FileWorkoutLogStore(directory: directory).append(entry)

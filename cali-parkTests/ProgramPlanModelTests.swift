@@ -10,9 +10,7 @@ private final class ProgramBundleToken {}
 
 private enum PlanFileSupport {
     static func makeDirectory() throws -> URL {
-        let directory = FileManager.default.temporaryDirectory
-            .appending(path: "ProgramPlanModelTests-\(UUID().uuidString)", directoryHint: .isDirectory)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let directory = try TemporaryDirectory.make("ProgramPlanModelTests")
         return directory
     }
 
@@ -54,7 +52,7 @@ private enum PlanFileSupport {
     )
 }
 
-@Suite("Plan model: optional program fields")
+@Suite("Plan model: optional program fields", .temporaryDirectories)
 struct ProgramPlanModelTests {
     @Test
     func legacyFixtureLoadsWithoutProgramFields() throws {

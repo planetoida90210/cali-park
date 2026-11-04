@@ -15,11 +15,7 @@ import Testing
 @testable import cali_park
 
 private enum Fixtures {
-    static let calendar: Calendar = {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC")!
-        return calendar
-    }()
+    static let calendar = TestCalendar.utc
 
     /// 2026-11-03T12:00:00Z
     static let reference = Date(timeIntervalSince1970: 1_793_707_200)

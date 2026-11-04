@@ -17,14 +17,10 @@ import Testing
 
 private enum AchievementFixture {
     /// UTC calendar so day math never depends on the machine's timezone.
-    static let calendar: Calendar = {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC")!
-        return calendar
-    }()
+    static let calendar = TestCalendar.utc
 
     static func day(_ n: Int) -> Date {
-        Date(timeIntervalSince1970: Double(n) * 86_400)
+        TestDate.epochDay(n)
     }
 
     /// A clean 3 × 8 of the given rep exercise on `date`.
