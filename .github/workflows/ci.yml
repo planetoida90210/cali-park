@@ -158,3 +158,49 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  ui-tests:
+    # Manual and report-only until a few runs on CI's Xcode prove the UI tests
+    # fast (< ~10 min) and stable; then drop the `if` and continue-on-error.
+    name: UI tests (manual)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: macos-26
+    timeout-minutes: 30
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Select Xcode
+        run: sudo xcode-select --switch "/Applications/Xcode_${XCODE_VERSION}.app"
+
+      - name: Pick simulator
+        id: simulator
+        run: |
+          udid="$(scripts/ci-pick-simulator.sh "$SIMULATOR_OS")"
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      - name: UI tests
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project cali-park.xcodeproj \
+            -scheme cali-park \
+            -destination "platform=iOS Simulator,id=${{ steps.simulator.outputs.udid }}" \
+            -derivedDataPath "$RUNNER_TEMP/dd" \
+            -resultBundlePath "$RUNNER_TEMP/UITestResults.xcresult" \
+            -only-testing:cali-parkUITests \
+            CODE_SIGNING_ALLOWED=NO \
+            test 2>&1 | tee "$RUNNER_TEMP/xcodebuild-ui.log"
+
+      - name: Upload UI test results
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-test-results
+          path: |
+            ${{ runner.temp }}/UITestResults.xcresult
+            ${{ runner.temp }}/xcodebuild-ui.log
+          retention-days: 14
+          if-no-files-found: ignore
