@@ -85,7 +85,7 @@ Nagłówki (do 30 znaków; gwiazdki oznaczają słowa w kolorze akcentu, `<br>` 
 | Polityka prywatności | `https://<domena>/prywatnosc` |
 | Copyright | `2026 [IMIĘ I NAZWISKO]` |
 | Cena | Darmowa |
-| Kategoria wiekowa | do wyliczenia w kwestionariuszu; 1.0 nie ma treści użytkowników ani czatu, więc spodziewane 4+ |
+| Kategoria wiekowa | 16+ (ticket 021); wyliczone będzie 9+ (porady treningowe), odpowiedzi z kwestionariusza w [checklist.md](checklist.md) |
 
 ## TestFlight
 

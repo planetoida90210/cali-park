@@ -2,6 +2,9 @@
 
 Stan 2026-11-04. Szkice są gotowe: strona w `site/` (nieopublikowana), [teksty do App Store](app-store-listing.md), [odpowiedzi „App Privacy”](app-privacy.md).
 
+- **[Dzień zakupu konta](checklist.md):** krok po kroku od App ID do zewnętrznego TestFlightu, numery kompilacji, sprawdzenie archiwum bez konta.
+- **[Przegląd wytycznych App Review](app-review.md)** dla 1.0 z samym treningiem: ryzyka z numerami wytycznych i pytania do właściciela.
+
 ## Decyzje
 
 - **Nazwa w App Store:** „CaliPark: kalistenika”, podtytuł „Trening na drążku z planem” (Q39).
