@@ -12,6 +12,8 @@ nonisolated enum StoreFile: String, CaseIterable, Sendable {
     case weeklyGoal = "weekly-goal.json"
     case favoriteParks = "favorite-parks.json"
     case favoriteExercises = "favorite-exercises.json"
+    /// MetricKit crash and performance reports (Profile → "Diagnostyka").
+    case diagnostics = "diagnostics.json"
 
     var fileName: String { rawValue }
 

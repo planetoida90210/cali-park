@@ -6,5 +6,7 @@ nonisolated enum ProfileRoute: Hashable {
     case history
     case backup
     case help
+    /// "Diagnostyka", reached from "Pomoc i opinie".
+    case diagnostics
     case about
 }

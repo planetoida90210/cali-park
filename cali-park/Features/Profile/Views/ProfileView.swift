@@ -66,6 +66,8 @@ struct ProfileView: View {
                     TrainingBackupView(viewModel: environment.makeTrainingBackupViewModel())
                 case .help:
                     HelpFeedbackView()
+                case .diagnostics:
+                    DiagnosticsView(viewModel: environment.makeDiagnosticsViewModel())
                 case .about:
                     AboutView()
                 }

@@ -1,8 +1,9 @@
 import SwiftUI
 
 // MARK: - HelpFeedbackView
-/// "Pomoc i opinie": mail to the team, and how TestFlight testers send
-/// feedback with a screenshot.
+/// "Pomoc i opinie": mail to the team, the on-device crash and performance
+/// reports ("Diagnostyka"), and how TestFlight testers send feedback with a
+/// screenshot.
 struct HelpFeedbackView: View {
     var body: some View {
         List {
@@ -15,6 +16,16 @@ struct HelpFeedbackView: View {
                 }
             } footer: {
                 Text("Pytanie, błąd albo pomysł? Odpisujemy na każdą wiadomość. Adres: \(SupportContact.email)")
+            }
+            .listRowBackground(Color.componentBackground)
+
+            Section {
+                NavigationLink(value: ProfileRoute.diagnostics) {
+                    Label("Diagnostyka", systemImage: "stethoscope")
+                        .foregroundStyle(Color.textPrimary)
+                }
+            } footer: {
+                Text("Raporty o awariach i wydajności, które iOS przekazuje apce. Zostają na telefonie. To Ty decydujesz, czy je wysłać.")
             }
             .listRowBackground(Color.componentBackground)
 

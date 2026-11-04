@@ -59,6 +59,9 @@ final class AppEnvironment {
     /// Which Home modules are shown and in what order, shared by Home and
     /// its module selection screen.
     let modulePreferences: ModulePreferences
+    /// Crash and performance reports from MetricKit, kept on the phone and
+    /// sent only by the user ("Diagnostyka" in Profile).
+    let diagnostics: DiagnosticsService
 
     // MARK: Init
     /// Every store is passed explicitly: the app's file stores come from
@@ -74,6 +77,7 @@ final class AppEnvironment {
          placementStore: PlacementStoring,
          skillProgressStore: SkillProgressStoring,
          weeklyGoalStore: WeeklyGoalStoring,
+         diagnostics: DiagnosticsService,
          defaults: UserDefaults) {
         self.parkDirectory = parkDirectory
         // Built here: a main-actor default argument can't be evaluated in the
@@ -110,6 +114,7 @@ final class AppEnvironment {
         self.skillProgressStore = skillProgressStore
         self.weeklyGoalStore = weeklyGoalStore
         self.modulePreferences = ModulePreferences(defaults: defaults)
+        self.diagnostics = diagnostics
     }
 
     // MARK: View Model Factories
@@ -236,6 +241,11 @@ final class AppEnvironment {
         TrainingBackupViewModel(service: makeTrainingBackupService())
     }
 
+    /// "Diagnostyka" in "Pomoc i opinie": the kept MetricKit reports.
+    func makeDiagnosticsViewModel() -> DiagnosticsViewModel {
+        DiagnosticsViewModel(service: diagnostics)
+    }
+
     // MARK: Live
     /// The app's environment over the real file stores. First moves the store
     /// files from Documents to Application Support (and deletes the old Core
@@ -243,6 +253,17 @@ final class AppEnvironment {
     static func live() -> AppEnvironment {
         CoreDataScaffoldCleanup().run()
         let locations = StoreDirectoryMigration.live().run()
+        let diagnostics = DiagnosticsService(store: FileDiagnosticReportStore(directory: locations.directory(for: .diagnostics)))
+        Task {
+            #if DEBUG
+            // MetricKit delivers nothing on the Simulator; this feeds the
+            // sample payloads through the real pipeline instead.
+            if ProcessInfo.processInfo.arguments.contains("-SimulateMetricKitPayloads") {
+                await diagnostics.record(DiagnosticPreviewData.payloads)
+            }
+            #endif
+            await diagnostics.startReceivingMetricKit()
+        }
         return AppEnvironment(
             favoriteParkStore: FileFavoriteParkStore(directory: locations.directory(for: .favoriteParks)),
             favoriteExerciseStore: FileFavoriteExerciseStore(directory: locations.directory(for: .favoriteExercises)),
@@ -251,6 +272,7 @@ final class AppEnvironment {
             placementStore: FileSkillPlacementStore(directory: locations.directory(for: .skillPlacement)),
             skillProgressStore: FileSkillProgressStore(directory: locations.directory(for: .skillProgress)),
             weeklyGoalStore: FileWeeklyGoalStore(directory: locations.directory(for: .weeklyGoal)),
+            diagnostics: diagnostics,
             defaults: .standard
         )
     }
@@ -284,6 +306,7 @@ extension AppEnvironment {
                        weeklyGoal: WeeklyGoalHistory? = nil,
                        favoriteParks: [UUID] = [],
                        favoriteExercises: [UUID] = [],
+                       diagnosticReports: [DiagnosticReport] = [],
                        location: LocationProviding? = nil) -> AppEnvironment {
         AppEnvironment(
             parkDirectory: BundledParkDirectory(),
@@ -300,6 +323,7 @@ extension AppEnvironment {
             placementStore: InMemorySkillPlacementStore(initial: placement),
             skillProgressStore: InMemorySkillProgressStore(),
             weeklyGoalStore: InMemoryWeeklyGoalStore(initial: weeklyGoal),
+            diagnostics: DiagnosticsService(store: InMemoryDiagnosticReportStore(initial: diagnosticReports)),
             defaults: .throwaway()
         )
     }
@@ -337,6 +361,11 @@ extension AppEnvironment {
 
     /// No plans and an empty journal → hero invites the first workout.
     static var previewEmpty: AppEnvironment { seeded() }
+
+    /// "Diagnostyka" with the sample MetricKit reports.
+    static var previewDiagnostics: AppEnvironment {
+        seeded(diagnosticReports: DiagnosticPreviewData.reports)
+    }
 
     /// A seasoned athlete for the Skills tab: several dynamic ladders finished
     /// through logs, plus a mid-ladder static (front lever conquered through the

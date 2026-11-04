@@ -280,6 +280,7 @@ struct AppEnvironmentReminderSyncTests {
                                          placementStore: InMemorySkillPlacementStore(),
                                          skillProgressStore: InMemorySkillProgressStore(),
                                          weeklyGoalStore: InMemoryWeeklyGoalStore(),
+                                         diagnostics: DiagnosticsService(store: InMemoryDiagnosticReportStore()),
                                          defaults: .throwaway())
         await environment.workoutPlanService.syncReminders()
         #expect(await scheduler.scheduledRequests.compactMap(Fixtures.fireDay).first == 0)
@@ -309,6 +310,7 @@ struct AppEnvironmentReminderSyncTests {
                                          placementStore: InMemorySkillPlacementStore(),
                                          skillProgressStore: InMemorySkillProgressStore(),
                                          weeklyGoalStore: InMemoryWeeklyGoalStore(),
+                                         diagnostics: DiagnosticsService(store: InMemoryDiagnosticReportStore()),
                                          defaults: .throwaway())
         try environment.journal.log(Fixtures.entry(planID: plan.id))
         await environment.workoutPlanService.syncReminders()

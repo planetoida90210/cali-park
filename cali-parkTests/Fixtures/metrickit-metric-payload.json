@@ -1,0 +1,75 @@
+{
+  "appVersion" : "1.0",
+  "timeStampBegin" : "2026-11-02 00:00:00 +0000",
+  "timeStampEnd" : "2026-11-02 23:59:00 +0000",
+  "metaData" : {
+    "appBuildVersion" : "7",
+    "bundleIdentifier" : "com.michalbryk.cali-park",
+    "deviceType" : "iPhone17,1",
+    "isTestFlightApp" : true,
+    "lowPowerModeEnabled" : false,
+    "osVersion" : "iPhone OS 26.1 (23B85)",
+    "platformArchitecture" : "arm64e",
+    "regionFormat" : "PL"
+  },
+  "applicationTimeMetrics" : {
+    "cumulativeBackgroundAudioTime" : "0 sec",
+    "cumulativeBackgroundLocationTime" : "0 sec",
+    "cumulativeBackgroundTime" : "40 sec",
+    "cumulativeForegroundTime" : "1,260 sec"
+  },
+  "cpuMetrics" : {
+    "cumulativeCPUInstructions" : "41,000,000 kiloinstructions",
+    "cumulativeCPUTime" : "38 sec"
+  },
+  "memoryMetrics" : {
+    "averageSuspendedMemory" : {
+      "averageValue" : "48,000 kB",
+      "sampleCount" : 12,
+      "standardDeviation" : 0
+    },
+    "peakMemoryUsage" : "182,000 kB"
+  },
+  "diskIOMetrics" : {
+    "cumulativeLogicalWrites" : "2,400 kB"
+  },
+  "applicationLaunchMetrics" : {
+    "histogrammedTimeToFirstDraw" : {
+      "histogramNumBuckets" : 2,
+      "histogramValue" : {
+        "0" : { "bucketCount" : 4, "bucketEnd" : "510 ms", "bucketStart" : "500 ms" },
+        "1" : { "bucketCount" : 1, "bucketEnd" : "1,010 ms", "bucketStart" : "1,000 ms" }
+      }
+    }
+  },
+  "applicationResponsivenessMetrics" : {
+    "histogrammedAppHangTime" : {
+      "histogramNumBuckets" : 1,
+      "histogramValue" : {
+        "0" : { "bucketCount" : 1, "bucketEnd" : "2,500 ms", "bucketStart" : "2,000 ms" }
+      }
+    }
+  },
+  "applicationExitMetrics" : {
+    "foregroundExitData" : {
+      "cumulativeAbnormalExitCount" : 0,
+      "cumulativeAppWatchdogExitCount" : 1,
+      "cumulativeBadAccessExitCount" : 0,
+      "cumulativeIllegalInstructionExitCount" : 1,
+      "cumulativeMemoryResourceLimitExitCount" : 0,
+      "cumulativeNormalAppExitCount" : 9
+    },
+    "backgroundExitData" : {
+      "cumulativeAbnormalExitCount" : 0,
+      "cumulativeAppWatchdogExitCount" : 0,
+      "cumulativeBackgroundTaskAssertionTimeoutExitCount" : 0,
+      "cumulativeBadAccessExitCount" : 0,
+      "cumulativeCPUResourceLimitExitCount" : 0,
+      "cumulativeIllegalInstructionExitCount" : 0,
+      "cumulativeMemoryPressureExitCount" : 5,
+      "cumulativeMemoryResourceLimitExitCount" : 1,
+      "cumulativeNormalAppExitCount" : 14,
+      "cumulativeSuspendedWithLockedFileExitCount" : 0
+    }
+  }
+}

@@ -199,7 +199,7 @@ struct StoreDirectoryMigrationTests {
         #expect(StoreFile.allCases.map(\.fileName) == [
             "workout-log.json", "workout-plans.json", "skill-placement.json",
             "skill-progress.json", "weekly-goal.json", "favorite-parks.json",
-            "favorite-exercises.json"
+            "favorite-exercises.json", "diagnostics.json"
         ])
         #expect(StoreFile.workoutPlans.quarantinePrefix == "workout-plans.corrupt-")
     }

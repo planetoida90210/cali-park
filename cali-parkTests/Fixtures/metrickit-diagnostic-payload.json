@@ -1,0 +1,192 @@
+{
+  "timeStampBegin" : "2026-11-03 18:42:00 +0000",
+  "timeStampEnd" : "2026-11-03 18:42:00 +0000",
+  "crashDiagnostics" : [
+    {
+      "version" : "1.0.0",
+      "callStackTree" : {
+        "callStackPerThread" : true,
+        "callStacks" : [
+          {
+            "threadAttributed" : false,
+            "callStackRootFrames" : [
+              {
+                "binaryUUID" : "8C1A47F2-5E1B-3C55-9C42-1D8F0E6A7B11",
+                "offsetIntoBinaryTextSegment" : 4720,
+                "sampleCount" : 1,
+                "binaryName" : "libsystem_kernel.dylib",
+                "address" : 7650001520
+              }
+            ]
+          },
+          {
+            "threadAttributed" : true,
+            "callStackRootFrames" : [
+              {
+                "binaryUUID" : "4F0B2E91-7D3A-3A1E-8B64-2C9E5F1D0A22",
+                "offsetIntoBinaryTextSegment" : 1210384,
+                "sampleCount" : 1,
+                "binaryName" : "libswiftCore.dylib",
+                "address" : 7395021840,
+                "subFrames" : [
+                  {
+                    "binaryUUID" : "E3D5A1C7-2B4F-3E8D-9A16-5F7C0B2D4E33",
+                    "offsetIntoBinaryTextSegment" : 165304,
+                    "sampleCount" : 1,
+                    "binaryName" : "CaliPark",
+                    "address" : 4302390456,
+                    "subFrames" : [
+                      {
+                        "binaryUUID" : "E3D5A1C7-2B4F-3E8D-9A16-5F7C0B2D4E33",
+                        "offsetIntoBinaryTextSegment" : 158220,
+                        "sampleCount" : 1,
+                        "binaryName" : "CaliPark",
+                        "address" : 4302383372,
+                        "subFrames" : [
+                          {
+                            "binaryUUID" : "A7C2E4F1-9B3D-3F5A-8E21-6D4B1C0F2A44",
+                            "offsetIntoBinaryTextSegment" : 23488812,
+                            "sampleCount" : 1,
+                            "binaryName" : "SwiftUI",
+                            "address" : 7412345676,
+                            "subFrames" : [
+                              {
+                                "binaryUUID" : "B9E1D3F5-4A2C-3B7E-9D18-7E5A2C1B3F55",
+                                "offsetIntoBinaryTextSegment" : 18732,
+                                "sampleCount" : 1,
+                                "binaryName" : "dyld",
+                                "address" : 7550018732
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "diagnosticMetaData" : {
+        "appBuildVersion" : "7",
+        "appVersion" : "1.0",
+        "bundleIdentifier" : "com.michalbryk.cali-park",
+        "deviceType" : "iPhone17,1",
+        "exceptionCode" : 1,
+        "exceptionType" : 6,
+        "isTestFlightApp" : true,
+        "lowPowerModeEnabled" : false,
+        "osVersion" : "iPhone OS 26.1 (23B85)",
+        "pid" : 1834,
+        "platformArchitecture" : "arm64e",
+        "regionFormat" : "PL",
+        "signal" : 5,
+        "terminationReason" : "Namespace SIGNAL, Code 5 Trace/BPT trap: 5"
+      }
+    }
+  ],
+  "hangDiagnostics" : [
+    {
+      "version" : "1.0.0",
+      "callStackTree" : {
+        "callStackPerThread" : true,
+        "callStacks" : [
+          {
+            "threadAttributed" : true,
+            "callStackRootFrames" : [
+              {
+                "binaryUUID" : "C1F3A5E7-6B8D-3C2F-9A14-8F6B3D2C4A66",
+                "offsetIntoBinaryTextSegment" : 98304,
+                "sampleCount" : 20,
+                "binaryName" : "Foundation",
+                "address" : 7301234688,
+                "subFrames" : [
+                  {
+                    "binaryUUID" : "E3D5A1C7-2B4F-3E8D-9A16-5F7C0B2D4E33",
+                    "offsetIntoBinaryTextSegment" : 201776,
+                    "sampleCount" : 20,
+                    "binaryName" : "CaliPark",
+                    "address" : 4302426928
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "diagnosticMetaData" : {
+        "appBuildVersion" : "7",
+        "appVersion" : "1.0",
+        "deviceType" : "iPhone17,1",
+        "hangDuration" : "2.4 sec",
+        "osVersion" : "iPhone OS 26.1 (23B85)",
+        "platformArchitecture" : "arm64e",
+        "regionFormat" : "PL"
+      }
+    }
+  ],
+  "cpuExceptionDiagnostics" : [
+    {
+      "version" : "1.0.0",
+      "callStackTree" : {
+        "callStackPerThread" : false,
+        "callStacks" : [
+          {
+            "threadAttributed" : false,
+            "callStackRootFrames" : [
+              {
+                "binaryUUID" : "E3D5A1C7-2B4F-3E8D-9A16-5F7C0B2D4E33",
+                "offsetIntoBinaryTextSegment" : 312004,
+                "sampleCount" : 412,
+                "binaryName" : "CaliPark",
+                "address" : 4302537156
+              }
+            ]
+          }
+        ]
+      },
+      "diagnosticMetaData" : {
+        "appBuildVersion" : "7",
+        "appVersion" : "1.0",
+        "deviceType" : "iPhone17,1",
+        "osVersion" : "iPhone OS 26.1 (23B85)",
+        "totalCPUTime" : "92 sec",
+        "totalSampledTime" : "180 sec"
+      }
+    }
+  ],
+  "diskWriteExceptionDiagnostics" : [
+    {
+      "version" : "1.0.0",
+      "callStackTree" : {
+        "callStackPerThread" : false,
+        "callStacks" : []
+      },
+      "diagnosticMetaData" : {
+        "appBuildVersion" : "7",
+        "appVersion" : "1.0",
+        "deviceType" : "iPhone17,1",
+        "osVersion" : "iPhone OS 26.1 (23B85)",
+        "writesCaused" : "1,073,741,824 bytes"
+      }
+    }
+  ],
+  "appLaunchDiagnostics" : [
+    {
+      "version" : "1.0.0",
+      "callStackTree" : {
+        "callStackPerThread" : false,
+        "callStacks" : []
+      },
+      "diagnosticMetaData" : {
+        "appBuildVersion" : "7",
+        "appVersion" : "1.0",
+        "deviceType" : "iPhone17,1",
+        "launchDuration" : "4.1 sec",
+        "osVersion" : "iPhone OS 26.1 (23B85)"
+      }
+    }
+  ]
+}

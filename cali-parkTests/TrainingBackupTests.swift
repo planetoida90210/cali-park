@@ -95,6 +95,7 @@ private struct BackupRig {
             placementStore: placement,
             skillProgressStore: progress,
             weeklyGoalStore: goal,
+            diagnostics: DiagnosticsService(store: InMemoryDiagnosticReportStore()),
             defaults: .throwaway()
         )
         service = environment.makeTrainingBackupService()
