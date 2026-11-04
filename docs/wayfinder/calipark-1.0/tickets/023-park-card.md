@@ -2,8 +2,8 @@
 title: Karta parku
 type: prototype
 mode: HITL
-status: open
-assignee: 
+status: closed
+assignee: planetoida90210
 blocked_by: []
 ---
 
@@ -35,3 +35,15 @@ Klikalna karta Parku w SwiftUI na mapie A „Wyciszona”, ze zmyślonymi danymi
 - **Stany:** Park zweryfikowany z pełnymi danymi, Park ze Społeczności, Park z OSM bez zdjęć, sprzętu i opinii, Park z poprawką w toku.
 - **Dwie kolejności:** A · Zdjęcia najpierw i B · Sprzęt najpierw.
 - **Rekomendacja workera:** B, z paskiem zdjęć na górze, gdy Park ma zdjęcia. Pełna karta jako arkusz, nie nowy ekran.
+
+## Rozstrzygnięcie (2026-11-04)
+
+**Kolejność A: najpierw zdjęcia.** Właściciel: „najpierw zdjęcia, reszta git”. Pusty Park bez zdjęć pokazuje w tym miejscu przerywaną ramkę z „Dodaj zdjęcie”.
+
+- Pełna karta jako arkusz (jak w Mapach Apple), mapa zostaje pod spodem.
+- „Zweryfikowany” na limonkowo, „Ze Społeczności” i „Z OSM” na szaro.
+- Zgłoszoną poprawkę widzi tylko jej autor, dopóki Moderator jej nie zatwierdzi.
+- Opinie wchodzą od razu (filtr słów, zgłaszanie, blokowanie), zdjęcia dopiero po akceptacji Moderatora.
+- Średnia ocena od 3 opinii.
+- Pogoda schowana w całości do WeatherKit, bez danych przykładowych i innego dostawcy.
+- Park z OSM bez znanego sprzętu: „Street workout · …”. „Nawiguj” tylko do Map Apple w v1. „Zgłoś treść” także przy zdjęciach ekipy; teksty zgłoszeń razem z regulaminem.
