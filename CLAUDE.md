@@ -14,7 +14,7 @@ xcodebuild -project cali-park.xcodeproj -scheme cali-park \
 
 - Simulator access fails inside the Bash sandbox (CoreSimulator, xcrun cache). Run xcodebuild with the sandbox disabled.
 - Some simulator names exist on more than one runtime. Without `OS=26.5` in the destination, xcodebuild may fail to match a device; `id=<UDID>` from `xcrun simctl list devices` also works.
-- Baseline as of 2026-11-04, after favorite exercises (`3ec8014`): the build has zero warnings and every unit test passes (839 `@Test` functions, 1278 cases including parameterized ones). Keep the build warning-free and the tests green.
+- Baseline as of 2026-11-04, after F5 (Dynamic Type, String Catalog, `ccc1023`): the build has zero warnings and every unit test passes (843 `@Test` functions, 1285 cases including parameterized ones). Keep the build warning-free and the tests green.
 - Targets use synchronized folders. A new file under `cali-park/` or `cali-parkTests/` is compiled automatically, so add files without editing `project.pbxproj`.
 
 ## CI
@@ -22,10 +22,10 @@ xcodebuild -project cali-park.xcodeproj -scheme cali-park \
 GitHub Actions (`.github/workflows/ci.yml`) runs on every push to `main`, on every pull request, and on manual dispatch. CI must stay green: a red `test` job on `main` is a regression to fix before anything else.
 
 - **`test`** (blocking): on the `macos-26` runner with Xcode 26.6 (CI uses an older Xcode than the local one; see `XCODE_VERSION` in the workflow), it runs the unit tests on an iPhone simulator picked by `scripts/ci-pick-simulator.sh` (iOS 26.5 when installed), with `CODE_SIGNING_ALLOWED=NO`. Then `scripts/check-build-warnings.sh` fails the job on any line containing `warning:`, except `appintentsmetadataprocessor` notes. When the job fails, it uploads the `.xcresult` and the full log as the `test-results` artifact. To bump Xcode, change the runner image and `XCODE_VERSION` together, after checking the image's readme in `actions/runner-images`.
-- **`lint`** (report only, `continue-on-error: true`): `scripts/lint-rules.sh --baseline scripts/lint-rules.baseline` counts violations of the clearest rules in `project-rules.mdc` and flags any rule whose count exceeds the baseline. `xcrun swift-format lint --recursive` checks style against `.swift-format`. Both write a summary to the job page.
+- **`lint`**: the **Project rules** step (blocking) runs `scripts/lint-rules.sh --baseline scripts/lint-rules.baseline`, which counts violations of the clearest rules in `project-rules.mdc` and fails on any rule whose count exceeds the baseline. The **swift-format** step (report only, `continue-on-error: true`) runs `xcrun swift-format lint --recursive` against `.swift-format`. Both write a summary to the job page.
 - Run the same checks locally: `scripts/lint-rules.sh` (add `--baseline scripts/lint-rules.baseline` to check for new violations), `xcrun swift-format lint --recursive --parallel cali-park cali-parkTests cali-parkUITests`, and `scripts/check-build-warnings.sh <xcodebuild log>`.
 - After you fix rule violations, lower the baseline with `scripts/lint-rules.sh --write-baseline scripts/lint-rules.baseline` and commit it, so the fixed violations can't come back. Never raise it to make a new violation pass.
-- To make lint blocking, remove `continue-on-error: true` from the `lint` job. The rules step then fails on any count above the baseline. For swift-format, add `--strict` once the code is formatted (`xcrun swift-format format --in-place --recursive …`).
+- To make swift-format blocking too, format the code (`xcrun swift-format format --in-place --recursive …`), then remove its `continue-on-error: true` and add `--strict`.
 
 ## Toolchain facts
 

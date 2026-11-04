@@ -95,10 +95,9 @@ jobs:
   # Report-only for now: the job shows its findings but never fails the run.
   # To make it blocking, see "CI" in CLAUDE.md.
   lint:
-    name: Lint (report only)
+    name: Lint
     runs-on: macos-26
     timeout-minutes: 15
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v7
         with:
@@ -110,12 +109,14 @@ jobs:
           xcodebuild -version
           echo "swift-format $(xcrun swift-format --version)"
 
+      # Blocking: any rule above its baseline count fails the job.
       - name: Project rules
-        if: always()
         run: scripts/lint-rules.sh --baseline scripts/lint-rules.baseline
 
+      # Report only until the code is formatted and the step gets --strict.
       - name: swift-format
         if: always()
+        continue-on-error: true
         run: |
           set -o pipefail
           xcrun swift-format lint --recursive --parallel \
