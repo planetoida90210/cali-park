@@ -127,6 +127,7 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - kalibracja wskazuje szczeble po ID; dipy „12+” startują od podporu na kółkach,
   - jednorazowy skok XP za nowe niższe szczeble (np. +100 XP przy pełnych podciągnięciach, maks. +1100 XP), przyjęty w 015,
   - testy: 426 (722 przypadki).
+- **Status audytu** (`2a2c469`…`95299af`, 2026-11-04): [docs/audit/STATUS.md](../../audit/STATUS.md) klasyfikuje wszystkie 141 znalezisk: 89 naprawionych, 25 zniknęło ze starym kodem, 4 świadomie odłożone, 23 otwarte (12 częściowo); wszystkie P0 zamknięte. Przy okazji ok. 20 drobnych poprawek (m.in. podwójny zapis z SetPada C-12, haptyka pierwszej celebracji A-9, odmiana „do pierwszych 5 s” A-13, podglądy tylko na danych w pamięci, testy zmiany czasu B-16). Testy: 859 (1313 przypadków).
 - **Jakość przed TestFlightem, krok F5 fundamentu** (`9d340c9`…`ccc1023`, 2026-11-04): **fundament F0–F5 jest zrobiony.**
   - tekst rośnie z rozmiarem czcionki w ustawieniach (Dynamic Type), a przy dużych rozmiarach układy się przelewają (kafelki, wiersze, hero, onboarding) (E-1, F-10),
   - String Catalog z polskim jako językiem źródłowym, ok. 270 tekstów z view modeli przepuszczonych przez lokalizację; treści katalogów (ćwiczenia, programy, drabiny) dopiero przy drugim języku (E-14),
