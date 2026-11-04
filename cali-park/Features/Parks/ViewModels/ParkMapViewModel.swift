@@ -9,6 +9,8 @@ import SwiftUI
 @MainActor
 @Observable
 final class ParkMapViewModel {
+    private static let logger = AppLog.logger(category: "Parks")
+
     enum Mode: Hashable {
         case map, list
     }
@@ -178,6 +180,8 @@ final class ParkMapViewModel {
             errorMessage = nil
             applyPendingFocus()
         } catch {
+            // The snapshot ships in the bundle, so this is a build defect.
+            Self.logger.fault("Cannot load the Park snapshot: \(String(describing: error), privacy: .public)")
             errorMessage = Self.loadErrorMessage
         }
     }

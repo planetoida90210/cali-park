@@ -105,7 +105,11 @@ final class CoreLocationProvider: NSObject, LocationProviding {
         let generation = requestGeneration
         manager.requestLocation()
         Task { [weak self, requestTimeout] in
-            try? await Task.sleep(for: requestTimeout)
+            do {
+                try await Task.sleep(for: requestTimeout)
+            } catch {
+                return
+            }
             guard let self, self.requestGeneration == generation, !self.locationWaiters.isEmpty else { return }
             Self.log.notice("Location request timed out")
             self.finishLocationRequest(with: nil)

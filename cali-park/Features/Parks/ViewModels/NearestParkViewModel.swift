@@ -8,6 +8,8 @@ import Observation
 @MainActor
 @Observable
 final class NearestParkViewModel {
+    private static let logger = AppLog.logger(category: "Parks")
+
     enum State: Equatable {
         case loading
         case nearest(ParkDistance)
@@ -32,6 +34,7 @@ final class NearestParkViewModel {
         do {
             parks = try await directory.catalog().parks
         } catch {
+            Self.logger.fault("Cannot load the Park snapshot: \(String(describing: error), privacy: .public)")
             state = .failed(ParkMapViewModel.loadErrorMessage)
             return
         }

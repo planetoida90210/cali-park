@@ -73,6 +73,8 @@ nonisolated enum TrainingBackupCodec {
     /// Far above a real journal (about 1 MB holds thousands of workouts).
     static let maximumFileSize = 50 * 1024 * 1024
 
+    private static let logger = AppLog.logger(category: "TrainingBackup")
+
     // MARK: Encode
     /// The export file's bytes. Pretty-printed, so the file stays readable.
     static func encode(_ backup: TrainingBackup, exportedAt: Date, appVersion: String) throws -> Data {
@@ -108,6 +110,8 @@ nonisolated enum TrainingBackupCodec {
         do {
             file = try JSONFileFormat.decoder.decode(File.self, from: data)
         } catch {
+            // The user only sees "damaged"; keep the decoder's reason for a bug report.
+            logger.error("Backup v\(version, privacy: .public) does not decode: \(String(describing: error), privacy: .public)")
             throw .damaged
         }
         let backup = file.payload.backup
