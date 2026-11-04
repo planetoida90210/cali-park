@@ -35,11 +35,11 @@ extension SkillProgressStoring {
 
 // MARK: - FileSkillProgressStore
 /// Default `SkillProgressStoring` implementation: a single JSON file in the
-/// app's documents directory, through `JSONFileStore`.
+/// app's store directory, through `JSONFileStore`.
 struct FileSkillProgressStore: SkillProgressStoring {
     private let file: JSONFileStore<SkillProgress>
 
-    init(directory: URL = .documentsDirectory, fileName: String = "skill-progress.json") {
+    init(directory: URL, fileName: String = StoreFile.skillProgress.fileName) {
         file = JSONFileStore(
             fileURL: directory.appending(path: fileName),
             logCategory: "SkillProgressStore",

@@ -37,7 +37,8 @@ final class PlanEditorViewModel {
     var selectedWeekdays: Set<Weekday>
     /// Interval for `everyNDays`, clamped to a sensible range by the stepper.
     var interval: Int
-    /// Chosen day for a one-off plan.
+    /// Chosen day for a one-off plan, at the start of the day. Must be today
+    /// or later to save (`isOnceDateInPast`).
     var onceDate: Date
     /// Whether the plan sends a local reminder on its days. Turn it on through
     /// `setReminderEnabled(_:)`, which handles notification permission.
@@ -57,12 +58,18 @@ final class PlanEditorViewModel {
     // MARK: Dependencies & identity
     private let service: WorkoutPlanService
     private let calendar: Calendar
+    /// The start of the day the editor opened on.
+    private let today: Date
     /// The plan being edited, or a blank one for a new plan. `save()` edits a
     /// copy of it, so its identity and every field this editor does not show
     /// (`isActive`, `createdAt`, exercise targets, …) survive.
     private let original: WorkoutPlan
     /// Anchor for `everyNDays`; kept from the existing plan, else today.
-    private let intervalAnchor: Date
+    private let intervalAnchor: CalendarDay
+    /// The earliest day the one-off date picker offers: today, or the plan's
+    /// own past date when an expired one-off plan is edited, so the picker
+    /// can still show it.
+    let earliestOnceDate: Date
     /// The editable fields as the editor opened them, for `hasUnsavedChanges`.
     @ObservationIgnored private var baseline: Draft?
 
@@ -79,6 +86,7 @@ final class PlanEditorViewModel {
         self.service = service
         self.calendar = calendar
         let today = calendar.startOfDay(for: now)
+        self.today = today
         let original = plan ?? WorkoutPlan(name: "", schedule: .weekly([]), createdAt: now)
         self.original = original
 
@@ -98,19 +106,25 @@ final class PlanEditorViewModel {
         if case .everyNDays(_, let anchor) = original.schedule {
             intervalAnchor = anchor
         } else {
-            intervalAnchor = today
+            intervalAnchor = CalendarDay(today, in: calendar)
         }
 
+        var earliestOnceDate = today
         switch original.schedule {
         case .weekly(let days):
             selectedWeekdays = days
         case .everyNDays(let value, _):
             scheduleMode = .everyNDays
             interval = value
-        case .once(let date):
+        case .once(let day):
             scheduleMode = .once
-            onceDate = date ?? today
+            // An expired one-off plan opens on its own past date: the editor
+            // then says why it can't be saved as is.
+            let date = day?.startDate(in: calendar) ?? today
+            onceDate = date
+            earliestOnceDate = min(today, date)
         }
+        self.earliestOnceDate = earliestOnceDate
 
         baseline = draft
     }
@@ -134,8 +148,20 @@ final class PlanEditorViewModel {
         switch scheduleMode {
         case .weekly: .weekly(selectedWeekdays)
         case .everyNDays: .everyNDays(interval, from: intervalAnchor)
-        case .once: .once(onceDate)
+        case .once: .once(CalendarDay(onceDate, in: calendar))
         }
+    }
+
+    /// The one-off date is before today, so the plan would never occur.
+    var isOnceDateInPast: Bool {
+        CalendarDay(onceDate, in: calendar) < CalendarDay(today, in: calendar)
+    }
+
+    /// Why a one-off plan can't be saved, shown under the schedule; `nil`
+    /// when there is nothing to fix.
+    var scheduleProblem: String? {
+        guard scheduleMode == .once, isOnceDateInPast else { return nil }
+        return "Ta data już minęła. Wybierz dziś lub dzień w przyszłości – inaczej plan się nie odbędzie."
     }
 
     /// Hour and minute of the reminder, or `nil` when it is off. Keeps the
@@ -150,13 +176,14 @@ final class PlanEditorViewModel {
         return DateComponents(hour: picked.hour, minute: picked.minute)
     }
 
-    /// A weekly plan needs at least one day; an interval must be positive.
-    /// Without this a plan could be saved with no possible occurrence.
+    /// A weekly plan needs at least one day; an interval must be positive; a
+    /// one-off day can't be in the past. Without this a plan could be saved
+    /// with no possible occurrence.
     private var hasValidSchedule: Bool {
         switch scheduleMode {
         case .weekly: !selectedWeekdays.isEmpty
         case .everyNDays: interval > 0
-        case .once: true
+        case .once: !isOnceDateInPast
         }
     }
 

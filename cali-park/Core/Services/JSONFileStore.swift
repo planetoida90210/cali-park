@@ -40,20 +40,25 @@ struct JSONFileStore<Value: Codable>: Sendable {
     let schemaVersion: Int
     private let logger: Logger
     private let now: @Sendable () -> Date
+    private let decoderUserInfo: [CodingUserInfoKey: any Sendable]
 
     /// - Parameters:
     ///   - logCategory: the `os.Logger` category, one per store.
     ///   - schemaVersion: the payload format version this store writes. Bump
     ///     it when the payload shape changes, and teach the payload's decoder
     ///     to read the older versions.
+    ///   - decoderUserInfo: extra `userInfo` for the payload's decoder, e.g.
+    ///     the calendar an older format needs to migrate.
     ///   - now: clock for quarantine file names; injectable for tests.
     init(fileURL: URL,
          logCategory: String,
          schemaVersion: Int = JSONFileFormat.currentSchemaVersion,
+         decoderUserInfo: [CodingUserInfoKey: any Sendable] = [:],
          now: @escaping @Sendable () -> Date = { .now }) {
         precondition(schemaVersion >= 1, "Schema versions start at 1")
         self.fileURL = fileURL
         self.schemaVersion = schemaVersion
+        self.decoderUserInfo = decoderUserInfo
         self.logger = AppLog.logger(category: logCategory)
         self.now = now
     }
@@ -117,11 +122,11 @@ struct JSONFileStore<Value: Codable>: Sendable {
                         header.schemaVersion, file: fileURL, preservedCopy: copy
                     )
                 }
-                let decoder = JSONFileFormat.decoder(forSchemaVersion: header.schemaVersion)
+                let decoder = JSONFileFormat.decoder(forSchemaVersion: header.schemaVersion, userInfo: decoderUserInfo)
                 return try decoder.decode(JSONFileFormat.Envelope<Value>.self, from: data).payload
             }
             // No envelope: the legacy bare format, which is version 1.
-            return try JSONFileFormat.decoder(forSchemaVersion: 1).decode(Value.self, from: data)
+            return try JSONFileFormat.decoder(forSchemaVersion: 1, userInfo: decoderUserInfo).decode(Value.self, from: data)
         } catch let error as JSONFileStoreError {
             throw error
         } catch {
@@ -225,9 +230,13 @@ enum JSONFileFormat {
 
     /// A decoder that tells the payload which schema version it is reading.
     /// A fresh instance per read, because `userInfo` is mutable state.
-    static func decoder(forSchemaVersion version: Int) -> JSONDecoder {
+    static func decoder(forSchemaVersion version: Int,
+                        userInfo: [CodingUserInfoKey: any Sendable] = [:]) -> JSONDecoder {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
+        for (key, value) in userInfo {
+            decoder.userInfo[key] = value
+        }
         decoder.userInfo[schemaVersionKey] = version
         return decoder
     }

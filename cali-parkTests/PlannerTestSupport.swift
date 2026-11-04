@@ -13,3 +13,16 @@ extension WorkoutPlanService {
         WorkoutPlanService(store: store, logStore: logStore, scheduler: scheduler, refreshScheduler: refreshScheduler)
     }
 }
+
+// MARK: - Schedules from fixture dates
+extension WorkoutSchedule {
+    /// A one-off schedule on the day `date` falls on in `calendar`.
+    static func once(_ date: Date, in calendar: Calendar) -> WorkoutSchedule {
+        .once(CalendarDay(date, in: calendar))
+    }
+
+    /// An interval schedule anchored on the day `date` falls on in `calendar`.
+    static func everyNDays(_ interval: Int, from date: Date, in calendar: Calendar) -> WorkoutSchedule {
+        .everyNDays(interval, from: CalendarDay(date, in: calendar))
+    }
+}

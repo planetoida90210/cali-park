@@ -7,10 +7,14 @@ import Foundation
 /// - `once`: a single planned day (`nil` while the plan is still a draft).
 /// - `weekly`: repeats every week on the chosen weekdays.
 /// - `everyNDays`: a fixed interval measured from an anchor day.
+///
+/// Days are `CalendarDay`s, not instants, so they don't move when the time
+/// zone changes. Plans saved before that stored instants; `CalendarDay`
+/// still decodes them.
 enum WorkoutSchedule: Codable, Equatable, Hashable {
-    case once(Date?)
+    case once(CalendarDay?)
     case weekly(Set<Weekday>)
-    case everyNDays(Int, from: Date)
+    case everyNDays(Int, from: CalendarDay)
 
     /// Whether the plan repeats (a one-off does not).
     var isRecurring: Bool {
@@ -29,10 +33,10 @@ enum WorkoutSchedule: Codable, Equatable, Hashable {
         let referenceDay = calendar.startOfDay(for: reference)
 
         switch self {
-        case .once(let date):
-            guard let date else { return nil }
-            let day = calendar.startOfDay(for: date)
-            return day >= referenceDay ? day : nil
+        case .once(let day):
+            guard let day else { return nil }
+            let date = day.startDate(in: calendar)
+            return date >= referenceDay ? date : nil
 
         case .weekly(let days):
             guard !days.isEmpty else { return nil }
@@ -47,7 +51,7 @@ enum WorkoutSchedule: Codable, Equatable, Hashable {
 
         case .everyNDays(let interval, let anchor):
             guard interval > 0 else { return nil }
-            let anchorDay = calendar.startOfDay(for: anchor)
+            let anchorDay = anchor.startDate(in: calendar)
             guard anchorDay < referenceDay else { return anchorDay }
 
             let elapsed = calendar.dateComponents([.day], from: anchorDay, to: referenceDay).day ?? 0

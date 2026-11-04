@@ -59,8 +59,10 @@ struct GoldenFixtureTests {
     func workoutPlansFixtureDecodes() throws {
         let directory = try StoreTestSupport.makeDirectory()
         _ = try StoreTestSupport.installFixture("workout-plans-legacy", as: "workout-plans.json", in: directory)
+        var utc = Calendar(identifier: .gregorian)
+        utc.timeZone = .gmt
 
-        #expect(try FileWorkoutPlanStore(directory: directory).load() == StoreFixtures.workoutPlans)
+        #expect(try FileWorkoutPlanStore(directory: directory, calendar: utc).load() == StoreFixtures.workoutPlans)
     }
 
     @Test
@@ -134,7 +136,7 @@ struct EnvelopeRoundTripTests {
         for plan in StoreFixtures.workoutPlans { try writer.save(plan) }
 
         let object = try StoreTestSupport.topLevelObject(at: directory.appending(path: "workout-plans.json"))
-        #expect(object["schemaVersion"] as? Int == 1)
+        #expect(object["schemaVersion"] as? Int == 2)
         #expect(try FileWorkoutPlanStore(directory: directory).load() == StoreFixtures.workoutPlans)
     }
 

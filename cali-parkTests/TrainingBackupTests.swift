@@ -141,7 +141,7 @@ struct TrainingBackupCodecTests {
     func header() throws {
         let object = try #require(JSONSerialization.jsonObject(with: BackupFixtures.data()) as? [String: Any])
         #expect(object["format"] as? String == "calipark-backup")
-        #expect(object["schemaVersion"] as? Int == 1)
+        #expect(object["schemaVersion"] as? Int == 2)
         #expect(object["exportedAt"] as? String == "2026-10-02T18:05:10Z")
         #expect(object["appVersion"] as? String == "1.0 (1)")
     }
@@ -179,11 +179,12 @@ struct TrainingBackupCodecTests {
 
     @Test("A newer schema version is refused with a message to update")
     func newerVersion() throws {
-        let data = try BackupFixtures.editedData { $0["schemaVersion"] = 2 }
-        #expect(throws: TrainingBackupError.newerVersion(2)) {
+        let newer = TrainingBackupCodec.schemaVersion + 1
+        let data = try BackupFixtures.editedData { $0["schemaVersion"] = newer }
+        #expect(throws: TrainingBackupError.newerVersion(newer)) {
             try TrainingBackupCodec.decode(data)
         }
-        #expect(TrainingBackupError.newerVersion(2).message.contains("nowsza wersja"))
+        #expect(TrainingBackupError.newerVersion(newer).message.contains("nowsza wersja"))
     }
 
     @Test("A backup with a broken payload is reported as damaged")
@@ -236,13 +237,14 @@ struct TrainingBackupCodecTests {
         #expect(throws: TrainingBackupError.tooLarge) { try TrainingBackupCodec.decode(data) }
     }
 
-    /// The payload sections are the stores' current formats. Bumping either
-    /// version needs a new backup `schemaVersion` and a decoder for old files.
-    @Test("Backup version 1 pins the placement and progress formats it embeds")
+    /// The payload sections are the stores' current formats. Bumping any of
+    /// these versions needs a new backup `schemaVersion` and a decoder for old files.
+    @Test("Backup version 2 pins the placement, progress and plan formats it embeds")
     func pinnedPayloadVersions() {
-        #expect(TrainingBackupCodec.schemaVersion == 1)
+        #expect(TrainingBackupCodec.schemaVersion == 2)
         #expect(SkillPlacement.schemaVersion == 2)
         #expect(SkillProgress.schemaVersion == 2)
+        #expect(FileWorkoutPlanStore.schemaVersion == 2)
     }
 
     @Test("The summary counts workouts as sessions and names what is set")

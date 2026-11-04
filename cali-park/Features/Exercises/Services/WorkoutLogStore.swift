@@ -59,13 +59,13 @@ extension WorkoutLogStoring {
 
 // MARK: - FileWorkoutLogStore
 /// Default `WorkoutLogStoring` implementation: a single JSON file in the
-/// app's documents directory, through `JSONFileStore`. Adequate for a personal
+/// app's store directory, through `JSONFileStore`. Adequate for a personal
 /// training log (tens–hundreds of entries); deliberately not Core Data. A file
 /// that cannot be read makes every call throw instead of being overwritten.
 struct FileWorkoutLogStore: WorkoutLogStoring {
     private let file: JSONFileStore<[WorkoutLogEntry]>
 
-    init(directory: URL = .documentsDirectory, fileName: String = "workout-log.json") {
+    init(directory: URL, fileName: String = StoreFile.workoutLog.fileName) {
         file = JSONFileStore(fileURL: directory.appending(path: fileName), logCategory: "WorkoutLogStore")
     }
 

@@ -106,7 +106,7 @@ struct PlanAgendaTests {
 
     @Test
     func doneOneOffPlanHasNoNextOccurrence() {
-        let once = WorkoutPlan(name: "Test", schedule: .once(Fixtures.day(0)))
+        let once = WorkoutPlan(name: "Test", schedule: .once(Fixtures.day(0), in: Fixtures.calendar))
         let entries = [Fixtures.entry(at: Fixtures.today, plan: once)]
 
         #expect(PlanAgenda.nextUndoneDate(of: once, entries: entries, calendar: Fixtures.calendar, today: Fixtures.today) == nil)

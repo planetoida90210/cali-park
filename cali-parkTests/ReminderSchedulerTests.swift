@@ -110,7 +110,7 @@ struct ReminderPlannerCapTests {
         // in 2, Monday in 4.
         let monday = Fixtures.plan("Mon", schedule: .weekly([.monday]))
         let friday = Fixtures.plan("Fri", schedule: .weekly([.friday]))
-        let saturday = Fixtures.plan("Sat", schedule: .once(Fixtures.day(2)))
+        let saturday = Fixtures.plan("Sat", schedule: .once(Fixtures.day(2), in: Fixtures.calendar))
 
         let requests = WorkoutReminderPlanner.requests(for: [monday, friday, saturday],
                                                        calendar: Fixtures.calendar,
@@ -136,7 +136,7 @@ struct ReminderPlannerCapTests {
     func intervalRemindersShareTheBudgetWithWeeklyOnes() {
         // A daily interval plan alone would fill all 64 slots; the weekend
         // reminders still get every weekend within the covered stretch.
-        let daily = Fixtures.plan("Daily", schedule: .everyNDays(1, from: Fixtures.day(0)))
+        let daily = Fixtures.plan("Daily", schedule: .everyNDays(1, from: Fixtures.day(0), in: Fixtures.calendar))
         let weekly = Fixtures.plan("Weekly", schedule: .weekly([.saturday, .sunday]), hour: 7)
 
         let requests = WorkoutReminderPlanner.requests(for: [daily, weekly], calendar: Fixtures.calendar, asOf: Fixtures.now)
@@ -153,11 +153,11 @@ struct ReminderPlannerCapTests {
     @Test
     func capCoversEveryPlanUpToTheSameDate() throws {
         let plans = [
-            Fixtures.plan("Daily", schedule: .everyNDays(1, from: Fixtures.day(0)), hour: 20),
-            Fixtures.plan("Every3", schedule: .everyNDays(3, from: Fixtures.day(1)), hour: 7),
+            Fixtures.plan("Daily", schedule: .everyNDays(1, from: Fixtures.day(0), in: Fixtures.calendar), hour: 20),
+            Fixtures.plan("Every3", schedule: .everyNDays(3, from: Fixtures.day(1), in: Fixtures.calendar), hour: 7),
             Fixtures.plan("MonWedFri", schedule: .weekly([.monday, .wednesday, .friday])),
             Fixtures.plan("Sunday", schedule: .weekly([.sunday]), hour: 10),
-            Fixtures.plan("Once", schedule: .once(Fixtures.day(5)))
+            Fixtures.plan("Once", schedule: .once(Fixtures.day(5), in: Fixtures.calendar))
         ]
 
         let capped = WorkoutReminderPlanner.requests(for: plans, calendar: Fixtures.calendar, asOf: Fixtures.now)

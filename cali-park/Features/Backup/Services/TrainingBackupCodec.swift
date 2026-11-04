@@ -42,7 +42,7 @@ enum TrainingBackupError: Error, Equatable {
 /// ```json
 /// {
 ///   "format": "calipark-backup",
-///   "schemaVersion": 1,
+///   "schemaVersion": 2,
 ///   "exportedAt": "2026-11-04T18:30:00Z",
 ///   "appVersion": "1.0 (1)",
 ///   "payload": { "workoutLog": […], "workoutPlans": […],
@@ -52,13 +52,18 @@ enum TrainingBackupError: Error, Equatable {
 /// ```
 ///
 /// Each payload section is the same JSON its store writes, in the store's
-/// current format (`SkillPlacement` and `SkillProgress` version 2). When one of
-/// those formats changes, bump `schemaVersion` and teach `decode` to read the
-/// older backups. Dates are ISO 8601 with whole seconds, like the stores.
+/// current format (`SkillPlacement`, `SkillProgress` and `WorkoutPlan`
+/// version 2). When one of those formats changes, bump `schemaVersion` and
+/// teach `decode` to read the older backups. Dates are ISO 8601 with whole
+/// seconds, like the stores.
+///
+/// Version 2 stores plan schedule days as `"yyyy-MM-dd"`. Version 1 stored
+/// them as instants, which `CalendarDay` reads as days in the current
+/// calendar.
 enum TrainingBackupCodec {
     static let formatIdentifier = "calipark-backup"
     /// The version this build writes; it reads `1...schemaVersion`.
-    static let schemaVersion = 1
+    static let schemaVersion = 2
     /// Far above a real journal (about 1 MB holds thousands of workouts).
     static let maximumFileSize = 50 * 1024 * 1024
 

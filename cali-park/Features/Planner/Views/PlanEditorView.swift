@@ -205,7 +205,13 @@ private struct PlanScheduleSection: View {
         } header: {
             Text("Harmonogram")
         } footer: {
-            Text(WorkoutScheduleFormatter.summary(viewModel.schedule))
+            VStack(alignment: .leading, spacing: 4) {
+                Text(WorkoutScheduleFormatter.summary(viewModel.schedule))
+                if let problem = viewModel.scheduleProblem {
+                    Label(problem, systemImage: "exclamationmark.triangle.fill")
+                        .foregroundStyle(Color.statusOrange)
+                }
+            }
         }
     }
 
@@ -222,7 +228,7 @@ private struct PlanScheduleSection: View {
             }
             .listRowBackground(Color.componentBackground)
         case .once:
-            DatePicker("Data", selection: $viewModel.onceDate, displayedComponents: .date)
+            DatePicker("Data", selection: $viewModel.onceDate, in: viewModel.earliestOnceDate..., displayedComponents: .date)
                 .foregroundStyle(Color.textPrimary)
                 .listRowBackground(Color.componentBackground)
         }

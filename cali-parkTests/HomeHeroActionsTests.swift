@@ -39,7 +39,7 @@ struct HomeHeroActionsTests {
         let plan = WorkoutPlan(
             name: "Push Day",
             exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID, targetSets: 3, targetReps: 12)],
-            schedule: .once(.now)
+            schedule: .once(.now, in: .current)
         )
         let logStore = InMemoryWorkoutLogStore()
         let dashboard = dashboard(logStore: logStore, planStore: InMemoryWorkoutPlanStore(initial: [plan]))
@@ -84,7 +84,7 @@ struct HomeHeroActionsTests {
         let plan = WorkoutPlan(
             name: "Push Day",
             exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID)],
-            schedule: .once(.now)
+            schedule: .once(.now, in: .current)
         )
         let logStore = InMemoryWorkoutLogStore()
         let dashboard = dashboard(logStore: logStore, planStore: InMemoryWorkoutPlanStore(initial: [plan]))

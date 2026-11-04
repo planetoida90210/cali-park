@@ -9,7 +9,7 @@ import SwiftUI
 /// There is no goals question (the program choice took its role) and no
 /// location step: the map asks for location when it first opens.
 struct OnboardingView: View {
-    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
+    @AppStorage(DefaultsKey.hasCompletedOnboarding.rawValue) private var hasCompletedOnboarding: Bool = false
 
     @State private var viewModel: OnboardingViewModel
 

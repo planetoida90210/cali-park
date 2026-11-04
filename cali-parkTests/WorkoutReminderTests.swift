@@ -93,7 +93,7 @@ struct WorkoutReminderGuardTests {
 struct WorkoutReminderOneOffTests {
     @Test
     func futureOnceBuildsSingleDatedRequest() throws {
-        let plan = ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(10)))
+        let plan = ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(10), in: ReminderFixtures.calendar))
         let requests = WorkoutReminderPlanner.requests(for: plan,
                                                        calendar: ReminderFixtures.calendar,
                                                        asOf: ReminderFixtures.day(5))
@@ -107,7 +107,7 @@ struct WorkoutReminderOneOffTests {
 
     @Test
     func pastOnceProducesNothing() {
-        let plan = ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(2)))
+        let plan = ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(2), in: ReminderFixtures.calendar))
         let requests = WorkoutReminderPlanner.requests(for: plan,
                                                        calendar: ReminderFixtures.calendar,
                                                        asOf: ReminderFixtures.day(5))
@@ -119,7 +119,7 @@ struct WorkoutReminderOneOffTests {
     @Test
     func everyNDaysBuildsDatedRequestsForUpcomingOccurrences() throws {
         // Anchor day 0, interval 3 → occurrences on days 3, 6, 9… after day 1.
-        let plan = ReminderFixtures.plan(schedule: .everyNDays(3, from: ReminderFixtures.day(0)))
+        let plan = ReminderFixtures.plan(schedule: .everyNDays(3, from: ReminderFixtures.day(0), in: ReminderFixtures.calendar))
         let requests = WorkoutReminderPlanner.requests(for: plan,
                                                        calendar: ReminderFixtures.calendar,
                                                        asOf: ReminderFixtures.day(1))
@@ -137,7 +137,7 @@ struct WorkoutReminderOneOffTests {
     func everyNDaysAdvancesWhenTodaysTimePassed() throws {
         // Anchor day 0, interval 3 → occurrences on days 0, 3, 6, 9…
         // Reference: day 6 at 20:00, reminder 18:30 → today's slot passed.
-        let plan = ReminderFixtures.plan(schedule: .everyNDays(3, from: ReminderFixtures.day(0)))
+        let plan = ReminderFixtures.plan(schedule: .everyNDays(3, from: ReminderFixtures.day(0), in: ReminderFixtures.calendar))
         let requests = WorkoutReminderPlanner.requests(for: plan,
                                                        calendar: ReminderFixtures.calendar,
                                                        asOf: ReminderFixtures.day(6, hour: 20))
@@ -169,8 +169,8 @@ struct WorkoutReminderContentTests {
     @Test
     func multiplePlansAggregate() {
         let plans = [
-            ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(3))),
-            ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(4))),
+            ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(3), in: ReminderFixtures.calendar)),
+            ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(4), in: ReminderFixtures.calendar)),
             ReminderFixtures.plan(schedule: .weekly([.tuesday]))
         ]
         let requests = WorkoutReminderPlanner.requests(for: plans,
@@ -188,8 +188,8 @@ struct InMemoryReminderSchedulerTests {
     @Test
     func rescheduleRecordsBuiltRequests() async throws {
         let scheduler = InMemoryReminderScheduler(calendar: ReminderFixtures.calendar, clock: { ReminderFixtures.day(0) })
-        let plans = [ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(3))),
-                     ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(5)))]
+        let plans = [ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(3), in: ReminderFixtures.calendar)),
+                     ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(5), in: ReminderFixtures.calendar))]
 
         try await scheduler.reschedule(for: plans)
 
@@ -211,7 +211,7 @@ struct InMemoryReminderSchedulerTests {
     @Test
     func failingRescheduleThrowsAndKeepsThePreviousRequests() async throws {
         let scheduler = InMemoryReminderScheduler(calendar: ReminderFixtures.calendar, clock: { ReminderFixtures.day(0) })
-        try await scheduler.reschedule(for: [ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(3)))])
+        try await scheduler.reschedule(for: [ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(3), in: ReminderFixtures.calendar))])
         await scheduler.setFailsToSchedule(true)
 
         await #expect(throws: ReminderSchedulingError.self) {

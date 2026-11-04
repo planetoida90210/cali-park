@@ -104,20 +104,20 @@ struct WorkoutScheduleTests {
         (5, 10, 0, 10)   // anchor in the future → the anchor itself
     ])
     func everyNDaysAdvancesFromAnchor(interval: Int, anchorOffset: Int, referenceOffset: Int, expectedOffset: Int) {
-        let schedule = WorkoutSchedule.everyNDays(interval, from: day(anchorOffset))
+        let schedule = WorkoutSchedule.everyNDays(interval, from: day(anchorOffset), in: PlannerFixtures.calendar)
         let next = schedule.nextOccurrence(onOrAfter: day(referenceOffset), calendar: calendar)
         #expect(next == day(expectedOffset))
     }
 
     @Test
     func everyNDaysRejectsNonPositiveInterval() {
-        #expect(WorkoutSchedule.everyNDays(0, from: day(0)).nextOccurrence(onOrAfter: day(0), calendar: calendar) == nil)
+        #expect(WorkoutSchedule.everyNDays(0, from: day(0), in: PlannerFixtures.calendar).nextOccurrence(onOrAfter: day(0), calendar: calendar) == nil)
     }
 
     @Test
     func onceReturnsFutureDayAndDropsPast() {
-        #expect(WorkoutSchedule.once(day(5)).nextOccurrence(onOrAfter: day(0), calendar: calendar) == day(5))
-        #expect(WorkoutSchedule.once(day(0)).nextOccurrence(onOrAfter: day(5), calendar: calendar) == nil)
+        #expect(WorkoutSchedule.once(day(5), in: PlannerFixtures.calendar).nextOccurrence(onOrAfter: day(0), calendar: calendar) == day(5))
+        #expect(WorkoutSchedule.once(day(0), in: PlannerFixtures.calendar).nextOccurrence(onOrAfter: day(5), calendar: calendar) == nil)
         #expect(WorkoutSchedule.once(nil).nextOccurrence(onOrAfter: day(0), calendar: calendar) == nil)
     }
 
@@ -125,14 +125,14 @@ struct WorkoutScheduleTests {
     func onceCountsTheSameDay() {
         let evening = calendar.date(byAdding: .hour, value: 20, to: day(3))!
         let morning = calendar.date(byAdding: .hour, value: 6, to: day(3))!
-        #expect(WorkoutSchedule.once(evening).nextOccurrence(onOrAfter: morning, calendar: calendar) == day(3))
+        #expect(WorkoutSchedule.once(evening, in: PlannerFixtures.calendar).nextOccurrence(onOrAfter: morning, calendar: calendar) == day(3))
     }
 
     @Test
     func isRecurringReflectsCase() {
         #expect(WorkoutSchedule.once(nil).isRecurring == false)
         #expect(WorkoutSchedule.weekly([.monday]).isRecurring == true)
-        #expect(WorkoutSchedule.everyNDays(2, from: PlannerFixtures.day(0)).isRecurring == true)
+        #expect(WorkoutSchedule.everyNDays(2, from: PlannerFixtures.day(0), in: PlannerFixtures.calendar).isRecurring == true)
     }
 }
 
@@ -173,10 +173,10 @@ struct WorkoutPlanTests {
 
 struct WorkoutPlanCodableTests {
     @Test(arguments: [
-        WorkoutSchedule.once(PlannerFixtures.day(5)),
+        WorkoutSchedule.once(PlannerFixtures.day(5), in: PlannerFixtures.calendar),
         WorkoutSchedule.once(nil),
         WorkoutSchedule.weekly([.monday, .thursday]),
-        WorkoutSchedule.everyNDays(3, from: PlannerFixtures.day(0))
+        WorkoutSchedule.everyNDays(3, from: PlannerFixtures.day(0), in: PlannerFixtures.calendar)
     ])
     func planRoundtripsThroughJSON(schedule: WorkoutSchedule) throws {
         let plan = WorkoutPlan(
@@ -224,7 +224,7 @@ struct WorkoutPlanStoreTests {
         let plan = WorkoutPlan(
             name: "Full body",
             exercises: [PlannedExercise(exerciseID: UUID(), targetSets: 3)],
-            schedule: .everyNDays(2, from: PlannerFixtures.day(0))
+            schedule: .everyNDays(2, from: PlannerFixtures.day(0), in: PlannerFixtures.calendar)
         )
 
         let writer = FileWorkoutPlanStore(directory: directory)

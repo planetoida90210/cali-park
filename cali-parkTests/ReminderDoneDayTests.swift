@@ -133,14 +133,14 @@ struct ReminderPlannerDoneDayTests {
 
     @Test
     func doneOneOffGetsNoReminder() {
-        let plan = Fixtures.plan(schedule: .once(Fixtures.day(0)))
+        let plan = Fixtures.plan(schedule: .once(Fixtures.day(0), in: Fixtures.calendar))
 
         #expect(Fixtures.requests(for: [plan], entries: [Fixtures.entry(planID: plan.id)]).isEmpty)
     }
 
     @Test
     func doneIntervalDayIsSkipped() {
-        let plan = Fixtures.plan(schedule: .everyNDays(2, from: Fixtures.day(0)))
+        let plan = Fixtures.plan(schedule: .everyNDays(2, from: Fixtures.day(0), in: Fixtures.calendar))
 
         let requests = Fixtures.requests(for: [plan], entries: [Fixtures.entry(planID: plan.id)], limit: 2)
 
@@ -276,7 +276,8 @@ struct AppEnvironmentReminderSyncTests {
                                          reminderScheduler: scheduler,
                                          reminderRefreshScheduler: InMemoryReminderRefreshScheduler(),
                                          placementStore: InMemorySkillPlacementStore(),
-                                         skillProgressStore: InMemorySkillProgressStore())
+                                         skillProgressStore: InMemorySkillProgressStore(),
+                                         weeklyGoalStore: InMemoryWeeklyGoalStore())
         await environment.workoutPlanService.syncReminders()
         #expect(await scheduler.scheduledRequests.compactMap(Fixtures.fireDay).first == 0)
 

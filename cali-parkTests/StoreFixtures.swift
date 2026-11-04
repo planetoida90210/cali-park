@@ -67,14 +67,14 @@ enum StoreFixtures {
         WorkoutPlan(
             id: UUID(uuidString: "C0000000-0000-4000-8000-000000000001")!,
             name: "Co trzy dni",
-            schedule: .everyNDays(3, from: october1),
+            schedule: .everyNDays(3, from: CalendarDay(year: 2026, month: 10, day: 1)!),
             isActive: false,
             createdAt: october1
         ),
         WorkoutPlan(
             id: UUID(uuidString: "C0000000-0000-4000-8000-000000000002")!,
             name: "Jednorazowy",
-            schedule: .once(october2),
+            schedule: .once(CalendarDay(year: 2026, month: 10, day: 2)!),
             createdAt: october2
         ),
         WorkoutPlan(

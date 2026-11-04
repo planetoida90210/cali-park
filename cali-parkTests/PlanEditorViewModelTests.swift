@@ -132,7 +132,7 @@ struct PlanEditorViewModelTests {
 
         editor.scheduleMode = .once
         editor.onceDate = Fixtures.day(5)
-        #expect(editor.schedule == .once(Fixtures.day(5)))
+        #expect(editor.schedule == .once(Fixtures.day(5), in: Fixtures.calendar))
     }
 
     @Test
@@ -250,8 +250,8 @@ struct WorkoutScheduleFormatterTests {
 
     @Test
     func intervalReadsAsEveryNDaysOrDaily() {
-        #expect(WorkoutScheduleFormatter.summary(.everyNDays(1, from: Fixtures.day(0))) == "Codziennie")
-        #expect(WorkoutScheduleFormatter.summary(.everyNDays(3, from: Fixtures.day(0))) == "Co 3 dni")
+        #expect(WorkoutScheduleFormatter.summary(.everyNDays(1, from: Fixtures.day(0), in: Fixtures.calendar)) == "Codziennie")
+        #expect(WorkoutScheduleFormatter.summary(.everyNDays(3, from: Fixtures.day(0), in: Fixtures.calendar)) == "Co 3 dni")
     }
 
     @Test

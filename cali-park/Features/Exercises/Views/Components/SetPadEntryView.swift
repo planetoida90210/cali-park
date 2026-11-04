@@ -21,7 +21,7 @@ struct SetPadEntryView: View {
         let onCancel: () -> Void
     }
 
-    @AppStorage("hasSeenSetPadHint") private var hasSeenSetPadHint = false
+    @AppStorage(DefaultsKey.hasSeenSetPadHint.rawValue) private var hasSeenSetPadHint = false
 
     var body: some View {
         VStack(spacing: 16) {

@@ -172,8 +172,8 @@ struct WeeklyGoalProgressTests {
     func allScheduledUsesThePlannerSchedule() {
         let old = WorkoutPlan(name: "A", schedule: .weekly([.monday, .thursday]), createdAt: F.day(week: -4))
         let inactive = WorkoutPlan(name: "B", schedule: .weekly([.tuesday]), isActive: false, createdAt: F.day(week: -4))
-        let fresh = WorkoutPlan(name: "C", schedule: .everyNDays(2, from: F.day(2)), createdAt: F.day(2, hour: 9))
-        let once = WorkoutPlan(name: "D", schedule: .once(F.day(6)), createdAt: F.day(week: -1))
+        let fresh = WorkoutPlan(name: "C", schedule: .everyNDays(2, from: F.day(2), in: F.calendar), createdAt: F.day(2, hour: 9))
+        let once = WorkoutPlan(name: "D", schedule: .once(F.day(6), in: F.calendar), createdAt: F.day(week: -1))
         let goal = F.goal(.plannedWorkouts(target: .allScheduled))
 
         let progress = WeeklyGoalEvaluator.progress(of: goal, in: F.week(0), entries: [],
@@ -370,7 +370,7 @@ struct WeeklyGoalStreakTests {
         let allScheduled = F.goal(.plannedWorkouts(target: .allScheduled))
         let versions = [F.version([allScheduled], from: F.day(week: -6, hour: 0))]
         // A one-off plan in week -2 is the only thing ever scheduled.
-        let oneOff = WorkoutPlan(name: "Test", schedule: .once(F.day(week: -2)), createdAt: F.day(week: -6))
+        let oneOff = WorkoutPlan(name: "Test", schedule: .once(F.day(week: -2), in: F.calendar), createdAt: F.day(week: -6))
         let entries = [F.entry(at: F.day(week: -2), plan: oneOff), F.entry(at: F.day(week: -1), plan: oneOff)]
         let now = F.day(1)
 

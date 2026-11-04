@@ -7,7 +7,7 @@ import Foundation
 ///
 /// Placement is training data (declared rungs and owned equipment), not a
 /// secret — no tokens, credentials, or entitlement flags belong here — so a
-/// plain JSON file in the documents directory is the right store.
+/// plain JSON file in the store directory is the right store.
 protocol PlacementStoring {
     /// The saved placement, or `nil` when the athlete never declared one (used
     /// to prompt calibration on first contact with the Skills tab). Throws when
@@ -37,12 +37,12 @@ extension PlacementStoring {
 
 // MARK: - FileSkillPlacementStore
 /// Default `PlacementStoring` implementation: a single JSON file in the app's
-/// documents directory, through `JSONFileStore`. Deliberately not Core Data —
+/// store directory, through `JSONFileStore`. Deliberately not Core Data —
 /// one small value per user.
 struct FileSkillPlacementStore: PlacementStoring {
     private let file: JSONFileStore<SkillPlacement>
 
-    init(directory: URL = .documentsDirectory, fileName: String = "skill-placement.json") {
+    init(directory: URL, fileName: String = StoreFile.skillPlacement.fileName) {
         file = JSONFileStore(
             fileURL: directory.appending(path: fileName),
             logCategory: "SkillPlacementStore",

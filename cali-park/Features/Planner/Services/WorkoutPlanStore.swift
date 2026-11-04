@@ -35,13 +35,25 @@ extension WorkoutPlanStoring {
 
 // MARK: - FileWorkoutPlanStore
 /// Default `WorkoutPlanStoring` implementation: a single JSON file in the
-/// app's documents directory, through `JSONFileStore`. Adequate for a handful
+/// app's store directory, through `JSONFileStore`. Adequate for a handful
 /// of personal plans; deliberately not Core Data.
 struct FileWorkoutPlanStore: WorkoutPlanStoring {
     private let file: JSONFileStore<[WorkoutPlan]>
 
-    init(directory: URL = .documentsDirectory, fileName: String = "workout-plans.json") {
-        file = JSONFileStore(fileURL: directory.appending(path: fileName), logCategory: "WorkoutPlanStore")
+    /// Version 2 stores schedule days as `"yyyy-MM-dd"` (`CalendarDay`).
+    /// Version 1 stored instants; they are read as days in `calendar`.
+    static let schemaVersion = 2
+
+    /// - Parameter calendar: turns the instants of version 1 files into days.
+    init(directory: URL,
+         fileName: String = StoreFile.workoutPlans.fileName,
+         calendar: Calendar = .current) {
+        file = JSONFileStore(
+            fileURL: directory.appending(path: fileName),
+            logCategory: "WorkoutPlanStore",
+            schemaVersion: Self.schemaVersion,
+            decoderUserInfo: [CalendarDay.legacyCalendarKey: calendar]
+        )
     }
 
     func load() throws -> [WorkoutPlan] {

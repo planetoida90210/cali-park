@@ -45,15 +45,17 @@ final class AppEnvironment: ObservableObject {
     let weeklyGoalStore: WeeklyGoalStoring
 
     // MARK: Init
+    /// Every store is passed explicitly: the app's file stores come from
+    /// `live()`, tests and previews pass in-memory ones.
     init(parkDirectory: ParkDirectory = BundledParkDirectory(),
          locationProvider: LocationProviding? = nil,
-         workoutLogStore: WorkoutLogStoring = FileWorkoutLogStore(),
-         workoutPlanStore: WorkoutPlanStoring = FileWorkoutPlanStore(),
+         workoutLogStore: WorkoutLogStoring,
+         workoutPlanStore: WorkoutPlanStoring,
          reminderScheduler: WorkoutReminderScheduling = NotificationCenterReminderScheduler(center: SystemNotificationCenter()),
          reminderRefreshScheduler: ReminderRefreshScheduling = AppRefreshScheduler(),
-         placementStore: PlacementStoring = FileSkillPlacementStore(),
-         skillProgressStore: SkillProgressStoring = FileSkillProgressStore(),
-         weeklyGoalStore: WeeklyGoalStoring = FileWeeklyGoalStore()) {
+         placementStore: PlacementStoring,
+         skillProgressStore: SkillProgressStoring,
+         weeklyGoalStore: WeeklyGoalStoring) {
         self.parkDirectory = parkDirectory
         // Built here: a main-actor default argument can't be evaluated in the
         // caller's nonisolated context.
@@ -201,8 +203,25 @@ final class AppEnvironment: ObservableObject {
         TrainingBackupViewModel(service: makeTrainingBackupService())
     }
 
+    // MARK: Live
+    /// The app's environment over the real file stores. First moves the store
+    /// files from Documents to Application Support (and deletes the old Core
+    /// Data scaffold's files), so it runs before any store loads.
+    static func live() -> AppEnvironment {
+        CoreDataScaffoldCleanup().run()
+        let locations = StoreDirectoryMigration.live().run()
+        return AppEnvironment(
+            workoutLogStore: FileWorkoutLogStore(directory: locations.directory(for: .workoutLog)),
+            workoutPlanStore: FileWorkoutPlanStore(directory: locations.directory(for: .workoutPlans)),
+            placementStore: FileSkillPlacementStore(directory: locations.directory(for: .skillPlacement)),
+            skillProgressStore: FileSkillProgressStore(directory: locations.directory(for: .skillProgress)),
+            weeklyGoalStore: FileWeeklyGoalStore(directory: locations.directory(for: .weeklyGoal))
+        )
+    }
+
     // MARK: Preview
-    static let preview = AppEnvironment()
+    /// Backed by the real file stores; prefer `seeded(...)` in previews.
+    static let preview = AppEnvironment.live()
 }
 
 // MARK: - Seeded preview environments
@@ -241,7 +260,7 @@ extension AppEnvironment {
                     PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID, targetSets: 3, targetReps: 12),
                     PlannedExercise(exerciseID: ExerciseCatalog.dipsID, targetSets: 3, targetReps: 10)
                 ],
-                schedule: .once(.now)
+                schedule: .once(CalendarDay(.now, in: .current))
             )
         ])
     }

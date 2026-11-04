@@ -32,12 +32,12 @@ extension WeeklyGoalStoring {
 
 // MARK: - FileWeeklyGoalStore
 /// Default `WeeklyGoalStoring` implementation: one JSON file in the app's
-/// documents directory, through `JSONFileStore` (versioned envelope,
+/// store directory, through `JSONFileStore` (versioned envelope,
 /// quarantine of unreadable files, writes refused while the file is broken).
 struct FileWeeklyGoalStore: WeeklyGoalStoring {
     private let file: JSONFileStore<WeeklyGoalHistory>
 
-    init(directory: URL = .documentsDirectory, fileName: String = "weekly-goal.json") {
+    init(directory: URL, fileName: String = StoreFile.weeklyGoal.fileName) {
         file = JSONFileStore(fileURL: directory.appending(path: fileName), logCategory: "WeeklyGoalStore")
     }
 

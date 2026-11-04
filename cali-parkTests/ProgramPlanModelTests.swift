@@ -102,8 +102,8 @@ struct ProgramPlanModelTests {
 
         #expect(try store.load() == [PlanFileSupport.programPlan])
         let object = try #require(PlanFileSupport.jsonObject(at: directory.appending(path: "workout-plans.json")) as? [String: Any])
-        // The new fields are additive, so the envelope version stays 1.
-        #expect(object["schemaVersion"] as? Int == 1)
+        // The program fields are additive; version 2 is the schedule day format.
+        #expect(object["schemaVersion"] as? Int == FileWorkoutPlanStore.schemaVersion)
     }
 
     @Test

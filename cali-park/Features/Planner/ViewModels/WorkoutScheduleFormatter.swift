@@ -9,9 +9,11 @@ enum WorkoutScheduleFormatter {
     /// "Codziennie", "Jednorazowo · 20 lip" or "Bez terminu".
     static func summary(_ schedule: WorkoutSchedule, calendar: Calendar = .current) -> String {
         switch schedule {
-        case .once(let date):
-            guard let date else { return "Bez terminu" }
-            return "Jednorazowo · " + date.formatted(.dateTime.day().month(.abbreviated))
+        case .once(let day):
+            guard let day else { return "Bez terminu" }
+            var style = Date.FormatStyle.dateTime.day().month(.abbreviated)
+            style.timeZone = calendar.timeZone
+            return "Jednorazowo · " + day.startDate(in: calendar).formatted(style)
 
         case .weekly(let days):
             guard !days.isEmpty else { return "Co tydzień" }
