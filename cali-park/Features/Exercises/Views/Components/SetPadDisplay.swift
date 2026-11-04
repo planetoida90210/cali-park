@@ -25,6 +25,9 @@ struct SetPadDisplay: View {
                     .animation(.snappy, value: input.displayText)
                     .foregroundStyle(Color.textPrimary)
                     .lineLimit(1)
+                    // Shrinks first, so "12 + 12 + 12" stays whole at large
+                    // text sizes; only a long workout loses its first sets.
+                    .minimumScaleFactor(0.6)
                     .truncationMode(.head)
 
                 if measurement == .seconds {

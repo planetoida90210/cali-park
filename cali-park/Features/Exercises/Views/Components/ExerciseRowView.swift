@@ -24,6 +24,8 @@ struct ExerciseRowView: View {
                     .font(.bodySmall)
                     .foregroundStyle(Color.textSecondary)
             }
+            // The row is a button's label, which would center wrapped lines.
+            .multilineTextAlignment(.leading)
 
             Spacer()
 
