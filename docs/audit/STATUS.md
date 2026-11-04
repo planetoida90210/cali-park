@@ -6,17 +6,18 @@ Każde znalezisko z [findings.md](findings.md) sprawdzone na kodzie po fundamenc
 
 | Status | Liczba |
 |---|---|
-| naprawione | 95 |
+| naprawione | 104 |
 | zniknęło | 25 |
 | świadomie odłożone | 3 |
-| otwarte | 18 (w tym 8 częściowo) |
+| otwarte | 9 (w tym 5 częściowo) |
 | **razem** | **141** |
 
 - **Wszystkie P0 z audytu są zamknięte**: dane i zaufanie (#1–#6), bloker uploadu (#7), mocki i uprawnienia (#8, #9), lokalizacja i dostępność (#10, #11). Swift 6, CI i lint też.
 - Ten przegląd zamknął 13 znalezisk, które jeszcze były otwarte: A-9, A-13, A-14, B-12, B-15, C-4, C-12, C-16, E-15, E-22, E-24, E-26, G-12. Do tego resztki D-13 i F-12 oraz część B-16, C-8/D-7, E-28, E-30, F-7, F-11, F-15, G-10, G-20, G-23 i G-24.
+- Gałąź testów i narzędzi (`w-tests-tooling`) zamknęła 9 kolejnych: B-16, F-14, G-8, G-14, G-16, G-20, G-21, G-22 i G-23.
 - 25 znalezisk zniknęło razem ze starym kodem, głównie ze starymi Parkami i Społecznością na atrapach (`34554ab`).
-- Gałąź `w-ui-consistency` zamknęła spójność UI: E-21, E-23, E-28, E-30 i F-10 (jeden alert błędu, jeden styl przycisku akcentowego i drugorzędnego, skala promieni, kolory z katalogu, podglądy AX5).
-- Otwarte zostały wydajność przy dużym dzienniku (C-8/D-7, B-14), porządek w kodzie i testach (F-7, F-8, F-14, F-15, E-25, G-14, G-15, G-16, G-20, G-21, G-22) i dwa drobiazgi, które czekają na decyzję właściciela (F-11, G-8). Rekomendacje są w tabeli niżej.
+- Gałąź `w-ui-consistency` zamknęła spójność UI: E-21, E-23, E-28, E-30 i F-10 (jeden alert błędu, jeden styl przycisku akcentowego i drugorzędnego, skala promieni, kolory z katalogu, podglądy AX5). Gałąź `w-tests-tooling` zamknęła testy i narzędzia: B-16, F-14, G-8, G-14, G-16, G-20, G-21, G-22, G-23.
+- Otwarte zostały wydajność przy dużym dzienniku (C-8/D-7, B-14), porządek w kodzie (F-7, F-8, F-15, E-25), testy UI (G-15) i katalog ćwiczeń, który czeka na drugi język (F-11). Rekomendacje są w tabeli niżej.
 
 Statusy:
 
@@ -29,24 +30,17 @@ Commity od `2a2c469` do `dd2dc49` pochodzą z tego przeglądu; pozostałe opisuj
 
 ## Co zostało otwarte i co z tym zrobić
 
-Żadne otwarte znalezisko nie dotyczy utraty danych ani blokera App Store. Zostały wydajność, porządki w kodzie i testach oraz drobiazgi wymagające decyzji.
+Żadne otwarte znalezisko nie dotyczy utraty danych ani blokera App Store. Zostały wydajność, porządki w kodzie, testy UI oraz drobiazgi wymagające decyzji.
 
 | ID | Wysiłek | Decyzja właściciela | Rekomendacja |
 |---|---|---|---|
 | C-8, D-7 | M | nie | Najpierw zmierzyć zapis przy ok. 10 tys. wpisów. Jeśli trwa za długo, `JSONFileStore` dostaje wersje `async` (`@concurrent`), a `TrainingJournal` zapisuje asynchronicznie. Jeśli jest szybko, zapisać w MAP, że synchroniczne store'y są świadomie akceptowane do N wpisów. |
 | B-14 | M | nie | Home liczy hero, serię, ostatni trening i podpowiedź przy każdym renderze. Zrobić `HomeSnapshot` liczony raz na `journal.revision` + plany + dzień, jak `ProgressService.snapshot`. |
-| B-16 | S | nie | Dopisać testy DST dla przypomnień o godzinie, której nie ma (02:30 w nocy zmiany czasu) i dla granicy tygodnia celu tygodniowego. |
 | E-25, F-15 | M | nie | Rozbić największe widoki (`ExerciseLibraryView`, `PlanEditorView`, `PathDetailView`, `ExerciseDetailView`) na pliki w `Components/`, a 42 właściwości `var x: some View` na osobne struktury. Dublery i środowiska podglądów do `PreviewSupport/` pod `#if DEBUG`, razem z `#Preview`, które ich używają; sprawdzić build Release. |
 | F-7 | S | nie | Usunąć zdublowane fabryki z `HomeDashboardViewModel` (Home woła `environment.make…`), zrobić wszystkie parametry `AppEnvironment.init` wymaganymi, przenieść odczyt z `init` `ProgramDetailViewModel` do `.task`. |
 | F-8 | M–L | tylko nazwy folderów | Jeden commit z samym przenoszeniem plików po TestFlighcie: `Domain/` (modele treningu, katalogi) i `Services/` (dziennik, postęp, nagrody, plany, store'y). |
 | F-11 | M | **tak** przy drugim języku | Katalog ćwiczeń jako JSON dopiero razem z lokalizacją treści (String Catalog nie wyciąga tekstów z JSON). Do tego czasu zostaje w kodzie; ciche zastępstwa już usunięte. |
-| F-14 | S | nie | `enum HomeModule: String` z tymi samymi surowymi wartościami zamiast stringów; zmiany nazw `cali_parkApp` → `CaliParkApp`, `PlacementStoring` → `SkillPlacementStoring`. Zapisane wartości `DefaultsKey.enabledModules` bez zmian. |
-| G-8 | S | **tak** (skille są celowo lokalne) | Albo commitować skille Swift do `.claude/skills/`, albo dopisać do README, jak je zainstalować. |
-| G-14 | S–M | nie | `CoreLocationProvider` za małym protokołem nad `CLLocationManager` i testy oczekujących oraz timeoutu. |
 | G-15 | M | tylko wybór 3 ścieżek | Argument `-uitest-reset` budujący `AppEnvironment.seeded(...)`, identyfikatory dostępności i 3 testy UI (onboarding → Home, szybki trening → Historia, plan → Home). |
-| G-16 | S | nie | Współdzielony schemat i test plan; przestać śledzić `xcuserdata/…/xcschememanagement.plist`; testy bez startu całej apki (`AppEnvironment.live()`); `.timeLimit` w testach asynchronicznych. |
-| G-20, G-21, G-22 | S–M | nie | Bez domyślnych `.current`/`.now` w pomocnikach testów, zegar w `QuickWorkoutViewModel`, `Support/` ze wspólnym kalendarzem UTC i katalogami tymczasowymi sprzątanymi po teście, store-szpieg liczący zapisy zamiast słabych asercji. |
-| G-23 | S | nie | Kody sprintów w komentarzach 12 plików (np. „Sprint H2”) zastąpić opisem zachowania. |
 
 ## Wszystkie znaleziska
 
@@ -81,7 +75,7 @@ Commity od `2a2c469` do `dd2dc49` pochodzą z tego przeglądu; pozostałe opisuj
 | B-13 | I/O w `init` view modeli | naprawione | `7ac1773`, `688ee1e` | Inicjalizatory niczego nie czytają. |
 | B-14 | Home przelicza wszystko przy renderze | otwarte | `HomeDashboardViewModel.swift` | Postęp jest z cache'u, ale hero, seria i podpowiedź skanują dziennik przy każdym renderze. |
 | B-15 | Martwy kod w view modelach | naprawione | `16467aa`, `d163d01` | Usunięte ostatnie: fabryka edytora na Home i `totalTargetSets`. |
-| B-16 | Testy dat tylko w UTC | otwarte (częściowo) | `e3e2a39`, `e03695d`, `dd2dc49` | Są testy stref, odświeżania Home oraz DST dla serii i harmonogramów; brak DST dla przypomnień i celu tygodniowego. |
+| B-16 | Testy dat tylko w UTC | naprawione | `e3e2a39`, `e03695d`, `dd2dc49`, `112365d` | Testy stref, odświeżania Home, DST dla serii i harmonogramów, przypomnień o 02:30 (godzina, której nie ma, i powtórzona) i granicy tygodnia celu. |
 | C-1 | Błąd odczytu kasował dziennik | naprawione | `daf0492` | Plik odkładany na bok, zapis zablokowany, alert. |
 | C-2 | Brak manifestu prywatności | naprawione | `7a802c5` | `UserDefaults` `CA92.1`, bez śledzenia. |
 | C-3 | Opinie i zdjęcia tylko w pamięci | zniknęło | `34554ab` | Społeczność wróci z backendem. |
@@ -163,7 +157,7 @@ Commity od `2a2c469` do `dd2dc49` pochodzą z tego przeglądu; pozostałe opisuj
 | F-11 | Katalog ćwiczeń jako kod | otwarte | `ExerciseCatalog.swift` | Ciche zastępstwa usunięte (`89a63d0`); dane w kodzie do drugiego języka. |
 | F-12 | Martwy kod | naprawione | `16467aa`, `e3e2a39`, `34554ab`, `d163d01` | |
 | F-13 | Powielone formatowanie | naprawione | `688ee1e` | `MeasureFormat`. |
-| F-14 | Niespójne nazwy, ID modułów | otwarte | `ModuleDefinition.swift` | ID modułów to surowe stringi; kilka nazw do zmiany. |
+| F-14 | Niespójne nazwy, ID modułów | naprawione | `06fc6a4` | `enum HomeModule: String` z tymi samymi surowymi wartościami (test starej zapisanej tablicy), `CaliParkApp`, `SkillPlacementStoring`; reszta nazw zniknęła ze starym kodem. |
 | F-15 | Wiele typów w pliku, dublery w produkcji | otwarte (częściowo) | `7b3d3fa` | Dublery `InMemory…`, trasy i niezwiązane typy w osobnych plikach; zostały duże widoki i dublery poza `#if DEBUG`. |
 | F-V1 | Odległości od sztywnej Warszawy | naprawione | `d1d1736` | `LocationProviding`. |
 | G-1 | Brak manifestu prywatności | naprawione | `7a802c5` | |
@@ -173,22 +167,22 @@ Commity od `2a2c469` do `dd2dc49` pochodzą z tego przeglądu; pozostałe opisuj
 | G-5 | Demo Parki, Premium, Unsplash | zniknęło | `34554ab` | |
 | G-6 | Opisy uprawnień | naprawione | `e6fc8a9`, `d1d1736` | Zostało tylko używane uprawnienie lokalizacji. |
 | G-7 | Brak CI | naprawione | `449024e`, `45de40c`, `3b5dd4a` | |
-| G-8 | Claude nie widzi reguł i skilli | otwarte | `.gitignore` | `CLAUDE.md` importuje reguły; skille dalej lokalne, decyzja właściciela. |
+| G-8 | Claude nie widzi reguł i skilli | naprawione | `af013d3` | `CLAUDE.md` importuje reguły; README opisuje instalację skilli Swift (`npx skills add … -a claude-code` albo dowiązanie do `.claude/skills/`); skille celowo lokalne. |
 | G-9 | `project-rules.mdc` błędne | naprawione | `e09f965` | Domyślna izolacja `MainActor` jest teraz włączona. |
 | G-10 | Brak diagnostyki | naprawione | `daf0492`, `3398af3`, `e25a224` | Logowanie przez `os.Logger` wszędzie; raporty MetricKit zostają na telefonie i wysyła je tylko użytkownik („Diagnostyka”, Q33). |
 | G-11 | Landscape i iPad | naprawione | `e6fc8a9` | |
 | G-12 | Asercje wywalające testy | naprawione | `4041ab2` | `try #require` zamiast `try!` i indeksów po `#expect`; stałe katalogu w fixture'ach zostają. |
 | G-13 | Testy Codable bez formatu z dysku | naprawione | `daf0492` | Złote pliki w `Fixtures/`. |
-| G-14 | Ryzykowny kod bez testów | otwarte | `LocationProvider.swift` | Bez testów tylko `CoreLocationProvider` i spinanie w `cali_parkApp`. |
+| G-14 | Ryzykowny kod bez testów | naprawione | `5fa6577`, `070794c` | `CoreLocationProvider` nad protokołem `LocationManaging`, testy oczekujących, zmian uprawnień, świeżości pozycji i timeoutu; wykrywanie hosta testów w `CaliParkApp` ma test. |
 | G-15 | UI testy z szablonu | otwarte | `cali-parkUITests/` | |
-| G-16 | Brak schematu i test planu | otwarte | `project.pbxproj` | |
+| G-16 | Brak schematu i test planu | naprawione | `070794c` | Współdzielony schemat i `cali-park.xctestplan`, `.timeLimit` w zestawach z testami asynchronicznymi, host testów bez `AppEnvironment.live()`. `xcschememanagement.plist` celowo dalej śledzony (usunięcie z indeksu skasowałoby go właścicielowi). |
 | G-17 | Przypomnienia bez konsumenta | naprawione | `5012b44`, `bfb3796` | |
 | G-18 | Brak lintu | naprawione | `449024e`, `bdade25`, `4114c35` | Reguły blokują CI; `swift-format` tylko raportuje (poza zakresem). |
 | G-19 | Swift 5 | naprawione | `e09f965`, `7047560`, `22b8994` | |
-| G-20 | Testy zależne od zegara | otwarte (częściowo) | `TrainingJournalTestSupport.swift` | Etykieta dnia sprawdza „sobota” (`4041ab2`); zostały domyślne `.now`/`.current` w pomocnikach. |
-| G-21 | Zduplikowane fixture'y | otwarte | `cali-parkTests/` | Kalendarz UTC w 17 plikach, katalogi tymczasowe bez sprzątania. |
-| G-22 | Słabe asercje | otwarte | `QuickWorkoutTests.swift` i inne | |
-| G-23 | Nieaktualne dokumenty sprintów | otwarte (częściowo) | `beb38c8` | Trackery i plany oznaczone jako archiwum; zostały kody sprintów w komentarzach. |
+| G-20 | Testy zależne od zegara | naprawione | `4041ab2`, `fb93d80` | Zegar wstrzyknięty do `QuickWorkoutViewModel`; pomocniki testów bez domyślnych `.now`/`.current`. |
+| G-21 | Zduplikowane fixture'y | naprawione | `8b1e0d4` | `cali-parkTests/Support/`: `TestCalendar`, `TestDate`, cecha `.temporaryDirectories` sprzątająca po teście, wspólne dublery dziennika. |
+| G-22 | Słabe asercje | naprawione | `2da1e34` | Store-szpieg liczy zapisy, dokładne komunikaty błędów i wartości, `== false` zamiast `!` (147 miejsc). |
+| G-23 | Nieaktualne dokumenty sprintów | naprawione | `beb38c8`, `7fa140c` | Trackery i plany oznaczone jako archiwum; kody sprintów w komentarzach zastąpione opisem zachowania. |
 | G-24 | Tożsamość i Info.plist | świadomie odłożone | `757d57f`, `45e3157`; ticket 017 | Nazwa, styl, ekran startowy i szyfrowanie zrobione; bundle ID i zespół po zakupie konta. |
 | G-25 | Core Data przy starcie | naprawione | `e3e2a39` | |
 | G-V1 | Fałszywe opinie Parków | zniknęło | `34554ab` | |
