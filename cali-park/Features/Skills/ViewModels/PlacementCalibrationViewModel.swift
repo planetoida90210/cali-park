@@ -26,7 +26,7 @@ final class PlacementCalibrationViewModel {
     /// Whether the athlete owns a resistance band (an optional parallel track).
     /// The form no longer asks (ticket 026); this carries a band declared
     /// earlier through re-calibration so a save never drops it.
-    var ownsBand: Bool
+    var ownsBand = false
 
     var errorMessage: String?
     /// Set after a successful save so the presenter can dismiss.
@@ -36,7 +36,9 @@ final class PlacementCalibrationViewModel {
     private(set) var answeredPaths: Set<ProgressionPathID> = []
     /// The saved placement the form started from, for showing what a path
     /// declares when its answer could not be pre-filled.
-    private let savedPlacement: SkillPlacement?
+    private var savedPlacement: SkillPlacement?
+    /// Whether `load()` already ran, so answers in progress are never read over.
+    private(set) var hasLoaded = false
 
     private let store: SkillPlacementStoring
     private let now: () -> Date
@@ -50,9 +52,16 @@ final class PlacementCalibrationViewModel {
         self.store = store
         self.now = now
         self.onSave = onSave
-        // Pre-fill from any prior declaration so re-calibration starts from
-        // what the athlete already told us. An unreadable placement only loses
-        // the pre-fill; saving reports the error.
+    }
+
+    // MARK: Loading
+    /// Pre-fills the form from any prior declaration, so re-calibration starts
+    /// from what the athlete already told us. Runs once, when the form
+    /// appears; later calls keep the answers in progress. An unreadable
+    /// placement only loses the pre-fill; saving reports the error.
+    func load() {
+        guard !hasLoaded else { return }
+        hasLoaded = true
         savedPlacement = try? store.load()
         ownsBand = savedPlacement?.ownsEquipment(PlacementCalibration.bandEquipment) ?? false
         if let savedPlacement {
@@ -121,6 +130,10 @@ final class PlacementCalibrationViewModel {
     func save() {
         do {
             let saved = try store.load()
+            // A form saved before it loaded still keeps a band declared earlier.
+            if !hasLoaded, saved?.ownsEquipment(PlacementCalibration.bandEquipment) == true {
+                ownsBand = true
+            }
             try store.save(PlacementCalibration.merging(placement, answeredPaths: answeredPaths, into: saved))
             didSave = true
             onSave()

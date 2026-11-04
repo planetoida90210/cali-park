@@ -20,6 +20,9 @@ struct PlacementFormView: View {
             }
             skillSection
         }
+        // Pre-fills from the saved placement on first appearance only, so
+        // paging back to the level test keeps the answers in progress.
+        .onAppear { viewModel.load() }
     }
 
     // MARK: Rep questions

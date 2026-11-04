@@ -232,12 +232,55 @@ struct PlacementCalibrationViewModelTests {
         #expect(saved.declaredAt == fixedDate)
     }
 
-    @Test func initPreloadsOwnedBandFromExistingPlacement() {
+    @Test func loadPreloadsOwnedBandFromExistingPlacement() {
         let store = InMemorySkillPlacementStore(
             initial: SkillPlacement(ownedEquipment: ["Resistance bands"])
         )
         let viewModel = PlacementCalibrationViewModel(store: store)
+        viewModel.load()
         #expect(viewModel.ownsBand)
+    }
+
+    /// Onboarding and the calibration sheet build this view model up front;
+    /// the store is read only when the form appears (F-7).
+    @Test func initReadsNothingUntilLoad() throws {
+        let store = CountingPlacementStore(initial: SkillPlacement(declaredRungByPath: [.pullUp: 3]))
+        let viewModel = PlacementCalibrationViewModel(store: store)
+        let pullUp = try #require(viewModel.repQuestions.first { $0.path == .pullUp })
+        #expect(store.loadCount == 0)
+        #expect(viewModel.savedRungName(for: pullUp) == nil)
+
+        viewModel.load()
+
+        #expect(store.loadCount == 1)
+        #expect(viewModel.hasLoaded)
+    }
+
+    /// Paging back to the level test shows the form again; the second
+    /// `load()` keeps the answers in progress.
+    @Test func loadRunsOnceAndKeepsTheAnswers() throws {
+        let store = CountingPlacementStore(initial: nil)
+        let viewModel = PlacementCalibrationViewModel(store: store)
+        viewModel.load()
+        let pullUp = try #require(viewModel.repQuestions.first { $0.path == .pullUp })
+        viewModel.select(.many, for: pullUp)
+
+        viewModel.load()
+
+        #expect(store.loadCount == 1)
+        #expect(viewModel.bucket(for: pullUp) == .many)
+    }
+
+    /// A save that runs before the form ever loaded still keeps a band
+    /// declared earlier.
+    @Test func saveBeforeLoadKeepsTheBand() throws {
+        let store = InMemorySkillPlacementStore(initial: SkillPlacement(ownedEquipment: [PlacementCalibration.bandEquipment]))
+        let viewModel = PlacementCalibrationViewModel(store: store)
+
+        viewModel.save()
+
+        let saved = try #require(store.load())
+        #expect(saved.ownsEquipment(PlacementCalibration.bandEquipment))
     }
 
     @Test func saveSurfacesStoreFailure() {
@@ -275,6 +318,21 @@ struct PlacementNeverGrantsXPTests {
 // MARK: - Fixtures
 
 /// A `SkillPlacementStoring` stub whose `save` always throws, to exercise error copy.
+/// Counts reads, to check when the view model touches the store.
+private final class CountingPlacementStore: SkillPlacementStoring {
+    private var placement: SkillPlacement?
+    private(set) var loadCount = 0
+
+    init(initial: SkillPlacement?) { placement = initial }
+
+    func load() -> SkillPlacement? {
+        loadCount += 1
+        return placement
+    }
+
+    func save(_ placement: SkillPlacement) throws { self.placement = placement }
+}
+
 private struct FailingPlacementStore: SkillPlacementStoring {
     struct SaveError: Error {}
     func load() -> SkillPlacement? { nil }

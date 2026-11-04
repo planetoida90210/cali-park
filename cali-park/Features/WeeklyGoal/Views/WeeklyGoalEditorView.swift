@@ -42,6 +42,9 @@ struct WeeklyGoalEditorView: View {
             }
             .errorAlert($viewModel.errorMessage)
         }
+        // Reads the saved goals when the sheet appears, not when the view
+        // model is built; returning from a goal's detail keeps the draft.
+        .onAppear { viewModel.load() }
         .interactiveDismissDisabled(viewModel.hasUnsavedChanges)
     }
 }

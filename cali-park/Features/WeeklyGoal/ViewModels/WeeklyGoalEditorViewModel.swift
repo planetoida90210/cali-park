@@ -27,6 +27,8 @@ final class WeeklyGoalEditorViewModel: Identifiable {
     /// Whether the saved goal could not be read. Editing is then blocked: the
     /// store refuses writes, and the draft would not show the real goals.
     private(set) var hasLoadError = false
+    /// Whether `load()` already ran, so the draft is never read over.
+    private(set) var hasLoaded = false
 
     // MARK: Dependencies
     private let store: WeeklyGoalStoring
@@ -45,12 +47,15 @@ final class WeeklyGoalEditorViewModel: Identifiable {
         self.journal = journal
         self.calendar = calendar
         self.clock = clock
-        load()
     }
 
     // MARK: Loading
-    /// Reads the saved goals and pause. A failure keeps the editor read-only.
+    /// Reads the saved goals and pause, once: the editor calls it when it
+    /// appears, and later calls keep the draft. A failure keeps the editor
+    /// read-only.
     func load() {
+        guard !hasLoaded else { return }
+        hasLoaded = true
         do {
             let history = try store.load() ?? .empty
             let now = clock()

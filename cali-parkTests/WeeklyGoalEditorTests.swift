@@ -19,8 +19,41 @@ struct WeeklyGoalEditorViewModelTests {
     private func editor(store: WeeklyGoalStoring = InMemoryWeeklyGoalStore(),
                         logs: [WorkoutLogEntry] = [],
                         now: Date = F.day(2)) -> WeeklyGoalEditorViewModel {
-        WeeklyGoalEditorViewModel(store: store, logStore: InMemoryWorkoutLogStore(initial: logs),
-                                  calendar: F.calendar, clock: { now })
+        let viewModel = WeeklyGoalEditorViewModel(store: store, logStore: InMemoryWorkoutLogStore(initial: logs),
+                                                  calendar: F.calendar, clock: { now })
+        // The editor sheet loads when it appears.
+        viewModel.load()
+        return viewModel
+    }
+
+    /// The editor is built on demand by Home and Profile; building it must
+    /// not touch the store, only the sheet's appearance does (F-7).
+    @Test
+    func initReadsNothingUntilLoad() {
+        let store = CountingWeeklyGoalStore(initial: WeeklyGoalHistory.empty)
+        let viewModel = WeeklyGoalEditorViewModel(store: store, logStore: InMemoryWorkoutLogStore(),
+                                                  calendar: F.calendar, clock: { F.day(2) })
+        #expect(store.loadCount == 0)
+        #expect(viewModel.hasLoaded == false)
+
+        viewModel.load()
+        #expect(store.loadCount == 1)
+        #expect(viewModel.goals == WeeklyGoal.defaultGoals)
+    }
+
+    /// Coming back from a goal's detail screen shows the editor again; the
+    /// second `load()` must not read over the draft.
+    @Test
+    func loadRunsOnceAndKeepsTheDraft() {
+        let store = CountingWeeklyGoalStore(initial: nil)
+        let viewModel = editor(store: store)
+        viewModel.addGoal(.plannedWorkouts)
+
+        viewModel.load()
+
+        #expect(store.loadCount == 1)
+        #expect(viewModel.goals.count == WeeklyGoal.defaultGoals.count + 1)
+        #expect(viewModel.hasUnsavedChanges)
     }
 
     @Test
@@ -298,4 +331,21 @@ struct WeeklyGoalFormatTests {
         #expect(WeeklyGoalFormat.progress(hold) == "60 / 180 s")
         #expect(WeeklyGoalFormat.spokenProgress(hold) == "60 z 180 sekund")
     }
+}
+
+// MARK: - Spy
+
+/// Counts reads, to check when the editor touches the store.
+private final class CountingWeeklyGoalStore: WeeklyGoalStoring {
+    private var history: WeeklyGoalHistory?
+    private(set) var loadCount = 0
+
+    init(initial: WeeklyGoalHistory?) { history = initial }
+
+    func load() -> WeeklyGoalHistory? {
+        loadCount += 1
+        return history
+    }
+
+    func save(_ history: WeeklyGoalHistory) throws { self.history = history }
 }

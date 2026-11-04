@@ -372,6 +372,7 @@ struct RecalibrationTests {
         )
         let store = InMemorySkillPlacementStore(initial: onboarding)
         let viewModel = PlacementCalibrationViewModel(store: store, now: { Self.recalibratedAt })
+        viewModel.load()
 
         viewModel.select(.few, for: try Self.question(.dip))
         viewModel.save()
@@ -394,6 +395,7 @@ struct RecalibrationTests {
                                    declaredAt: Self.onboardedAt)
         let store = InMemorySkillPlacementStore(initial: saved)
         let viewModel = PlacementCalibrationViewModel(store: store, now: { Self.recalibratedAt })
+        viewModel.load()
 
         viewModel.save()
 
@@ -409,6 +411,7 @@ struct RecalibrationTests {
             ownsBand: false
         )
         let viewModel = PlacementCalibrationViewModel(store: InMemorySkillPlacementStore(initial: saved))
+        viewModel.load()
 
         #expect(viewModel.bucket(for: try Self.question(.pullUp)) == .many)
         #expect(viewModel.bucket(for: try Self.question(.dip)) == RepCountBucket.none)
@@ -430,6 +433,7 @@ struct RecalibrationTests {
         let saved = PlacementCalibration.placement(repAnswers: [.pullUp: .few], masteredSkills: ["muscleUp"], ownsBand: false)
         let store = InMemorySkillPlacementStore(initial: saved)
         let viewModel = PlacementCalibrationViewModel(store: store)
+        viewModel.load()
 
         viewModel.toggleMastery(of: try Self.skill("muscleUp"))
         viewModel.save()
@@ -443,6 +447,7 @@ struct RecalibrationTests {
         let saved = PlacementCalibration.placement(repAnswers: [.pullUp: .few, .legs: .many], masteredSkills: [], ownsBand: false)
         let store = InMemorySkillPlacementStore(initial: saved)
         let viewModel = PlacementCalibrationViewModel(store: store)
+        viewModel.load()
 
         viewModel.select(.many, for: try Self.question(.pullUp))
         viewModel.select(.none, for: try Self.question(.legs)) // rung 0: no declaration
@@ -456,6 +461,7 @@ struct RecalibrationTests {
     @Test func saveMergesAgainstWhatIsSavedNow() throws {
         let store = InMemorySkillPlacementStore(initial: SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID]))
         let viewModel = PlacementCalibrationViewModel(store: store)
+        viewModel.load()
         // Another screen saves a push-up declaration while this form is open.
         try store.save(SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID, .pushUp: ExerciseCatalog.pushUpsID]))
 
@@ -470,6 +476,7 @@ struct RecalibrationTests {
     @Test func anUnreadableSavedPlacementFailsTheSaveInsteadOfReplacingIt() throws {
         let store = UnreadablePlacementStore()
         let viewModel = PlacementCalibrationViewModel(store: store)
+        viewModel.load()
 
         viewModel.select(.few, for: try Self.question(.dip))
         viewModel.save()

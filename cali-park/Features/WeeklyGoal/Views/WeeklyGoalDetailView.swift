@@ -179,6 +179,7 @@ private struct WeeklyGoalAmountField: View {
 // MARK: - Preview
 #Preview {
     let viewModel = AppEnvironment.previewEmpty.makeWeeklyGoalEditorViewModel()
+    let _: Void = viewModel.load()
     let goalID = viewModel.addGoal(.exerciseVolume)
     NavigationStack {
         if let goalID {
