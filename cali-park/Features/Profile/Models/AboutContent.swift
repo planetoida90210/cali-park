@@ -28,6 +28,9 @@ nonisolated struct AboutSource: Identifiable, Hashable, Sendable {
     let url: URL
 
     var id: String { name }
+
+    /// The name as shown, never broken after "r/".
+    var displayName: String { name.keptTogether }
 }
 
 // MARK: - AboutContent

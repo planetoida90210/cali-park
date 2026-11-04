@@ -44,7 +44,7 @@ struct AboutView: View {
         ForEach(sources) { source in
             Link(destination: source.url) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(source.name)
+                    Text(source.displayName)
                         .font(.bodyLarge)
                         .foregroundStyle(Color.textPrimary)
                     Text(source.usage)

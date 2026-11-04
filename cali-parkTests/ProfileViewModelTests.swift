@@ -65,7 +65,20 @@ struct ProfileViewModelTests {
         ])))
 
         #expect(model.weeklyGoalTitle == "4 dni treningowe")
-        #expect(model.weeklyGoalProgressText == "3 / 4 dni")
+        #expect(model.weeklyGoalProgressText == "Ten tydzień: 3 / 4 dni")
+    }
+
+    @Test("A paused week shows only the pause, not \"Ten tydzień: Pauza…\"")
+    func pausedWeekCopy() throws {
+        let pause = WeeklyGoalPause(start: F.day(week: 0, hour: 0), plannedEnd: F.day(week: 1, hour: 0))
+        let (model, _) = profile(goal: InMemoryWeeklyGoalStore(initial: WeeklyGoalHistory(
+            versions: [F.version([F.days(4)], from: F.day(week: -3))],
+            pauses: [pause]
+        )))
+
+        let text = try #require(model.weeklyGoalProgressText)
+        #expect(text == WeeklyGoalFormat.pauseLine(pause, calendar: F.calendar))
+        #expect(text.hasPrefix("Pauza do "))
     }
 
     @Test("A workout logged anywhere shows up without a reload")

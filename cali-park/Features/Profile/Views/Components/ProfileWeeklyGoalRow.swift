@@ -6,7 +6,7 @@ import SwiftUI
 struct ProfileWeeklyGoalRow: View {
     /// The goal's title, or `nil` when it couldn't be read.
     let title: String?
-    /// This week's progress, or `nil` when the goal couldn't be read.
+    /// This week's progress or pause, or `nil` when the goal couldn't be read.
     let progressText: String?
     let onChange: () -> Void
 
@@ -27,8 +27,7 @@ struct ProfileWeeklyGoalRow: View {
                     Text(title ?? String(localized: "Cel tygodniowy"))
                         .font(.bodyLarge)
                         .foregroundStyle(Color.textPrimary)
-                    Text(progressText.map { String(localized: "Ten tydzień: \($0)") }
-                         ?? String(localized: "Nie udało się odczytać celu"))
+                    Text(progressText ?? String(localized: "Nie udało się odczytać celu"))
                         .font(.bodySmall)
                         .foregroundStyle(Color.textSecondary)
                     // At accessibility sizes "Zmień" moves under the text, so

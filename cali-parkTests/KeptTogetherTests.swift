@@ -36,4 +36,11 @@ struct KeptTogetherTests {
             #expect(card.contains(" min") == false)
         }
     }
+
+    @Test
+    func everyAboutSourceKeepsItsSubredditTogether() {
+        for source in AboutContent.ladderSources + AboutContent.programSources {
+            #expect(source.displayName.contains("r/b") == false, "\(source.name)")
+        }
+    }
 }

@@ -56,13 +56,14 @@ final class ProfileViewModel {
     /// Whether the journal or the weekly goal could not be read.
     var hasLoadError: Bool { journal.hasLoadFailure || goals.loadFailure != nil }
 
-    /// "2 / 3 dni" for the primary goal, or a pause line.
+    /// "Ten tydzień: 2 / 3 dni" for the primary goal, or the pause line alone
+    /// ("Pauza do 10 lis"): a paused week has no progress to name.
     var weeklyGoalProgressText: String? {
         guard let weeklyGoal else { return nil }
         if let pause = weeklyGoal.activePause {
             return WeeklyGoalFormat.pauseLine(pause, calendar: calendar)
         }
-        return WeeklyGoalFormat.progress(weeklyGoal.week.primary)
+        return String(localized: "Ten tydzień: \(WeeklyGoalFormat.progress(weeklyGoal.week.primary))")
     }
 
     /// "3 dni treningowe" — what the primary goal asks for.
