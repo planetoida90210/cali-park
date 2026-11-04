@@ -58,37 +58,45 @@ private struct StreakSummaryRow: View {
 }
 
 // MARK: - StreakMonthCalendar
-/// Days of the current month; trained days get an accent dot.
+/// Days of the current month in Monday-first weeks; trained days get an
+/// accent dot. The layout comes from `StreakMonthGrid`.
 private struct StreakMonthCalendar: View {
     let trainedDays: Set<Date>
     let today: Date
     let calendar: Calendar
 
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 7)
+
     var body: some View {
+        let grid = StreakMonthGrid(month: today, calendar: calendar)
+
         VStack(spacing: 8) {
             Text(today, format: .dateTime.month(.wide).year())
                 .font(.footnote)
                 .foregroundStyle(Color.textSecondary)
 
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 7), spacing: 8) {
-                ForEach(daysInCurrentMonth, id: \.self) { day in
-                    StreakDayCell(
-                        dayNumber: calendar.component(.day, from: day),
-                        isTrained: trainedDays.contains(day),
-                        isToday: calendar.isDate(day, inSameDayAs: today)
-                    )
+            LazyVGrid(columns: columns, spacing: 8) {
+                ForEach(StreakMonthGrid.weekdaySymbols, id: \.self) { symbol in
+                    Text(symbol)
+                        .font(.caption2)
+                        .foregroundStyle(Color.textSecondary)
+                        .accessibilityHidden(true)
+                }
+
+                ForEach(grid.cells.indices, id: \.self) { index in
+                    if let day = grid.cells[index] {
+                        StreakDayCell(
+                            dayNumber: calendar.component(.day, from: day),
+                            isTrained: trainedDays.contains(day),
+                            isToday: calendar.isDate(day, inSameDayAs: today)
+                        )
+                    } else {
+                        Color.clear
+                            .frame(height: 28)
+                            .accessibilityHidden(true)
+                    }
                 }
             }
-        }
-    }
-
-    private var daysInCurrentMonth: [Date] {
-        guard let interval = calendar.dateInterval(of: .month, for: today),
-              let dayCount = calendar.range(of: .day, in: .month, for: today)?.count
-        else { return [] }
-
-        return (0..<dayCount).compactMap {
-            calendar.date(byAdding: .day, value: $0, to: interval.start)
         }
     }
 }
