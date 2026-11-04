@@ -57,9 +57,16 @@ struct HomeView: View {
 
                         // C. Smart Stack (Modules)
                         if modulePreferences.enabledModules.isEmpty {
-                            emptyStateView
+                            HomeEmptyState(onAddModules: { showModuleSelector = true })
                         } else {
-                            modulesStackView
+                            HomeModulesStack(
+                                modulePreferences: modulePreferences,
+                                dashboard: dashboard,
+                                environment: environment,
+                                nearestPark: nearestPark,
+                                moduleDrag: moduleDrag,
+                                onEditGoal: openGoalEditor
+                            )
                         }
 
                         Spacer().frame(height: 12)
@@ -148,70 +155,6 @@ struct HomeView: View {
             dashboard.reload()
         }
     }
-
-    // Smart Stack Modules View
-    @ViewBuilder
-    private var modulesStackView: some View {
-        VStack(spacing: 8) {
-            ForEach(modulePreferences.enabledModules) { module in
-                ModuleView(
-                    module: module,
-                    dashboard: dashboard,
-                    environment: environment,
-                    nearestPark: nearestPark,
-                    preferences: modulePreferences,
-                    isDragging: moduleDrag.liftedID == module.id,
-                    onEditGoal: openGoalEditor
-                )
-                .onDrag {
-                    let token = moduleDrag.begin(module.id)
-                    return ModuleDragItemProvider(module: module) { [moduleDrag] in
-                        moduleDrag.end(token)
-                    }
-                } preview: {
-                    ModuleDragPreview(module: module)
-                }
-                .onDrop(of: [.text], delegate: ModuleDropDelegate(targetID: module.id, drag: moduleDrag, preferences: modulePreferences))
-            }
-        }
-    }
-
-    // Empty state view
-    private var emptyStateView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "square.stack.3d.up")
-                .font(.appLargeTitle)
-                .foregroundStyle(Color.accent)
-                .accessibilityHidden(true)
-
-            Text("Start jest pusty")
-                .font(.appTitle3)
-                .foregroundStyle(Color.textPrimary)
-                .accessibilityAddTraits(.isHeader)
-
-            Text("Dodaj moduły, aby zobaczyć tu potrzebne informacje")
-                .font(.bodyMedium)
-                .foregroundStyle(Color.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 32)
-
-            Button("Dodaj moduły") {
-                showModuleSelector = true
-            }
-            .buttonStyle(.accent(.compact, fillsWidth: false))
-            .padding(.top, 8)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 60)
-        .padding(.horizontal, 16)
-    }
-}
-
-// MARK: - NearestParkRefreshKey
-/// Re-runs the nearest-Park lookup on every bump or authorization change.
-private struct NearestParkRefreshKey: Equatable {
-    let tick: Int
-    let authorization: LocationAuthorization
 }
 
 #if DEBUG

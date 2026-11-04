@@ -19,13 +19,13 @@ struct NextWorkoutModuleContent: View {
         Group {
             switch dashboard.nextWorkoutState {
             case .planned(let planned):
-                PlannedWorkoutContent(planned: planned, today: dashboard.now, calendar: dashboard.calendar) {
+                NextWorkoutPlannedContent(planned: planned, today: dashboard.now, calendar: dashboard.calendar) {
                     startingPlan = planned.plan
                 }
             case .doneToday(let plans, let next):
-                DoneTodayContent(plans: plans, next: next, today: dashboard.now, calendar: dashboard.calendar)
+                NextWorkoutDoneTodayContent(plans: plans, next: next, today: dashboard.now, calendar: dashboard.calendar)
             case .suggestion(let suggestion):
-                SuggestionContent(exercise: suggestion) {
+                NextWorkoutSuggestionContent(exercise: suggestion) {
                     loggingExercise = suggestion
                 }
             case .empty:
@@ -41,136 +41,6 @@ struct NextWorkoutModuleContent: View {
         .sheet(item: $startingPlan) { plan in
             QuickWorkoutView(viewModel: environment.makeQuickWorkoutViewModel(plan: plan))
         }
-    }
-}
-
-// MARK: - PlannedWorkoutContent
-private struct PlannedWorkoutContent: View {
-    let planned: PlanAgenda.Occurrence
-    let today: Date
-    let calendar: Calendar
-    let onStart: () -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
-                Image(systemName: "calendar")
-                    .font(.appTitle3)
-                    .foregroundStyle(Color.black)
-                    .scaledIconFrame(44, relativeTo: .title3)
-                    .background(Color.accent)
-                    .clipShape(.rect(cornerRadius: AppRadius.medium))
-                    .accessibilityHidden(true)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(planned.plan.name)
-                        .font(.bodyLarge)
-                        .foregroundStyle(Color.textPrimary)
-
-                    Text("\(WorkoutScheduleFormatter.dayLabel(planned.date, asOf: today, calendar: calendar)) · \(PolishPlural.exercises(planned.plan.exerciseCount))")
-                        .font(.bodySmall)
-                        .foregroundStyle(Color.textSecondary)
-                }
-
-                Spacer()
-            }
-
-            Button("Rozpocznij", action: onStart)
-                .buttonStyle(.accent(.compact))
-        }
-    }
-}
-
-// MARK: - DoneTodayContent
-/// Every plan due today is logged: confirm it, and name the next plan without
-/// a start button so today's plan is not logged twice by accident.
-private struct DoneTodayContent: View {
-    let plans: [WorkoutPlan]
-    let next: PlanAgenda.Occurrence?
-    let today: Date
-    let calendar: Calendar
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "checkmark")
-                .font(.appTitle3)
-                .foregroundStyle(Color.black)
-                .scaledIconFrame(44, relativeTo: .title3)
-                .background(Color.accent)
-                .clipShape(.rect(cornerRadius: AppRadius.medium))
-                .accessibilityHidden(true)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Dziś · Zrobione")
-                    .font(.bodyLarge)
-                    .foregroundStyle(Color.textPrimary)
-
-                Text(plans.map(\.name).joined(separator: ", "))
-                    .font(.bodySmall)
-                    .foregroundStyle(Color.textSecondary)
-
-                if let next {
-                    Text("Następny: \(WorkoutScheduleFormatter.dayLabel(next.date, asOf: today, calendar: calendar)) · \(next.plan.name)")
-                        .font(.bodySmall)
-                        .foregroundStyle(Color.textSecondary)
-                }
-            }
-
-            Spacer()
-        }
-        .accessibilityElement(children: .combine)
-    }
-}
-
-// MARK: - SuggestionContent
-private struct SuggestionContent: View {
-    let exercise: Exercise
-    let onLog: () -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
-                ExerciseIconView(symbolName: exercise.symbolName, size: .row)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(exercise.name)
-                        .font(.bodyLarge)
-                        .foregroundStyle(Color.textPrimary)
-
-                    Text("Najdłużej nietrenowane: \(exercise.muscleGroups.map(\.displayName).joined(separator: ", "))")
-                        .font(.bodySmall)
-                        .foregroundStyle(Color.textSecondary)
-                }
-
-                Spacer()
-            }
-
-            Button("Zaloguj serię", action: onLog)
-                .buttonStyle(.accent(.compact))
-        }
-    }
-}
-
-// MARK: - NextWorkoutEmptyState
-private struct NextWorkoutEmptyState: View {
-    var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "dumbbell")
-                .font(.appTitle2)
-                .foregroundStyle(Color.textSecondary)
-                .accessibilityHidden(true)
-
-            Text("Brak propozycji")
-                .font(.bodyMedium)
-                .foregroundStyle(Color.textPrimary)
-
-            Text("Zaloguj pierwszy trening lub zaplanuj kolejny.")
-                .font(.bodySmall)
-                .foregroundStyle(Color.textSecondary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
     }
 }
 

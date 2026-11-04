@@ -45,8 +45,14 @@ struct ModuleView: View {
             }
 
             if isExpanded {
-                moduleContent
-                    .padding(.top, 8)
+                HomeModuleContent(
+                    module: module,
+                    dashboard: dashboard,
+                    environment: environment,
+                    nearestPark: nearestPark,
+                    onEditGoal: onEditGoal
+                )
+                .padding(.top, 8)
             }
         }
         .padding(.vertical, 4)
@@ -68,24 +74,6 @@ struct ModuleView: View {
         AccessibilityNotification.Announcement(
             String(localized: "\(module.name): pozycja \(index + 1) z \(preferences.enabledModules.count)")
         ).post()
-    }
-
-    @ViewBuilder
-    private var moduleContent: some View {
-        switch module {
-        case .lastWorkout:
-            LastWorkoutModuleContent(dashboard: dashboard)
-        case .nextWorkout:
-            NextWorkoutModuleContent(dashboard: dashboard, environment: environment)
-        case .nearestPark:
-            ParksModuleContent(model: nearestPark)
-        case .weeklyGoal:
-            WeeklyGoalModuleContent(snapshot: dashboard.weeklyGoal, onEdit: onEditGoal)
-        case .streak:
-            StreakModuleContent(streak: dashboard.streak, today: dashboard.now, calendar: dashboard.calendar)
-        case .achievements:
-            AchievementsModuleContent(summary: dashboard.achievementsSummary)
-        }
     }
 }
 

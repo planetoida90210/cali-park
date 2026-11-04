@@ -30,61 +30,21 @@ struct ContextualHeroView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        content
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(20)
-            .background(Color.componentBackground)
-            .clipShape(.rect(cornerRadius: AppRadius.medium))
-            .id(stateID)
-            .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: 0.98)))
-            .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: stateID)
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        switch state {
-        case let .planToday(plan, loggedTodayReps, loggedTodaySeconds):
-            HeroPlanTodayView(
-                plan: plan,
-                loggedTodayReps: loggedTodayReps,
-                loggedTodaySeconds: loggedTodaySeconds,
-                weeklyGoal: weeklyGoal,
-                onEditGoal: onEditGoal,
-                now: now,
-                onStart: { onStartPlan(plan) }
-            )
-
-        case let .completedToday(summary, _):
-            HeroCompletedTodayView(
-                summary: summary,
-                weeklyGoal: weeklyGoal,
-                onEditGoal: onEditGoal,
-                now: now
-            )
-
-        case let .restDay(nextPlan, date, _):
-            HeroRestDayView(
-                nextPlan: nextPlan,
-                date: date,
-                weeklyGoal: weeklyGoal,
-                onEditGoal: onEditGoal,
-                progressionHint: progressionHint,
-                now: now
-            )
-
-        case let .freeMode(lastWorkout, suggestion, _):
-            HeroFreeModeView(
-                lastWorkout: lastWorkout,
-                suggestion: suggestion,
-                weeklyGoal: weeklyGoal,
-                onEditGoal: onEditGoal,
-                progressionHint: progressionHint,
-                now: now
-            )
-
-        case .firstRun:
-            HeroFirstRunView(weeklyGoal: weeklyGoal, onEditGoal: onEditGoal, now: now)
-        }
+        HeroStateContent(
+            state: state,
+            weeklyGoal: weeklyGoal,
+            progressionHint: progressionHint,
+            now: now,
+            onStartPlan: onStartPlan,
+            onEditGoal: onEditGoal
+        )
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
+        .background(Color.componentBackground)
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
+        .id(stateID)
+        .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: 0.98)))
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: stateID)
     }
 
     /// A stable discriminator per case so a state change gets a fresh identity
