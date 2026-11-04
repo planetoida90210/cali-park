@@ -61,10 +61,12 @@ struct TrainingBackupView: View {
                 viewModel.errorMessage = TrainingBackupError.unreadableFile.message
             }
         }
-        .confirmationDialog(
+        // An alert, not a confirmation dialog: on iOS 26 the dialog becomes a
+        // popover that hides "Anuluj", and replacing every training needs a
+        // visible way out.
+        .alert(
             "Zastąpić dane w apce?",
             isPresented: pendingBinding,
-            titleVisibility: .visible,
             presenting: viewModel.pendingImport
         ) { pending in
             Button("Zastąp", role: .destructive) {
