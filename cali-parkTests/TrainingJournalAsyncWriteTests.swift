@@ -22,10 +22,13 @@ struct TrainingJournalAsyncWriteTests {
         let first = AsyncFixture.entry(1)
         let second = AsyncFixture.entry(2)
 
-        // Both calls are issued before either write finishes.
-        async let a: Void = journal.log(first)
-        async let b: Void = journal.log(second)
-        _ = try await (a, b)
+        // Both calls are issued before either write finishes. Main-actor
+        // tasks start in the order they were created; `async let` children
+        // would race to the main actor and call in either order.
+        let a = Task { try await journal.log(first) }
+        let b = Task { try await journal.log(second) }
+        try await a.value
+        try await b.value
 
         #expect(store.started == [1, 2])
         #expect(store.saved.map(\.id) == [first.id, second.id])
