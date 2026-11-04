@@ -1,8 +1,8 @@
 import SwiftUI
 
 // MARK: - AboutView
-/// "O apce": the sources of the ladders and programs, the map data credit,
-/// and the version and build number.
+/// "O apce": the sources of the ladders and programs, the health note, the
+/// map data credit, and the version and build number.
 struct AboutView: View {
     var version: AppVersion = .current
 
@@ -19,6 +19,13 @@ struct AboutView: View {
 
             Section("Źródła programów") {
                 sourceRows(AboutContent.programSources)
+            }
+            .listRowBackground(Color.componentBackground)
+
+            Section("Zdrowie") {
+                Text(AboutContent.healthNote)
+                    .font(.bodyMedium)
+                    .foregroundStyle(Color.textPrimary)
             }
             .listRowBackground(Color.componentBackground)
 

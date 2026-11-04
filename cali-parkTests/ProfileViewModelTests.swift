@@ -127,4 +127,11 @@ struct AboutContentTests {
         #expect(AboutContent.mapAttribution.name == ParkFormat.attribution)
         #expect(AboutContent.mapAttribution.name == "© Współtwórcy OpenStreetMap")
     }
+
+    /// Guideline 1.4.1: training advice comes with a pointer to a doctor and
+    /// to stopping on pain.
+    @Test func healthNoteSendsToADoctorAndStopsOnPain() {
+        #expect(AboutContent.healthNote.contains("lekarz"))
+        #expect(AboutContent.healthNote.contains("ból"))
+    }
 }
