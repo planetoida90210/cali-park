@@ -1,11 +1,5 @@
 import SwiftUI
 
-// MARK: - DiagnosticsRoute
-/// Push destination from "Diagnostyka": one report's detail.
-nonisolated struct DiagnosticsRoute: Hashable {
-    let reportID: UUID
-}
-
 // MARK: - DiagnosticsView
 /// "Diagnostyka" (Profile → "Pomoc i opinie"): the crash and performance
 /// reports iOS handed to the app (MetricKit), kept on the phone. The user
@@ -28,7 +22,7 @@ struct DiagnosticsView: View {
             Section {
                 if viewModel.reports.isEmpty {
                     if viewModel.hasLoaded {
-                        emptyState
+                        DiagnosticsEmptyState(loadFailed: viewModel.loadFailed)
                     }
                 } else {
                     ForEach(viewModel.reports) { report in
@@ -109,21 +103,6 @@ struct DiagnosticsView: View {
         }
     }
 
-    // MARK: Empty state
-    private var emptyState: some View {
-        ContentUnavailableView {
-            Label("Brak raportów", systemImage: "checkmark.seal")
-        } description: {
-            Text(
-                viewModel.loadFailed
-                    ? DiagnosticsFormat.loadFailureMessage
-                    : String(
-                        localized:
-                            "iOS przekazuje apce raporty o awariach i wydajności mniej więcej raz na dobę. Gdy jakiś przyjdzie, zobaczysz go tutaj."
-                    ))
-        }
-    }
-
     // MARK: Toolbar
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
@@ -173,52 +152,6 @@ struct DiagnosticsView: View {
             get: { viewModel.errorMessage != nil },
             set: { if !$0 { viewModel.errorMessage = nil } }
         )
-    }
-}
-
-// MARK: - DiagnosticReportRow
-private struct DiagnosticReportRow: View {
-    let report: DiagnosticReport
-
-    @Environment(\.dynamicTypeSize) private var typeSize
-
-    var body: some View {
-        // At accessibility sizes the icon goes above the text, so the text
-        // keeps the row's full width.
-        let layout =
-            typeSize.isAccessibilitySize
-            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
-            : AnyLayout(HStackLayout(alignment: .center, spacing: 16))
-        layout {
-            Image(systemName: DiagnosticKindIcon.name(for: report.primaryKind))
-                .foregroundStyle(Color.accent)
-                .scaledIconFrame(28)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(DiagnosticsFormat.title(for: report))
-                    .font(.bodyLarge)
-                    .foregroundStyle(Color.textPrimary)
-                Text(DiagnosticsFormat.subtitle(for: report))
-                    .font(.bodySmall)
-                    .foregroundStyle(Color.textSecondary)
-            }
-        }
-        .accessibilityElement(children: .combine)
-    }
-}
-
-// MARK: - DiagnosticKindIcon
-enum DiagnosticKindIcon {
-    static func name(for kind: DiagnosticKind?) -> String {
-        switch kind {
-        case .crash: "exclamationmark.octagon"
-        case .hang: "hourglass"
-        case .cpuException: "cpu"
-        case .diskWriteException: "internaldrive"
-        case .appLaunch: "timer"
-        case .metrics: "chart.bar"
-        case nil: "doc.text"
-        }
     }
 }
 

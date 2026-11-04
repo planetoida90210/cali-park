@@ -16,7 +16,7 @@ struct TrainingBackupView: View {
     var body: some View {
         List {
             Section {
-                exportRow
+                TrainingBackupExportRow(file: viewModel.exportFile, summary: viewModel.currentSummary)
             } header: {
                 Text("Eksport")
             } footer: {
@@ -76,27 +76,6 @@ struct TrainingBackupView: View {
         }
         .errorAlert($viewModel.errorMessage)
         .errorAlert($viewModel.resultMessage)
-    }
-
-    // MARK: Export
-    @ViewBuilder
-    private var exportRow: some View {
-        if let file = viewModel.exportFile {
-            ShareLink(item: file) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Label("Eksportuj do pliku", systemImage: "square.and.arrow.up")
-                        .foregroundStyle(Color.accent)
-                    if let summary = viewModel.currentSummary {
-                        Text(summary.text)
-                            .font(.bodySmall)
-                            .foregroundStyle(Color.textSecondary)
-                    }
-                }
-            }
-        } else {
-            Label("Eksportuj do pliku", systemImage: "square.and.arrow.up")
-                .foregroundStyle(Color.textTertiary)
-        }
     }
 
     private func confirmationMessage(_ pending: TrainingBackupViewModel.PendingImport) -> String {

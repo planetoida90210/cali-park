@@ -69,8 +69,12 @@ private struct ProgramChoiceRow: View {
                 VStack(alignment: .leading, spacing: 6) {
                     // The badge moves under the name when both don't fit one line.
                     ViewThatFits(in: .horizontal) {
-                        HStack(spacing: 8) { titleAndBadge }
-                        VStack(alignment: .leading, spacing: 6) { titleAndBadge }
+                        HStack(spacing: 8) {
+                            ProgramChoiceTitleAndBadge(title: title, isSuggested: isSuggested)
+                        }
+                        VStack(alignment: .leading, spacing: 6) {
+                            ProgramChoiceTitleAndBadge(title: title, isSuggested: isSuggested)
+                        }
                     }
 
                     Text(subtitle)
@@ -105,24 +109,6 @@ private struct ProgramChoiceRow: View {
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
-    }
-}
-
-// MARK: - ProgramChoiceRow+Title
-extension ProgramChoiceRow {
-    @ViewBuilder
-    fileprivate var titleAndBadge: some View {
-        Text(title)
-            .font(.bodyLarge)
-            .foregroundStyle(Color.textPrimary)
-        if isSuggested {
-            Text("Polecany")
-                .font(.buttonSmall)
-                .foregroundStyle(Color.black)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 2)
-                .background(Color.accent, in: .capsule)
-        }
     }
 }
 
