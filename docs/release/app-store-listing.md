@@ -59,6 +59,21 @@ calisthenics,street workout,drążek,podciąganie,pompki,poręcze,dipy,progresja
 
 95 znaków, 100 bajtów. Bez słów z nazwy i podtytułu („kalistenika”, „plan”, „mapa”), bo Apple i tak je indeksuje. Bez spacji po przecinkach.
 
+## Zrzuty ekranu (iPhone 6,9")
+
+Sześć zrzutów 1320 × 2868 (zestaw 6,9" pokrywa wszystkie rozmiary iPhone'a) robi `scripts/store-screenshots.sh` na seedzie `storeTour`: pięć tygodni „Fundamentów” trzy razy w tygodniu, plan na dziś jeszcze niezrobiony, seria 5 tygodni, podciągnięcia na 3 × 6. Surowe zrzuty trafiają do `docs/release/screenshots/raw/`, wersje z nagłówkiem do `docs/release/screenshots/framed/`. Opis i ograniczenia: `docs/release/screenshots/README.md`.
+
+Nagłówki (do 30 znaków; gwiazdki oznaczają słowa w kolorze akcentu, `<br>` łamie wiersz). Skrypt kadrujący czyta je z tej tabeli, więc zmiana nagłówka to zmiana tutaj i ponowne `xcrun swift scripts/frame-store-screenshots.swift`.
+
+| Plik | Nagłówek | Ekran |
+|---|---|---|
+| `01-home` | Wiesz, co<br>ćwiczyć *dziś* | Start: plan na dziś, „Rozpocznij”, pierścień celu tygodniowego |
+| `02-ladder` | Od zwisu<br>do *podciągnięć* | Ścieżka „Podciąganie”: zaliczone szczeble, kryterium 3 × 8, najlepsze 3 × 6 |
+| `03-programs` | *Gotowe* programy<br>na start | „Gotowe programy”: Minimum, Fundamenty, Pierwsze podciągnięcie, Skille |
+| `04-workout` | Pary, rundy<br>i *przerwy* | Trening „Fundamenty”: Para 1, Runda 2/3, przerwa 90 s |
+| `05-profile` | Trzymaj *serię*<br>tygodni | Profil: seria 5 tygodni z celem, seria dni, poziom, cel 2 / 3 dni |
+| `06-parks` | Drążek w Twojej<br>*okolicy* | Mapa Parków (Warszawa) z kartą najbliższego Parku z OSM |
+
 ## Pozostałe pola
 
 | Pole | Propozycja |
