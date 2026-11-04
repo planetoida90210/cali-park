@@ -53,3 +53,7 @@ Przyjęte: rodzaje celu (1–3 cele, jeden główny), tydzień przerwy bez utrat
 - **Pauza** zamiast samego tygodnia przerwy: tydzień, miesiąc albo do 90 dni, bez utraty serii; kończy się sama albo jednym tapnięciem. Tygodnie pauzy nie liczą się do celu.
 - Hero pokazuje serię tygodni; moduł „Seria dni” zostaje.
 - Wykonany cel: celebracja bez XP.
+
+## Wdrożenie (2026-11-04)
+
+Zmergowane jako `8d07335`. Koordynator (z delegacji właściciela) przyjął: hero bez serii dni, tydzień z dowolnym dniem pauzy jest neutralny, chyba że cel zrobiony; pierścień w hero tylko w stanach „zrobione dziś”, odpoczynek i wolny trening, żeby „Rozpocznij” zostało w centrum.

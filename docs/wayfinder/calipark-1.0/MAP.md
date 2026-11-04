@@ -125,6 +125,13 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - kalibracja wskazuje szczeble po ID; dipy „12+” startują od podporu na kółkach,
   - jednorazowy skok XP za nowe niższe szczeble (np. +100 XP przy pełnych podciągnięciach, maks. +1100 XP), przyjęty w 015,
   - testy: 426 (722 przypadki).
+- **Cel tygodniowy** (`8d07335`, 2026-11-04, „Cel tygodniowy”):
+  - 1–3 cele (dni treningowe, treningi z planów albo „wszystkie zaplanowane”, objętość ćwiczenia), jeden główny; każda zmiana to nowa wersja, zamknięte tygodnie liczą się według swojej,
+  - pierwszy niepełny tydzień rozgrzewkowy, pauza 1–90 dni, tydzień z pauzą neutralny (chyba że cel i tak zrobiony),
+  - hero: pierścień celu głównego i seria tygodni (seria dni została tylko w module „Seria dni”); moduł „Cel tygodniowy” do przestawiania; edytor po przytrzymaniu pierścienia; celebracja bez XP,
+  - bez zapisanego celu działa domyślne 3 dni; mock „75 podciągnięć” usunięty,
+  - nie zrobione: „wszystkie zaplanowane” dla zamkniętych tygodni liczy według dzisiejszych planów; onboarding i Profil jeszcze bez edytora celu,
+  - testy: 575 (921 przypadków).
 - **Gotowe programy** (`3bbf358`, 2026-11-04, „Gotowe programy treningowe w 1.0”):
   - Minimum, Fundamenty, Pierwsze podciągnięcie i Skille jako szablony z podpisem źródła; `docs/PROGRAMS.md` i `ProgramCatalog` 1:1,
   - „Gotowe programy” w planerze: podgląd na Twoich szczeblach i „Utwórz plan”, który daje zwykły plan do edycji z `programID` i wersją,
