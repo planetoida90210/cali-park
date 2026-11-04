@@ -100,7 +100,12 @@ private struct ParkCardHeader: View {
     let onExpand: () -> Void
     let onClose: () -> Void
 
+    @Environment(\.dynamicTypeSize) private var typeSize
     @Environment(\.openURL) private var openURL
+
+    private var actionLayout: AnyLayout {
+        typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 10)) : AnyLayout(HStackLayout(spacing: 10))
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -146,7 +151,9 @@ private struct ParkCardHeader: View {
                 ParkEquipmentGlyphs(equipment: park.equipment)
             }
 
-            HStack(spacing: 10) {
+            // Stacked at accessibility sizes, where two half-width capsules
+            // would hyphenate "Na-wiguj" and "Szcze-góły".
+            actionLayout {
                 if let url = ParkFormat.appleMapsURL(for: park) {
                     Button("Nawiguj", systemImage: "arrow.triangle.turn.up.right.diamond.fill") {
                         openURL(url)
