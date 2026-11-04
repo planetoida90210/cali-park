@@ -143,7 +143,7 @@ export default function PrivacyPage() {
               <td>Start na właściwym szczeblu, bez powtarzania celebracji</td>
             </tr>
             <tr>
-              <td>Cel tygodniowy, jego wcześniejsze wersje i pauzy</td>
+              <td>Cel tygodniowy, jego wcześniejsze wersje i pauzy oraz dni zaplanowanych treningów z poprzednich tygodni</td>
               <td>Pierścień celu i seria tygodni</td>
             </tr>
             <tr>

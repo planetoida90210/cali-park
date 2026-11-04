@@ -63,6 +63,10 @@ final class WeeklyGoalService {
             guard let self else { return }
             self.now = self.clock()
         }
+        // Records the new schedules, so closed weeks keep the plans they had.
+        planService.onPlansChange { [weak self] in
+            self?.reload()
+        }
     }
 
     // MARK: Output
@@ -101,7 +105,8 @@ final class WeeklyGoalService {
     /// Call on appear, on return to the app, and after the editor saved.
     func reload() {
         now = clock()
-        if let loaded = try? planService.loadPlans() { plans = loaded }
+        let loadedPlans = try? planService.loadPlans()
+        if let loadedPlans { plans = loadedPlans }
         do {
             history = try store.load() ?? .empty
             loadFailure = nil
@@ -110,7 +115,22 @@ final class WeeklyGoalService {
             history = nil
             loadFailure = StoreLoadFailure(error)
         }
+        if let loadedPlans { recordPlanSchedules(loadedPlans) }
         inputsRevision += 1
+    }
+
+    /// Saves the plans' schedules with the goal when they changed since the
+    /// last record, so a closed week's "all scheduled" target keeps the plans
+    /// of that week. Only with a readable history and plans; a failed write
+    /// is logged and tried again on the next reload.
+    private func recordPlanSchedules(_ plans: [WorkoutPlan]) {
+        guard let history, let updated = history.recordingPlans(plans, at: now, calendar: calendar) else { return }
+        do {
+            try store.save(updated)
+            self.history = updated
+        } catch {
+            logger.error("Cannot record plan schedules: \(String(describing: error), privacy: .public)")
+        }
     }
 
     /// Records the celebration on screen as shown, so it plays once per goal

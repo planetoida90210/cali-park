@@ -10,6 +10,9 @@ import Foundation
 ///   first weekday.
 /// - The current week uses the latest goals; a closed week uses the version in
 ///   force when it ended.
+/// - "All scheduled" counts the current week with today's plans, and a closed
+///   week with the plans as they were scheduled when it ended
+///   (`PlanScheduleRecord`).
 /// - The first, partial week after the goal was first set is a warm-up week:
 ///   met counts toward the streak, not met is neutral. A goal first set on a
 ///   Monday starts with a full week.
@@ -75,13 +78,30 @@ nonisolated enum WeeklyGoalEvaluator {
                          pauses: [WeeklyGoalPause],
                          entries: [WorkoutLogEntry],
                          plans: [WorkoutPlan],
+                         planSchedules: [PlanScheduleRecord] = [],
                          calendar: Calendar = .current,
                          asOf: Date = .now) -> WeeklyGoalWeek? {
         guard let first = versions.first,
               let version = versions.last(where: { $0.effectiveFrom < week.end && $0.effectiveFrom <= asOf })
         else { return nil }
         return judge(week: week, version: version, firstSetAt: first.effectiveFrom, pauses: pauses,
-                     entries: entries, plans: plans, calendar: calendar, asOf: asOf)
+                     entries: entries,
+                     plans: Self.plans(for: week, records: planSchedules, currentPlans: plans, asOf: asOf),
+                     calendar: calendar, asOf: asOf)
+    }
+
+    /// The plans to count `week`'s "all scheduled" target with: `currentPlans`
+    /// while the week runs at `asOf`; for a closed week the record in force
+    /// when it ended, or the earliest record for a week before every record;
+    /// `currentPlans` when nothing was recorded yet (files from before
+    /// records existed).
+    static func plans(for week: DateInterval,
+                      records: [PlanScheduleRecord],
+                      currentPlans: [WorkoutPlan],
+                      asOf: Date) -> [WorkoutPlan] {
+        guard asOf >= week.end, let first = records.first else { return currentPlans }
+        let record = records.last { $0.effectiveFrom < week.end } ?? first
+        return record.plans.map(\.plan)
     }
 
     /// The verdict for `week` under `version`.
@@ -120,6 +140,7 @@ nonisolated enum WeeklyGoalEvaluator {
                        pauses: [WeeklyGoalPause],
                        entries: [WorkoutLogEntry],
                        plans: [WorkoutPlan],
+                       planSchedules: [PlanScheduleRecord] = [],
                        calendar: Calendar = .current,
                        asOf: Date = .now) -> Int {
         guard let first = versions.first else { return 0 }
@@ -130,7 +151,7 @@ nonisolated enum WeeklyGoalEvaluator {
         while current.end > first.effectiveFrom {
             guard let judged = evaluate(
                 week: current, versions: versions, pauses: pauses,
-                entries: byWeek[current.start] ?? [], plans: plans,
+                entries: byWeek[current.start] ?? [], plans: plans, planSchedules: planSchedules,
                 calendar: calendar, asOf: asOf
             ) else { break }
             switch judged.status {
@@ -173,7 +194,7 @@ nonisolated enum WeeklyGoalEvaluator {
         return WeeklyGoalSnapshot(
             week: judged,
             streak: streak(versions: versions, pauses: history.pauses, entries: entries,
-                           plans: plans, calendar: calendar, asOf: asOf),
+                           plans: plans, planSchedules: history.planSchedules, calendar: calendar, asOf: asOf),
             activePause: history.activePause(at: asOf),
             pendingCelebrations: pending,
             isDefault: history.versions.isEmpty

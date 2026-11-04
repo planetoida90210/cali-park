@@ -12,7 +12,11 @@ private enum BackupFixtures {
         versions: [WeeklyGoalVersion(effectiveFrom: StoreFixtures.october1,
                                      goals: WeeklyGoal.defaultGoals(trainingDaysPerWeek: 4))],
         pauses: [],
-        celebrated: []
+        celebrated: [],
+        // Matches the backup's plans, so importing records nothing new and
+        // the export reads back exactly what was imported.
+        planSchedules: [PlanScheduleRecord(effectiveFrom: StoreFixtures.october1,
+                                           activePlansOf: StoreFixtures.workoutPlans)]
     )
 
     static let favoriteParks = [
@@ -302,6 +306,18 @@ struct TrainingBackupServiceTests {
         #expect(rig.environment.weeklyGoalService.history == BackupFixtures.weeklyGoal)
         #expect(rig.environment.parkFavorites.ids == BackupFixtures.favoriteParks)
         #expect(rig.environment.exerciseFavorites.ids == BackupFixtures.favoriteExercises)
+    }
+
+    @Test("A backup from before plan records gets its plans recorded on import")
+    func legacyBackupRecordsItsPlans() async throws {
+        let rig = BackupRig.withOldData()
+        var legacy = BackupFixtures.full
+        legacy.weeklyGoal?.planSchedules = []
+        try await rig.service.restore(legacy)
+
+        let records = try #require(rig.environment.weeklyGoalService.history?.planSchedules)
+        #expect(records.map(\.plans) == [PlanScheduleRecord.scheduled(StoreFixtures.workoutPlans)])
+        #expect(try rig.service.currentBackup().weeklyGoal?.versions == legacy.weeklyGoal?.versions)
     }
 
     @Test("An import is not progress: no celebration and no XP toast")

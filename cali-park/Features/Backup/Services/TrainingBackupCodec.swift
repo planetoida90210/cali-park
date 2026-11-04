@@ -132,7 +132,8 @@ nonisolated enum TrainingBackupCodec {
                 throw .invalidContent(String(localized: "niepoprawny cel tygodniowy"))
             }
             let starts = goal.versions.map(\.effectiveFrom)
-            guard starts == starts.sorted() else {
+            let recorded = goal.planSchedules.map(\.effectiveFrom)
+            guard starts == starts.sorted(), recorded == recorded.sorted() else {
                 throw .invalidContent(String(localized: "niepoprawna historia celu tygodniowego"))
             }
         }

@@ -32,6 +32,9 @@ final class WorkoutPlanService {
     private let logger = AppLog.logger(category: "WorkoutPlanService")
     /// The latest queued sync; the next one waits for it.
     private var lastSync: Task<ReminderSyncResult, Never>?
+    /// Run after every saved or deleted plan (the weekly goal records the
+    /// plans' schedules).
+    private var changeHandlers: [@MainActor () -> Void] = []
 
     /// `logEntries` is only read, to skip reminders on days a plan is done.
     init(store: WorkoutPlanStoring,
@@ -65,6 +68,7 @@ final class WorkoutPlanService {
     @discardableResult
     func save(_ plan: WorkoutPlan) async throws -> ReminderSyncResult {
         try store.save(plan)
+        plansDidChange()
         return await syncReminders()
     }
 
@@ -73,7 +77,19 @@ final class WorkoutPlanService {
     @discardableResult
     func delete(id: UUID) async throws -> ReminderSyncResult {
         try store.delete(id: id)
+        plansDidChange()
         return await syncReminders()
+    }
+
+    /// Runs `handler` after every plan saved or deleted through this service,
+    /// before the reminders re-sync. Importing a backup writes the store
+    /// directly and reloads its readers itself.
+    func onPlansChange(_ handler: @escaping @MainActor () -> Void) {
+        changeHandlers.append(handler)
+    }
+
+    private func plansDidChange() {
+        for handler in changeHandlers { handler() }
     }
 
     // MARK: Reminders

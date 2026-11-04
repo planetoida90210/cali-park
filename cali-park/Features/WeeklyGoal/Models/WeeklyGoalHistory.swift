@@ -16,13 +16,46 @@ nonisolated struct WeeklyGoalHistory: Codable, Equatable, Sendable {
     var pauses: [WeeklyGoalPause]
     /// Goals whose "met" celebration was shown, per week.
     var celebrated: Set<WeeklyGoalCelebration>
+    /// Oldest first, at most one per week: the plans as they were scheduled,
+    /// so a closed week's "all scheduled" target is the plans of that week.
+    /// Empty in files from before it existed; closed weeks then count with
+    /// the earliest record, or today's plans while there is none.
+    var planSchedules: [PlanScheduleRecord]
 
     init(versions: [WeeklyGoalVersion] = [],
          pauses: [WeeklyGoalPause] = [],
-         celebrated: Set<WeeklyGoalCelebration> = []) {
+         celebrated: Set<WeeklyGoalCelebration> = [],
+         planSchedules: [PlanScheduleRecord] = []) {
         self.versions = versions
         self.pauses = pauses
         self.celebrated = celebrated
+        self.planSchedules = planSchedules
+    }
+
+    // MARK: Codable
+    // `planSchedules` came later: a missing key decodes as empty, and an
+    // empty list is not written, so a history without plans encodes exactly
+    // as before. The envelope stays at schema version 1 (the key only adds).
+    private enum CodingKeys: String, CodingKey {
+        case versions, pauses, celebrated, planSchedules
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        versions = try container.decode([WeeklyGoalVersion].self, forKey: .versions)
+        pauses = try container.decode([WeeklyGoalPause].self, forKey: .pauses)
+        celebrated = try container.decode(Set<WeeklyGoalCelebration>.self, forKey: .celebrated)
+        planSchedules = try container.decodeIfPresent([PlanScheduleRecord].self, forKey: .planSchedules) ?? []
+    }
+
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(versions, forKey: .versions)
+        try container.encode(pauses, forKey: .pauses)
+        try container.encode(celebrated, forKey: .celebrated)
+        if !planSchedules.isEmpty {
+            try container.encode(planSchedules, forKey: .planSchedules)
+        }
     }
 
     static let empty = WeeklyGoalHistory()
@@ -82,6 +115,49 @@ nonisolated struct WeeklyGoalHistory: Codable, Equatable, Sendable {
             }
         } else if history.versions[lastIndex].goals != goals {
             history.versions.append(WeeklyGoalVersion(effectiveFrom: date, goals: goals))
+        }
+        return history
+    }
+
+    // MARK: Plan schedules
+
+    /// The plans to count a week's "all scheduled" target with. A week still
+    /// running at `asOf` uses `currentPlans`. A closed week uses the record in
+    /// force when it ended, or the earliest record for a week before every
+    /// record; with no record at all, `currentPlans`.
+    func plans(for week: DateInterval, currentPlans: [WorkoutPlan], asOf: Date) -> [WorkoutPlan] {
+        WeeklyGoalEvaluator.plans(for: week, records: planSchedules, currentPlans: currentPlans, asOf: asOf)
+    }
+
+    /// The history with the active plans' schedules recorded at `date`, or
+    /// `nil` when they match the latest record (or there are no active plans
+    /// and no record yet). A record from earlier in the same week is
+    /// replaced, not stacked, since no closed week can depend on it; like goal
+    /// versions, there is at most one record per week.
+    func recordingPlans(_ plans: [WorkoutPlan],
+                        at date: Date,
+                        calendar: Calendar = .current) -> WeeklyGoalHistory? {
+        let scheduled = PlanScheduleRecord.scheduled(plans)
+        guard let last = planSchedules.last else {
+            // No plans and nothing recorded: there is nothing to keep.
+            guard !scheduled.isEmpty else { return nil }
+            var history = self
+            history.planSchedules = [PlanScheduleRecord(effectiveFrom: date, plans: scheduled)]
+            return history
+        }
+        guard last.plans != scheduled else { return nil }
+
+        var history = self
+        let currentWeek = WeeklyGoalEvaluator.week(containing: date, calendar: calendar)
+        if currentWeek.contains(last.effectiveFrom) {
+            let lastIndex = history.planSchedules.index(before: history.planSchedules.endIndex)
+            history.planSchedules[lastIndex].plans = scheduled
+            // Changed back to what applied before this week: nothing to keep.
+            if lastIndex > 0, history.planSchedules[lastIndex - 1].plans == scheduled {
+                history.planSchedules.removeLast()
+            }
+        } else {
+            history.planSchedules.append(PlanScheduleRecord(effectiveFrom: date, plans: scheduled))
         }
         return history
     }
