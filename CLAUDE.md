@@ -23,9 +23,14 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on every push to `main`, on eve
 
 - **`test`** (blocking): on the `macos-26` runner with Xcode 26.6 (CI uses an older Xcode than the local one; see `XCODE_VERSION` in the workflow), it runs the unit tests on an iPhone simulator picked by `scripts/ci-pick-simulator.sh` (iOS 26.5 when installed), with `CODE_SIGNING_ALLOWED=NO`. Then `scripts/check-build-warnings.sh` fails the job on any line containing `warning:`, except `appintentsmetadataprocessor` notes. When the job fails, it uploads the `.xcresult` and the full log as the `test-results` artifact. To bump Xcode, change the runner image and `XCODE_VERSION` together, after checking the image's readme in `actions/runner-images`.
 - **`lint`**: the **Project rules** step (blocking) runs `scripts/lint-rules.sh --baseline scripts/lint-rules.baseline`, which counts violations of the clearest rules in `project-rules.mdc` and fails on any rule whose count exceeds the baseline. The **swift-format** step (report only, `continue-on-error: true`) runs `xcrun swift-format lint --recursive` against `.swift-format`. Both write a summary to the job page.
+- **`site`**: builds the static website in `site/` (`npm ci && npm run build` on Linux, parallel to the iOS jobs).
 - Run the same checks locally: `scripts/lint-rules.sh` (add `--baseline scripts/lint-rules.baseline` to check for new violations), `xcrun swift-format lint --recursive --parallel cali-park cali-parkTests cali-parkUITests`, and `scripts/check-build-warnings.sh <xcodebuild log>`.
 - After you fix rule violations, lower the baseline with `scripts/lint-rules.sh --write-baseline scripts/lint-rules.baseline` and commit it, so the fixed violations can't come back. Never raise it to make a new violation pass.
 - To make swift-format blocking too, format the code (`xcrun swift-format format --in-place --recursive …`), then remove its `continue-on-error: true` and add `--strict`.
+
+## Website
+
+`site/` is the public site (landing page, privacy policy, Parks data, help): a static Next.js export for Vercel, Polish copy. `site/README.md` has the commands, the Vercel settings and the placeholders. The privacy policy (`site/app/prywatnosc/page.tsx`) states what the app stores and sends: when you change storage, location, notifications, export, diagnostics or add any network call, update it and `docs/release/app-privacy.md` in the same commit.
 
 ## Toolchain facts
 
