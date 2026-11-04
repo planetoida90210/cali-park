@@ -126,6 +126,12 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - kalibracja wskazuje szczeble po ID; dipy „12+” startują od podporu na kółkach,
   - jednorazowy skok XP za nowe niższe szczeble (np. +100 XP przy pełnych podciągnięciach, maks. +1100 XP), przyjęty w 015,
   - testy: 426 (722 przypadki).
+- **Profil, onboarding, eksport i import** (`89a3528`, 2026-11-04, „Profil i ustawienia w 1.0”, „Onboarding w 1.0”):
+  - Profil: statystyki (treningi, seria dni z rekordem, seria tygodni, poziom i XP), cel tygodniowy z edytorem, historia, eksport i import, „Pomoc i opinie”, „O apce” ze źródłami i OSM/ODbL; bez „Michała” na Home (E-4, G-V2),
+  - eksport do jednego pliku `calipark-backup-RRRR-MM-DD.json`; import sprawdza cały plik, pokazuje podsumowanie i zastępuje dane „wszystko albo nic”, bez fałszywych celebracji,
+  - onboarding: powitanie → test poziomu → program → cel tygodniowy (1–7 dni, domyślnie z programu); bez pytania o cele, lokalizacji i „Mam gumę”,
+  - nie zrobione: prawdziwy adres w „Pomoc i opinie” (na razie `kontakt@calipark.example`), ulubione Parki poza backupem do czasu nowych Parków,
+  - testy: 650 (1002 przypadki).
 - **Jeden dziennik, krok F2 fundamentu** (`688ee1e`, 2026-11-04):
   - `TrainingJournal` to jedyne miejsce zapisu treningów (SetPad, szybki trening, historia, Home, arkusz szczebla); `ProgressService` liczy postęp raz na zmianę dziennika (F-3, F-6, A-11),
   - `RewardCenter`: jedna kolejka celebracji dla szczebli, poziomów i celu tygodniowego; koniec podwójnego toastu XP, a ostatnia celebracja pokazuje sumę „Razem +N XP” (F-4, D-V1, A-10),

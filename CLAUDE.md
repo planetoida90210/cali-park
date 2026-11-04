@@ -14,7 +14,7 @@ xcodebuild -project cali-park.xcodeproj -scheme cali-park \
 
 - Simulator access fails inside the Bash sandbox (CoreSimulator, xcrun cache). Run xcodebuild with the sandbox disabled.
 - Some simulator names exist on more than one runtime. Without `OS=26.5` in the destination, xcodebuild may fail to match a device; `id=<UDID>` from `xcrun simctl list devices` also works.
-- Baseline as of 2026-11-04, after the training journal (`688ee1e`): the build has zero warnings and every unit test passes (605 `@Test` functions, 951 cases including parameterized ones). Keep the build warning-free and the tests green.
+- Baseline as of 2026-11-04, after Profile, onboarding and export/import (`89a3528`): the build has zero warnings and every unit test passes (650 `@Test` functions, 1002 cases including parameterized ones). Keep the build warning-free and the tests green.
 - Targets use synchronized folders. A new file under `cali-park/` or `cali-parkTests/` is compiled automatically, so add files without editing `project.pbxproj`.
 
 ## CI
@@ -46,7 +46,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on every push to `main`, on eve
 - Every `File…` store is a thin wrapper over `JSONFileStore` (`cali-park/Core/Services/JSONFileStore.swift`). A missing file reads as empty or nil. An unreadable or undecodable file makes `load()` throw, is copied aside as `<name>.corrupt-<timestamp>.json`, and blocks writes, so it is never overwritten. New writes use the `{"schemaVersion": 1, "payload": …}` envelope, and reads still accept the bare legacy format. View models must handle a throwing `load()` by showing an error (`StoreLoadFailure.message`), never by treating it as an empty journal. The golden files in `cali-parkTests/Fixtures/` hold the real legacy on-disk format, so never regenerate them.
 - Core Data (`cali-park/Core/Services/Persistence.swift`, `cali_park.xcdatamodeld`) is an empty scaffold. The model has no entities and nothing reads the context, but `cali_parkApp.swift` still creates it at launch. New persistence goes in a store.
 - Domain logic lives in caseless enums of static pure functions: `ProgressionEngine`, `RewardEvaluator`, `WorkoutReminderPlanner`, `PlacementCalibration`. Date-dependent APIs take the calendar and reference date as parameters (`calendar:`, `asOf:`/`today:`/`declaredAt:`), defaulting to `.current`/`.now`. Read the wall clock only through those defaults, and pass explicit values in tests.
-- Model new code on Exercises, Planner, Skills and Home's dashboard view model: `@Observable` + `@MainActor`, `navigationDestination(for:)`, and the `Tab` API in `MainTabView`. These are legacy, so don't copy them: Parks (ObservableObject, mocks), Profile (placeholder), Community (unreachable), and Home's module system (`ModuleDefinition`/`ModulePreferences`, `MockDataProvider`).
+- Model new code on Exercises, Planner, Skills, Profile, Programs, WeeklyGoal and Home's dashboard view model: `@Observable` + `@MainActor`, `navigationDestination(for:)`, and the `Tab` API in `MainTabView`. These are legacy, so don't copy them: Parks (ObservableObject, mocks; being replaced), Community (unreachable), and Home's module system (`ModuleDefinition`/`ModulePreferences`, `MockDataProvider`).
 - Use `PolishPlural` for counted nouns ("1 seria, 3 serie, 5 serii").
 - `docs/PROGRESSIONS.md` is the source of truth for progression ladders. When you touch `ProgressionCatalog` or exercise variants in `ExerciseCatalog`, keep the code and that doc in sync 1:1.
 
