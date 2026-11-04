@@ -4,7 +4,7 @@
 <dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>com.michalbryk.cali-park.reminders-refresh</string>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER).reminders-refresh</string>
 	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>

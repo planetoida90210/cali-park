@@ -19,7 +19,15 @@ protocol ReminderRefreshScheduling {
 /// identifier is listed under `BGTaskSchedulerPermittedIdentifiers` in
 /// `Info.plist`.
 struct AppRefreshScheduler: ReminderRefreshScheduling {
-    nonisolated static let taskIdentifier = "com.michalbryk.cali-park.reminders-refresh"
+    /// The bundle ID plus `.reminders-refresh`. `Info.plist` builds the same
+    /// value from `$(PRODUCT_BUNDLE_IDENTIFIER)`, so changing the bundle ID
+    /// changes both.
+    nonisolated static let taskIdentifier = taskIdentifier(bundleIdentifier: Bundle.main.bundleIdentifier ?? "")
+
+    nonisolated static func taskIdentifier(bundleIdentifier: String) -> String {
+        "\(bundleIdentifier).reminders-refresh"
+    }
+
     /// Roughly a day: the pending reminders reach much further than that.
     nonisolated static let interval: TimeInterval = 24 * 60 * 60
 

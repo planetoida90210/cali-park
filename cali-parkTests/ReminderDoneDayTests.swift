@@ -340,6 +340,16 @@ struct AppRefreshSchedulerTests {
         #expect(request.earliestBeginDate == Fixtures.now.addingTimeInterval(24 * 60 * 60))
     }
 
+    /// The identifier follows the bundle ID, so a new App ID needs no code
+    /// change (ticket 017).
+    @Test
+    func refreshTaskIdentifierFollowsTheBundleIdentifier() throws {
+        let bundleIdentifier = try #require(Bundle.main.bundleIdentifier)
+
+        #expect(AppRefreshScheduler.taskIdentifier == "\(bundleIdentifier).reminders-refresh")
+        #expect(AppRefreshScheduler.taskIdentifier(bundleIdentifier: "pl.example.app") == "pl.example.app.reminders-refresh")
+    }
+
     /// iOS refuses to schedule an identifier missing from the Info.plist.
     @Test
     func infoPlistPermitsTheRefreshTask() {
