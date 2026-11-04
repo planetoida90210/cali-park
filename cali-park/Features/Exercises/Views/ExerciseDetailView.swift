@@ -114,7 +114,7 @@ private struct ExerciseEquipmentRow: View {
                 .foregroundStyle(Color.textSecondary)
                 .textCase(.uppercase)
 
-            Text(equipment.joined(separator: " · "))
+            Text(ProgressionFormat.equipment(equipment))
                 .font(.bodyMedium)
                 .foregroundStyle(Color.textPrimary)
         }

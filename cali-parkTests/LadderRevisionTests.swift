@@ -267,6 +267,18 @@ struct LadderRevisionContentTests {
         #expect(ExerciseEquipment.displayName(for: "Monkey bars") == "Drabinka pozioma")
     }
 
+    @Test func everyCatalogEquipmentKeyHasAPolishLabel() {
+        let keys = Set(ExerciseCatalog.all.flatMap(\.equipment))
+        #expect(!keys.isEmpty)
+        for key in keys {
+            #expect(ExerciseEquipment.displayName(for: key) != key, "No Polish label for \(key)")
+        }
+    }
+
+    @Test func equipmentListReadsInPolish() {
+        #expect(ProgressionFormat.equipment(["Pull-up bar", "Rings"]) == "Drążek · Kółka")
+    }
+
     @Test func everyStepHasASourceLabel() {
         for step in ProgressionCatalog.all.flatMap(\.steps) {
             #expect(!step.criterionSource.label.isEmpty)
