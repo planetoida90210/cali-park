@@ -18,6 +18,7 @@ Każde znalezisko z [findings.md](findings.md) sprawdzone na kodzie po fundamenc
 - 25 znalezisk zniknęło razem ze starym kodem, głównie ze starymi Parkami i Społecznością na atrapach (`34554ab`).
 - Gałąź `w-ui-consistency` zamknęła spójność UI: E-21, E-23, E-28, E-30 i F-10 (jeden alert błędu, jeden styl przycisku akcentowego i drugorzędnego, skala promieni, kolory z katalogu, podglądy AX5). Gałąź `w-tests-tooling` zamknęła testy i narzędzia: B-16, F-14, G-8, G-14, G-16, G-20, G-21, G-22, G-23.
 - Gałąź `w-perf` zamknęła wydajność przy dużym dzienniku i korzeń kompozycji: C-8, D-7, B-14 i F-7. Pomiary i przyjęty limit są w sekcji „Duży dziennik: pomiar i limit” niżej.
+- Gałąź `w-perf2` przeniosła przeliczanie postępu (`ProgressionEngine.snapshot`) i Home (`HomeEngine.snapshot`) poza main actor: zapis przy 10 000 wpisów blokuje interfejs na 1,5–2,9 ms zamiast 74–154 ms. Szczegóły w tej samej sekcji.
 - Gałąź `w-views` zamknęła porządek w widokach i resztę korzenia kompozycji: E-25 (duże widoki rozbite na `Components/`, widoki z właściwości `var x: some View` jako osobne struktury), F-15 (dublery i środowiska podglądów tylko w buildzie Debug, `cali-park/PreviewSupport/`) i resztę F-7 (edytor celu i formularz poziomu czytają store dopiero przy pokazaniu).
 - Gałąź `w-ui-tests` zamknęła G-15: argument `-uitest-reset` z wyborem danych startowych (`UITestSeed`), identyfikatory dostępności i testy UI trzech głównych ścieżek (onboarding → Home, szybki trening → Historia, plan z programu → Home) plus linijki na Home prowadzącej do „Czas na Fundamenty”.
 - Otwarte zostały przenosiny folderów po TestFlighcie (F-8) i katalog ćwiczeń, który czeka na drugi język (F-11). Rekomendacje są w tabeli niżej.
@@ -44,16 +45,20 @@ Commity od `2a2c469` do `dd2dc49` pochodzą z tego przeglądu; pozostałe opisuj
 
 Pomiar z `cali-parkTests/JournalWriteBenchmarkTests.swift` (poza zwykłym przebiegiem testów; uruchamia go `TEST_RUNNER_CALIPARK_BENCHMARK=1` z `-parallel-testing-enabled NO`). Dziennik 10 000 wpisów (ok. 6 lat po 4 treningi tygodniowo po 8 ćwiczeń), plik 2,6 MB, symulator iPhone 17 Pro Max na Macu, mediana z 7 prób. Zakres to Debug i Release z kilku przebiegów.
 
-| Co | Przed (`521b254`) | Po |
-|---|---|---|
-| `load()` przy starcie | 62–77 ms | 54–72 ms (bez zmian, raz przy starcie) |
-| Zapis jednego treningu (`log`, `delete(ids:)`), całość | 133–167 ms na main actorze | 96–185 ms poza main actorem |
-| Najdłuższa blokada main actora podczas zapisu | cały zapis | poniżej 1 ms |
-| Praca dziennika w pamięci po zapisie | 15–34 ms (sortowanie wszystkiego) | 0,5–1,5 ms |
-| Home po zmianie (`HomeEngine.snapshot`) | kilka razy na render | 27–36 ms, raz na zmianę |
-| Postęp po zmianie (`ProgressionEngine.snapshot`) | 30–63 ms, raz na zmianę | bez zmian |
+| Co | Przed (`521b254`) | Po `w-perf` | Po `w-perf2` |
+|---|---|---|---|
+| `load()` przy starcie | 62–77 ms | 54–72 ms (bez zmian, raz przy starcie) | bez zmian |
+| Zapis jednego treningu (`log`, `delete(ids:)`), całość | 133–167 ms na main actorze | 96–185 ms poza main actorem | bez zmian |
+| Najdłuższa blokada main actora podczas samego zapisu | cały zapis | poniżej 1 ms | bez zmian |
+| Praca dziennika w pamięci po zapisie | 15–34 ms (sortowanie wszystkiego) | 0,5–1,5 ms | bez zmian |
+| Home po zmianie (`HomeEngine.snapshot`) | kilka razy na render | 27–36 ms, raz na zmianę, na main actorze | to samo, poza main actorem |
+| Postęp po zmianie (`ProgressionEngine.snapshot`) | 30–63 ms, raz na zmianę | bez zmian, na main actorze | to samo, poza main actorem |
+| **Najdłuższa blokada main actora na zapis razem z postępem, nagrodami i Home** | — | 139–154 ms Debug, 74 ms Release | **1,5–2,9 ms** (Debug i Release) |
+| Od zapisu do Home z nowym stanem (zapis pliku + postęp + Home) | — | — | 374–503 ms, interfejs przez cały czas płynny |
 
-Przyjęty limit: do ok. 10 000 wpisów. Realny intensywny użytkownik ma po 3 latach ok. 5000. Zapis nie blokuje już interfejsu. Zostają dwie świadome rzeczy na main actorze: jeden odczyt pliku przy starcie (przed pierwszym ekranem, żeby nigdy nie pokazać pustego dziennika) i przeliczenie postępu oraz Home raz po każdej zmianie. Przy 10 000 wpisów to razem ok. 60–100 ms, czyli kilka klatek po zapisie. Gdy dzienniki zbliżą się do tego rozmiaru, następny krok to liczenie `ProgressionEngine.snapshot` i `HomeEngine.snapshot` poza main actorem (obie funkcje są czyste i `nonisolated`) albo plik dzielony na lata.
+Pomiar `w-perf2` (2026-11-04) był na obciążonym Macu (równolegle budowały inne gałęzie): w tych samych przebiegach `load()` trwał ok. 120 ms, a `ProgressionEngine.snapshot` 59–146 ms, więc liczby bezwzględne są ok. dwa razy wyższe niż w kolumnie `w-perf`. Porównanie przed/po jest z tych samych warunków, po dwa przebiegi na konfigurację. Release testowano z `ENABLE_TESTABILITY=YES SWIFT_ACTIVE_COMPILATION_CONDITIONS=DEBUG` (optymalizacja jak w Release, dublery testowe dostępne).
+
+Przyjęty limit: do ok. 10 000 wpisów. Realny intensywny użytkownik ma po 3 latach ok. 5000. Ani zapis, ani przeliczenie po nim nie blokują już interfejsu: `ProgressService` i `HomeDashboardViewModel` liczą snapshoty w funkcjach `@concurrent` i publikują wynik na main actorze. Zostaje świadomie jedno: odczyt pliku i pierwszy snapshot postępu oraz Home przy starcie są synchroniczne (przed pierwszym ekranem, żeby nigdy nie pokazać pustego dziennika ani pustego Home). Po zmianie ekrany przez chwilę pokazują poprzedni snapshot, aż nowy wyląduje; wygrywa zawsze najnowsza zmiana. Import kopii liczy postęp synchronicznie, żeby nagrody nie potraktowały zaimportowanej historii jak nowego treningu. Gdy dzienniki urosną dalej, następny krok to plik dzielony na lata (żeby skrócić zapis i odczyt).
 
 ## Wszystkie znaleziska
 
