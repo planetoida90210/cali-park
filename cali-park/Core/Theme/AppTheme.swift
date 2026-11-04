@@ -11,10 +11,6 @@ extension Color {
     // Glass effect background
     static let glassBackground = Color.black.opacity(0.7)
     
-    // Card border gradient
-    static let cardBorderStart = Color.black.opacity(0.7)
-    static let cardBorderEnd = Color.black.opacity(0.4)
-    
     // Status colors
     static let statusRed = Color.red
     static let statusOrange = Color.orange
@@ -22,9 +18,10 @@ extension Color {
     
     // Text colors
     static let textPrimary = Color.white
-    static let textSecondary = Color(hex: "#9A9A9A") // Updated to specified color
-    // Tertiary text color (even lighter gray)
-    static let textTertiary = Color(hex: "#6C6C6C")
+    // `Color.textSecondary` (#9A9A9A) and `Color.textTertiary` (#8E8E8E) come
+    // from the TextSecondary/TextTertiary color sets, which also carry brighter
+    // Increase Contrast variants. Tertiary text keeps at least 4.5:1 (WCAG AA)
+    // on both `appBackground` and `componentBackground`.
     // Divider line color
     static let divider = Color.white.opacity(0.15)
     

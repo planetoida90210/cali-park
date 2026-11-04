@@ -118,17 +118,6 @@ struct ModuleHeaderCard: View {
         .contentShape(.rect)
         .background(Color.glassBackground.blur(radius: 30))
         .clipShape(.rect(cornerRadius: 12))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(
-                    LinearGradient(
-                        colors: [Color.cardBorderStart, Color.cardBorderEnd],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    ),
-                    lineWidth: 1
-                )
-        )
     }
 }
 
