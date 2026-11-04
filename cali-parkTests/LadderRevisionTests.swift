@@ -170,7 +170,7 @@ struct LadderRevisionContentTests {
     ]
 
     @Test func theNewExercisesUseTheNextFixedIDs() {
-        let expected = (66...76).map { UUID(uuidString: String(format: "E0000000-0000-4000-8000-%012d", $0))! }
+        let expected = (66...76).map { UUID(uuidString: "E0000000-0000-4000-8000-0000000000\($0)")! }
         #expect(Self.newExerciseIDs == expected)
     }
 

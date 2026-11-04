@@ -69,6 +69,7 @@ final class WorkoutPlansViewModel {
     /// plan has no reminder.
     func reminderSummary(for plan: WorkoutPlan) -> String? {
         guard let time = plan.reminderTime, let hour = time.hour, let minute = time.minute else { return nil }
-        return String(format: "%02d:%02d", hour, minute)
+        let twoDigits = IntegerFormatStyle<Int>.number.precision(.integerLength(2)).grouping(.never)
+        return "\(hour.formatted(twoDigits)):\(minute.formatted(twoDigits))"
     }
 }

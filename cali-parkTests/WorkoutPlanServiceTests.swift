@@ -271,6 +271,8 @@ struct WorkoutPlansListReminderTests {
         let viewModel = WorkoutPlansViewModel(service: .testing(InMemoryWorkoutPlanStore()))
 
         #expect(viewModel.reminderSummary(for: Fixtures.plan(reminder: DateComponents(hour: 7, minute: 5))) == "07:05")
+        #expect(viewModel.reminderSummary(for: Fixtures.plan(reminder: DateComponents(hour: 18, minute: 30))) == "18:30")
+        #expect(viewModel.reminderSummary(for: Fixtures.plan(reminder: DateComponents(hour: 0, minute: 0))) == "00:00")
         #expect(viewModel.reminderSummary(for: Fixtures.plan(reminder: nil)) == nil)
     }
 }
