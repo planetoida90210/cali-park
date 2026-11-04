@@ -114,7 +114,14 @@ private struct WeeklyGoalTargetSection: View {
         case let .exerciseVolume(exerciseID, measurement, amount):
             Section {
                 Button(action: onPickExercise) {
-                    LabeledContent("Ćwiczenie", value: WeeklyGoalFormat.exerciseName(exerciseID))
+                    // The chevron shows the row opens the exercise picker.
+                    HStack {
+                        LabeledContent("Ćwiczenie", value: WeeklyGoalFormat.exerciseName(exerciseID))
+                        Image(systemName: "chevron.forward")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(Color.textTertiary)
+                            .accessibilityHidden(true)
+                    }
                 }
                 .foregroundStyle(Color.textPrimary)
 
