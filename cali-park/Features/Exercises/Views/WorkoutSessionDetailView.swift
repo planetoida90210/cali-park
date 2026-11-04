@@ -21,29 +21,9 @@ struct WorkoutSessionDetailView: View {
     var body: some View {
         Group {
             if let session = viewModel.session {
-                List {
-                    Section {
-                        WorkoutSessionSummaryHeader(session: session)
-                            .listRowBackground(Color.componentBackground)
-                    }
-
-                    Section("Ćwiczenia") {
-                        ForEach(session.entries) { entry in
-                            WorkoutSessionExerciseRow(entry: entry, exercise: viewModel.exercise(for: entry))
-                                .listRowBackground(Color.componentBackground)
-                                .listRowSeparatorTint(Color.divider)
-                        }
-                    }
-
-                    Section {
-                        Button("Usuń trening", systemImage: "trash", role: .destructive) {
-                            isConfirmingDelete = true
-                        }
-                        .listRowBackground(Color.componentBackground)
-                    }
-                }
-                .listStyle(.insetGrouped)
-                .scrollContentBackground(.hidden)
+                WorkoutSessionContentList(session: session,
+                                          exercise: { viewModel.exercise(for: $0) },
+                                          onDelete: { isConfirmingDelete = true })
             } else {
                 ContentUnavailableView(
                     "Trening usunięty",
