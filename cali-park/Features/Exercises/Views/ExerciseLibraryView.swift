@@ -148,7 +148,7 @@ private struct ExerciseCategoryChips: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ExerciseCategoryChip(
-                    title: "Wszystkie",
+                    title: String(localized: "Wszystkie"),
                     isSelected: selection == nil
                 ) {
                     selection = nil
@@ -255,7 +255,7 @@ private struct ExerciseRowView: View {
     /// Muscle groups; a favorite variant names its main movement instead.
     private var subtitle: String {
         if let parentID = exercise.variantOf, let parent = ExerciseCatalog.exercise(withID: parentID) {
-            return "Wariant: \(parent.name)"
+            return String(localized: "Wariant: \(parent.name)")
         }
         return exercise.muscleGroups.map(\.displayName).joined(separator: " · ")
     }

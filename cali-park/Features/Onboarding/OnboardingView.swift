@@ -210,9 +210,9 @@ private struct OnboardingWeeklyGoalPage: View {
 
     private var hint: String {
         if let program = viewModel.chosenProgramName {
-            "Program \(program) to \(PolishPlural.days(viewModel.suggestedTrainingDays)) w tygodniu. Ustaw, ile dni chcesz trenować."
+            String(localized: "Program \(program) to \(PolishPlural.days(viewModel.suggestedTrainingDays)) w tygodniu. Ustaw, ile dni chcesz trenować.")
         } else {
-            "Ile dni w tygodniu chcesz trenować? Na start polecamy 3."
+            String(localized: "Ile dni w tygodniu chcesz trenować? Na start polecamy 3.")
         }
     }
 }

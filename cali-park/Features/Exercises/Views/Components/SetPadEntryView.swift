@@ -9,7 +9,7 @@ import SwiftUI
 struct SetPadEntryView: View {
     let exercise: Exercise
     @Binding var input: SetPadInput
-    var saveTitle = "Zapisz"
+    var saveTitle: LocalizedStringKey = "Zapisz"
     /// Adds an "Anuluj" to the header that asks before dropping typed sets.
     /// `nil` hides it (the caller offers its own way out).
     var cancel: Cancel? = nil
@@ -145,15 +145,17 @@ private struct SetPadDisplay: View {
 
     private var summaryText: String {
         if showsHint && input.setsForSaving.isEmpty {
-            return measurement == .seconds ? "Każdy + to nowe utrzymanie" : "Każdy + to nowa seria"
+            return measurement == .seconds
+                ? String(localized: "Każdy + to nowe utrzymanie")
+                : String(localized: "Każdy + to nowa seria")
         }
         let sets = input.setsForSaving.count
         return "\(PolishPlural.sets(sets)) · \(MeasureFormat.total(of: input.loggedSets(for: measurement)))"
     }
 
     private var accessibilityLabel: String {
-        let title = measurement == .seconds ? "Utrzymania" : "Serie"
-        return "\(title): \(input.displayText). \(summaryText)"
+        let title = measurement == .seconds ? String(localized: "Utrzymania") : String(localized: "Serie")
+        return String(localized: "\(title): \(input.displayText). \(summaryText)")
     }
 }
 
@@ -173,7 +175,7 @@ private struct SetPadKeypad: View {
                 digitKey(7); digitKey(8); digitKey(9)
             }
             GridRow {
-                SetPadKey(label: "Usuń", isEnabled: canDelete) {
+                SetPadKey(label: String(localized: "Usuń"), isEnabled: canDelete) {
                     input.deleteBackward()
                 } content: {
                     Image(systemName: "delete.left")
@@ -181,7 +183,7 @@ private struct SetPadKeypad: View {
 
                 digitKey(0)
 
-                SetPadKey(label: "Dodaj serię", isAccent: true, isEnabled: input.canCommit) {
+                SetPadKey(label: String(localized: "Dodaj serię"), isAccent: true, isEnabled: input.canCommit) {
                     input.commitSet()
                 } content: {
                     Image(systemName: "plus")

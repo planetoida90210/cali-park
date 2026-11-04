@@ -50,7 +50,7 @@ struct HeroWeeklyGoalView: View {
     }
 
     private var accessibilityText: String {
-        var parts = ["Cel tygodniowy: \(WeeklyGoalFormat.spokenTitle(primary.goal.metric))"]
+        var parts = [String(localized: "Cel tygodniowy: \(WeeklyGoalFormat.spokenTitle(primary.goal.metric))")]
         if let pause = snapshot.activePause {
             parts.append(WeeklyGoalFormat.pauseLine(pause))
         } else {

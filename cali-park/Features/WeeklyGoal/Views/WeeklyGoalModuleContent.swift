@@ -123,9 +123,9 @@ private struct WeeklyGoalProgressRow: View {
 
     private var accessibilityText: String {
         var parts = [WeeklyGoalFormat.spokenTitle(progress.goal.metric)]
-        if isPrimary { parts.append("cel główny") }
+        if isPrimary { parts.append(String(localized: "cel główny")) }
         parts.append(WeeklyGoalFormat.spokenProgress(progress))
-        if progress.isMet { parts.append("wykonany") }
+        if progress.isMet { parts.append(String(localized: "wykonany")) }
         return parts.joined(separator: ", ")
     }
 }

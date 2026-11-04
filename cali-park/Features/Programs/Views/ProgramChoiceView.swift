@@ -34,8 +34,8 @@ struct ProgramChoiceView: View {
                     }
 
                     ProgramChoiceRow(
-                        title: "Bez programu",
-                        subtitle: "Plan ułożysz sam albo wybierzesz program później w Planach treningowych.",
+                        title: String(localized: "Bez programu"),
+                        subtitle: String(localized: "Plan ułożysz sam albo wybierzesz program później w Planach treningowych."),
                         credit: nil,
                         isSuggested: false,
                         isSelected: viewModel.choice == .none

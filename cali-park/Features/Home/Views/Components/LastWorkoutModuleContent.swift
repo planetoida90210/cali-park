@@ -42,7 +42,7 @@ struct LastWorkoutModuleContent: View {
     private func subtitle(for workout: WorkoutSession) -> String? {
         guard workout.isSession else { return nil }
         return workout.entries
-            .map { dashboard.exercise(for: $0)?.name ?? "Ćwiczenie" }
+            .map { dashboard.exercise(for: $0)?.name ?? String(localized: "Ćwiczenie") }
             .joined(separator: " · ")
     }
 }

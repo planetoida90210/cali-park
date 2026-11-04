@@ -120,18 +120,18 @@ struct StepDetailSheetView: View {
     }
 
     private var accessibilityCriterion: String {
-        var parts = ["Cel: \(MeasureFormat.spokenCriterion(for: step))"]
+        var parts = [String(localized: "Cel: \(MeasureFormat.spokenCriterion(for: step))")]
         if let note = step.criterionNote { parts.append(note) }
-        if step.unilateralSide != nil { parts.append("Wpisz wynik słabszej strony") }
-        parts.append("Źródło: \(step.criterionSource.explanation)")
+        if step.unilateralSide != nil { parts.append(String(localized: "Wpisz wynik słabszej strony")) }
+        parts.append(String(localized: "Źródło: \(step.criterionSource.explanation)"))
         return parts.joined(separator: ". ")
     }
 
     private var accessibilityProgress: String {
         guard let best = MeasureFormat.best(progress) else {
-            return "Brak zapisów"
+            return String(localized: "Brak zapisów")
         }
-        return progress.isMet ? "Zaliczone, \(best)" : "Twoje najlepsze: \(best)"
+        return progress.isMet ? String(localized: "Zaliczone, \(best)") : String(localized: "Twoje najlepsze: \(best)")
     }
 
     // MARK: Equipment

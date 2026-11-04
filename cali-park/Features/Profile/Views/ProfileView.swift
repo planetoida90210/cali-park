@@ -95,7 +95,7 @@ struct ProfileView: View {
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(viewModel.weeklyGoalTitle ?? "Cel tygodniowy")
+                    Text(viewModel.weeklyGoalTitle ?? String(localized: "Cel tygodniowy"))
                         .font(.bodyLarge)
                         .foregroundStyle(Color.textPrimary)
                     Text(viewModel.weeklyGoalProgressText.map { "Ten tydzień: \($0)" } ?? "Nie udało się odczytać celu")
@@ -127,7 +127,7 @@ struct ProfileView: View {
 
 // MARK: - ProfileRowLabel
 private struct ProfileRowLabel: View {
-    let title: String
+    let title: LocalizedStringKey
     let systemImage: String
 
     var body: some View {
@@ -154,12 +154,12 @@ private struct ProfileStatisticsGrid: View {
                      caption: PolishPlural.form(for: statistics.workouts, one: "trening", few: "treningi", many: "treningów"),
                      systemImage: "figure.strengthtraining.functional")
                 tile(value: "\(statistics.dayStreak)",
-                     caption: "seria dni · rekord \(statistics.longestDayStreak)",
+                     caption: String(localized: "seria dni · rekord \(statistics.longestDayStreak)"),
                      systemImage: "flame.fill")
             }
             GridRow {
                 tile(value: statistics.weekStreak.map(String.init) ?? "–",
-                     caption: "seria tygodni z celem",
+                     caption: String(localized: "seria tygodni z celem"),
                      systemImage: "calendar")
                 levelTile
             }

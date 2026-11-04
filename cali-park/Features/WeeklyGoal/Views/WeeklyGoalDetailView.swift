@@ -147,7 +147,11 @@ private struct WeeklyGoalAmountField: View {
     let onChange: (Int) -> Void
 
     private var step: Int { measurement == .seconds ? 10 : 5 }
-    private var unit: String { measurement == .seconds ? "s" : "powt." }
+    private var unit: String {
+        measurement == .seconds
+            ? String(localized: "s", comment: "Unit: seconds")
+            : String(localized: "powt.", comment: "Unit: repetitions, abbreviated")
+    }
 
     var body: some View {
         Stepper {

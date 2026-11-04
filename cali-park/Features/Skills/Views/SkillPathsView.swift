@@ -204,9 +204,11 @@ private struct SkillPathCard: View {
 
     private var accessibilityLabel: String {
         if summary.state.isComplete {
-            return "\(summary.path.name). Ukończone."
+            return String(localized: "\(summary.path.name). Ukończone.")
         }
-        return "\(summary.path.name). Teraz: \(currentExercise?.name ?? ""). Cel: \(MeasureFormat.spokenCriterion(for: summary.currentStep))."
+        let current = currentExercise?.name ?? ""
+        let criterion = MeasureFormat.spokenCriterion(for: summary.currentStep)
+        return String(localized: "\(summary.path.name). Teraz: \(current). Cel: \(criterion).")
     }
 }
 

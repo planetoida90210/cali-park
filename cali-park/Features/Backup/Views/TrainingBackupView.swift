@@ -106,8 +106,8 @@ struct TrainingBackupView: View {
     }
 
     private func confirmationMessage(_ pending: TrainingBackupViewModel.PendingImport) -> String {
-        let current = pending.current.isEmpty ? "brak danych" : pending.current.text
-        return "W pliku: \(pending.incoming.text).\nTeraz w apce: \(current).\n\nDane w apce zostaną zastąpione. Jeśli chcesz je zachować, najpierw je wyeksportuj."
+        let current = pending.current.isEmpty ? String(localized: "brak danych") : pending.current.text
+        return String(localized: "W pliku: \(pending.incoming.text).\nTeraz w apce: \(current).\n\nDane w apce zostaną zastąpione. Jeśli chcesz je zachować, najpierw je wyeksportuj.")
     }
 
     // MARK: Bindings

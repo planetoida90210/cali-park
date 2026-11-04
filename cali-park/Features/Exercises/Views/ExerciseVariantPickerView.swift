@@ -22,7 +22,7 @@ struct ExerciseVariantPickerView: View {
                     } label: {
                         ExercisePickerRowLabel(
                             exercise: choice,
-                            subtitle: choice == movement ? "Wersja podstawowa" : choice.category.displayName,
+                            subtitle: choice == movement ? String(localized: "Wersja podstawowa") : choice.category.displayName,
                             opensVariants: false,
                             isFavorite: favorites?.contains(choice.id) ?? false
                         )

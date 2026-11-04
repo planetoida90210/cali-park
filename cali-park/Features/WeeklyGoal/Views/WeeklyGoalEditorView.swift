@@ -110,15 +110,13 @@ private struct WeeklyGoalListSection: View {
     }
 
     private var footer: String {
-        var text = """
+        let text = String(localized: """
             Cel z gwiazdką jest główny: wypełnia pierścień na starcie i liczy serię tygodni. \
             Zmiana działa od razu na bieżący tydzień, zamknięte tygodnie zostają bez zmian. \
             Tydzień trwa od poniedziałku do niedzieli.
-            """
-        if viewModel.isDefault {
-            text += " Na razie obowiązuje cel domyślny."
-        }
-        return text
+            """)
+        guard viewModel.isDefault else { return text }
+        return text + " " + String(localized: "Na razie obowiązuje cel domyślny.")
     }
 }
 
@@ -156,7 +154,7 @@ private struct WeeklyGoalEditorRow: View {
 
     private var accessibilityText: String {
         let title = WeeklyGoalFormat.spokenTitle(goal.metric)
-        return isPrimary ? "\(title), cel główny" : title
+        return isPrimary ? String(localized: "\(title), cel główny") : title
     }
 }
 

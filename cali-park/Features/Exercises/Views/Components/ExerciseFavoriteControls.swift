@@ -4,12 +4,12 @@ import SwiftUI
 /// The words for adding and removing a favorite exercise, shared by the menu,
 /// the VoiceOver action and the detail screen's star.
 nonisolated enum ExerciseFavoriteLabels {
-    static let add = "Dodaj do ulubionych"
-    static let remove = "Usuń z ulubionych"
+    static let add = String(localized: "Dodaj do ulubionych")
+    static let remove = String(localized: "Usuń z ulubionych")
     /// Read by VoiceOver on a favorite row.
-    static let badge = "Ulubione"
+    static let badge = String(localized: "Ulubione")
     /// Shown above the list until the first favorite exists.
-    static let hint = "Przytrzymaj ćwiczenie i oznacz je gwiazdką, żeby było na górze."
+    static let hint = String(localized: "Przytrzymaj ćwiczenie i oznacz je gwiazdką, żeby było na górze.")
 
     static func title(isFavorite: Bool) -> String { isFavorite ? remove : add }
     static func symbol(isFavorite: Bool) -> String { isFavorite ? "star.slash" : "star" }

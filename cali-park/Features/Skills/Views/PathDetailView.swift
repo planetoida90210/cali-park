@@ -47,7 +47,7 @@ struct PathDetailView: View {
             }
         }
         .background(Color.appBackground.ignoresSafeArea())
-        .navigationTitle(summary?.path.name ?? "Ścieżka")
+        .navigationTitle(summary?.path.name ?? String(localized: "Ścieżka"))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { viewModel.load() }
         .sheet(item: $selectedStep) { step in
@@ -156,7 +156,7 @@ private struct RungRow: View {
 
     private var card: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(exercise?.name ?? "Szczebel")
+            Text(exercise?.name ?? String(localized: "Szczebel"))
                 .font(.bodyLarge)
                 .foregroundStyle(displayState == .future ? Color.textSecondary : Color.textPrimary)
 
@@ -184,7 +184,7 @@ private struct RungRow: View {
 
     private var subtitle: String {
         switch displayState {
-        case .conquered: "Zaliczone"
+        case .conquered: String(localized: "Zaliczone")
         case .current: MeasureFormat.progressLine(progress, side: step.unilateralSide)
         case .future: MeasureFormat.criterion(for: step)
         }
@@ -200,9 +200,9 @@ private struct RungRow: View {
 
     private var stateLabel: String {
         switch displayState {
-        case .conquered: "Zaliczone"
-        case .current: "Trenujesz teraz. Cel: \(MeasureFormat.spokenCriterion(for: step))"
-        case .future: "Cel: \(MeasureFormat.spokenCriterion(for: step))"
+        case .conquered: String(localized: "Zaliczone")
+        case .current: String(localized: "Trenujesz teraz. Cel: \(MeasureFormat.spokenCriterion(for: step))")
+        case .future: String(localized: "Cel: \(MeasureFormat.spokenCriterion(for: step))")
         }
     }
 }

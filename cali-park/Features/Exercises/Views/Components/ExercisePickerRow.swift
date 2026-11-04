@@ -36,7 +36,7 @@ struct ExercisePickerRow: View {
 
     private var subtitle: String {
         if let parentName {
-            return "Wariant: \(parentName)"
+            return String(localized: "Wariant: \(parentName)")
         }
         return exercise.muscleGroups.map(\.displayName).joined(separator: " · ")
     }

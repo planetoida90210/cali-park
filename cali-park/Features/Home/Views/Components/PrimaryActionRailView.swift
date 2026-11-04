@@ -34,7 +34,7 @@ struct PrimaryActionRailView: View {
 
     private func railLabel(
         iconName: String,
-        title: String,
+        title: LocalizedStringKey,
         isPrimary: Bool
     ) -> some View {
         VStack(spacing: 6) {

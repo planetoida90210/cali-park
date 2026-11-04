@@ -9,9 +9,9 @@ import SwiftUI
 struct DiscardDraftButton: View {
     let hasUnsavedChanges: Bool
     /// The dialog question, e.g. "Odrzucić trening?".
-    let title: String
+    let title: LocalizedStringKey
     /// One line on what gets lost, e.g. "Dodane ćwiczenia nie zostaną zapisane.".
-    let message: String
+    let message: LocalizedStringKey
     let onDiscard: () -> Void
 
     @State private var isConfirming = false

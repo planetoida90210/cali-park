@@ -59,7 +59,7 @@ private struct ExercisePickerCategoryChips: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                chip(title: "Wszystkie", isSelected: selection == nil) { selection = nil }
+                chip(title: String(localized: "Wszystkie"), isSelected: selection == nil) { selection = nil }
 
                 ForEach(ExerciseCategory.allCases) { category in
                     chip(title: category.displayName, isSelected: selection == category) {

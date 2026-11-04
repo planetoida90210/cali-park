@@ -333,9 +333,9 @@ private struct ParkListContent: View {
     }
 
     private func header(count: Int) -> String {
-        if viewModel.isSearching { return "Wyniki: \(ParkFormat.parkCount(count))" }
-        if viewModel.listFilter == .favorites { return "Ulubione: \(ParkFormat.parkCount(count))" }
-        return viewModel.userLocation == nil ? ParkFormat.parkCount(count) : "Najbliżej Ciebie"
+        if viewModel.isSearching { return String(localized: "Wyniki: \(ParkFormat.parkCount(count))") }
+        if viewModel.listFilter == .favorites { return String(localized: "Ulubione: \(ParkFormat.parkCount(count))") }
+        return viewModel.userLocation == nil ? ParkFormat.parkCount(count) : String(localized: "Najbliżej Ciebie")
     }
 
     @ViewBuilder

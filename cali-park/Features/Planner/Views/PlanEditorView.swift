@@ -174,7 +174,7 @@ private struct PlanExerciseRow: View {
             )
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(exercise?.name ?? "Ćwiczenie")
+                Text(exercise?.name ?? String(localized: "Ćwiczenie"))
                     .font(.bodyLarge)
                     .foregroundStyle(Color.textPrimary)
 

@@ -105,7 +105,7 @@ private struct WorkoutHistoryRow: View {
             )
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(exercise?.name ?? "Ćwiczenie")
+                Text(exercise?.name ?? String(localized: "Ćwiczenie"))
                     .font(.bodyLarge)
                     .foregroundStyle(Color.textPrimary)
 

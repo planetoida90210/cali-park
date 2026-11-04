@@ -142,7 +142,7 @@ private struct ProgramItemRow: View {
             ExerciseIconView(symbolName: exercise?.symbolName ?? "figure.strengthtraining.functional", size: .row)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(exercise?.name ?? "Ćwiczenie")
+                Text(exercise?.name ?? String(localized: "Ćwiczenie"))
                     .font(.bodyLarge)
                     .foregroundStyle(Color.textPrimary)
                 if let target {

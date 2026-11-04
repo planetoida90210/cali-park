@@ -20,10 +20,10 @@ struct HeroHeaderView: View {
     /// "Dobrej nocy" from 22 until 5, so 02:09 is not an evening.
     static func greeting(hour: Int) -> String {
         switch hour {
-        case 5..<12: "Dzień dobry"
-        case 12..<18: "Cześć"
-        case 18..<22: "Dobry wieczór"
-        default: "Dobrej nocy"
+        case 5..<12: String(localized: "Dzień dobry")
+        case 12..<18: String(localized: "Cześć")
+        case 18..<22: String(localized: "Dobry wieczór")
+        default: String(localized: "Dobrej nocy")
         }
     }
 }

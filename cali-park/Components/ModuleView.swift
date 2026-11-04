@@ -64,7 +64,7 @@ struct ModuleView: View {
         }
         guard let index = preferences.enabledModules.firstIndex(of: module.id) else { return }
         AccessibilityNotification.Announcement(
-            "\(module.name): pozycja \(index + 1) z \(preferences.enabledModules.count)"
+            String(localized: "\(module.name): pozycja \(index + 1) z \(preferences.enabledModules.count)")
         ).post()
     }
 

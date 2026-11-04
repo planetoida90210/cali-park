@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - ParkCardSectionHeader
 /// Section title on the full Park card; a VoiceOver heading.
 struct ParkCardSectionHeader: View {
-    let title: String
+    let title: LocalizedStringKey
 
     var body: some View {
         Text(title)
