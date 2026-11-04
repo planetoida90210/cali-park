@@ -13,14 +13,8 @@ struct HomeView: View {
     // Nearest real Park for the "parks" module.
     @State private var nearestPark: NearestParkViewModel
 
-    // Module preferences
-    @StateObject private var modulePreferences = ModulePreferences()
-
-    // Selected module ID for auto-scrolling
-    @State private var selectedModuleId: String? = nil
-
-    // Dragging state for reordering (drag straight on Home, no edit mode)
-    @State private var draggingModuleId: String? = nil
+    // The module being dragged to a new place, if any.
+    @State private var moduleDrag = ModuleDragState()
 
     // Module selector state
     @State private var showModuleSelector = false
@@ -50,47 +44,37 @@ struct HomeView: View {
                 // Main background
                 Color.appBackground.ignoresSafeArea()
 
-                ScrollViewReader { scrollProxy in
-                    ScrollView {
-                        VStack(spacing: 0) {
-                            // A. Contextual hero — reacts to today's plan/logs.
-                            ContextualHeroView(
-                                state: dashboard.heroState(),
-                                weeklyGoal: dashboard.weeklyGoal,
-                                progressionHint: dashboard.progressionHint,
-                                now: dashboard.now,
-                                onStartPlan: { startingPlan = $0 },
-                                onEditGoal: openGoalEditor
-                            )
-                            .padding(.horizontal, 16)
+                ScrollView {
+                    VStack(spacing: 0) {
+                        // A. Contextual hero — reacts to today's plan/logs.
+                        ContextualHeroView(
+                            state: dashboard.heroState(),
+                            weeklyGoal: dashboard.weeklyGoal,
+                            progressionHint: dashboard.progressionHint,
+                            now: dashboard.now,
+                            onStartPlan: { startingPlan = $0 },
+                            onEditGoal: openGoalEditor
+                        )
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 16)
+
+                        // B. Primary Action Rail
+                        PrimaryActionRailView(dashboard: dashboard)
                             .padding(.bottom, 16)
 
-                            // B. Primary Action Rail
-                            PrimaryActionRailView(dashboard: dashboard)
-                                .padding(.bottom, 16)
-
-                            // C. Smart Stack (Modules)
-                            if modulePreferences.enabledModules.isEmpty {
-                                emptyStateView
-                            } else {
-                                modulesStackView
-                            }
-
-                            Spacer().frame(height: 12)
+                        // C. Smart Stack (Modules)
+                        if modulePreferences.enabledModules.isEmpty {
+                            emptyStateView
+                        } else {
+                            modulesStackView
                         }
-                        .padding(.bottom, 12)
-                        .onChange(of: selectedModuleId) { _, newValue in
-                            if let id = newValue {
-                                withAnimation {
-                                    scrollProxy.scrollTo(id, anchor: .top)
-                                }
-                                Task {
-                                    try? await Task.sleep(for: .seconds(0.5))
-                                    selectedModuleId = nil
-                                }
-                            }
-                        }
+
+                        Spacer().frame(height: 12)
                     }
+                    .padding(.bottom, 12)
+                    // A module dropped on the hero or between modules still
+                    // ends the drag.
+                    .onDrop(of: [.text], delegate: ModuleDropDelegate(targetID: nil, drag: moduleDrag, preferences: modulePreferences))
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -108,7 +92,7 @@ struct HomeView: View {
                 }
             }
             .sheet(isPresented: $showModuleSelector) {
-                ModuleSelectionView(modulePreferences: modulePreferences)
+                ModuleSelectionView(preferences: modulePreferences)
             }
             .sheet(item: $goalEditor, onDismiss: { dashboard.reload() }) { editor in
                 WeeklyGoalEditorView(viewModel: editor)
@@ -157,8 +141,10 @@ struct HomeView: View {
                 Text("Spróbuj ponownie.")
             }
         }
-        .environmentObject(modulePreferences)
     }
+
+    /// Which modules are shown and in what order, shared app-wide.
+    private var modulePreferences: ModulePreferences { environment.modulePreferences }
 
     private func openGoalEditor() {
         goalEditor = environment.makeWeeklyGoalEditorViewModel()
@@ -184,17 +170,24 @@ struct HomeView: View {
     @ViewBuilder
     private var modulesStackView: some View {
         VStack(spacing: 8) {
-            ForEach(modulePreferences.enabledModules, id: \.self) { moduleId in
-                ModuleView(moduleId: moduleId, dashboard: dashboard, nearestPark: nearestPark, onEditGoal: openGoalEditor)
-                    .id(moduleId)
-                    .onDrag({
-                        draggingModuleId = moduleId
-                        return NSItemProvider(object: moduleId as NSString)
-                    }, preview: {
-                        // Minimalistic preview to uniknąć miniaturki
-                        Color.clear.frame(width: 1, height: 1)
-                    })
-                    .onDrop(of: [.text], delegate: ModuleDropDelegate(item: moduleId, draggingItem: $draggingModuleId, prefs: modulePreferences))
+            ForEach(modulePreferences.enabledDefinitions) { module in
+                ModuleView(
+                    module: module,
+                    dashboard: dashboard,
+                    nearestPark: nearestPark,
+                    preferences: modulePreferences,
+                    isDragging: moduleDrag.liftedID == module.id,
+                    onEditGoal: openGoalEditor
+                )
+                .onDrag {
+                    let token = moduleDrag.begin(module.id)
+                    return ModuleDragItemProvider(moduleID: module.id) { [moduleDrag] in
+                        moduleDrag.end(token)
+                    }
+                } preview: {
+                    ModuleDragPreview(module: module)
+                }
+                .onDrop(of: [.text], delegate: ModuleDropDelegate(targetID: module.id, drag: moduleDrag, preferences: modulePreferences))
             }
         }
     }
@@ -209,6 +202,7 @@ struct HomeView: View {
             Text("Start jest pusty")
                 .font(.title3)
                 .foregroundStyle(Color.textPrimary)
+                .accessibilityAddTraits(.isHeader)
 
             Text("Dodaj moduły, aby zobaczyć tu potrzebne informacje")
                 .font(.bodyMedium)
@@ -240,76 +234,6 @@ struct HomeView: View {
 private struct NearestParkRefreshKey: Equatable {
     let tick: Int
     let authorization: LocationAuthorization
-}
-
-// MARK: - Module Selection View
-struct ModuleSelectionView: View {
-    @ObservedObject var modulePreferences: ModulePreferences
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    ForEach(ModuleDefinition.allModules) { module in
-                        moduleToggleRow(module)
-                    }
-                } header: {
-                    Text("Dostępne moduły")
-                } footer: {
-                    Text("Włączone moduły będą widoczne na starcie. Kolejność zmienisz, przeciągając moduł.")
-                }
-            }
-            .listStyle(.insetGrouped)
-            .navigationTitle("Wybierz moduły")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Gotowe") {
-                        dismiss()
-                    }
-                    .foregroundStyle(Color.accent)
-                }
-            }
-        }
-    }
-
-    // Module toggle row
-    private func moduleToggleRow(_ module: ModuleDefinition) -> some View {
-        Toggle(isOn: Binding(
-            get: { modulePreferences.enabledModules.contains(module.id) },
-            set: { newValue in
-                if newValue {
-                    if !modulePreferences.enabledModules.contains(module.id) {
-                        modulePreferences.enabledModules.append(module.id)
-                    }
-                } else {
-                    modulePreferences.enabledModules.removeAll { $0 == module.id }
-                }
-            }
-        )) {
-            HStack {
-                // Module icon
-                Image(systemName: module.iconName)
-                    .font(.title3)
-                    .foregroundStyle(Color.accent)
-                    .frame(width: 32, height: 32)
-
-                // Module information
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(module.name)
-                        .font(.bodyLarge)
-                        .foregroundStyle(Color.textPrimary)
-
-                    Text(module.description)
-                        .font(.bodySmall)
-                        .foregroundStyle(Color.textSecondary)
-                }
-            }
-        }
-        .tint(Color.accent)
-        .padding(.vertical, 4)
-    }
 }
 
 // MARK: - Preview

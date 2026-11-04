@@ -73,7 +73,8 @@ private struct BackupRig {
             reminderRefreshScheduler: InMemoryReminderRefreshScheduler(),
             placementStore: placement,
             skillProgressStore: progress,
-            weeklyGoalStore: goal
+            weeklyGoalStore: goal,
+            defaults: .throwaway()
         )
         service = environment.makeTrainingBackupService()
     }

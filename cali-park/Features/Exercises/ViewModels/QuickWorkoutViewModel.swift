@@ -19,7 +19,6 @@ final class QuickWorkoutViewModel {
 
         /// A seeded plan exercise the user has not logged sets for yet.
         var isPending: Bool { sets.isEmpty }
-        var totalReps: Int { sets.reduce(0) { $0 + $1.reps } }
     }
 
     // MARK: State

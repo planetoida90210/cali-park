@@ -277,7 +277,8 @@ struct AppEnvironmentReminderSyncTests {
                                          reminderRefreshScheduler: InMemoryReminderRefreshScheduler(),
                                          placementStore: InMemorySkillPlacementStore(),
                                          skillProgressStore: InMemorySkillProgressStore(),
-                                         weeklyGoalStore: InMemoryWeeklyGoalStore())
+                                         weeklyGoalStore: InMemoryWeeklyGoalStore(),
+                                         defaults: .throwaway())
         await environment.workoutPlanService.syncReminders()
         #expect(await scheduler.scheduledRequests.compactMap(Fixtures.fireDay).first == 0)
 

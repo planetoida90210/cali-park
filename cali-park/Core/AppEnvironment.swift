@@ -43,6 +43,9 @@ final class AppEnvironment: ObservableObject {
     /// Persists the weekly goal: goal versions, pauses and shown celebrations.
     /// Read by Home (hero ring, "Cel tygodniowy") and the goal editor.
     let weeklyGoalStore: WeeklyGoalStoring
+    /// Which Home modules are shown and in what order, shared by Home and
+    /// its module selection screen.
+    let modulePreferences: ModulePreferences
 
     // MARK: Init
     /// Every store is passed explicitly: the app's file stores come from
@@ -55,7 +58,8 @@ final class AppEnvironment: ObservableObject {
          reminderRefreshScheduler: ReminderRefreshScheduling = AppRefreshScheduler(),
          placementStore: PlacementStoring,
          skillProgressStore: SkillProgressStoring,
-         weeklyGoalStore: WeeklyGoalStoring) {
+         weeklyGoalStore: WeeklyGoalStoring,
+         defaults: UserDefaults) {
         self.parkDirectory = parkDirectory
         // Built here: a main-actor default argument can't be evaluated in the
         // caller's nonisolated context.
@@ -81,6 +85,7 @@ final class AppEnvironment: ObservableObject {
         self.placementStore = placementStore
         self.skillProgressStore = skillProgressStore
         self.weeklyGoalStore = weeklyGoalStore
+        self.modulePreferences = ModulePreferences(defaults: defaults)
     }
 
     // MARK: View Model Factories
@@ -215,7 +220,8 @@ final class AppEnvironment: ObservableObject {
             workoutPlanStore: FileWorkoutPlanStore(directory: locations.directory(for: .workoutPlans)),
             placementStore: FileSkillPlacementStore(directory: locations.directory(for: .skillPlacement)),
             skillProgressStore: FileSkillProgressStore(directory: locations.directory(for: .skillProgress)),
-            weeklyGoalStore: FileWeeklyGoalStore(directory: locations.directory(for: .weeklyGoal))
+            weeklyGoalStore: FileWeeklyGoalStore(directory: locations.directory(for: .weeklyGoal)),
+            defaults: .standard
         )
     }
 
@@ -224,12 +230,28 @@ final class AppEnvironment: ObservableObject {
     static let preview = AppEnvironment.live()
 }
 
+// MARK: - Throwaway defaults
+extension UserDefaults {
+    /// A fresh, empty suite with a unique name, for previews and tests. It
+    /// writes nothing to disk until something is set in it.
+    static func throwaway() -> UserDefaults {
+        let name = "cali-park.throwaway.\(UUID().uuidString)"
+        guard let defaults = UserDefaults(suiteName: name) else {
+            // Only the app's own bundle ID and the global domain are refused.
+            preconditionFailure("UserDefaults refused the suite \(name)")
+        }
+        return defaults
+    }
+}
+
 // MARK: - Seeded preview environments
 extension AppEnvironment {
     /// A preview environment backed by in-memory stores seeded with the given
     /// logs and plans, so the whole `HomeView` can be eyeballed in each hero
     /// state without touching disk. Parks are the real bundled snapshot; the
     /// location is a fixed point (central Warsaw) so previews never prompt.
+    /// Home module preferences live in a throwaway `UserDefaults` suite, so
+    /// previews and tests never read or change the real ones.
     static func seeded(logs: [WorkoutLogEntry] = [],
                        plans: [WorkoutPlan] = [],
                        placement: SkillPlacement? = nil,
@@ -247,7 +269,8 @@ extension AppEnvironment {
             reminderRefreshScheduler: InMemoryReminderRefreshScheduler(),
             placementStore: InMemorySkillPlacementStore(initial: placement),
             skillProgressStore: InMemorySkillProgressStore(),
-            weeklyGoalStore: InMemoryWeeklyGoalStore(initial: weeklyGoal)
+            weeklyGoalStore: InMemoryWeeklyGoalStore(initial: weeklyGoal),
+            defaults: .throwaway()
         )
     }
 

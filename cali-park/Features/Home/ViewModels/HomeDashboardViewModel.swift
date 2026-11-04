@@ -115,10 +115,6 @@ final class HomeDashboardViewModel {
     }
 
     // MARK: Last workout
-    var latestEntry: WorkoutLogEntry? {
-        entries.first
-    }
-
     func exercise(for entry: WorkoutLogEntry) -> Exercise? {
         ExerciseCatalog.exercise(withID: entry.exerciseID)
     }
@@ -127,15 +123,6 @@ final class HomeDashboardViewModel {
     /// latest entry belongs to one, otherwise the single standalone entry.
     var latestWorkout: WorkoutSession? {
         WorkoutSession.latest(in: entries)
-    }
-
-    /// The exercise Quick Log should open: the last logged one,
-    /// falling back to pull-ups for a fresh journal.
-    var quickLogExercise: Exercise {
-        if let latestEntry, let exercise = exercise(for: latestEntry) {
-            return exercise
-        }
-        return ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID) ?? ExerciseCatalog.all[0]
     }
 
     // MARK: Streak

@@ -281,6 +281,7 @@ struct DefaultsKeyTests {
         #expect(DefaultsKey.hasCompletedOnboarding.rawValue == "hasCompletedOnboarding")
         #expect(DefaultsKey.hasSeenSetPadHint.rawValue == "hasSeenSetPadHint")
         #expect(DefaultsKey.didRemoveCoreDataScaffold.rawValue == "didRemoveCoreDataScaffold")
-        #expect(DefaultsKey.allCases.count == 3)
+        #expect(DefaultsKey.enabledModules.rawValue == "enabledModules")
+        #expect(DefaultsKey.allCases.count == 4)
     }
 }
