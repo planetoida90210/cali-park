@@ -144,6 +144,18 @@ struct SetLogFormatTests {
     func spokenBreakdownReadsEqualHoldsNaturally() {
         #expect(MeasureFormat.spokenBreakdown(of: holds(20, 20, 20)) == "3 serie po 20 sekund")
     }
+
+    @Test
+    func spokenSetLineSaysTheSetCountOnceForEqualHolds() {
+        #expect(MeasureFormat.spokenSetLine(of: holds(10, 10, 10)) == "3 serie po 10 sekund")
+        #expect(MeasureFormat.spokenSetLine(of: holds(30)) == "1 seria po 30 sekund")
+    }
+
+    @Test
+    func spokenSetLinePrefixesTheCountForRepsAndVariedHolds() {
+        #expect(MeasureFormat.spokenSetLine(of: reps(6, 6, 8)) == "3 serie: 6 + 6 + 8")
+        #expect(MeasureFormat.spokenSetLine(of: holds(20, 15)) == "2 serie: 20 sekund, 15 sekund")
+    }
 }
 
 // MARK: - PolishPlural.seconds

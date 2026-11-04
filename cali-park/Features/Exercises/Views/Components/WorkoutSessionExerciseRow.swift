@@ -22,7 +22,7 @@ struct WorkoutSessionExerciseRow: View {
                     .font(.bodySmall)
                     .monospacedDigit()
                     .foregroundStyle(Color.textSecondary)
-                    .accessibilityLabel("\(PolishPlural.sets(entry.sets.count)): \(MeasureFormat.spokenBreakdown(of: entry.sets))")
+                    .accessibilityLabel(MeasureFormat.spokenSetLine(of: entry.sets))
             }
 
             Spacer()

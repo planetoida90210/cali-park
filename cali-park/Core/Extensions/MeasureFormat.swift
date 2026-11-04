@@ -98,6 +98,16 @@ enum MeasureFormat {
         return held.map { PolishPlural.seconds($0) }.joined(separator: ", ")
     }
 
+    /// The spoken set line of a logged exercise: the set count, then the
+    /// breakdown, without saying the count twice. "3 serie po 20 sekund" for
+    /// equal holds (the spoken breakdown already counts them), otherwise
+    /// "3 serie: 6 + 6 + 8".
+    static func spokenSetLine(of sets: [LoggedSet]) -> String {
+        let spoken = spokenBreakdown(of: sets)
+        let count = PolishPlural.sets(sets.count)
+        return spoken.hasPrefix(count) ? spoken : "\(count): \(spoken)"
+    }
+
     // MARK: Criteria
 
     /// The target for a rung: "3 × 8" for reps, "3 × 20 s" for holds, or the
