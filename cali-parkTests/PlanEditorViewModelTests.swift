@@ -258,4 +258,28 @@ struct WorkoutScheduleFormatterTests {
     func onceWithoutDateIsADraft() {
         #expect(WorkoutScheduleFormatter.summary(.once(nil)) == "Bez terminu")
     }
+
+    // G-3: dates follow the Polish locale, not English ("20 Jul", "Saturday").
+
+    private static let polish = Locale(identifier: "pl_PL")
+
+    @Test
+    func onceShowsPolishMonth() throws {
+        let day = try #require(CalendarDay(year: 2026, month: 7, day: 20))
+        let summary = WorkoutScheduleFormatter.summary(.once(day), calendar: Fixtures.calendar, locale: Self.polish)
+        #expect(summary == "Jednorazowo · 20 lip")
+    }
+
+    @Test
+    func dayLabelUsesPolishWeekdayAndMonth() throws {
+        let monday = try #require(CalendarDay(year: 2026, month: 11, day: 2)).startDate(in: Fixtures.calendar)
+        let saturday = try #require(Fixtures.calendar.date(byAdding: .day, value: 5, to: monday))
+        let later = try #require(Fixtures.calendar.date(byAdding: .day, value: 18, to: monday))
+
+        let weekday = WorkoutScheduleFormatter.dayLabel(saturday, asOf: monday, calendar: Fixtures.calendar, locale: Self.polish)
+        let date = WorkoutScheduleFormatter.dayLabel(later, asOf: monday, calendar: Fixtures.calendar, locale: Self.polish)
+
+        #expect(weekday == "sobota")
+        #expect(date == "20 lis")
+    }
 }

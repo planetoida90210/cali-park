@@ -200,10 +200,10 @@
 				};
 			};
 			buildConfigurationList = 007892862DC8032E0025762F /* Build configuration list for PBXProject "cali-park" */;
-			developmentRegion = en;
+			developmentRegion = pl;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
+				pl,
 				Base,
 			);
 			mainGroup = 007892822DC8032E0025762F;
