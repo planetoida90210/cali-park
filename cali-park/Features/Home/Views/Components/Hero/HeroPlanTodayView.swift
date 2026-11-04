@@ -47,7 +47,7 @@ struct HeroPlanTodayView: View {
                     Text("Rozpocznij")
                 }
             }
-            .buttonStyle(HeroPrimaryButtonStyle())
+            .buttonStyle(.accent)
 
             if let weeklyGoal {
                 Divider().overlay(Color.divider)
@@ -88,7 +88,7 @@ struct HeroPlanTodayView: View {
     )
     .padding(20)
     .background(Color.componentBackground)
-    .clipShape(.rect(cornerRadius: 12))
+    .clipShape(.rect(cornerRadius: AppRadius.medium))
     .padding()
     .background(Color.appBackground)
     .preferredColorScheme(.dark)

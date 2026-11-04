@@ -93,7 +93,7 @@ private struct HeroWeekStreakBadge: View {
         VStack(alignment: .trailing, spacing: 2) {
             HStack(spacing: 4) {
                 Image(systemName: "flame.fill")
-                    .foregroundStyle(weeks > 0 ? Color.orange : Color.textSecondary)
+                    .foregroundStyle(weeks > 0 ? Color.streak : Color.textSecondary)
                 Text(weeks, format: .number)
                     .font(.appTitle3)
                     .monospacedDigit()
@@ -116,7 +116,7 @@ private struct HeroWeekStreakBadge: View {
     }
     .padding()
     .background(Color.componentBackground)
-    .clipShape(.rect(cornerRadius: 12))
+    .clipShape(.rect(cornerRadius: AppRadius.medium))
     .padding()
     .background(Color.appBackground)
     .preferredColorScheme(.dark)

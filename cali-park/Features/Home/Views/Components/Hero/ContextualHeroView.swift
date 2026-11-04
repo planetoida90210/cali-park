@@ -34,7 +34,7 @@ struct ContextualHeroView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(20)
             .background(Color.componentBackground)
-            .clipShape(.rect(cornerRadius: 12))
+            .clipShape(.rect(cornerRadius: AppRadius.medium))
             .id(stateID)
             .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: 0.98)))
             .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: stateID)

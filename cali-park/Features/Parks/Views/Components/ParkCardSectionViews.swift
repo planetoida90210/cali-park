@@ -32,7 +32,7 @@ struct ParkEquipmentSection: View {
                 }
             }
             .padding(.horizontal, 14)
-            .background(Color.componentBackground, in: .rect(cornerRadius: 18))
+            .background(Color.componentBackground, in: .rect(cornerRadius: AppRadius.large))
 
             if ParkFormat.supportsFlag(park) {
                 Label("Nadaje się do flagi: jest słup albo drabinka gimnastyczna", systemImage: "flag.fill")
@@ -54,7 +54,7 @@ private struct ParkEquipmentLine: View {
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Color.accent)
                 .frame(width: size, height: size)
-                .background(Color.white.opacity(0.08), in: .circle)
+                .background(Color.controlFill, in: .circle)
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.type.title)
                     .font(.body.weight(.medium))
@@ -125,7 +125,7 @@ struct ParkSourceSection: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(14)
-            .background(Color.componentBackground, in: .rect(cornerRadius: 18))
+            .background(Color.componentBackground, in: .rect(cornerRadius: AppRadius.large))
         }
     }
 }
@@ -149,7 +149,7 @@ struct ParkDetailsSection: View {
                 }
             }
             .padding(.horizontal, 14)
-            .background(Color.componentBackground, in: .rect(cornerRadius: 18))
+            .background(Color.componentBackground, in: .rect(cornerRadius: AppRadius.large))
         }
     }
 }

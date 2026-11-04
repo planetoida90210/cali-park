@@ -46,8 +46,8 @@ struct ExercisePickerRowLabel: View {
         }
         .padding(12)
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
-        .contentShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
+        .contentShape(.rect(cornerRadius: AppRadius.medium))
         .accessibilityElement(children: .combine)
     }
 }

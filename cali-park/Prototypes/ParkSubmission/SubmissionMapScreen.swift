@@ -194,7 +194,7 @@ private struct PlacingCard: View {
                     .foregroundStyle(Color.textPrimary)
                     .padding(.horizontal, 18)
                     .padding(.vertical, 12)
-                    .background(Color.white.opacity(0.1), in: .capsule)
+                    .background(Color.controlFill, in: .capsule)
                 Button {
                     model.confirmPin()
                 } label: {
@@ -208,7 +208,7 @@ private struct PlacingCard: View {
             }
         }
         .padding(16)
-        .mapLookGlass(in: .rect(cornerRadius: 28))
+        .mapLookGlass(in: .rect(cornerRadius: AppRadius.large))
         .padding(.horizontal, 12)
         .padding(.bottom, 4)
     }
@@ -235,7 +235,7 @@ private struct OpenedParkCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.textSecondary)
                     .frame(width: 30, height: 30)
-                    .background(Color.white.opacity(0.08), in: .circle)
+                    .background(Color.controlFill, in: .circle)
             }
             EquipmentRow(equipment: park.equipment)
             HStack {
@@ -252,7 +252,7 @@ private struct OpenedParkCard: View {
             }
         }
         .padding(16)
-        .mapLookGlass(in: .rect(cornerRadius: 28))
+        .mapLookGlass(in: .rect(cornerRadius: AppRadius.large))
         .padding(.horizontal, 12)
         .padding(.bottom, 4)
     }
@@ -269,7 +269,7 @@ struct EquipmentRow: View {
                     .font(.caption.weight(.medium))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 5)
-                    .background(Color.white.opacity(0.08), in: .capsule)
+                    .background(Color.controlFill, in: .capsule)
             }
         }
         .foregroundStyle(Color.textPrimary)
@@ -305,7 +305,7 @@ private struct DuplicateWarningSheet: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(14)
-                .background(Color.componentBackground, in: .rect(cornerRadius: 18))
+                .background(Color.componentBackground, in: .rect(cornerRadius: AppRadius.large))
 
                 Button {
                     model.openDuplicate()

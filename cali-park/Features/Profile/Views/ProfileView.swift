@@ -209,7 +209,7 @@ private struct ProfileStatisticsGrid: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding()
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
         .accessibilityElement(children: .combine)
     }
 
@@ -233,7 +233,7 @@ private struct ProfileStatisticsGrid: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding()
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Poziom \(level.level), \(level.totalXP) XP, \(level.xpToNextLevel) XP do następnego poziomu")
     }

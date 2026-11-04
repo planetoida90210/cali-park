@@ -10,20 +10,21 @@ extension Color {
     
     // Glass effect background
     static let glassBackground = Color.black.opacity(0.7)
-    
-    // Status colors
-    static let statusRed = Color.red
-    static let statusOrange = Color.orange
-    
+
     // Text colors
     static let textPrimary = Color.white
-    // `Color.textSecondary` (#9A9A9A) and `Color.textTertiary` (#8E8E8E) come
-    // from the TextSecondary/TextTertiary color sets, which also carry brighter
-    // Increase Contrast variants. Tertiary text keeps at least 4.5:1 (WCAG AA)
-    // on both `appBackground` and `componentBackground`.
-    // Divider line color
-    static let divider = Color.white.opacity(0.15)
-    
+    // The other theme colors come from color sets in the asset catalog, each
+    // with a brighter Increase Contrast variant, as generated symbols:
+    // - `Color.textSecondary` (#9A9A9A) and `Color.textTertiary` (#8E8E8E):
+    //   secondary text, at least 4.5:1 (WCAG AA) on both `appBackground`
+    //   and `componentBackground`.
+    // - `Color.divider`: hairlines and quiet tracks (white at 15%).
+    // - `Color.controlFill`: the fill behind small icon buttons and chips on
+    //   cards and glass (white at 8%).
+    // - `Color.warning` (orange) and `Color.danger` (red): states and
+    //   destructive actions.
+    // - `Color.streak`: the streak flame.
+
     // Helper to create color from hex
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
@@ -74,4 +75,14 @@ extension Font {
     static let buttonLarge = Font.system(.body, design: .rounded, weight: .semibold)
     static let buttonMedium = Font.system(.subheadline, design: .rounded, weight: .semibold)
     static let buttonSmall = Font.system(.footnote, design: .rounded, weight: .semibold)
+}
+
+// MARK: - Corner radii
+/// The app's corner radius scale. Small for rows and controls inside a card,
+/// medium for cards, buttons and icon squares, large for sheets' cards and
+/// overlays.
+nonisolated enum AppRadius {
+    static let small: CGFloat = 8
+    static let medium: CGFloat = 12
+    static let large: CGFloat = 18
 }

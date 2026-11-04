@@ -39,7 +39,7 @@ struct BadgesSectionView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
     }
 }
 

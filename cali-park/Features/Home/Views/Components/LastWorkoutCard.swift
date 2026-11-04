@@ -40,8 +40,8 @@ struct LastWorkoutCard: View {
         }
         .padding(16)
         .background(Color.glassBackground)
-        .clipShape(.rect(cornerRadius: 8))
-        .contentShape(.rect(cornerRadius: 8))
+        .clipShape(.rect(cornerRadius: AppRadius.small))
+        .contentShape(.rect(cornerRadius: AppRadius.small))
         .accessibilityElement(children: .combine)
     }
 }

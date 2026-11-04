@@ -97,7 +97,7 @@ struct WorkoutPlansView: View {
                             Task { await viewModel.delete(plan) }
                         }
                         // The app-wide accent tint would paint it lime.
-                        .tint(Color.statusRed)
+                        .tint(Color.danger)
                     }
                 }
             }
@@ -240,15 +240,8 @@ private struct WorkoutPlansEmptyState: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
 
-            Button(action: onCreate) {
-                Label("Nowy plan", systemImage: "plus")
-                    .font(.buttonMedium)
-                    .foregroundStyle(Color.black)
-                    .padding(.horizontal, 32)
-                    .padding(.vertical, 12)
-                    .background(Color.accent)
-                    .clipShape(.rect(cornerRadius: 12))
-            }
+            Button("Nowy plan", systemImage: "plus", action: onCreate)
+                .buttonStyle(.accent(.compact, fillsWidth: false))
             .padding(.top, 8)
 
             Button(action: onBrowsePrograms) {

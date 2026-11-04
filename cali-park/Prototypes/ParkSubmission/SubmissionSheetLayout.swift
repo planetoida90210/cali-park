@@ -125,7 +125,7 @@ struct LocationPreview: View {
         }
         .mapStyle(.standard(elevation: .flat, emphasis: .muted, pointsOfInterest: .excludingAll))
         .frame(height: 140)
-        .clipShape(.rect(cornerRadius: 18))
+        .clipShape(.rect(cornerRadius: AppRadius.large))
         .overlay(alignment: .bottomTrailing) {
             Button("Zmień", systemImage: "mappin.and.ellipse") { model.editLocation() }
                 .font(.footnote.weight(.semibold))

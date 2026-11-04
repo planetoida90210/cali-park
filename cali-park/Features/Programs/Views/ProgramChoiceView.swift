@@ -96,9 +96,9 @@ private struct ProgramChoiceRow: View {
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.componentBackground)
-            .clipShape(.rect(cornerRadius: 12))
+            .clipShape(.rect(cornerRadius: AppRadius.medium))
             .overlay {
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: AppRadius.medium)
                     .stroke(isSelected ? Color.accent : .clear, lineWidth: 1)
             }
         }

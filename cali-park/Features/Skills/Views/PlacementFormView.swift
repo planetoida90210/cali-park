@@ -56,7 +56,7 @@ struct PlacementFormView: View {
                 .padding(.vertical, 12)
                 .foregroundStyle(isSelected ? Color.black : Color.textPrimary)
                 .background(isSelected ? Color.accent : Color.componentBackground)
-                .clipShape(.rect(cornerRadius: 12))
+                .clipShape(.rect(cornerRadius: AppRadius.medium))
         }
         .accessibilityLabel("\(question.prompt) \(bucket.label)")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
@@ -99,7 +99,7 @@ struct PlacementFormView: View {
             }
             .padding()
             .background(Color.componentBackground)
-            .clipShape(.rect(cornerRadius: 12))
+            .clipShape(.rect(cornerRadius: AppRadius.medium))
         }
         .accessibilityLabel(question.label)
         .accessibilityAddTraits(isMastered ? .isSelected : [])

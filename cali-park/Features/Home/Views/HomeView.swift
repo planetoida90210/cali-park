@@ -194,17 +194,10 @@ struct HomeView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
 
-            Button {
+            Button("Dodaj moduły") {
                 showModuleSelector = true
-            } label: {
-                Text("Dodaj moduły")
-                    .font(.buttonMedium)
-                    .foregroundStyle(Color.black)
-                    .padding(.horizontal, 32)
-                    .padding(.vertical, 12)
-                    .background(Color.accent)
-                    .clipShape(.rect(cornerRadius: 12))
             }
+            .buttonStyle(.accent(.compact, fillsWidth: false))
             .padding(.top, 8)
         }
         .frame(maxWidth: .infinity)

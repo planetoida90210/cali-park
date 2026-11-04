@@ -82,7 +82,7 @@ struct ParkVerificationBadge: View {
             .foregroundStyle(isVerified ? Color.black : Color.textSecondary)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(isVerified ? Color.accent : Color.white.opacity(0.08), in: .capsule)
+            .background(isVerified ? Color.accent : Color.controlFill, in: .capsule)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(verification.accessibilityLabel)
     }
@@ -111,7 +111,7 @@ struct EquipmentChips: View {
                     .lineLimit(1)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 5)
-                    .background(Color.white.opacity(0.08), in: .capsule)
+                    .background(Color.controlFill, in: .capsule)
             }
             if equipment.count > shown.count {
                 Text("+\(equipment.count - shown.count)")

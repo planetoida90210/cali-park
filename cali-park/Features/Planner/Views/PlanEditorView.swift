@@ -209,7 +209,7 @@ private struct PlanScheduleSection: View {
                 Text(WorkoutScheduleFormatter.summary(viewModel.schedule))
                 if let problem = viewModel.scheduleProblem {
                     Label(problem, systemImage: "exclamationmark.triangle.fill")
-                        .foregroundStyle(Color.statusOrange)
+                        .foregroundStyle(Color.warning)
                 }
             }
         }
@@ -313,7 +313,7 @@ private struct WeekdaySelector: View {
                         .frame(maxWidth: .infinity, minHeight: 40)
                         .background(isOn ? Color.accent : Color.appBackground)
                         .foregroundStyle(isOn ? Color.black : Color.textPrimary)
-                        .clipShape(.rect(cornerRadius: 8))
+                        .clipShape(.rect(cornerRadius: AppRadius.small))
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(day.displayName)

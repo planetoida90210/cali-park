@@ -58,15 +58,8 @@ struct WorkoutSessionDetailView: View {
         .navigationBarBackButtonHidden(onDone != nil)
         .safeAreaInset(edge: .bottom) {
             if let onDone {
-                Button(action: onDone) {
-                    Text("Gotowe")
-                        .font(.buttonLarge)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.accent)
-                        .foregroundStyle(Color.black)
-                        .clipShape(.rect(cornerRadius: 12))
-                }
+                Button("Gotowe", action: onDone)
+                    .buttonStyle(.accent)
                 .padding(.horizontal, 16)
                 .padding(.bottom, 8)
             }

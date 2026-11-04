@@ -132,7 +132,7 @@ struct QuickWorkoutView: View {
                 .padding(.vertical, 16)
                 .background(Color.componentBackground)
                 .foregroundStyle(Color.textPrimary)
-                .clipShape(.rect(cornerRadius: 12))
+                .clipShape(.rect(cornerRadius: AppRadius.medium))
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 8)
@@ -266,15 +266,8 @@ private struct QuickWorkoutEmptyState: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
 
-            Button(action: onAdd) {
-                Label("Dodaj ćwiczenie", systemImage: "plus")
-                    .font(.buttonMedium)
-                    .foregroundStyle(Color.black)
-                    .padding(.horizontal, 32)
-                    .padding(.vertical, 12)
-                    .background(Color.accent)
-                    .clipShape(.rect(cornerRadius: 12))
-            }
+            Button("Dodaj ćwiczenie", systemImage: "plus", action: onAdd)
+                .buttonStyle(.accent(.compact, fillsWidth: false))
             .padding(.top, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

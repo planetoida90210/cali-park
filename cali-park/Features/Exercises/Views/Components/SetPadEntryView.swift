@@ -54,7 +54,7 @@ struct SetPadEntryView: View {
                     .padding(.vertical, 16)
                     .background(input.canSave ? Color.accent : Color.componentBackground)
                     .foregroundStyle(input.canSave ? Color.black : Color.textSecondary)
-                    .clipShape(.rect(cornerRadius: 12))
+                    .clipShape(.rect(cornerRadius: AppRadius.medium))
             }
             .disabled(!input.canSave)
         }
@@ -138,7 +138,7 @@ private struct SetPadDisplay: View {
         }
         .padding(16)
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
     }
@@ -221,7 +221,7 @@ private struct SetPadKey<Content: View>: View {
                 .frame(maxWidth: .infinity, minHeight: 48)
                 .background(isAccent ? Color.accent : Color.componentBackground)
                 .foregroundStyle(isAccent ? Color.black : Color.textPrimary)
-                .clipShape(.rect(cornerRadius: 12))
+                .clipShape(.rect(cornerRadius: AppRadius.medium))
         }
         .disabled(!isEnabled)
         .opacity(isEnabled ? 1 : 0.4)

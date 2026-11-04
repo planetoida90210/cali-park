@@ -41,7 +41,7 @@ struct SubmissionCameraView: View {
                 .overlay {
                     Color.white.opacity(flash ? 0.85 : 0)
                 }
-                .clipShape(.rect(cornerRadius: 4))
+                .clipShape(.rect(cornerRadius: AppRadius.small))
 
             HStack {
                 LastShotThumbnail(photo: model.draft.photos.last)
@@ -82,12 +82,12 @@ private struct LastShotThumbnail: View {
             if let photo {
                 SamplePhotoView(index: photo)
             } else {
-                Color.white.opacity(0.1)
+                Color.controlFill
             }
         }
         .frame(width: 52, height: 52)
-        .clipShape(.rect(cornerRadius: 8))
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(.white.opacity(0.5), lineWidth: 1))
+        .clipShape(.rect(cornerRadius: AppRadius.small))
+        .overlay(RoundedRectangle(cornerRadius: AppRadius.small).stroke(.white.opacity(0.5), lineWidth: 1))
     }
 }
 

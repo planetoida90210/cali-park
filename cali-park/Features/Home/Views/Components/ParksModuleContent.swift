@@ -28,7 +28,7 @@ struct ParksModuleContent: View {
         }
         .padding()
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
     }
 
     @ViewBuilder
@@ -73,9 +73,9 @@ struct ParksModuleContent: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
                 .background(Color.glassBackground)
-                .clipShape(.rect(cornerRadius: 8))
+                .clipShape(.rect(cornerRadius: AppRadius.small))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 8)
+                    RoundedRectangle(cornerRadius: AppRadius.small)
                         .stroke(Color.accent, lineWidth: 1)
                 )
         }

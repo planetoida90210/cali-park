@@ -42,7 +42,7 @@ struct HeroFirstRunView: View {
     HeroFirstRunView()
     .padding(20)
     .background(Color.componentBackground)
-    .clipShape(.rect(cornerRadius: 12))
+    .clipShape(.rect(cornerRadius: AppRadius.medium))
     .padding()
     .background(Color.appBackground)
     .preferredColorScheme(.dark)

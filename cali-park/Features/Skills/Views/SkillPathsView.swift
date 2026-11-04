@@ -107,7 +107,7 @@ private struct SkillLevelHeader: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Poziom \(level.level)")
         .accessibilityValue("\(level.xpToNextLevel) XP do poziomu \(level.level + 1)")
@@ -130,20 +130,13 @@ private struct CalibrationPrompt: View {
                 .font(.bodySmall)
                 .foregroundStyle(Color.textSecondary)
 
-            Button(action: action) {
-                Text("Ustaw poziom")
-                    .font(.buttonMedium)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color.accent)
-                    .foregroundStyle(Color.black)
-                    .clipShape(.rect(cornerRadius: 12))
-            }
+            Button("Ustaw poziom", action: action)
+                .buttonStyle(.accent(.compact))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
     }
 }
 
@@ -191,7 +184,7 @@ private struct SkillPathCard: View {
         .frame(maxWidth: .infinity, minHeight: 150, alignment: .topLeading)
         .padding(12)
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
     }

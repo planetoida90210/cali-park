@@ -32,7 +32,7 @@ struct NextWorkoutModuleContent: View {
         }
         .padding(16)
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
         .sheet(item: $loggingExercise) { exercise in
             SetPadSheetView(viewModel: dashboard.makeWorkoutLogViewModel(exercise: exercise))
         }
@@ -57,7 +57,7 @@ private struct PlannedWorkoutContent: View {
                     .foregroundStyle(Color.black)
                     .scaledIconFrame(44, relativeTo: .title3)
                     .background(Color.accent)
-                    .clipShape(.rect(cornerRadius: 12))
+                    .clipShape(.rect(cornerRadius: AppRadius.medium))
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -73,15 +73,8 @@ private struct PlannedWorkoutContent: View {
                 Spacer()
             }
 
-            Button(action: onStart) {
-                Text("Rozpocznij")
-                    .font(.buttonMedium)
-                    .foregroundStyle(Color.black)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color.accent)
-                    .clipShape(.rect(cornerRadius: 8))
-            }
+            Button("Rozpocznij", action: onStart)
+                .buttonStyle(.accent(.compact))
         }
     }
 }
@@ -102,7 +95,7 @@ private struct DoneTodayContent: View {
                 .foregroundStyle(Color.black)
                 .scaledIconFrame(44, relativeTo: .title3)
                 .background(Color.accent)
-                .clipShape(.rect(cornerRadius: 12))
+                .clipShape(.rect(cornerRadius: AppRadius.medium))
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
@@ -150,15 +143,8 @@ private struct SuggestionContent: View {
                 Spacer()
             }
 
-            Button(action: onLog) {
-                Text("Zaloguj serię")
-                    .font(.buttonMedium)
-                    .foregroundStyle(Color.black)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color.accent)
-                    .clipShape(.rect(cornerRadius: 8))
-            }
+            Button("Zaloguj serię", action: onLog)
+                .buttonStyle(.accent(.compact))
         }
     }
 }

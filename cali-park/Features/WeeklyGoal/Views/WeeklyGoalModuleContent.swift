@@ -41,7 +41,7 @@ struct WeeklyGoalModuleContent: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
     }
 }
 
@@ -53,7 +53,7 @@ private struct WeeklyGoalModuleHeader: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "flame.fill")
-                .foregroundStyle(snapshot.streak > 0 ? Color.orange : Color.textSecondary)
+                .foregroundStyle(snapshot.streak > 0 ? Color.streak : Color.textSecondary)
                 .accessibilityHidden(true)
 
             Text(WeeklyGoalFormat.streak(snapshot.streak))

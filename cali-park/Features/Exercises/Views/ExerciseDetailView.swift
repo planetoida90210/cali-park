@@ -39,17 +39,10 @@ struct ExerciseDetailView: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            Button {
+            Button("Dodaj serię") {
                 loggingExercise = exercise
-            } label: {
-                Text("Dodaj serię")
-                    .font(.buttonLarge)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.accent)
-                    .foregroundStyle(Color.black)
-                    .clipShape(.rect(cornerRadius: 12))
             }
+            .buttonStyle(.accent)
             .padding(.horizontal, 16)
             .padding(.bottom, 8)
             .background(Color.appBackground.opacity(0.9))
@@ -169,7 +162,7 @@ private struct ExerciseProgressionsSection: View {
                             }
                             .padding(12)
                             .background(Color.componentBackground)
-                            .clipShape(.rect(cornerRadius: 12))
+                            .clipShape(.rect(cornerRadius: AppRadius.medium))
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("Ścieżka: \(path.name)")
@@ -205,7 +198,7 @@ private struct ExerciseInstructionsCard: View {
                 }
             }
             .background(Color.componentBackground)
-            .clipShape(.rect(cornerRadius: 12))
+            .clipShape(.rect(cornerRadius: AppRadius.medium))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

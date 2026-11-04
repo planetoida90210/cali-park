@@ -125,7 +125,7 @@ private struct ParkCardHeader: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(isFavorite ? Color.accent : Color.textSecondary)
                     .scaledIconFrame(32, relativeTo: .subheadline)
-                    .background(Color.white.opacity(0.08), in: .circle)
+                    .background(Color.controlFill, in: .circle)
                     .buttonStyle(.plain)
                     .contentTransition(.symbolEffect(.replace))
                     .sensoryFeedback(.selection, trigger: isFavorite)
@@ -135,7 +135,7 @@ private struct ParkCardHeader: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.textSecondary)
                     .scaledIconFrame(32, relativeTo: .subheadline)
-                    .background(Color.white.opacity(0.08), in: .circle)
+                    .background(Color.controlFill, in: .circle)
                     .buttonStyle(.plain)
             }
 
@@ -182,7 +182,7 @@ struct ParkEquipmentGlyphs: View {
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(Color.accent)
                     .frame(width: size, height: size)
-                    .background(Color.white.opacity(0.08), in: .circle)
+                    .background(Color.controlFill, in: .circle)
             }
             if equipment.count > limit {
                 Text("+\(equipment.count - limit)")
@@ -208,7 +208,7 @@ struct ParkCardButtonStyle: ButtonStyle {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .padding(.horizontal, 8)
-            .background(isProminent ? Color.accent : Color.white.opacity(0.1), in: .capsule)
+            .background(isProminent ? Color.accent : Color.controlFill, in: .capsule)
             .contentShape(.capsule)
             .opacity(configuration.isPressed ? 0.7 : 1)
     }

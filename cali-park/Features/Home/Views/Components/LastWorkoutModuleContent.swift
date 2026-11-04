@@ -29,13 +29,13 @@ struct LastWorkoutModuleContent: View {
                 }
                 .padding(16)
                 .background(Color.glassBackground)
-                .clipShape(.rect(cornerRadius: 8))
+                .clipShape(.rect(cornerRadius: AppRadius.small))
             }
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
         .background(Color.glassBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
     }
 
     /// For a session, the exercises it contained; otherwise nothing.

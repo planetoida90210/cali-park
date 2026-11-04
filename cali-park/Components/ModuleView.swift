@@ -117,7 +117,7 @@ struct ModuleHeaderCard: View {
         .padding(.vertical, 12)
         .contentShape(.rect)
         .background(Color.glassBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
     }
 }
 
@@ -138,9 +138,9 @@ struct ModuleDragPreview: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
-        .background(Color.componentBackground, in: .rect(cornerRadius: 12))
+        .background(Color.componentBackground, in: .rect(cornerRadius: AppRadius.medium))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: AppRadius.medium)
                 .stroke(Color.accent.opacity(0.6), lineWidth: 1)
         )
     }

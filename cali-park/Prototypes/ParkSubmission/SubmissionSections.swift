@@ -27,7 +27,7 @@ struct EquipmentSection: View {
                 CountPicker(title: "Ile poręczy?", value: $model.draft.parallelBarsCount)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(14)
-                    .background(Color.componentBackground, in: .rect(cornerRadius: 18))
+                    .background(Color.componentBackground, in: .rect(cornerRadius: AppRadius.large))
             }
             ChipGroup(
                 title: "Coś jeszcze? (opcjonalnie)",
@@ -113,7 +113,7 @@ private struct NotAParkNotice: View {
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: "exclamationmark.circle.fill")
-                .foregroundStyle(Color.statusOrange)
+                .foregroundStyle(Color.warning)
             VStack(alignment: .leading, spacing: 4) {
                 Text("To jeszcze nie Park")
                     .font(.subheadline.weight(.semibold))
@@ -125,7 +125,7 @@ private struct NotAParkNotice: View {
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.statusOrange.opacity(0.12), in: .rect(cornerRadius: 18))
+        .background(Color.warning.opacity(0.12), in: .rect(cornerRadius: AppRadius.large))
     }
 }
 
@@ -156,7 +156,7 @@ private struct BarDetails: View {
             }
         }
         .padding(14)
-        .background(Color.componentBackground, in: .rect(cornerRadius: 18))
+        .background(Color.componentBackground, in: .rect(cornerRadius: AppRadius.large))
     }
 }
 
@@ -202,14 +202,14 @@ struct PhotosSection: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(20)
-                .background(Color.componentBackground, in: .rect(cornerRadius: 18))
+                .background(Color.componentBackground, in: .rect(cornerRadius: AppRadius.large))
             } else {
                 ScrollView(.horizontal) {
                     HStack(spacing: 10) {
                         ForEach(model.draft.photos, id: \.self) { photo in
                             SamplePhotoView(index: photo)
                                 .frame(width: 128, height: 170)
-                                .clipShape(.rect(cornerRadius: 14))
+                                .clipShape(.rect(cornerRadius: AppRadius.medium))
                                 .overlay(alignment: .topTrailing) {
                                     Button("Usuń zdjęcie", systemImage: "xmark") {
                                         model.removePhoto(photo)
@@ -275,7 +275,7 @@ struct NameSection: View {
             }
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.componentBackground, in: .rect(cornerRadius: 18))
+            .background(Color.componentBackground, in: .rect(cornerRadius: AppRadius.large))
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("Nazwa z tabliczki (opcjonalnie)")
@@ -286,15 +286,15 @@ struct NameSection: View {
                     .autocorrectionDisabled()
                     .padding(.horizontal, 14)
                     .padding(.vertical, 12)
-                    .background(Color.componentBackground, in: .rect(cornerRadius: 14))
+                    .background(Color.componentBackground, in: .rect(cornerRadius: AppRadius.medium))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(model.draft.plaqueNameProblem == nil ? Color.white.opacity(0.12) : Color.statusRed, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: AppRadius.medium)
+                            .stroke(model.draft.plaqueNameProblem == nil ? Color.divider : Color.danger, lineWidth: 1)
                     )
                 if let problem = model.draft.plaqueNameProblem {
                     Label(problem, systemImage: "exclamationmark.circle.fill")
                         .font(.footnote)
-                        .foregroundStyle(Color.statusRed)
+                        .foregroundStyle(Color.danger)
                 } else {
                     Text("Tylko oficjalna nazwa, np. z tabliczki przy wejściu. Moderator ją sprawdzi, zanim pojawi się na mapie.")
                         .font(.footnote)

@@ -62,9 +62,9 @@ struct PrimaryActionRailView: View {
         .padding(.vertical, 12)
         .background(isPrimary ? Color.accent : Color.componentBackground)
         .foregroundStyle(isPrimary ? Color.black : Color.accent)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: AppRadius.medium)
                 .stroke(Color.accent.opacity(isPrimary ? 0 : 0.3), lineWidth: 1)
         )
     }

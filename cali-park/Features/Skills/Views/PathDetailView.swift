@@ -178,9 +178,9 @@ private struct RungRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: AppRadius.medium)
                 .stroke(Color.accent, lineWidth: displayState == .current ? 1 : 0)
         )
         .padding(.bottom, 12)
@@ -294,7 +294,7 @@ private struct BaseHintNote: View {
         }
         .padding(12)
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
     }
 }
 
@@ -310,7 +310,7 @@ private struct CalibrationButton: View {
                 .padding(.vertical, 12)
                 .foregroundStyle(Color.accent)
                 .background(Color.componentBackground)
-                .clipShape(.rect(cornerRadius: 12))
+                .clipShape(.rect(cornerRadius: AppRadius.medium))
         }
     }
 }

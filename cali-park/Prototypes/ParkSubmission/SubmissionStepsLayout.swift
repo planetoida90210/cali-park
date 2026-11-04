@@ -119,7 +119,7 @@ private struct StepProgress: View {
             HStack(spacing: 4) {
                 ForEach(1...total, id: \.self) { index in
                     Capsule()
-                        .fill(index <= number ? Color.accent : Color.white.opacity(0.12))
+                        .fill(index <= number ? Color.accent : Color.divider)
                         .frame(height: 4)
                 }
             }

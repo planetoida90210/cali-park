@@ -90,19 +90,12 @@ struct CelebrationOverlayView: View {
                 }
             }
 
-            Button(action: onDismiss) {
-                Text(hasNext ? "Dalej" : "Świetnie")
-                    .font(.buttonLarge)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.accent)
-                    .foregroundStyle(Color.black)
-                    .clipShape(.rect(cornerRadius: 12))
-            }
+            Button(hasNext ? "Dalej" : "Świetnie", action: onDismiss)
+                .buttonStyle(.accent)
         }
         .padding(24)
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 16))
+        .clipShape(.rect(cornerRadius: AppRadius.large))
         .accessibilityElement(children: .combine)
         .accessibilityLabel(presentation.accessibilityLabel)
     }

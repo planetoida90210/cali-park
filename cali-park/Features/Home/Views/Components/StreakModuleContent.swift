@@ -19,7 +19,7 @@ struct StreakModuleContent: View {
         }
         .padding(16)
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
     }
 }
 
@@ -30,7 +30,7 @@ private struct StreakSummaryRow: View {
     var body: some View {
         HStack {
             Image(systemName: "flame.fill")
-                .foregroundStyle(streak.current > 0 ? Color.orange : Color.textSecondary)
+                .foregroundStyle(streak.current > 0 ? Color.streak : Color.textSecondary)
                 .font(.title)
                 .accessibilityHidden(true)
 

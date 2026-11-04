@@ -158,7 +158,7 @@ struct ParksView: View {
                 }
             }
         }
-        .parkGlass(in: .rect(cornerRadius: 20))
+        .parkGlass(in: .rect(cornerRadius: AppRadius.large))
     }
 
     // MARK: Helpers

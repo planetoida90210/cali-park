@@ -80,15 +80,8 @@ private struct QuickWorkoutButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            Label("Szybki trening", systemImage: "bolt.fill")
-                .font(.buttonLarge)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(Color.accent)
-                .foregroundStyle(Color.black)
-                .clipShape(.rect(cornerRadius: 12))
-        }
+        Button("Szybki trening", systemImage: "bolt.fill", action: action)
+            .buttonStyle(.accent)
         .padding(.horizontal, 16)
         .padding(.bottom, 8)
     }
@@ -132,9 +125,9 @@ private struct ExerciseSearchField: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 12)
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: AppRadius.medium)
                 .stroke(Color.accent.opacity(isFocused.wrappedValue ? 1 : 0.4), lineWidth: 1)
         )
     }
@@ -200,8 +193,8 @@ private struct ExerciseRowView: View {
         }
         .padding(12)
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
-        .contentShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
+        .contentShape(.rect(cornerRadius: AppRadius.medium))
     }
 
     /// Muscle groups; a favorite variant names its main movement instead.

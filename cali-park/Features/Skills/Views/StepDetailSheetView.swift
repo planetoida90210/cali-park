@@ -113,7 +113,7 @@ struct StepDetailSheetView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityCriterion)
         .accessibilityValue(accessibilityProgress)
@@ -158,17 +158,10 @@ struct StepDetailSheetView: View {
 
     // MARK: Train CTA
     private var trainButton: some View {
-        Button {
+        Button("Trenuj") {
             loggingExercise = exercise
-        } label: {
-            Text("Trenuj")
-                .font(.buttonLarge)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(Color.accent)
-                .foregroundStyle(Color.black)
-                .clipShape(.rect(cornerRadius: 12))
         }
+        .buttonStyle(.accent)
         .padding(.horizontal, 16)
         .padding(.bottom, 8)
         .background(Color.appBackground.opacity(0.9))
@@ -213,7 +206,7 @@ private struct ExerciseInstructionsList: View {
                 }
             }
             .background(Color.componentBackground)
-            .clipShape(.rect(cornerRadius: 12))
+            .clipShape(.rect(cornerRadius: AppRadius.medium))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

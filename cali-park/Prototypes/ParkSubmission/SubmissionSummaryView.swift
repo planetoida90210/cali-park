@@ -29,7 +29,7 @@ struct SubmissionSummaryView: View {
                         .padding(.top, 2)
                 }
                 .padding(14)
-                .background(Color.componentBackground, in: .rect(cornerRadius: 18))
+                .background(Color.componentBackground, in: .rect(cornerRadius: AppRadius.large))
 
                 SummaryBlock(title: "Miejsce", onEdit: { model.editLocation() }) {
                     LocationPreview(model: model)
@@ -43,7 +43,7 @@ struct SubmissionSummaryView: View {
                                 .foregroundStyle(Color.textPrimary)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 5)
-                                .background(Color.white.opacity(0.08), in: .capsule)
+                                .background(Color.controlFill, in: .capsule)
                         }
                     }
                 }
@@ -54,7 +54,7 @@ struct SubmissionSummaryView: View {
                             ForEach(draft.photos, id: \.self) { photo in
                                 SamplePhotoView(index: photo)
                                     .frame(width: 72, height: 96)
-                                    .clipShape(.rect(cornerRadius: 10))
+                                    .clipShape(.rect(cornerRadius: AppRadius.small))
                             }
                         }
                     }

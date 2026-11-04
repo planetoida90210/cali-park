@@ -30,7 +30,7 @@ struct AchievementsModuleContent: View {
         }
         .padding()
         .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
     }
 
     private var levelRow: some View {

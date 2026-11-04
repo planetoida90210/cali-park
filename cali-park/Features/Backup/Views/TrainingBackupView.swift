@@ -49,7 +49,7 @@ struct TrainingBackupView: View {
                 ProgressView("Importuję…")
                     .padding()
                     .background(Color.componentBackground)
-                    .clipShape(.rect(cornerRadius: 12))
+                    .clipShape(.rect(cornerRadius: AppRadius.medium))
             }
         }
         .onAppear { viewModel.prepareExport() }

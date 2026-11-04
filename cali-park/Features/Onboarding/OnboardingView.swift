@@ -65,7 +65,7 @@ struct OnboardingView: View {
         HStack {
             ForEach(OnboardingPage.allCases, id: \.self) { page in
                 Circle()
-                    .fill(viewModel.page == page ? Color.accent : Color.gray.opacity(0.3))
+                    .fill(viewModel.page == page ? Color.accent : Color.divider)
                     .frame(width: 10, height: 10)
             }
         }
@@ -96,13 +96,10 @@ struct OnboardingView: View {
     }
 
     private func backButton(fullWidth: Bool) -> some View {
-        Button {
+        Button("Wróć") {
             withAnimation { viewModel.goBack() }
-        } label: {
-            Text("Wróć")
-                .frame(maxWidth: fullWidth ? .infinity : nil)
         }
-        .buttonStyle(SecondaryButtonStyle())
+        .buttonStyle(.secondary(.large, fillsWidth: fullWidth))
     }
 
     private func forwardButton(fullWidth: Bool) -> some View {
@@ -114,9 +111,8 @@ struct OnboardingView: View {
             }
         } label: {
             Text(viewModel.page.isLast ? "Rozpocznij" : "Dalej")
-                .frame(maxWidth: fullWidth ? .infinity : nil)
         }
-        .buttonStyle(PrimaryButtonStyle())
+        .buttonStyle(.accent(.large, fillsWidth: fullWidth))
         .disabled(viewModel.isFinishing)
     }
 
@@ -215,7 +211,7 @@ private struct OnboardingWeeklyGoalPage: View {
                 }
                 .padding()
                 .background(Color.componentBackground)
-                .clipShape(.rect(cornerRadius: 12))
+                .clipShape(.rect(cornerRadius: AppRadius.medium))
 
                 Text("Odpoczynek jest elastyczny: liczy się, ile dni w tygodniu trenujesz, nie które. Cel i pauzę zmienisz później w Profilu.")
                     .font(.bodySmall)

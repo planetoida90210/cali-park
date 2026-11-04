@@ -82,9 +82,9 @@ struct StatusPill: View {
     private var color: Color {
         switch status {
         case .draft: Color.textSecondary
-        case .pending: Color.statusOrange
+        case .pending: Color.warning
         case .published: Color.accent
-        case .rejected: Color.statusRed
+        case .rejected: Color.danger
         case .removed: Color.textSecondary
         }
     }
@@ -127,7 +127,7 @@ private struct SubmissionDetailView: View {
                     SummaryRow(label: "Źródło", value: "zgłoszenie użytkownika")
                 }
                 .padding(14)
-                .background(Color.componentBackground, in: .rect(cornerRadius: 18))
+                .background(Color.componentBackground, in: .rect(cornerRadius: AppRadius.large))
             }
             .padding(20)
         }
@@ -182,7 +182,7 @@ private struct InfoCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .background(Color.componentBackground, in: .rect(cornerRadius: 18))
+        .background(Color.componentBackground, in: .rect(cornerRadius: AppRadius.large))
     }
 }
 
@@ -200,7 +200,7 @@ private struct DecisionCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(reason)
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.statusRed)
+                    .foregroundStyle(Color.danger)
                 Text(explanation)
                     .font(.subheadline)
                     .foregroundStyle(Color.textPrimary)
@@ -222,7 +222,7 @@ private struct DecisionCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .background(Color.componentBackground, in: .rect(cornerRadius: 18))
+        .background(Color.componentBackground, in: .rect(cornerRadius: AppRadius.large))
     }
 }
 

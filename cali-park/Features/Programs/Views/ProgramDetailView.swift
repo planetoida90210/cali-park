@@ -62,15 +62,11 @@ struct ProgramDetailView: View {
         .navigationTitle(viewModel.program.name)
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .bottom) {
-            Button {
+            Button(viewModel.isCreating ? "Tworzę plan…" : "Utwórz plan") {
                 Task { await viewModel.requestCreate() }
-            } label: {
-                Text(viewModel.isCreating ? "Tworzę plan…" : "Utwórz plan")
-                    .frame(maxWidth: .infinity)
             }
-            .buttonStyle(PrimaryButtonStyle())
+            .buttonStyle(.accent)
             .disabled(!viewModel.canCreate)
-            .opacity(viewModel.canCreate ? 1 : 0.5)
             .padding()
             .background(Color.appBackground)
         }
