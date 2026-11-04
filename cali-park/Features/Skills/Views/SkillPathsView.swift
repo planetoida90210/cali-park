@@ -179,7 +179,9 @@ private struct SkillPathCard: View {
                 Text(currentExercise?.name ?? "")
                     .font(.bodySmall)
                     .foregroundStyle(Color.textSecondary)
-                    .lineLimit(2)
+                    // Always two lines tall, so the bars of cards in one row line up
+                    // whether the rung name wraps or not.
+                    .lineLimit(2, reservesSpace: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 ProgressView(value: summary.currentProgress.fractionComplete)
