@@ -73,7 +73,7 @@ struct PrimaryActionRailView: View {
 // MARK: - Preview
 #Preview {
     NavigationStack {
-        PrimaryActionRailView(dashboard: AppEnvironment.preview.makeHomeDashboardViewModel())
+        PrimaryActionRailView(dashboard: AppEnvironment.previewEmpty.makeHomeDashboardViewModel())
             .padding()
             .frame(maxHeight: .infinity)
             .background(Color.appBackground)

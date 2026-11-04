@@ -249,10 +249,6 @@ final class AppEnvironment {
             defaults: .standard
         )
     }
-
-    // MARK: Preview
-    /// Backed by the real file stores; prefer `seeded(...)` in previews.
-    static let preview = AppEnvironment.live()
 }
 
 // MARK: - Throwaway defaults

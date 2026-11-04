@@ -45,6 +45,6 @@ struct MainTabView: View {
 
 // MARK: - Preview
 #Preview {
-    MainTabView(environment: .preview)
+    MainTabView(environment: .previewEmpty)
         .preferredColorScheme(.dark)
 }

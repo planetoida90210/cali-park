@@ -188,7 +188,7 @@ private struct NextWorkoutEmptyState: View {
 
 // MARK: - Preview
 #Preview {
-    NextWorkoutModuleContent(dashboard: AppEnvironment.preview.makeHomeDashboardViewModel())
+    NextWorkoutModuleContent(dashboard: AppEnvironment.previewPlanToday.makeHomeDashboardViewModel())
         .padding()
         .background(Color.appBackground)
         .preferredColorScheme(.dark)

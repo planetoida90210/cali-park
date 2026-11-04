@@ -276,7 +276,7 @@ private struct WorkoutPlansEmptyState: View {
 // MARK: - Preview
 #Preview {
     NavigationStack {
-        WorkoutPlansView(environment: .preview)
+        WorkoutPlansView(environment: .previewPlanToday)
     }
     .preferredColorScheme(.dark)
 }
