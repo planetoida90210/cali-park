@@ -27,7 +27,7 @@ struct QuickWorkoutView: View {
                 }
             }
             .background(Color.appBackground.ignoresSafeArea())
-            .navigationTitle("Szybki trening")
+            .navigationTitle(viewModel.title)
             .navigationBarTitleDisplayMode(.inline)
             // The empty state has its own "Dodaj ćwiczenie" button, so the
             // bottom bar only appears once the workout has an exercise.

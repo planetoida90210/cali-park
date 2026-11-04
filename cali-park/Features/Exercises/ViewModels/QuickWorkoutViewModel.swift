@@ -39,11 +39,16 @@ final class QuickWorkoutViewModel {
     /// so leaving untouched never asks to discard anything.
     private let initialItems: [DraftItem]
 
+    /// The screen title: the plan's name for a workout started from a plan,
+    /// otherwise "Szybki trening".
+    let title: String
+
     // MARK: Init
     init(journal: TrainingJournal) {
         self.journal = journal
         self.planID = nil
         self.initialItems = []
+        self.title = "Szybki trening"
     }
 
     /// Seeds the session from a plan: each planned exercise becomes an item,
@@ -60,6 +65,8 @@ final class QuickWorkoutViewModel {
          logs: [WorkoutLogEntry] = []) {
         self.journal = journal
         self.planID = plan.id
+        let name = plan.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.title = name.isEmpty ? "Szybki trening" : name
         let seeded = plan.exercises.compactMap { Self.draftItem(from: $0, pathStates: pathStates, logs: logs) }
         self.items = seeded
         self.initialItems = seeded

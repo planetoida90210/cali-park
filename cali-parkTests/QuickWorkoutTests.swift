@@ -96,6 +96,13 @@ struct QuickWorkoutViewModelTests {
     }
 
     @Test
+    func titleIsThePlanNameForAPlanWorkout() {
+        let plan = WorkoutPlan(name: "Fundamenty", exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)])
+        #expect(QuickWorkoutViewModel(store: InMemoryWorkoutLogStore(), plan: plan).title == "Fundamenty")
+        #expect(QuickWorkoutViewModel(store: InMemoryWorkoutLogStore()).title == "Szybki trening")
+    }
+
+    @Test
     func addExerciseIgnoresEmptySets() {
         let viewModel = QuickWorkoutViewModel(store: InMemoryWorkoutLogStore())
 
