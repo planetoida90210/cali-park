@@ -64,6 +64,16 @@ struct CelebrationOverlayView: View {
                 card
                 ScrollView {
                     card
+                        // The scroll view covers the dimmed background, so
+                        // its margins dismiss too ("Zamknij" stays for
+                        // VoiceOver).
+                        .background {
+                            Button(action: onDismiss) {
+                                Color.clear.contentShape(.rect)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityHidden(true)
+                        }
                 }
                 .scrollBounceBehavior(.basedOnSize)
             }
