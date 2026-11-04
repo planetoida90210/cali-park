@@ -104,20 +104,18 @@ private struct WorkoutHistoryRow: View {
                 size: .row
             )
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(exercise?.name ?? String(localized: "Ćwiczenie"))
-                    .font(.bodyLarge)
-                    .foregroundStyle(Color.textPrimary)
+            AdaptiveDetailRow {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(exercise?.name ?? String(localized: "Ćwiczenie"))
+                        .font(.bodyLarge)
+                        .foregroundStyle(Color.textPrimary)
 
-                Text(MeasureFormat.breakdown(of: entry.sets))
-                    .font(.bodySmall)
-                    .monospacedDigit()
-                    .foregroundStyle(Color.textSecondary)
-            }
-
-            Spacer()
-
-            VStack(alignment: .trailing, spacing: 4) {
+                    Text(MeasureFormat.breakdown(of: entry.sets))
+                        .font(.bodySmall)
+                        .monospacedDigit()
+                        .foregroundStyle(Color.textSecondary)
+                }
+            } details: {
                 if showsDate {
                     Text(entry.date, format: .dateTime.day().month())
                         .font(.bodySmall)

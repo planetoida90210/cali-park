@@ -120,7 +120,7 @@ struct ParksView: View {
                     Image(systemName: viewModel.mode == .map ? "list.bullet" : "map")
                         .font(.body.weight(.semibold))
                         .foregroundStyle(Color.accent)
-                        .frame(width: 46, height: 46)
+                        .scaledIconFrame(46)
                         .parkGlass(in: .circle)
                 }
                 .buttonStyle(.plain)
@@ -223,10 +223,12 @@ private struct ParkMapContent: View {
                             ParkPin(equipment: park.headlineEquipment,
                                     isSelected: park.id == viewModel.selectedParkID,
                                     isFavorite: viewModel.isFavorite(park))
+                                // Markers past XXXL would cover each other and the map.
+                                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(park.displayName)
-                        .accessibilityValue(viewModel.isFavorite(park) ? "Ulubiony" : "")
+                        .accessibilityValue(viewModel.isFavorite(park) ? String(localized: "Ulubiony") : "")
                         .accessibilityHint("Otwiera kartę Parku")
                         .accessibilityAddTraits(park.id == viewModel.selectedParkID ? .isSelected : [])
                     }
@@ -237,6 +239,7 @@ private struct ParkMapContent: View {
                             withAnimation(.smooth) { viewModel.zoom(into: cluster) }
                         } label: {
                             ParkClusterBubble(count: cluster.parks.count)
+                                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(ParkFormat.parkCount(cluster.parks.count))
@@ -368,7 +371,7 @@ struct ParkRow: View {
             Image(systemName: item.park.headlineEquipment?.symbol ?? "figure.strengthtraining.functional")
                 .font(.footnote.weight(.semibold))
                 .foregroundStyle(Color.accent)
-                .frame(width: 34, height: 34)
+                .scaledIconFrame(34, relativeTo: .footnote)
                 .background(Color.appBackground, in: .circle)
                 .overlay(Circle().stroke(Color.accent.opacity(0.6), lineWidth: 1))
                 .accessibilityHidden(true)

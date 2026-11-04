@@ -105,7 +105,7 @@ struct ModuleSelectionView: View {
                 Image(systemName: module.iconName)
                     .font(.appTitle3)
                     .foregroundStyle(Color.accent)
-                    .frame(width: 32, height: 32)
+                    .scaledIconFrame(32, relativeTo: .title3)
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 2) {

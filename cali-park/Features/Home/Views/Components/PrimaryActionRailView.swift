@@ -10,11 +10,23 @@ struct PrimaryActionRailView: View {
     let dashboard: HomeDashboardViewModel
 
     @State private var showingQuickWorkout = false
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     private let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
 
+    /// Side by side; stacked at accessibility text sizes, where two half-width
+    /// buttons would cut their titles.
+    private var railLayout: AnyLayout {
+        typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 8)) : AnyLayout(HStackLayout(spacing: 8))
+    }
+
+    /// Icon above the title; beside it once the buttons are stacked.
+    private var labelLayout: AnyLayout {
+        typeSize.isAccessibilitySize ? AnyLayout(HStackLayout(spacing: 12)) : AnyLayout(VStackLayout(spacing: 6))
+    }
+
     var body: some View {
-        HStack(spacing: 8) {
+        railLayout {
             Button {
                 impactFeedback.impactOccurred()
                 showingQuickWorkout = true
@@ -37,14 +49,14 @@ struct PrimaryActionRailView: View {
         title: LocalizedStringKey,
         isPrimary: Bool
     ) -> some View {
-        VStack(spacing: 6) {
+        labelLayout {
             Image(systemName: iconName)
                 .font(.appTitle3)
                 .accessibilityHidden(true)
 
             Text(title)
                 .font(.bodySmall)
-                .lineLimit(1)
+                .lineLimit(typeSize.isAccessibilitySize ? nil : 1)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)

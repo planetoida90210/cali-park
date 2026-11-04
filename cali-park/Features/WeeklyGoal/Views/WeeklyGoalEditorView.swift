@@ -125,11 +125,13 @@ private struct WeeklyGoalEditorRow: View {
     let goal: WeeklyGoal
     let isPrimary: Bool
 
+    @ScaledMetric(relativeTo: .body) private var iconWidth: CGFloat = 28
+
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: goal.metric.kind.symbolName)
                 .foregroundStyle(Color.accent)
-                .frame(width: 28)
+                .frame(width: iconWidth)
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {

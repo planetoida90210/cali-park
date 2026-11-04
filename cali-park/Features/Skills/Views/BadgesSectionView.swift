@@ -7,11 +7,12 @@ import SwiftUI
 struct BadgesSectionView: View {
     let earned: Set<Badge>
 
-    private let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
-    ]
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    /// Three badges per row; two at accessibility text sizes.
+    private var columns: [GridItem] {
+        Array(repeating: GridItem(.flexible(), spacing: 12), count: typeSize.isAccessibilitySize ? 2 : 3)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -49,24 +50,42 @@ private struct BadgeCell: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            Circle()
-                .fill(isEarned ? Color.accent : Color.appBackground)
-                .frame(width: 56, height: 56)
-                .overlay {
-                    Image(systemName: badge.symbolName)
-                        .font(.appTitle3)
-                        .foregroundStyle(isEarned ? Color.black : Color.textTertiary)
-                }
+            BadgeMedal(symbolName: badge.symbolName, isEarned: isEarned)
+                // Decorative: grows with the text up to XXXL, then the room
+                // goes to the title.
+                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
 
             Text(badge.title)
                 .font(.bodySmall)
                 .foregroundStyle(isEarned ? Color.textPrimary : Color.textSecondary)
                 .multilineTextAlignment(.center)
-                .lineLimit(2)
         }
         .frame(maxWidth: .infinity)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(isEarned ? "\(badge.title). Zdobyta." : "\(badge.title). \(badge.requirement)")
+        .accessibilityLabel(
+            isEarned
+                ? String(localized: "\(badge.title). Zdobyta.")
+                : String(localized: "\(badge.title). \(badge.requirement)")
+        )
+    }
+}
+
+// MARK: - BadgeMedal
+private struct BadgeMedal: View {
+    let symbolName: String
+    let isEarned: Bool
+
+    @ScaledMetric(relativeTo: .title3) private var diameter: CGFloat = 56
+
+    var body: some View {
+        Circle()
+            .fill(isEarned ? Color.accent : Color.appBackground)
+            .frame(width: diameter, height: diameter)
+            .overlay {
+                Image(systemName: symbolName)
+                    .font(.appTitle3)
+                    .foregroundStyle(isEarned ? Color.black : Color.textTertiary)
+            }
     }
 }
 

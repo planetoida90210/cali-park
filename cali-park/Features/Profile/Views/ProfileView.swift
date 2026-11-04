@@ -10,6 +10,8 @@ struct ProfileView: View {
     /// The open weekly goal editor.
     @State private var goalEditor: WeeklyGoalEditorViewModel?
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.dynamicTypeSize) private var typeSize
+    @ScaledMetric(relativeTo: .body) private var iconWidth: CGFloat = 28
 
     private let environment: AppEnvironment
 
@@ -91,29 +93,41 @@ struct ProfileView: View {
             HStack(spacing: 12) {
                 Image(systemName: "target")
                     .foregroundStyle(Color.accent)
-                    .frame(width: 28)
+                    .frame(width: iconWidth)
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(viewModel.weeklyGoalTitle ?? String(localized: "Cel tygodniowy"))
                         .font(.bodyLarge)
                         .foregroundStyle(Color.textPrimary)
-                    Text(viewModel.weeklyGoalProgressText.map { "Ten tydzień: \($0)" } ?? "Nie udało się odczytać celu")
+                    Text(viewModel.weeklyGoalProgressText.map { String(localized: "Ten tydzień: \($0)") }
+                         ?? String(localized: "Nie udało się odczytać celu"))
                         .font(.bodySmall)
                         .foregroundStyle(Color.textSecondary)
+                    // At accessibility sizes "Zmień" moves under the text, so
+                    // the goal keeps the row's full width.
+                    if typeSize.isAccessibilitySize {
+                        changeLabel
+                            .padding(.top, 4)
+                    }
                 }
 
-                Spacer()
-
-                Text("Zmień")
-                    .font(.buttonSmall)
-                    .foregroundStyle(Color.accent)
+                if !typeSize.isAccessibilitySize {
+                    Spacer()
+                    changeLabel
+                }
             }
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
         .accessibilityHint("Otwiera edycję celu tygodniowego")
         .listRowBackground(Color.componentBackground)
+    }
+
+    private var changeLabel: some View {
+        Text("Zmień")
+            .font(.buttonSmall)
+            .foregroundStyle(Color.accent)
     }
 
     // Bridges the optional `errorMessage` to a Bool binding for `.alert`.
@@ -147,23 +161,47 @@ private struct ProfileRowLabel: View {
 private struct ProfileStatisticsGrid: View {
     let statistics: ProfileStatistics
 
+    @Environment(\.dynamicTypeSize) private var typeSize
+
     var body: some View {
-        Grid(horizontalSpacing: 12, verticalSpacing: 12) {
-            GridRow {
-                tile(value: "\(statistics.workouts)",
-                     caption: PolishPlural.form(for: statistics.workouts, one: "trening", few: "treningi", many: "treningów"),
-                     systemImage: "figure.strengthtraining.functional")
-                tile(value: "\(statistics.dayStreak)",
-                     caption: String(localized: "seria dni · rekord \(statistics.longestDayStreak)"),
-                     systemImage: "flame.fill")
-            }
-            GridRow {
-                tile(value: statistics.weekStreak.map(String.init) ?? "–",
-                     caption: String(localized: "seria tygodni z celem"),
-                     systemImage: "calendar")
+        if typeSize.isAccessibilitySize {
+            // Half-width tiles can't hold accessibility text sizes: one per row.
+            VStack(spacing: 12) {
+                workoutsTile
+                dayStreakTile
+                weekStreakTile
                 levelTile
             }
+        } else {
+            Grid(horizontalSpacing: 12, verticalSpacing: 12) {
+                GridRow {
+                    workoutsTile
+                    dayStreakTile
+                }
+                GridRow {
+                    weekStreakTile
+                    levelTile
+                }
+            }
         }
+    }
+
+    private var workoutsTile: some View {
+        tile(value: "\(statistics.workouts)",
+             caption: PolishPlural.form(for: statistics.workouts, one: "trening", few: "treningi", many: "treningów"),
+             systemImage: "figure.strengthtraining.functional")
+    }
+
+    private var dayStreakTile: some View {
+        tile(value: "\(statistics.dayStreak)",
+             caption: String(localized: "seria dni · rekord \(statistics.longestDayStreak)"),
+             systemImage: "flame.fill")
+    }
+
+    private var weekStreakTile: some View {
+        tile(value: statistics.weekStreak.map(String.init) ?? "–",
+             caption: String(localized: "seria tygodni z celem"),
+             systemImage: "calendar")
     }
 
     private func tile(value: String, caption: String, systemImage: String) -> some View {

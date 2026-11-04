@@ -88,30 +88,31 @@ private struct WeeklyGoalProgressRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .firstTextBaseline, spacing: 6) {
-                if isPrimary {
-                    Image(systemName: "star.fill")
-                        .font(.caption)
-                        .foregroundStyle(Color.accent)
+            AdaptiveDetailRow {
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    if isPrimary {
+                        Image(systemName: "star.fill")
+                            .font(.caption)
+                            .foregroundStyle(Color.accent)
+                    }
+
+                    Text(WeeklyGoalFormat.title(progress.goal.metric))
+                        .font(.bodyMedium)
+                        .foregroundStyle(Color.textPrimary)
                 }
+            } details: {
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    if progress.isMet {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(Color.accent)
+                    }
 
-                Text(WeeklyGoalFormat.title(progress.goal.metric))
-                    .font(.bodyMedium)
-                    .foregroundStyle(Color.textPrimary)
-                    .lineLimit(2)
-
-                Spacer(minLength: 8)
-
-                if progress.isMet {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(Color.accent)
+                    Text(WeeklyGoalFormat.progress(progress))
+                        .font(.bodySmall)
+                        .monospacedDigit()
+                        .foregroundStyle(Color.textSecondary)
+                        .contentTransition(.numericText())
                 }
-
-                Text(WeeklyGoalFormat.progress(progress))
-                    .font(.bodySmall)
-                    .monospacedDigit()
-                    .foregroundStyle(Color.textSecondary)
-                    .contentTransition(.numericText())
             }
 
             ProgressView(value: progress.fraction)

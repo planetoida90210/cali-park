@@ -73,7 +73,7 @@ struct AchievementsModuleContent: View {
                     Image(systemName: advancement.symbolName)
                         .font(.appTitle3)
                         .foregroundStyle(Color.accent)
-                        .frame(width: 40, height: 40)
+                        .scaledIconFrame(40, relativeTo: .title3)
                         .background(Color.accent.opacity(0.15))
                         .clipShape(.circle)
                         .accessibilityHidden(true)

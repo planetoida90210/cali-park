@@ -80,27 +80,52 @@ struct OnboardingView: View {
         .accessibilityHidden(true)
     }
 
+    /// "Wróć" and "Dalej" side by side; when large text doesn't fit one row
+    /// they are stacked at full width, so the titles don't break mid-word.
     private var navigationButtons: some View {
-        HStack {
-            if viewModel.page.previous != nil {
-                Button("Wróć") {
-                    withAnimation { viewModel.goBack() }
+        ViewThatFits(in: .horizontal) {
+            HStack {
+                if viewModel.page.previous != nil {
+                    backButton(fullWidth: false)
                 }
-                .buttonStyle(SecondaryButtonStyle())
+
+                Spacer()
+
+                forwardButton(fullWidth: false)
             }
 
-            Spacer()
-
-            Button(viewModel.page.isLast ? "Rozpocznij" : "Dalej") {
-                if viewModel.page.isLast {
-                    finish()
-                } else {
-                    withAnimation { viewModel.goForward() }
+            VStack(spacing: 12) {
+                forwardButton(fullWidth: true)
+                if viewModel.page.previous != nil {
+                    backButton(fullWidth: true)
                 }
             }
-            .buttonStyle(PrimaryButtonStyle())
-            .disabled(viewModel.isFinishing)
         }
+    }
+
+    private func backButton(fullWidth: Bool) -> some View {
+        Button {
+            withAnimation { viewModel.goBack() }
+        } label: {
+            Text("Wróć")
+                .frame(maxWidth: fullWidth ? .infinity : nil)
+        }
+        .buttonStyle(SecondaryButtonStyle())
+    }
+
+    private func forwardButton(fullWidth: Bool) -> some View {
+        Button {
+            if viewModel.page.isLast {
+                finish()
+            } else {
+                withAnimation { viewModel.goForward() }
+            }
+        } label: {
+            Text(viewModel.page.isLast ? "Rozpocznij" : "Dalej")
+                .frame(maxWidth: fullWidth ? .infinity : nil)
+        }
+        .buttonStyle(PrimaryButtonStyle())
+        .disabled(viewModel.isFinishing)
     }
 
     /// Saves the placement, the program's plans and the weekly goal. A
@@ -210,9 +235,10 @@ private struct OnboardingWeeklyGoalPage: View {
 
     private var hint: String {
         if let program = viewModel.chosenProgramName {
-            String(localized: "Program \(program) to \(PolishPlural.days(viewModel.suggestedTrainingDays)) w tygodniu. Ustaw, ile dni chcesz trenować.")
+            let days = PolishPlural.days(viewModel.suggestedTrainingDays)
+            return String(localized: "Program \(program) to \(days) w tygodniu. Ustaw, ile dni chcesz trenować.")
         } else {
-            String(localized: "Ile dni w tygodniu chcesz trenować? Na start polecamy 3.")
+            return String(localized: "Ile dni w tygodniu chcesz trenować? Na start polecamy 3.")
         }
     }
 }

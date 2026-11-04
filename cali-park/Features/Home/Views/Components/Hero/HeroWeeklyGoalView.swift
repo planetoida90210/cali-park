@@ -8,30 +8,31 @@ struct HeroWeeklyGoalView: View {
     let snapshot: WeeklyGoalSnapshot
     let onEdit: () -> Void
 
+    @Environment(\.dynamicTypeSize) private var typeSize
+
     private var primary: WeeklyGoalProgress { snapshot.week.primary }
     private var isPaused: Bool { snapshot.activePause != nil }
 
     var body: some View {
-        HStack(spacing: 12) {
-            WeeklyGoalRing(progress: primary.fraction, isMet: primary.isMet, isDimmed: isPaused)
-                .frame(width: 44, height: 44)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(WeeklyGoalFormat.title(primary.goal.metric))
-                    .font(.bodyMedium)
-                    .foregroundStyle(Color.textPrimary)
-                    .lineLimit(1)
-
-                Text(detailLine)
-                    .font(.bodySmall)
-                    .foregroundStyle(Color.textSecondary)
-                    .lineLimit(1)
-                    .contentTransition(.numericText())
+        Group {
+            if typeSize.isAccessibilitySize {
+                // The goal gets the full width under the ring and the streak.
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 12) {
+                        ring
+                        Spacer(minLength: 0)
+                        HeroWeekStreakBadge(weeks: snapshot.streak)
+                    }
+                    goalText(lineLimit: nil)
+                }
+            } else {
+                HStack(spacing: 12) {
+                    ring
+                    goalText(lineLimit: 1)
+                    Spacer(minLength: 0)
+                    HeroWeekStreakBadge(weeks: snapshot.streak)
+                }
             }
-
-            Spacer(minLength: 0)
-
-            HeroWeekStreakBadge(weeks: snapshot.streak)
         }
         .contentShape(.rect)
         .onLongPressGesture(minimumDuration: 0.4, perform: onEdit)
@@ -39,6 +40,26 @@ struct HeroWeeklyGoalView: View {
         .accessibilityLabel(accessibilityText)
         .accessibilityHint("Przytrzymaj, aby zmienić cel")
         .accessibilityAction(named: "Zmień cel tygodniowy", onEdit)
+    }
+
+    private var ring: some View {
+        WeeklyGoalRing(progress: primary.fraction, isMet: primary.isMet, isDimmed: isPaused)
+            .scaledIconFrame(44, relativeTo: .subheadline)
+    }
+
+    private func goalText(lineLimit: Int?) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(WeeklyGoalFormat.title(primary.goal.metric))
+                .font(.bodyMedium)
+                .foregroundStyle(Color.textPrimary)
+                .lineLimit(lineLimit)
+
+            Text(detailLine)
+                .font(.bodySmall)
+                .foregroundStyle(Color.textSecondary)
+                .lineLimit(lineLimit)
+                .contentTransition(.numericText())
+        }
     }
 
     /// "2 / 3 dni", or the pause / verdict note when one applies.

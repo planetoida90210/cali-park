@@ -124,7 +124,7 @@ private struct ParkCardHeader: View {
                     .labelStyle(.iconOnly)
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(isFavorite ? Color.accent : Color.textSecondary)
-                    .frame(width: 32, height: 32)
+                    .scaledIconFrame(32, relativeTo: .subheadline)
                     .background(Color.white.opacity(0.08), in: .circle)
                     .buttonStyle(.plain)
                     .contentTransition(.symbolEffect(.replace))
@@ -134,7 +134,7 @@ private struct ParkCardHeader: View {
                     .labelStyle(.iconOnly)
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.textSecondary)
-                    .frame(width: 32, height: 32)
+                    .scaledIconFrame(32, relativeTo: .subheadline)
                     .background(Color.white.opacity(0.08), in: .circle)
                     .buttonStyle(.plain)
             }

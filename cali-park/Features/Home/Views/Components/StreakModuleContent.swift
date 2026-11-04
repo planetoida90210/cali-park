@@ -92,11 +92,14 @@ private struct StreakMonthCalendar: View {
                         )
                     } else {
                         Color.clear
-                            .frame(height: 28)
+                            .scaledIconFrame(28, relativeTo: .caption)
                             .accessibilityHidden(true)
                     }
                 }
             }
+            // Seven columns must fit the width: the weekday letters and day
+            // numbers stop growing at XXXL.
+            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         }
     }
 }
@@ -111,12 +114,10 @@ private struct StreakDayCell: View {
         ZStack {
             Circle()
                 .fill(isTrained ? Color.accent.opacity(0.3) : Color.clear)
-                .frame(width: 28, height: 28)
 
             if isToday {
                 Circle()
                     .stroke(Color.accent, lineWidth: 1)
-                    .frame(width: 28, height: 28)
             }
 
             Text("\(dayNumber)")
@@ -124,7 +125,8 @@ private struct StreakDayCell: View {
                 .monospacedDigit()
                 .foregroundStyle(Color.textPrimary)
         }
-        .accessibilityLabel(isTrained ? "\(dayNumber), trening zaliczony" : "\(dayNumber)")
+        .scaledIconFrame(28, relativeTo: .caption)
+        .accessibilityLabel(isTrained ? String(localized: "\(dayNumber), trening zaliczony") : "\(dayNumber)")
     }
 }
 

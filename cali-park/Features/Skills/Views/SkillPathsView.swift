@@ -17,10 +17,13 @@ struct SkillPathsView: View {
         _viewModel = State(initialValue: environment.makeSkillPathsViewModel())
     }
 
-    private let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
-    ]
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    /// Two cards per row; one at accessibility text sizes, where a half-width
+    /// card would cut the path and rung names.
+    private var columns: [GridItem] {
+        Array(repeating: GridItem(.flexible(), spacing: 12), count: typeSize.isAccessibilitySize ? 1 : 2)
+    }
 
     var body: some View {
         NavigationStack {
@@ -160,6 +163,8 @@ private struct CalibrationPrompt: View {
 private struct SkillPathCard: View {
     let summary: SkillPathSummary
 
+    @Environment(\.dynamicTypeSize) private var typeSize
+
     private var currentExercise: Exercise? {
         ExerciseCatalog.exercise(withID: summary.currentStep.exerciseID)
     }
@@ -181,9 +186,10 @@ private struct SkillPathCard: View {
                 Text(currentExercise?.name ?? "")
                     .font(.bodySmall)
                     .foregroundStyle(Color.textSecondary)
-                    // Always two lines tall, so the bars of cards in one row line up
-                    // whether the rung name wraps or not.
-                    .lineLimit(2, reservesSpace: true)
+                    // Two lines tall side by side, so the bars of cards in one row
+                    // line up whether the rung name wraps or not. Cards are alone
+                    // in their row at accessibility sizes, so the name may wrap further.
+                    .lineLimit(typeSize.isAccessibilitySize ? 4 : 2, reservesSpace: !typeSize.isAccessibilitySize)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 ProgressView(value: summary.currentProgress.fractionComplete)

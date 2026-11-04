@@ -154,6 +154,8 @@ private struct WorkoutPlanRow: View {
     /// Reminder time, e.g. "18:30", or `nil` without a reminder.
     let reminder: String?
 
+    @Environment(\.dynamicTypeSize) private var typeSize
+
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
@@ -171,17 +173,28 @@ private struct WorkoutPlanRow: View {
                         .foregroundStyle(Color.textSecondary)
                         .accessibilityLabel("Przypomnienie o \(reminder)")
                 }
+
+                // At accessibility sizes the count moves under the name, which
+                // keeps the row's full width.
+                if typeSize.isAccessibilitySize {
+                    exerciseCount
+                }
             }
 
-            Spacer()
-
-            Text(PolishPlural.exercises(plan.exerciseCount))
-                .font(.bodySmall)
-                .foregroundStyle(Color.textSecondary)
+            if !typeSize.isAccessibilitySize {
+                Spacer()
+                exerciseCount
+            }
         }
         .padding(.vertical, 4)
         .contentShape(.rect)
         .accessibilityElement(children: .combine)
+    }
+
+    private var exerciseCount: some View {
+        Text(PolishPlural.exercises(plan.exerciseCount))
+            .font(.bodySmall)
+            .foregroundStyle(Color.textSecondary)
     }
 }
 
