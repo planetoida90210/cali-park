@@ -127,6 +127,13 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - kalibracja wskazuje szczeble po ID; dipy „12+” startują od podporu na kółkach,
   - jednorazowy skok XP za nowe niższe szczeble (np. +100 XP przy pełnych podciągnięciach, maks. +1100 XP), przyjęty w 015,
   - testy: 426 (722 przypadki).
+- **Jakość przed TestFlightem, krok F5 fundamentu** (`9d340c9`…`ccc1023`, 2026-11-04): **fundament F0–F5 jest zrobiony.**
+  - tekst rośnie z rozmiarem czcionki w ustawieniach (Dynamic Type), a przy dużych rozmiarach układy się przelewają (kafelki, wiersze, hero, onboarding) (E-1, F-10),
+  - String Catalog z polskim jako językiem źródłowym, ok. 270 tekstów z view modeli przepuszczonych przez lokalizację; treści katalogów (ćwiczenia, programy, drabiny) dopiero przy drugim języku (E-14),
+  - kontrast szarego tekstu zgodny z WCAG AA i warianty dla „Zwiększ kontrast”; apka zostaje tylko ciemna (E-15),
+  - nagłówki sekcji dla VoiceOvera (E-13), przegląd etykiet przycisków i `onTapGesture` w całej apce (E-10, E-11),
+  - reguły lintu z `project-rules.mdc` blokują CI; `swift-format` dalej tylko raportuje,
+  - testy: 843 (1285 przypadków).
 - **Ulubione ćwiczenia** (`f6ed20f`, `3ec8014`, 2026-11-04, prośba właściciela przy Q26/Q30): gwiazdka na ekranie ćwiczenia i w menu po przytrzymaniu; w każdym wyborze ćwiczeń najpierw „Ulubione” (w kolejności dodania), potem „Ostatnio” (do 5 z dziennika), potem wszystkie jak dotąd; ulubione w backupie; testy: 839 (1278 przypadków).
 - **Swift 6, krok F3 fundamentu** (`22b8994`, 2026-11-04):
   - wszystkie targety w trybie Swift 6 z pełnym sprawdzaniem współbieżności, domyślna izolacja `MainActor` w apce, czysta domena oznaczona `nonisolated` (G-19),
