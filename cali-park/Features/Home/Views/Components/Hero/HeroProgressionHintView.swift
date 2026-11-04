@@ -22,3 +22,15 @@ struct HeroProgressionHintView: View {
         .accessibilityLabel("Postęp: \(hint)")
     }
 }
+
+// MARK: - Preview
+#Preview {
+    VStack(alignment: .leading, spacing: 16) {
+        HeroProgressionHintView(hint: "Jeszcze 2 powtórzenia do szczebla Podciągnięcia")
+        HeroProgressionHintView(hint: "Jeszcze 2 powtórzenia do szczebla Podciągnięcia")
+            .dynamicTypeSize(.accessibility3)
+    }
+    .padding()
+    .background(Color.componentBackground)
+    .preferredColorScheme(.dark)
+}

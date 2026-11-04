@@ -135,3 +135,27 @@ extension View {
         }
     }
 }
+
+// MARK: - Preview
+#Preview {
+    VStack(alignment: .leading, spacing: 20) {
+        HStack(spacing: 20) {
+            ParkPin(equipment: .horizontalBar, isSelected: false)
+            ParkPin(equipment: .parallelBars, isSelected: true, isFavorite: true)
+            ParkClusterBubble(count: 12)
+        }
+        HStack {
+            ParkVerificationBadge(verification: .osm)
+            ParkVerificationBadge(verification: .verified)
+        }
+        EquipmentChips(equipment: [
+            ParkEquipment(type: .horizontalBar, count: 3),
+            ParkEquipment(type: .parallelBars),
+            ParkEquipment(type: .rings)
+        ], limit: 2)
+        OSMAttributionLink()
+    }
+    .padding()
+    .background(Color.componentBackground)
+    .preferredColorScheme(.dark)
+}

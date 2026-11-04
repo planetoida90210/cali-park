@@ -324,3 +324,20 @@ private struct CalibrationButton: View {
     }
     .preferredColorScheme(.dark)
 }
+
+#Preview("AX5") {
+    let environment = AppEnvironment.seeded(
+        logs: [
+            WorkoutLogEntry(
+                exerciseID: ExerciseCatalog.pullUpsID,
+                sets: [LoggedSet(reps: 6), LoggedSet(reps: 6), LoggedSet(reps: 6)]
+            )
+        ],
+        placement: SkillPlacement(declaredRungByPath: [.pullUp: 3])
+    )
+    NavigationStack {
+        PathDetailView(environment: environment, pathID: .pullUp)
+    }
+    .dynamicTypeSize(.accessibility5)
+    .preferredColorScheme(.dark)
+}

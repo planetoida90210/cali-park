@@ -227,6 +227,21 @@ struct ParkCardButtonStyle: ButtonStyle {
     ), distance: 1250)
 }
 
+#Preview("Rich OSM data · AX5") {
+    ParkSheetPreview(park: Park(
+        id: UUID(), latitude: 50.285, longitude: 18.594,
+        osmRefs: ["n13608564606"],
+        generatedName: "Street workout · Skwer Młodego Strażaka",
+        locality: Locality(city: "Gliwice", district: "Ostropa"),
+        equipment: [ParkEquipment(type: .horizontalBar, count: 7, heights: [.low, .high]),
+                    ParkEquipment(type: .parallelBars, count: 2),
+                    ParkEquipment(type: .rings)],
+        hasMachines: true, surface: .rubber, lit: false, openingHours: "Mo-Su 06:00-22:00"
+    ), distance: 1250)
+    .dynamicTypeSize(.accessibility5)
+}
+
+
 #Preview("Sparse OSM data, no location") {
     ParkSheetPreview(park: Park(
         id: UUID(), latitude: 52.23, longitude: 20.97,

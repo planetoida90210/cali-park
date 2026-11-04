@@ -234,3 +234,11 @@ private struct ExerciseEmptyState: View {
         .environment(environment.exerciseFavorites)
         .preferredColorScheme(.dark)
 }
+
+#Preview("AX5") {
+    let environment = AppEnvironment.seeded(favoriteExercises: [ExerciseCatalog.australianPullUpsID, ExerciseCatalog.dipsID])
+    ExerciseLibraryView(environment: environment)
+        .environment(environment.exerciseFavorites)
+        .dynamicTypeSize(.accessibility5)
+        .preferredColorScheme(.dark)
+}

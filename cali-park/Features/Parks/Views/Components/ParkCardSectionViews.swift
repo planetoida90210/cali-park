@@ -177,3 +177,26 @@ private struct ParkDetailRow: View {
         .accessibilityValue(detail.value ?? ParkFormat.unknownDetail)
     }
 }
+
+// MARK: - Preview
+#Preview {
+    let park = Park(
+        id: UUID(), latitude: 50.285, longitude: 18.594,
+        osmRefs: ["n13608564606"],
+        generatedName: "Street workout · Skwer Młodego Strażaka",
+        locality: Locality(city: "Gliwice", district: "Ostropa"),
+        equipment: [ParkEquipment(type: .horizontalBar, count: 7, heights: [.low, .high]),
+                    ParkEquipment(type: .parallelBars, count: 2)],
+        hasMachines: true, surface: .rubber, lit: false, openingHours: "Mo-Su 06:00-22:00"
+    )
+    ScrollView {
+        VStack(alignment: .leading, spacing: 16) {
+            ParkEquipmentSection(park: park)
+            ParkDetailsSection(park: park)
+            ParkSourceSection(park: park, dataTimestamp: .now)
+        }
+        .padding()
+    }
+    .background(Color.appBackground)
+    .preferredColorScheme(.dark)
+}

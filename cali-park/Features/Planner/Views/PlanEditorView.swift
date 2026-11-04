@@ -333,3 +333,15 @@ private struct WeekdaySelector: View {
             .preferredColorScheme(.dark)
         }
 }
+
+#Preview("AX5") {
+    Color.appBackground
+        .ignoresSafeArea()
+        .sheet(isPresented: .constant(true)) {
+            PlanEditorView(
+                viewModel: AppEnvironment.seeded().makePlanEditorViewModel()
+            )
+            .dynamicTypeSize(.accessibility5)
+            .preferredColorScheme(.dark)
+        }
+}

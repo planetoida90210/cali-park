@@ -89,3 +89,25 @@ private struct StyledButtonBody: View {
             .opacity(isEnabled ? (configuration.isPressed ? 0.9 : 1) : 0.5)
     }
 }
+
+// MARK: - Preview
+#Preview {
+    VStack(spacing: 16) {
+        Button("Rozpocznij", systemImage: "play.fill") {}
+            .buttonStyle(.accent)
+        Button("Dodaj ćwiczenie", systemImage: "plus") {}
+            .buttonStyle(.secondary)
+        HStack {
+            Button("Wróć") {}.buttonStyle(.secondary(.compact))
+            Button("Dalej") {}.buttonStyle(.accent(.compact))
+        }
+        Button("Nowy plan", systemImage: "plus") {}
+            .buttonStyle(.accent(.compact, fillsWidth: false))
+        Button("Utwórz plan") {}
+            .buttonStyle(.accent)
+            .disabled(true)
+    }
+    .padding()
+    .background(Color.appBackground)
+    .preferredColorScheme(.dark)
+}

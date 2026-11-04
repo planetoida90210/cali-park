@@ -15,3 +15,14 @@ struct ExerciseListSectionHeader: View {
             .accessibilityAddTraits(.isHeader)
     }
 }
+
+// MARK: - Preview
+#Preview {
+    VStack(spacing: 12) {
+        ExerciseListSectionHeader(title: "Ulubione")
+        ExerciseListSectionHeader(title: "Wszystkie ćwiczenia")
+    }
+    .padding()
+    .background(Color.appBackground)
+    .preferredColorScheme(.dark)
+}

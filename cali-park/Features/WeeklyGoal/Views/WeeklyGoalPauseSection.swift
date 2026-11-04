@@ -58,3 +58,11 @@ struct WeeklyGoalPauseSection: View {
         }
     }
 }
+
+// MARK: - Preview
+#Preview {
+    Form {
+        WeeklyGoalPauseSection(viewModel: AppEnvironment.previewEmpty.makeWeeklyGoalEditorViewModel())
+    }
+    .preferredColorScheme(.dark)
+}

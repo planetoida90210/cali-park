@@ -163,6 +163,17 @@ private enum HeroPreview {
         .preferredColorScheme(.dark)
 }
 
+#Preview("Plan dziś · AX5") {
+    ScrollView {
+        HeroPreview.card(HeroPreview.planToday)
+            .padding()
+    }
+    .background(Color.appBackground)
+    .dynamicTypeSize(.accessibility5)
+    .preferredColorScheme(.dark)
+}
+
+
 #Preview("Zrobione dziś") {
     HeroPreview.card(HeroPreview.completedToday)
         .padding()

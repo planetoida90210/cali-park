@@ -175,3 +175,15 @@ private struct WeeklyGoalAmountField: View {
         min(max(value, WeeklyGoal.volumeRange.lowerBound), WeeklyGoal.volumeRange.upperBound)
     }
 }
+
+// MARK: - Preview
+#Preview {
+    let viewModel = AppEnvironment.previewEmpty.makeWeeklyGoalEditorViewModel()
+    let goalID = viewModel.addGoal(.exerciseVolume)
+    NavigationStack {
+        if let goalID {
+            WeeklyGoalDetailView(viewModel: viewModel, goalID: goalID)
+        }
+    }
+    .preferredColorScheme(.dark)
+}

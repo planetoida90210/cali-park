@@ -219,6 +219,13 @@ private struct NearestParkRefreshKey: Equatable {
         .preferredColorScheme(.dark)
 }
 
+#Preview("Plan na dziś · AX5") {
+    HomeView(environment: .previewPlanToday)
+        .dynamicTypeSize(.accessibility5)
+        .preferredColorScheme(.dark)
+}
+
+
 #Preview("Trening zrobiony dziś") {
     HomeView(environment: .previewCompletedToday)
         .preferredColorScheme(.dark)

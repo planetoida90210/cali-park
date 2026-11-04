@@ -117,3 +117,22 @@ struct ExerciseFavoritesHint: View {
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
+
+// MARK: - Preview
+#Preview {
+    let environment = AppEnvironment.seeded(favoriteExercises: [ExerciseCatalog.pullUpsID])
+    let exercise = ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID) ?? ExerciseCatalog.all[0]
+    VStack(alignment: .leading, spacing: 16) {
+        ExerciseFavoritesHint(isSearching: false)
+        HStack {
+            Text(exercise.name)
+            ExerciseFavoriteBadge()
+            Spacer()
+            ExerciseFavoriteButton(exercise: exercise, favorites: environment.exerciseFavorites)
+        }
+    }
+    .padding()
+    .background(Color.appBackground)
+    .environment(environment.exerciseFavorites)
+    .preferredColorScheme(.dark)
+}

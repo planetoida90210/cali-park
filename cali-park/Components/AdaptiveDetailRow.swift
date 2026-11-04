@@ -31,3 +31,20 @@ struct AdaptiveDetailRow<Main: View, Details: View>: View {
         }
     }
 }
+
+// MARK: - Preview
+#Preview {
+    VStack(alignment: .leading, spacing: 24) {
+        ForEach([DynamicTypeSize.large, .accessibility3], id: \.self) { size in
+            AdaptiveDetailRow {
+                Text("Podciągnięcia").foregroundStyle(Color.textPrimary)
+            } details: {
+                Text("3 serie").foregroundStyle(Color.textSecondary)
+            }
+            .dynamicTypeSize(size)
+        }
+    }
+    .padding()
+    .background(Color.componentBackground)
+    .preferredColorScheme(.dark)
+}
