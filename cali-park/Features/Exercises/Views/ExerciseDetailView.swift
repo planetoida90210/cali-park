@@ -3,7 +3,8 @@ import SwiftUI
 // MARK: - ExerciseDetailView
 /// Detail screen for a catalog exercise: Watch-style icon, description,
 /// muscle groups, equipment, step-by-step instructions and the
-/// "Dodaj serię" entry point into the SetPad.
+/// "Dodaj serię" entry point into the SetPad. The star in the toolbar adds it
+/// to the favorites ("Ulubione"), listed first in every exercise picker.
 struct ExerciseDetailView: View {
     let exercise: Exercise
     let environment: AppEnvironment
@@ -32,6 +33,11 @@ struct ExerciseDetailView: View {
         .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle(exercise.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                ExerciseFavoriteButton(exercise: exercise, favorites: environment.exerciseFavorites)
+            }
+        }
         .safeAreaInset(edge: .bottom) {
             Button {
                 loggingExercise = exercise
@@ -226,7 +232,7 @@ private struct ExerciseInstructionRow: View {
 // MARK: - Preview
 #Preview {
     NavigationStack {
-        ExerciseDetailView(exercise: ExerciseCatalog.all[0], environment: .preview)
+        ExerciseDetailView(exercise: ExerciseCatalog.all[0], environment: .seeded())
     }
     .preferredColorScheme(.dark)
 }

@@ -22,13 +22,18 @@ private enum BackupFixtures {
     /// A favorite already on the phone before an import.
     static let oldFavorite = UUID(uuidString: "D0000000-0000-4000-8000-0000000000F0")!
 
+    static let favoriteExercises = [ExerciseCatalog.australianPullUpsID, ExerciseCatalog.dipsID]
+    /// A favorite exercise already on the phone before an import.
+    static let oldFavoriteExercise = ExerciseCatalog.pushUpsID
+
     static let full = TrainingBackup(
         workoutLog: StoreFixtures.workoutLog,
         workoutPlans: StoreFixtures.workoutPlans,
         placement: StoreFixtures.placement,
         skillProgress: StoreFixtures.progress,
         weeklyGoal: weeklyGoal,
-        favoriteParkIDs: favoriteParks
+        favoriteParkIDs: favoriteParks,
+        favoriteExerciseIDs: favoriteExercises
     )
 
     static func data(_ backup: TrainingBackup = full) throws -> Data {
@@ -59,6 +64,7 @@ private struct BackupRig {
     let progress: SkillProgressStoring
     let goal: WeeklyGoalStoring
     let favorites: FavoriteParkStoring
+    let exerciseFavorites: FavoriteExerciseStoring
     let scheduler = InMemoryReminderScheduler(status: .authorized)
     let environment: AppEnvironment
     let service: TrainingBackupService
@@ -68,17 +74,20 @@ private struct BackupRig {
          placement: PlacementStoring = InMemorySkillPlacementStore(),
          progress: SkillProgressStoring = InMemorySkillProgressStore(),
          goal: WeeklyGoalStoring = InMemoryWeeklyGoalStore(),
-         favorites: FavoriteParkStoring = InMemoryFavoriteParkStore()) {
+         favorites: FavoriteParkStoring = InMemoryFavoriteParkStore(),
+         exerciseFavorites: FavoriteExerciseStoring = InMemoryFavoriteExerciseStore()) {
         self.log = log
         self.plans = plans
         self.placement = placement
         self.progress = progress
         self.goal = goal
         self.favorites = favorites
+        self.exerciseFavorites = exerciseFavorites
         environment = AppEnvironment(
             parkDirectory: InMemoryParkDirectory(),
             locationProvider: FixedLocationProvider(authorization: .denied),
             favoriteParkStore: favorites,
+            favoriteExerciseStore: exerciseFavorites,
             workoutLogStore: log,
             workoutPlanStore: plans,
             reminderScheduler: scheduler,
@@ -99,7 +108,8 @@ private struct BackupRig {
             placement: InMemorySkillPlacementStore(initial: SkillPlacement(declaredRungByPath: [.core: 1], declaredAt: StoreFixtures.october1)),
             progress: InMemorySkillProgressStore(initial: SkillProgress(celebratedLevel: 2)),
             goal: InMemoryWeeklyGoalStore(initial: nil),
-            favorites: InMemoryFavoriteParkStore(initial: [BackupFixtures.oldFavorite])
+            favorites: InMemoryFavoriteParkStore(initial: [BackupFixtures.oldFavorite]),
+            exerciseFavorites: InMemoryFavoriteExerciseStore(initial: [BackupFixtures.oldFavoriteExercise])
         )
     }
 }
@@ -268,7 +278,8 @@ struct TrainingBackupCodecTests {
         #expect(summary.workouts == 2)
         #expect(summary.plans == 4)
         #expect(summary.favoriteParks == 2)
-        #expect(summary.text == "2 treningi, 4 plany, test poziomu, cel tygodniowy, 2 ulubione Parki")
+        #expect(summary.favoriteExercises == 2)
+        #expect(summary.text == "2 treningi, 4 plany, test poziomu, cel tygodniowy, 2 ulubione Parki, 2 ulubione ćwiczenia")
         #expect(TrainingBackup(favoriteParkIDs: [UUID()]).summary.text == "0 treningów, 0 planów, 1 ulubiony Park")
         #expect(!TrainingBackup(favoriteParkIDs: [UUID()]).summary.isEmpty)
         #expect(TrainingBackup(favoriteParkIDs: nil).summary.isEmpty)
@@ -295,6 +306,7 @@ struct TrainingBackupServiceTests {
         #expect(rig.environment.progressService.placement == BackupFixtures.full.placement)
         #expect(rig.environment.weeklyGoalService.history == BackupFixtures.weeklyGoal)
         #expect(rig.environment.parkFavorites.ids == BackupFixtures.favoriteParks)
+        #expect(rig.environment.exerciseFavorites.ids == BackupFixtures.favoriteExercises)
     }
 
     @Test("An import is not progress: no celebration and no XP toast")
@@ -400,7 +412,8 @@ struct TrainingBackupServiceTests {
                 placement: FileSkillPlacementStore(directory: directory),
                 progress: FileSkillProgressStore(directory: directory),
                 goal: FileWeeklyGoalStore(directory: directory),
-                favorites: FileFavoriteParkStore(directory: directory)
+                favorites: FileFavoriteParkStore(directory: directory),
+                exerciseFavorites: FileFavoriteExerciseStore(directory: directory)
             )
         }
         let exporter = rig(source)
@@ -491,8 +504,8 @@ struct TrainingBackupViewModelTests {
         model.review(try BackupFixtures.data())
 
         let pending = try #require(model.pendingImport)
-        #expect(pending.incoming.text == "2 treningi, 4 plany, test poziomu, cel tygodniowy, 2 ulubione Parki")
-        #expect(pending.current.text == "1 trening, 1 plan, test poziomu, 1 ulubiony Park")
+        #expect(pending.incoming.text == "2 treningi, 4 plany, test poziomu, cel tygodniowy, 2 ulubione Parki, 2 ulubione ćwiczenia")
+        #expect(pending.current.text == "1 trening, 1 plan, test poziomu, 1 ulubiony Park, 1 ulubione ćwiczenie")
         #expect(try rig.log.load().count == 1)
     }
 
@@ -519,7 +532,7 @@ struct TrainingBackupViewModelTests {
 
         await model.confirmImport(pending)
 
-        #expect(model.resultMessage == "Zaimportowano: 2 treningi, 4 plany, test poziomu, cel tygodniowy, 2 ulubione Parki.")
+        #expect(model.resultMessage == "Zaimportowano: 2 treningi, 4 plany, test poziomu, cel tygodniowy, 2 ulubione Parki, 2 ulubione ćwiczenia.")
         #expect(model.errorMessage == nil)
         #expect(try rig.service.currentBackup() == BackupFixtures.full)
         #expect(model.currentSummary == BackupFixtures.full.summary)
@@ -634,5 +647,113 @@ struct TrainingBackupFavoritesTests {
         store.failure = nil
         #expect(try store.load() == [BackupFixtures.oldFavorite])
         #expect(store.saveCount == 0)
+    }
+}
+
+// MARK: - Favorite exercises
+@MainActor
+@Suite("Favorite exercises in the training backup")
+struct TrainingBackupExerciseFavoritesTests {
+    /// A file written before exercise favorites existed: no `favoriteExercises`.
+    private static func oldBackupData() throws -> Data {
+        try BackupFixtures.editedData { object in
+            var payload = object["payload"] as? [String: Any] ?? [:]
+            payload.removeValue(forKey: "favoriteExercises")
+            object["payload"] = payload
+        }
+    }
+
+    @Test("The export writes favorite exercises as exercise IDs in the payload")
+    func exportWritesFavorites() throws {
+        let object = try #require(JSONSerialization.jsonObject(with: BackupFixtures.data()) as? [String: Any])
+        let payload = try #require(object["payload"] as? [String: Any])
+        #expect(payload["favoriteExercises"] as? [String] == BackupFixtures.favoriteExercises.map(\.uuidString))
+        #expect(object["schemaVersion"] as? Int == 2)
+    }
+
+    @Test("A backup from before exercise favorites still reads, saying nothing about them")
+    func oldBackupDecodes() throws {
+        let decoded = try TrainingBackupCodec.decode(Self.oldBackupData())
+        #expect(decoded.favoriteExerciseIDs == nil)
+        var expected = BackupFixtures.full
+        expected.favoriteExerciseIDs = nil
+        #expect(decoded == expected)
+    }
+
+    @Test("Importing an old backup keeps the favorite exercises on the phone")
+    func oldBackupKeepsFavorites() async throws {
+        let rig = BackupRig.withOldData()
+        try await rig.service.restore(TrainingBackupCodec.decode(Self.oldBackupData()))
+
+        #expect(try rig.exerciseFavorites.load() == [BackupFixtures.oldFavoriteExercise])
+        #expect(rig.environment.exerciseFavorites.ids == [BackupFixtures.oldFavoriteExercise])
+        // Everything else was still replaced.
+        #expect(rig.environment.journal.entries == BackupFixtures.full.workoutLog)
+        #expect(rig.environment.parkFavorites.ids == BackupFixtures.favoriteParks)
+    }
+
+    @Test("Importing a backup with favorite exercises replaces them")
+    func importReplacesFavorites() async throws {
+        let rig = BackupRig.withOldData()
+        try await rig.service.restore(BackupFixtures.full)
+
+        #expect(try rig.exerciseFavorites.load() == BackupFixtures.favoriteExercises)
+        #expect(rig.environment.exerciseFavorites.ids == BackupFixtures.favoriteExercises)
+    }
+
+    @Test("An empty favorite exercises list in the file clears them")
+    func emptyFavoritesClear() async throws {
+        let rig = BackupRig.withOldData()
+        try await rig.service.restore(TrainingBackup())
+
+        #expect(try rig.exerciseFavorites.load().isEmpty)
+        #expect(rig.environment.exerciseFavorites.ids.isEmpty)
+    }
+
+    @Test("Duplicate favorite exercises are refused before anything is written")
+    func duplicateFavoritesRefused() {
+        let id = ExerciseCatalog.dipsID
+        #expect(throws: TrainingBackupError.invalidContent("powtórzone ulubione ćwiczenia")) {
+            try TrainingBackupCodec.validate(TrainingBackup(favoriteExerciseIDs: [id, id]))
+        }
+    }
+
+    @Test("A failed write puts the favorite exercises back too")
+    func failedWriteRollsBackFavorites() async throws {
+        let rig = BackupRig(
+            plans: FailingReplacePlanStore(initial: []),
+            exerciseFavorites: InMemoryFavoriteExerciseStore(initial: [BackupFixtures.oldFavoriteExercise])
+        )
+
+        await #expect(throws: TrainingBackupRestoreError.failedAndRolledBack) {
+            try await rig.service.restore(BackupFixtures.full)
+        }
+        #expect(try rig.exerciseFavorites.load() == [BackupFixtures.oldFavoriteExercise])
+        #expect(rig.environment.exerciseFavorites.ids == [BackupFixtures.oldFavoriteExercise])
+    }
+
+    @Test("Unreadable favorite exercises stop the export and the import")
+    func unreadableFavorites() async throws {
+        let store = InMemoryFavoriteExerciseStore(initial: [BackupFixtures.oldFavoriteExercise], failure: .init())
+        let rig = BackupRig(exerciseFavorites: store)
+
+        #expect(throws: StoreLoadFailure.self) { try rig.service.currentBackup() }
+        await #expect(throws: TrainingBackupRestoreError.currentDataUnreadable) {
+            try await rig.service.restore(BackupFixtures.full)
+        }
+        store.failure = nil
+        #expect(try store.load() == [BackupFixtures.oldFavoriteExercise])
+        #expect(store.saveCount == 0)
+    }
+
+    @Test("The summary counts favorite exercises with the right Polish form", arguments: [
+        (1, "0 treningów, 0 planów, 1 ulubione ćwiczenie"),
+        (3, "0 treningów, 0 planów, 3 ulubione ćwiczenia"),
+        (5, "0 treningów, 0 planów, 5 ulubionych ćwiczeń")
+    ])
+    func summaryText(count: Int, text: String) {
+        let backup = TrainingBackup(favoriteExerciseIDs: (0..<count).map { _ in UUID() })
+        #expect(backup.summary.text == text)
+        #expect(!backup.summary.isEmpty)
     }
 }

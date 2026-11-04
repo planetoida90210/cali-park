@@ -272,6 +272,7 @@ struct AppEnvironmentReminderSyncTests {
         let plan = Fixtures.plan()
         let scheduler = Fixtures.scheduler()
         let environment = AppEnvironment(favoriteParkStore: InMemoryFavoriteParkStore(),
+                                         favoriteExerciseStore: InMemoryFavoriteExerciseStore(),
                                          workoutLogStore: InMemoryWorkoutLogStore(),
                                          workoutPlanStore: InMemoryWorkoutPlanStore(initial: [plan]),
                                          reminderScheduler: scheduler,

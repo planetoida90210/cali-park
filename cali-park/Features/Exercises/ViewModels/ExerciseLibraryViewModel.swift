@@ -2,8 +2,9 @@ import Foundation
 import Observation
 
 // MARK: - ExerciseLibraryViewModel
-/// Drives the exercise library tab: exposes the built-in catalog filtered
-/// by the selected category chip and the search text.
+/// Drives the exercise library tab and the exercise pickers: exposes the
+/// built-in catalog filtered by the selected category chip and the search
+/// text, with the athlete's favorites first (`ExerciseListSections`).
 @MainActor
 @Observable
 final class ExerciseLibraryViewModel {
@@ -57,22 +58,29 @@ final class ExerciseLibraryViewModel {
         [movement] + exercises.filter { $0.variantOf == movement.id }
     }
 
+    /// The Exercises tab: "Ulubione" first, then every main movement. Search
+    /// matches main movements only, like `displayedExercises`.
+    func librarySections(favoriteIDs: [UUID]) -> [ExerciseListSection] {
+        ExerciseListSections.make(catalog: exercises, favoriteIDs: favoriteIDs,
+                                  category: selectedCategory, query: searchText, includesVariants: false)
+    }
+
+    /// The exercise pickers: "Ulubione" first, then every main movement. Search
+    /// also matches progression variants, like `pickerExercises`.
+    func pickerSections(favoriteIDs: [UUID]) -> [ExerciseListSection] {
+        ExerciseListSections.make(catalog: exercises, favoriteIDs: favoriteIDs,
+                                  category: selectedCategory, query: searchText, includesVariants: true)
+    }
+
+    /// Whether a search query is entered (the lists then show only matches).
+    var isSearching: Bool { !query.isEmpty }
+
     // MARK: Filtering
     private var query: String {
         searchText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private func filtered(_ source: [Exercise]) -> [Exercise] {
-        var list = source
-
-        if let selectedCategory {
-            list = list.filter { $0.category == selectedCategory }
-        }
-
-        if !query.isEmpty {
-            list = list.filter { $0.name.localizedStandardContains(query) }
-        }
-
-        return list
+        ExerciseListSections.filtered(source, category: selectedCategory, query: query)
     }
 }

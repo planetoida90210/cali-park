@@ -18,6 +18,13 @@ final class AppEnvironment {
     /// The favorite Parks ("Ulubione"), shared by the Parks tab and the
     /// training backup; the one write path to `favoriteParkStore`.
     let parkFavorites: ParkFavorites
+    /// Persists the favorite exercises. Only `exerciseFavorites` talks to it.
+    let favoriteExerciseStore: FavoriteExerciseStoring
+    /// The favorite exercises ("Ulubione"), listed first in every exercise
+    /// picker and carried in the training backup; the one write path to
+    /// `favoriteExerciseStore`. The pickers read it from the SwiftUI
+    /// environment (`MainTabView` injects it).
+    let exerciseFavorites: ExerciseFavorites
     /// The training journal: the only write path for workout logs. Every
     /// change rescores progress (and the reward loop) and re-syncs plan
     /// reminders (a plan done today gets no reminder today), so every view
@@ -59,6 +66,7 @@ final class AppEnvironment {
     init(parkDirectory: ParkDirectory = BundledParkDirectory(),
          locationProvider: LocationProviding? = nil,
          favoriteParkStore: FavoriteParkStoring,
+         favoriteExerciseStore: FavoriteExerciseStoring,
          workoutLogStore: WorkoutLogStoring,
          workoutPlanStore: WorkoutPlanStoring,
          reminderScheduler: WorkoutReminderScheduling = NotificationCenterReminderScheduler(center: SystemNotificationCenter()),
@@ -73,6 +81,8 @@ final class AppEnvironment {
         self.locationProvider = locationProvider ?? CoreLocationProvider()
         self.favoriteParkStore = favoriteParkStore
         self.parkFavorites = ParkFavorites(store: favoriteParkStore)
+        self.favoriteExerciseStore = favoriteExerciseStore
+        self.exerciseFavorites = ExerciseFavorites(store: favoriteExerciseStore)
         self.workoutPlanStore = workoutPlanStore
         self.reminderScheduler = reminderScheduler
         // The plan service only reads the log, to skip days already done.
@@ -208,6 +218,7 @@ final class AppEnvironment {
             progressStore: skillProgressStore,
             goalStore: weeklyGoalStore,
             favorites: parkFavorites,
+            exerciseFavorites: exerciseFavorites,
             planService: workoutPlanService,
             progress: progressService,
             goals: weeklyGoalService,
@@ -229,6 +240,7 @@ final class AppEnvironment {
         let locations = StoreDirectoryMigration.live().run()
         return AppEnvironment(
             favoriteParkStore: FileFavoriteParkStore(directory: locations.directory(for: .favoriteParks)),
+            favoriteExerciseStore: FileFavoriteExerciseStore(directory: locations.directory(for: .favoriteExercises)),
             workoutLogStore: FileWorkoutLogStore(directory: locations.directory(for: .workoutLog)),
             workoutPlanStore: FileWorkoutPlanStore(directory: locations.directory(for: .workoutPlans)),
             placementStore: FileSkillPlacementStore(directory: locations.directory(for: .skillPlacement)),
@@ -270,6 +282,7 @@ extension AppEnvironment {
                        placement: SkillPlacement? = nil,
                        weeklyGoal: WeeklyGoalHistory? = nil,
                        favoriteParks: [UUID] = [],
+                       favoriteExercises: [UUID] = [],
                        location: LocationProviding? = nil) -> AppEnvironment {
         AppEnvironment(
             parkDirectory: BundledParkDirectory(),
@@ -278,6 +291,7 @@ extension AppEnvironment {
                 location: CLLocationCoordinate2D(latitude: 52.2297, longitude: 21.0122)
             ),
             favoriteParkStore: InMemoryFavoriteParkStore(initial: favoriteParks),
+            favoriteExerciseStore: InMemoryFavoriteExerciseStore(initial: favoriteExercises),
             workoutLogStore: InMemoryWorkoutLogStore(initial: logs),
             workoutPlanStore: InMemoryWorkoutPlanStore(initial: plans),
             reminderScheduler: InMemoryReminderScheduler(status: .authorized),

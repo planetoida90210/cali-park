@@ -5,28 +5,32 @@ import SwiftUI
 /// progression variants pushes the variant list (so "Pompki" always asks which
 /// push-up was done); anything else is picked straight away. Variants found by
 /// search name their parent movement instead of listing muscle groups.
+/// Long-press (or the VoiceOver action) adds it to the favorites or removes it.
 struct ExercisePickerRow: View {
     let exercise: Exercise
     /// The main movement's name when `exercise` is a variant.
     let parentName: String?
     let hasVariants: Bool
+    var isFavorite = false
     let onPick: (Exercise) -> Void
 
     var body: some View {
         if hasVariants {
             NavigationLink(value: ExerciseVariantDestination(movement: exercise)) {
-                ExercisePickerRowLabel(exercise: exercise, subtitle: subtitle, opensVariants: true)
+                ExercisePickerRowLabel(exercise: exercise, subtitle: subtitle, opensVariants: true, isFavorite: isFavorite)
             }
             .buttonStyle(.plain)
             .accessibilityHint("Wybierz wariant")
+            .exerciseFavoriteActions(exercise)
         } else {
             Button {
                 onPick(exercise)
             } label: {
-                ExercisePickerRowLabel(exercise: exercise, subtitle: subtitle, opensVariants: false)
+                ExercisePickerRowLabel(exercise: exercise, subtitle: subtitle, opensVariants: false, isFavorite: isFavorite)
             }
             .buttonStyle(.plain)
             .accessibilityHint("Dodaj do treningu")
+            .exerciseFavoriteActions(exercise)
         }
     }
 
@@ -52,6 +56,7 @@ struct ExercisePickerRow: View {
                 exercise: ExerciseCatalog.exercise(withID: ExerciseCatalog.diamondPushUpsID)!,
                 parentName: "Pompki",
                 hasVariants: false,
+                isFavorite: true,
                 onPick: { _ in }
             )
         }

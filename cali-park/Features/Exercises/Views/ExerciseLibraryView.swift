@@ -2,7 +2,9 @@ import SwiftUI
 
 // MARK: - ExerciseLibraryView
 /// Exercises tab: searchable, filterable list of the built-in calisthenics
-/// catalog. Rows navigate to `ExerciseDetailView` via `navigationDestination`.
+/// catalog, favorites ("Ulubione") first. Rows navigate to
+/// `ExerciseDetailView` via `navigationDestination`; long-press adds a row to
+/// the favorites or removes it.
 struct ExerciseLibraryView: View {
     @State private var viewModel: ExerciseLibraryViewModel
     @State private var showingQuickWorkout = false
@@ -21,7 +23,11 @@ struct ExerciseLibraryView: View {
                 VStack(spacing: 16) {
                     ExerciseSearchField(text: $viewModel.searchText, isFocused: $searchFocused)
                     ExerciseCategoryChips(selection: $viewModel.selectedCategory)
-                    ExerciseListSection(exercises: viewModel.displayedExercises)
+                    ExerciseFavoritesHint(isSearching: viewModel.isSearching)
+                    ExerciseLibraryList(
+                        sections: viewModel.librarySections(favoriteIDs: environment.exerciseFavorites.ids),
+                        favorites: environment.exerciseFavorites
+                    )
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
@@ -182,19 +188,26 @@ private struct ExerciseCategoryChip: View {
     }
 }
 
-// MARK: - ExerciseListSection
-private struct ExerciseListSection: View {
-    let exercises: [Exercise]
+// MARK: - ExerciseLibraryList
+private struct ExerciseLibraryList: View {
+    let sections: [ExerciseListSection]
+    let favorites: ExerciseFavorites
 
     var body: some View {
-        if exercises.isEmpty {
+        if sections.isEmpty {
             ExerciseEmptyState()
                 .padding(.top, 48)
         } else {
             LazyVStack(spacing: 12) {
-                ForEach(exercises) { exercise in
-                    NavigationLink(value: exercise) {
-                        ExerciseRowView(exercise: exercise)
+                ForEach(sections) { section in
+                    if let title = section.title {
+                        ExerciseListSectionHeader(title: title)
+                    }
+                    ForEach(section.exercises) { exercise in
+                        NavigationLink(value: exercise) {
+                            ExerciseRowView(exercise: exercise, isFavorite: favorites.contains(exercise.id))
+                        }
+                        .exerciseFavoriteActions(exercise)
                     }
                 }
             }
@@ -205,17 +218,24 @@ private struct ExerciseListSection: View {
 // MARK: - ExerciseRowView
 private struct ExerciseRowView: View {
     let exercise: Exercise
+    let isFavorite: Bool
 
     var body: some View {
         HStack(spacing: 12) {
             ExerciseIconView(symbolName: exercise.symbolName, size: .row)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(exercise.name)
-                    .font(.bodyLarge)
-                    .foregroundStyle(Color.textPrimary)
+                HStack(spacing: 6) {
+                    Text(exercise.name)
+                        .font(.bodyLarge)
+                        .foregroundStyle(Color.textPrimary)
 
-                Text(exercise.muscleGroups.map(\.displayName).joined(separator: " · "))
+                    if isFavorite {
+                        ExerciseFavoriteBadge()
+                    }
+                }
+
+                Text(subtitle)
                     .font(.bodySmall)
                     .foregroundStyle(Color.textSecondary)
             }
@@ -229,6 +249,15 @@ private struct ExerciseRowView: View {
         .padding(12)
         .background(Color.componentBackground)
         .clipShape(.rect(cornerRadius: 12))
+        .contentShape(.rect(cornerRadius: 12))
+    }
+
+    /// Muscle groups; a favorite variant names its main movement instead.
+    private var subtitle: String {
+        if let parentID = exercise.variantOf, let parent = ExerciseCatalog.exercise(withID: parentID) {
+            return "Wariant: \(parent.name)"
+        }
+        return exercise.muscleGroups.map(\.displayName).joined(separator: " · ")
     }
 }
 
@@ -255,6 +284,8 @@ private struct ExerciseEmptyState: View {
 
 // MARK: - Preview
 #Preview {
-    ExerciseLibraryView(environment: .preview)
+    let environment = AppEnvironment.seeded(favoriteExercises: [ExerciseCatalog.australianPullUpsID, ExerciseCatalog.dipsID])
+    ExerciseLibraryView(environment: environment)
+        .environment(environment.exerciseFavorites)
         .preferredColorScheme(.dark)
 }

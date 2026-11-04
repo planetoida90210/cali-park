@@ -47,7 +47,8 @@ nonisolated enum TrainingBackupError: Error, Equatable {
 ///   "appVersion": "1.0 (1)",
 ///   "payload": { "workoutLog": […], "workoutPlans": […],
 ///                "placement": {…} | null, "skillProgress": {…} | null,
-///                "weeklyGoal": {…} | null, "favoriteParks": ["<Park UUID>", …] }
+///                "weeklyGoal": {…} | null, "favoriteParks": ["<Park UUID>", …],
+///                "favoriteExercises": ["<exercise UUID>", …] }
 /// }
 /// ```
 ///
@@ -61,9 +62,10 @@ nonisolated enum TrainingBackupError: Error, Equatable {
 /// them as instants, which `CalendarDay` reads as days in the current
 /// calendar.
 ///
-/// `favoriteParks` came later than the other sections: files without it
-/// (from before favorites existed) still read, as a backup that says nothing
-/// about favorites.
+/// `favoriteParks` and `favoriteExercises` came later than the other
+/// sections: files without them (from before those favorites existed) still
+/// read, as a backup that says nothing about them. Older builds ignore the
+/// keys they don't know, so adding one doesn't bump `schemaVersion`.
 nonisolated enum TrainingBackupCodec {
     static let formatIdentifier = "calipark-backup"
     /// The version this build writes; it reads `1...schemaVersion`.
@@ -133,6 +135,9 @@ nonisolated enum TrainingBackupCodec {
         if let favorites = backup.favoriteParkIDs, Set(favorites).count != favorites.count {
             throw .invalidContent("powtórzone ulubione Parki")
         }
+        if let favorites = backup.favoriteExerciseIDs, Set(favorites).count != favorites.count {
+            throw .invalidContent("powtórzone ulubione ćwiczenia")
+        }
     }
 
     // MARK: Format
@@ -157,6 +162,8 @@ nonisolated enum TrainingBackupCodec {
         let weeklyGoal: WeeklyGoalHistory?
         /// Absent in files written before favorites existed.
         let favoriteParks: [UUID]?
+        /// Absent in files written before exercise favorites existed.
+        let favoriteExercises: [UUID]?
 
         init(_ backup: TrainingBackup) {
             workoutLog = backup.workoutLog
@@ -165,6 +172,7 @@ nonisolated enum TrainingBackupCodec {
             skillProgress = backup.skillProgress
             weeklyGoal = backup.weeklyGoal
             favoriteParks = backup.favoriteParkIDs
+            favoriteExercises = backup.favoriteExerciseIDs
         }
 
         var backup: TrainingBackup {
@@ -174,7 +182,8 @@ nonisolated enum TrainingBackupCodec {
                 placement: placement,
                 skillProgress: skillProgress,
                 weeklyGoal: weeklyGoal,
-                favoriteParkIDs: favoriteParks
+                favoriteParkIDs: favoriteParks,
+                favoriteExerciseIDs: favoriteExercises
             )
         }
 
@@ -188,6 +197,7 @@ nonisolated enum TrainingBackupCodec {
             try container.encode(skillProgress, forKey: .skillProgress)
             try container.encode(weeklyGoal, forKey: .weeklyGoal)
             try container.encode(favoriteParks, forKey: .favoriteParks)
+            try container.encode(favoriteExercises, forKey: .favoriteExercises)
         }
     }
 

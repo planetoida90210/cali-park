@@ -4,8 +4,10 @@ import SwiftUI
 /// Fast "pick any exercise" sheet: the catalog with a pinned search and the
 /// library's category filter, but tapping a row calls `onPick` instead of
 /// navigating. Searching also finds progression variants; tapping a movement
-/// that has variants first asks which one was done. Used to add exercises to
-/// a quick workout.
+/// that has variants first asks which one was done. The athlete's favorites
+/// ("Ulubione") come first, read from the `ExerciseFavorites` in the
+/// environment. Used by the quick workout, the plan editor and the weekly
+/// goal editor.
 struct ExercisePickerSheet: View {
     @State private var viewModel = ExerciseLibraryViewModel()
     @Environment(\.dismiss) private var dismiss
@@ -17,6 +19,7 @@ struct ExercisePickerSheet: View {
             ScrollView {
                 VStack(spacing: 16) {
                     ExercisePickerCategoryChips(selection: $viewModel.selectedCategory)
+                    ExerciseFavoritesHint(isSearching: viewModel.isSearching)
                     ExercisePickerList(viewModel: viewModel, onPick: onPick)
                 }
                 .padding(.horizontal, 16)
@@ -86,9 +89,11 @@ private struct ExercisePickerList: View {
     let viewModel: ExerciseLibraryViewModel
     let onPick: (Exercise) -> Void
 
+    @Environment(ExerciseFavorites.self) private var favorites: ExerciseFavorites?
+
     var body: some View {
-        let exercises = viewModel.pickerExercises
-        if exercises.isEmpty {
+        let sections = viewModel.pickerSections(favoriteIDs: favorites?.ids ?? [])
+        if sections.isEmpty {
             VStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
                     .font(.title2)
@@ -102,13 +107,19 @@ private struct ExercisePickerList: View {
             .padding(.top, 48)
         } else {
             LazyVStack(spacing: 12) {
-                ForEach(exercises) { exercise in
-                    ExercisePickerRow(
-                        exercise: exercise,
-                        parentName: viewModel.parent(of: exercise)?.name,
-                        hasVariants: viewModel.hasVariants(exercise),
-                        onPick: onPick
-                    )
+                ForEach(sections) { section in
+                    if let title = section.title {
+                        ExerciseListSectionHeader(title: title)
+                    }
+                    ForEach(section.exercises) { exercise in
+                        ExercisePickerRow(
+                            exercise: exercise,
+                            parentName: viewModel.parent(of: exercise)?.name,
+                            hasVariants: viewModel.hasVariants(exercise),
+                            isFavorite: favorites?.contains(exercise.id) ?? false,
+                            onPick: onPick
+                        )
+                    }
                 }
             }
         }
@@ -116,11 +127,26 @@ private struct ExercisePickerList: View {
 }
 
 // MARK: - Preview
-#Preview {
+#Preview("Ulubione") {
+    let environment = AppEnvironment.seeded(favoriteExercises: [
+        ExerciseCatalog.australianPullUpsID, ExerciseCatalog.pullUpsID, ExerciseCatalog.diamondPushUpsID
+    ])
     Color.appBackground
         .ignoresSafeArea()
         .sheet(isPresented: .constant(true)) {
             ExercisePickerSheet { _ in }
+                .environment(environment.exerciseFavorites)
+                .preferredColorScheme(.dark)
+        }
+}
+
+#Preview("Bez ulubionych") {
+    let environment = AppEnvironment.seeded()
+    Color.appBackground
+        .ignoresSafeArea()
+        .sheet(isPresented: .constant(true)) {
+            ExercisePickerSheet { _ in }
+                .environment(environment.exerciseFavorites)
                 .preferredColorScheme(.dark)
         }
 }

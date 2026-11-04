@@ -11,6 +11,7 @@ nonisolated enum StoreFile: String, CaseIterable, Sendable {
     case skillProgress = "skill-progress.json"
     case weeklyGoal = "weekly-goal.json"
     case favoriteParks = "favorite-parks.json"
+    case favoriteExercises = "favorite-exercises.json"
 
     var fileName: String { rawValue }
 

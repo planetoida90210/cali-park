@@ -20,7 +20,7 @@ struct TrainingBackupView: View {
             } header: {
                 Text("Eksport")
             } footer: {
-                Text("Jeden plik JSON z dziennikiem treningów, planami, testem poziomu, nagrodami, celem tygodniowym i ulubionymi Parkami. Zapisz go w Plikach albo wyślij sobie.")
+                Text("Jeden plik JSON z dziennikiem treningów, planami, testem poziomu, nagrodami, celem tygodniowym oraz ulubionymi Parkami i ćwiczeniami. Zapisz go w Plikach albo wyślij sobie.")
             }
             .listRowBackground(Color.componentBackground)
 
