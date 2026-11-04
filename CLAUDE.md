@@ -38,6 +38,12 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on every push to `main`, on eve
 
 @.cursor/rules/project-rules.mdc
 
+- Text must scale with Dynamic Type. Use the `AppTheme` font tokens (`appLargeTitle`, `appTitle`…`appTitle3`, `bodyLarge`/`bodyMedium`/`bodySmall`, `button…`), which sit on system text styles, or system text styles directly. Never declare a `Font` token named like a SwiftUI style (`title3`): it shadows SwiftUI's own.
+- Size decorative icon squares, rings and badges with `.scaledIconFrame(_:relativeTo:)` (grows up to XXXL), not a fixed `.frame(width:height:)`. At accessibility sizes, reflow instead of truncating: side-by-side details go under the text (`AdaptiveDetailRow`, or a `dynamicTypeSize.isAccessibilitySize` branch), grids drop columns, button pairs stack (`ViewThatFits`). Cap with `.dynamicTypeSize(...)` only what can't grow, such as map markers and the 7-column calendar.
+- Secondary and tertiary text use `Color.textSecondary`/`Color.textTertiary` from the asset catalog (with Increase Contrast variants); keep text at 4.5:1 or more on `appBackground` and `componentBackground`.
+- Polish is the source language of `cali-park/Resources/Localizable.xcstrings`. `Text("…")` literals are extracted automatically; a user-visible string built anywhere else (models, formatters, view models, `String` helper parameters, accessibility texts) goes through `String(localized:)`, or the parameter takes a `LocalizedStringKey`. Storage values, IDs and logs stay plain. The content catalogs (`ExerciseCatalog`, `ProgramCatalog`, `ProgressionCatalog`) are not localized yet.
+- Mark custom section titles drawn as `Text` with `.accessibilityAddTraits(.isHeader)`; give icon-only buttons a label (`Button("…", systemImage:)` with `.labelStyle(.iconOnly)`, or `.accessibilityLabel`).
+
 ## Architecture conventions
 
 - The composition root is `cali-park/Core/AppEnvironment.swift`. Services are created there once and passed to view models through its `make…ViewModel()` factories (initializer injection). Pass every store explicitly. Several legacy view model initializers give stores default arguments, and that silently disconnects them from the root.
@@ -56,7 +62,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on every push to `main`, on eve
 - Favorite exercises ("Ulubione") are catalog exercise IDs on the phone, variants included. `ExerciseFavorites`, created once in `AppEnvironment` and injected into the SwiftUI environment by `MainTabView`, is their one write path, shared by the exercise pickers, the Exercises tab, the detail screen's star and the training backup. `ExerciseListSections` builds every exercise list: favorites first, then the catalog as before; a search is one flat list of all matches.
 - Parks are read-only and come through `ParkDirectory` (`BundledParkDirectory` reads `cali-park/Resources/Parks/parks-osm-pl.json`; `InMemoryParkDirectory` in tests). The snapshot is built by `scripts/osm/build_parks_snapshot.py` (see `scripts/osm/README.md`) and the same data is the public ODbL dump in `data/`, so regenerate both together and never edit them by hand. Park names and localities come from OSM only: never store anything from MapKit geocoding or POIs. Every screen that shows OSM Parks carries the "© Współtwórcy OpenStreetMap" credit.
 - Location goes through `LocationProviding` (`CoreLocationProvider`, `FixedLocationProvider` in tests and previews). Only the first Parks map open may show the permission prompt; everything else reads the position only when it is already allowed. The position is never stored.
-- Use `PolishPlural` for counted nouns ("1 seria, 3 serie, 5 serii").
+- Use `PolishPlural` for counted nouns ("1 seria, 3 serie, 5 serii"). Its word forms stay out of the String Catalog; wrap the sentence around it (`String(localized: "\(PolishPlural.sets(n)) po \(each)")`). Move to catalog plural variations when a second language arrives.
 - `docs/PROGRESSIONS.md` is the source of truth for progression ladders. When you touch `ProgressionCatalog` or exercise variants in `ExerciseCatalog`, keep the code and that doc in sync 1:1.
 
 ## Tests
