@@ -67,6 +67,12 @@ extension XCUIApplication {
         return target
     }
 
+    /// The first element whose identifier is one of `identifiers`, for a
+    /// screen that shows one of several states.
+    func element(anyOf identifiers: [String]) -> XCUIElement {
+        descendants(matching: .any).matching(NSPredicate(format: "identifier IN %@", identifiers)).firstMatch
+    }
+
     /// The first element whose identifier starts with `prefix`.
     func element(withIdentifierPrefix prefix: String) -> XCUIElement {
         descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", prefix)).firstMatch

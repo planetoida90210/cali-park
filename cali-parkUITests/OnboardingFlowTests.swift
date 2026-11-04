@@ -29,9 +29,7 @@ final class OnboardingFlowTests: CaliParkUITestCase {
         app.element("onboarding.forward").tap()
 
         // "Minimum" trains Mon/Wed/Fri: today's plan, or a rest day naming it.
-        let planToday = app.element("home.hero.planToday")
-        let restDay = app.element("home.hero.restDay")
-        let hero = planToday.waitForExistence(timeout: 10) ? planToday : restDay.waitToAppear(timeout: 1)
+        let hero = app.element(anyOf: ["home.hero.planToday", "home.hero.restDay"]).waitToAppear()
         XCTAssertTrue(hero.descendant(labelContaining: "Minimum").exists, "The hero does not name the plan")
         XCTAssertFalse(app.element("onboarding.forward").exists)
     }
