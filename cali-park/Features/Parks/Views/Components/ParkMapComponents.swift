@@ -66,12 +66,22 @@ struct ParkVerificationBadge: View {
 
     var body: some View {
         let isVerified = verification == .verified
-        Label(verification.label, systemImage: isVerified ? "checkmark.seal.fill" : "map")
+        Label(verification.label, systemImage: symbol)
             .font(.caption.weight(.semibold))
             .foregroundStyle(isVerified ? Color.black : Color.textSecondary)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .background(isVerified ? Color.accent : Color.white.opacity(0.08), in: .capsule)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(verification.accessibilityLabel)
+    }
+
+    private var symbol: String {
+        switch verification {
+        case .verified: "checkmark.seal.fill"
+        case .community: "person.2.fill"
+        case .osm: "map"
+        }
     }
 }
 

@@ -9,8 +9,13 @@ struct ParksView: View {
     @Environment(TabRouter.self) private var router: TabRouter?
     @Environment(\.scenePhase) private var scenePhase
     @FocusState private var isSearchFocused: Bool
-    /// Height of the compact sheet detent; grows with Dynamic Type.
-    @ScaledMetric(relativeTo: .body) private var compactSheetHeight: CGFloat = 250
+    /// Height of the compact sheet detent before the card header is measured;
+    /// grows with Dynamic Type.
+    @ScaledMetric(relativeTo: .body) private var estimatedCompactHeight: CGFloat = 200
+    /// The measured card header plus its padding; fits the compact detent to
+    /// the header at any text size.
+    @State private var measuredCompactHeight: CGFloat?
+    @State private var sheetDetent: PresentationDetent = .medium
 
     init(environment: AppEnvironment) {
         _viewModel = State(initialValue: environment.makeParkMapViewModel())
@@ -37,13 +42,20 @@ struct ParksView: View {
             if let park = viewModel.selectedPark {
                 ParkSheetView(park: park,
                               distance: viewModel.distance(to: park),
-                              dataTimestamp: viewModel.dataTimestamp) {
-                    viewModel.clearSelection()
-                }
-                .presentationDetents([.height(compactSheetHeight), .large])
-                .presentationBackgroundInteraction(.enabled(upThrough: .height(compactSheetHeight)))
+                              dataTimestamp: viewModel.dataTimestamp,
+                              isExpanded: sheetDetent == .large,
+                              onHeaderHeightChange: updateCompactHeight,
+                              onExpand: { withAnimation(.smooth) { sheetDetent = .large } },
+                              onClose: { viewModel.clearSelection() })
+                .presentationDetents([compactDetent, .large], selection: $sheetDetent)
+                .presentationBackgroundInteraction(.enabled(upThrough: compactDetent))
+                .presentationContentInteraction(.resizes)
                 .presentationDragIndicator(.visible)
             }
+        }
+        .onChange(of: viewModel.selectedParkID == nil) {
+            // A newly opened card always starts compact, with the map usable.
+            sheetDetent = compactDetent
         }
         .task {
             await viewModel.start()
@@ -148,6 +160,18 @@ struct ParksView: View {
 
     // MARK: Helpers
 
+    private var compactDetent: PresentationDetent {
+        .height(measuredCompactHeight ?? estimatedCompactHeight)
+    }
+
+    private func updateCompactHeight(headerHeight: CGFloat) {
+        let height = (headerHeight + ParkSheetView.headerTopPadding + ParkSheetView.headerBottomPadding).rounded(.up)
+        guard abs(height - (measuredCompactHeight ?? 0)) >= 1 else { return }
+        let wasCompact = sheetDetent != .large
+        measuredCompactHeight = height
+        if wasCompact { sheetDetent = compactDetent }
+    }
+
     private func consumeFocusRequest() {
         guard let router, let id = router.parkToFocus else { return }
         router.parkToFocus = nil
@@ -188,6 +212,8 @@ private struct ParkMapContent: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(park.displayName)
+                        .accessibilityHint("Otwiera kartę Parku")
+                        .accessibilityAddTraits(park.id == viewModel.selectedParkID ? .isSelected : [])
                     }
                     .annotationTitles(.hidden)
                 } else {
