@@ -6,10 +6,10 @@ Każde znalezisko z [findings.md](findings.md) sprawdzone na kodzie po fundamenc
 
 | Status | Liczba |
 |---|---|
-| naprawione | 104 |
+| naprawione | 108 |
 | zniknęło | 25 |
 | świadomie odłożone | 3 |
-| otwarte | 9 (w tym 5 częściowo) |
+| otwarte | 5 (w tym 2 częściowo) |
 | **razem** | **141** |
 
 - **Wszystkie P0 z audytu są zamknięte**: dane i zaufanie (#1–#6), bloker uploadu (#7), mocki i uprawnienia (#8, #9), lokalizacja i dostępność (#10, #11). Swift 6, CI i lint też.
@@ -17,7 +17,8 @@ Każde znalezisko z [findings.md](findings.md) sprawdzone na kodzie po fundamenc
 - Gałąź testów i narzędzi (`w-tests-tooling`) zamknęła 9 kolejnych: B-16, F-14, G-8, G-14, G-16, G-20, G-21, G-22 i G-23.
 - 25 znalezisk zniknęło razem ze starym kodem, głównie ze starymi Parkami i Społecznością na atrapach (`34554ab`).
 - Gałąź `w-ui-consistency` zamknęła spójność UI: E-21, E-23, E-28, E-30 i F-10 (jeden alert błędu, jeden styl przycisku akcentowego i drugorzędnego, skala promieni, kolory z katalogu, podglądy AX5). Gałąź `w-tests-tooling` zamknęła testy i narzędzia: B-16, F-14, G-8, G-14, G-16, G-20, G-21, G-22, G-23.
-- Otwarte zostały wydajność przy dużym dzienniku (C-8/D-7, B-14), porządek w kodzie (F-7, F-8, F-15, E-25), testy UI (G-15) i katalog ćwiczeń, który czeka na drugi język (F-11). Rekomendacje są w tabeli niżej.
+- Gałąź `w-perf` zamknęła wydajność przy dużym dzienniku i korzeń kompozycji: C-8, D-7, B-14 i F-7. Pomiary i przyjęty limit są w sekcji „Duży dziennik: pomiar i limit” niżej.
+- Otwarte zostały porządek w kodzie (F-8, F-15, E-25), testy UI (G-15) i katalog ćwiczeń, który czeka na drugi język (F-11). Rekomendacje są w tabeli niżej.
 
 Statusy:
 
@@ -30,17 +31,29 @@ Commity od `2a2c469` do `dd2dc49` pochodzą z tego przeglądu; pozostałe opisuj
 
 ## Co zostało otwarte i co z tym zrobić
 
-Żadne otwarte znalezisko nie dotyczy utraty danych ani blokera App Store. Zostały wydajność, porządki w kodzie, testy UI oraz drobiazgi wymagające decyzji.
+Żadne otwarte znalezisko nie dotyczy utraty danych ani blokera App Store. Zostały porządki w kodzie, testy UI oraz drobiazgi wymagające decyzji.
 
 | ID | Wysiłek | Decyzja właściciela | Rekomendacja |
 |---|---|---|---|
-| C-8, D-7 | M | nie | Najpierw zmierzyć zapis przy ok. 10 tys. wpisów. Jeśli trwa za długo, `JSONFileStore` dostaje wersje `async` (`@concurrent`), a `TrainingJournal` zapisuje asynchronicznie. Jeśli jest szybko, zapisać w MAP, że synchroniczne store'y są świadomie akceptowane do N wpisów. |
-| B-14 | M | nie | Home liczy hero, serię, ostatni trening i podpowiedź przy każdym renderze. Zrobić `HomeSnapshot` liczony raz na `journal.revision` + plany + dzień, jak `ProgressService.snapshot`. |
 | E-25, F-15 | M | nie | Rozbić największe widoki (`ExerciseLibraryView`, `PlanEditorView`, `PathDetailView`, `ExerciseDetailView`) na pliki w `Components/`, a 42 właściwości `var x: some View` na osobne struktury. Dublery i środowiska podglądów do `PreviewSupport/` pod `#if DEBUG`, razem z `#Preview`, które ich używają; sprawdzić build Release. |
-| F-7 | S | nie | Usunąć zdublowane fabryki z `HomeDashboardViewModel` (Home woła `environment.make…`), zrobić wszystkie parametry `AppEnvironment.init` wymaganymi, przenieść odczyt z `init` `ProgramDetailViewModel` do `.task`. |
 | F-8 | M–L | tylko nazwy folderów | Jeden commit z samym przenoszeniem plików po TestFlighcie: `Domain/` (modele treningu, katalogi) i `Services/` (dziennik, postęp, nagrody, plany, store'y). |
 | F-11 | M | **tak** przy drugim języku | Katalog ćwiczeń jako JSON dopiero razem z lokalizacją treści (String Catalog nie wyciąga tekstów z JSON). Do tego czasu zostaje w kodzie; ciche zastępstwa już usunięte. |
 | G-15 | M | tylko wybór 3 ścieżek | Argument `-uitest-reset` budujący `AppEnvironment.seeded(...)`, identyfikatory dostępności i 3 testy UI (onboarding → Home, szybki trening → Historia, plan → Home). |
+
+## Duży dziennik: pomiar i limit
+
+Pomiar z `cali-parkTests/JournalWriteBenchmarkTests.swift` (poza zwykłym przebiegiem testów; uruchamia go `TEST_RUNNER_CALIPARK_BENCHMARK=1` z `-parallel-testing-enabled NO`). Dziennik 10 000 wpisów (ok. 6 lat po 4 treningi tygodniowo po 8 ćwiczeń), plik 2,6 MB, symulator iPhone 17 Pro Max na Macu, mediana z 7 prób. Zakres to Debug i Release z kilku przebiegów.
+
+| Co | Przed (`521b254`) | Po |
+|---|---|---|
+| `load()` przy starcie | 62–77 ms | 54–72 ms (bez zmian, raz przy starcie) |
+| Zapis jednego treningu (`log`, `delete(ids:)`), całość | 133–167 ms na main actorze | 96–185 ms poza main actorem |
+| Najdłuższa blokada main actora podczas zapisu | cały zapis | poniżej 1 ms |
+| Praca dziennika w pamięci po zapisie | 15–34 ms (sortowanie wszystkiego) | 0,5–1,5 ms |
+| Home po zmianie (`HomeEngine.snapshot`) | kilka razy na render | 27–36 ms, raz na zmianę |
+| Postęp po zmianie (`ProgressionEngine.snapshot`) | 30–63 ms, raz na zmianę | bez zmian |
+
+Przyjęty limit: do ok. 10 000 wpisów. Realny intensywny użytkownik ma po 3 latach ok. 5000. Zapis nie blokuje już interfejsu. Zostają dwie świadome rzeczy na main actorze: jeden odczyt pliku przy starcie (przed pierwszym ekranem, żeby nigdy nie pokazać pustego dziennika) i przeliczenie postępu oraz Home raz po każdej zmianie. Przy 10 000 wpisów to razem ok. 60–100 ms, czyli kilka klatek po zapisie. Gdy dzienniki zbliżą się do tego rozmiaru, następny krok to liczenie `ProgressionEngine.snapshot` i `HomeEngine.snapshot` poza main actorem (obie funkcje są czyste i `nonisolated`) albo plik dzielony na lata.
 
 ## Wszystkie znaleziska
 
@@ -73,7 +86,7 @@ Commity od `2a2c469` do `dd2dc49` pochodzą z tego przeglądu; pozostałe opisuj
 | B-11 | `weeklyPullUps` omija kalendarz | zniknęło | `8d07335` | Zastąpione celem tygodniowym. |
 | B-12 | Holdy źle w prefillu i sumach | naprawione | `3bbf358`, `01523f0` | „Zaczęte dziś” liczy też sekundy holdów. |
 | B-13 | I/O w `init` view modeli | naprawione | `7ac1773`, `688ee1e` | Inicjalizatory niczego nie czytają. |
-| B-14 | Home przelicza wszystko przy renderze | otwarte | `HomeDashboardViewModel.swift` | Postęp jest z cache'u, ale hero, seria i podpowiedź skanują dziennik przy każdym renderze. |
+| B-14 | Home przelicza wszystko przy renderze | naprawione | `052396e` | `HomeSnapshot` (hero, następny i ostatni trening, seria, osiągnięcia, podpowiedź) liczony przez `HomeEngine` raz na rewizję dziennika, zmianę planów, rewizję postępu i dzień. Cel tygodniowy już był z cache'u `WeeklyGoalService`. |
 | B-15 | Martwy kod w view modelach | naprawione | `16467aa`, `d163d01` | Usunięte ostatnie: fabryka edytora na Home i `totalTargetSets`. |
 | B-16 | Testy dat tylko w UTC | naprawione | `e3e2a39`, `e03695d`, `dd2dc49`, `112365d` | Testy stref, odświeżania Home, DST dla serii i harmonogramów, przypomnień o 02:30 (godzina, której nie ma, i powtórzona) i granicy tygodnia celu. |
 | C-1 | Błąd odczytu kasował dziennik | naprawione | `daf0492` | Plik odkładany na bok, zapis zablokowany, alert. |
@@ -83,7 +96,7 @@ Commity od `2a2c469` do `dd2dc49` pochodzą z tego przeglądu; pozostałe opisuj
 | C-5 | Indeksy szczebli zamiast ID | naprawione | `d4e1011` | Plik postępu w wersji 2. |
 | C-6 | Rekalibracja nadpisuje deklaracje | naprawione | `d4e1011` | Jak A-1. |
 | C-7 | Celebracja oznaczana przy kolejkowaniu | naprawione | `d4e1011`, `688ee1e` | Zapis po zamknięciu, tylko przy zmianie, błędy w logach. |
-| C-8 | Synchroniczne I/O całego pliku | otwarte (częściowo) | `688ee1e`, `d3fbbe1` | Usuwanie to jeden zapis, synchronizacja przypomnień nie czyta już pliku; każdy zapis dalej przepisuje cały plik na głównym wątku. |
+| C-8 | Synchroniczne I/O całego pliku | naprawione | `688ee1e`, `d3fbbe1`, `cc0a77f` | Zapis dziennika poza main actorem (`@concurrent` w `JSONFileStore`), po kolei, w kolejności wywołań. Odczyt przy starcie zostaje synchroniczny; limit niżej. |
 | C-9 | Daty planów a strefa czasowa | naprawione | `e3e2a39` | `CalendarDay`, stary format dalej się czyta. |
 | C-10 | Martwe Core Data przy starcie | naprawione | `e3e2a39` | Usunięte, pusty plik bazy kasowany raz. |
 | C-11 | Onboarding kończy się mimo błędu | naprawione | `89a3528` | Alert, koniec dopiero po „Rozumiem”. |
@@ -100,7 +113,7 @@ Commity od `2a2c469` do `dd2dc49` pochodzą z tego przeglądu; pozostałe opisuj
 | D-4 | Błąd dekodowania kasuje historię | naprawione | `daf0492` | Jak B-2. |
 | D-5 | Reentrancy w wydarzeniach Parku | zniknęło | `34554ab` | Wydarzenia w v1.1. |
 | D-6 | Init view modeli z efektami ubocznymi | naprawione | `688ee1e`, `7ac1773` | |
-| D-7 | Synchroniczne I/O na main actor | otwarte (częściowo) | `7ac1773`, `688ee1e`, `d3fbbe1` | Jak C-8. |
+| D-7 | Synchroniczne I/O na main actor | naprawione | `7ac1773`, `688ee1e`, `d3fbbe1`, `cc0a77f` | Jak C-8. Zdjęcia Parków zniknęły w `34554ab`. |
 | D-8 | Usuwanie z galerii poza zakresem | zniknęło | `34554ab` | |
 | D-9 | Wyszukiwarka ucina spację | naprawione | `d1d1736` | Nowe wyszukiwanie niczego nie zapisuje z powrotem. |
 | D-10 | `ObservableObject` i `@EnvironmentObject` | naprawione | `16467aa`, `7ac1773` | Zero `ObservableObject` i Combine. |
@@ -150,7 +163,7 @@ Commity od `2a2c469` do `dd2dc49` pochodzą z tego przeglądu; pozostałe opisuj
 | F-4 | Stan nagród w każdym ekranie | naprawione | `688ee1e` | `RewardCenter`. |
 | F-5 | Brak koordynacji przypomnień | naprawione | `bfb3796`, `5012b44` | `WorkoutPlanService`. |
 | F-6 | Postęp liczony wielokrotnie | naprawione | `688ee1e` | `ProgressService`. |
-| F-7 | Problemy korzenia kompozycji | otwarte (częściowo) | `AppEnvironment.swift`, `HomeDashboardViewModel.swift` | Bez `ObservableObject` i podglądów na plikach (`7ac1773`, `5f7775f`); zostały zdublowane fabryki i domyślne parametry `init`. |
+| F-7 | Problemy korzenia kompozycji | naprawione | `7ac1773`, `5f7775f`, `052396e` | Home bierze modele arkuszy z `AppEnvironment`, wszystkie parametry `AppEnvironment.init` są wymagane, `ProgramDetailViewModel` czyta w `.task`. Edytory budowane na żądanie (cel tygodniowy, kalibracja) dalej czytają swój store w `init`. |
 | F-8 | Foldery a własność domeny | otwarte | `Features/` | Wspólna domena treningu leży w folderach funkcji. |
 | F-9 | Parki na starej architekturze | zniknęło | `34554ab`, `d1d1736` | |
 | F-10 | Fonty i trzy systemy przycisków | naprawione | `9d340c9`, `f7332b3`, `b115b59` | Typografia na stylach tekstu; jeden `errorAlert`/`messageAlert` zamiast 17 kopii `errorBinding`; wspólne `ExerciseCategoryChips`; bez `.blur` na jednolitym kolorze; jeden system przycisków (E-21). |
