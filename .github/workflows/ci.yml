@@ -169,8 +169,9 @@ jobs:
         run: npm run build
 
   ui-tests:
-    # Manual and report-only until a few runs on CI's Xcode prove the UI tests
-    # fast (< ~10 min) and stable; then drop the `if` and continue-on-error.
+    # Manual and report-only: on the shared runner the job takes 6 to 15
+    # minutes, most of it the simulator's first boot (see
+    # scripts/ci-ui-tests.sh). Make it automatic once it fits in ~10 minutes.
     name: UI tests (manual)
     if: github.event_name == 'workflow_dispatch'
     runs-on: macos-26
@@ -184,43 +185,10 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select --switch "/Applications/Xcode_${XCODE_VERSION}.app"
 
-      - name: Pick simulator
-        id: simulator
-        run: |
-          udid="$(scripts/ci-pick-simulator.sh "$SIMULATOR_OS")"
-          echo "udid=$udid" >> "$GITHUB_OUTPUT"
-
-      # The simulator boots while the app builds; the tests then run on the
-      # built products. The cali-park-ui test plan holds only the UI tests, so
-      # the unit test target is not compiled. A failed test is retried once, so one slow launch on
-      # the shared runner does not fail the run, while a real failure (two in
-      # a row) still does.
+      # Build, boot and test, in the order measured fastest on this runner;
+      # the script explains why. A failed test is retried once.
       - name: UI tests
-        env:
-          UDID: ${{ steps.simulator.outputs.udid }}
-        run: |
-          set -o pipefail
-          xcrun simctl boot "$UDID" > "$RUNNER_TEMP/simctl-boot.log" 2>&1 &
-          boot_pid=$!
-          xcodebuild \
-            -project cali-park.xcodeproj \
-            -scheme cali-park \
-            -destination "platform=iOS Simulator,id=$UDID" \
-            -derivedDataPath "$RUNNER_TEMP/dd" \
-            -testPlan cali-park-ui \
-            CODE_SIGNING_ALLOWED=NO \
-            build-for-testing 2>&1 | tee "$RUNNER_TEMP/xcodebuild-ui.log"
-          wait "$boot_pid" || cat "$RUNNER_TEMP/simctl-boot.log"
-          xcrun simctl bootstatus "$UDID" -b
-          xcodebuild \
-            -project cali-park.xcodeproj \
-            -scheme cali-park \
-            -destination "platform=iOS Simulator,id=$UDID" \
-            -derivedDataPath "$RUNNER_TEMP/dd" \
-            -resultBundlePath "$RUNNER_TEMP/UITestResults.xcresult" \
-            -testPlan cali-park-ui \
-            -retry-tests-on-failure -test-iterations 2 \
-            test-without-building 2>&1 | tee -a "$RUNNER_TEMP/xcodebuild-ui.log"
+        run: scripts/ci-ui-tests.sh "$RUNNER_TEMP" "$SIMULATOR_OS"
 
       - name: UI test summary
         if: always()
@@ -232,6 +200,10 @@ jobs:
             echo "No result bundle; the build probably failed before tests ran."
           fi
 
+      - name: Fail on build warnings
+        if: always()
+        run: scripts/check-build-warnings.sh "$RUNNER_TEMP/xcodebuild-ui.log"
+
       - name: Upload UI test results
         if: failure()
         uses: actions/upload-artifact@v7
@@ -240,5 +212,6 @@ jobs:
           path: |
             ${{ runner.temp }}/UITestResults.xcresult
             ${{ runner.temp }}/xcodebuild-ui.log
+            ${{ runner.temp }}/simctl-boot.log
           retention-days: 14
           if-no-files-found: ignore
