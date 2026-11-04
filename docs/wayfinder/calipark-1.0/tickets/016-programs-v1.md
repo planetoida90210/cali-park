@@ -30,3 +30,7 @@ Propozycja ze źródłami: [proposals/016-programs.md](../proposals/016-programs
 - Test poziomu w onboardingu podpowiada program, ale można wybrać inny.
 - Nazwy zostają. Model planu dostaje opcjonalne pola z propozycji (odwołanie do drabiny, zakres powtórzeń, czas holdu, przerwa, pary i obwody, pochodzenie programu).
 - Kolejność: najpierw rewizja drabin (015), bo Skille i Fundamenty stoją na nowych szczeblach.
+
+## Wdrożenie (2026-11-04)
+
+Zmergowane jako `3bbf358`. Otwarte pytania z raportu workera rozstrzyga koordynator: dni startowe Pn/Śr/Pt (Skille Wt/Czw), „1–2 powtórzenia w zapasie”; notka „przerwij przy bólu” czeka na tekst regulaminu.

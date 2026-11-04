@@ -27,3 +27,5 @@ Kontenera iCloud nie da się usunąć i należy do zespołu, który go utworzył
 ## Notatka (2026-11-04)
 
 Właściciel kupi konto później, teraz nie ma budżetu. Do tego czasu robimy wszystko, co nie wymaga płatnego konta: trening, fundament, drabiny, programy, przypomnienia lokalne. Bundle ID i team ustalamy przy zakupie, zanim powstanie kontener iCloud.
+
+Przy zmianie bundle ID trzeba też zmienić identyfikator zadania w tle `com.michalbryk.cali-park.reminders-refresh` (`cali-park/Info.plist`, `AppRefreshScheduler.taskIdentifier`).

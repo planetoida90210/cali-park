@@ -125,12 +125,25 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - kalibracja wskazuje szczeble po ID; dipy „12+” startują od podporu na kółkach,
   - jednorazowy skok XP za nowe niższe szczeble (np. +100 XP przy pełnych podciągnięciach, maks. +1100 XP), przyjęty w 015,
   - testy: 426 (722 przypadki).
+- **Gotowe programy** (`3bbf358`, 2026-11-04, „Gotowe programy treningowe w 1.0”):
+  - Minimum, Fundamenty, Pierwsze podciągnięcie i Skille jako szablony z podpisem źródła; `docs/PROGRAMS.md` i `ProgramCatalog` 1:1,
+  - „Gotowe programy” w planerze: podgląd na Twoich szczeblach i „Utwórz plan”, który daje zwykły plan do edycji z `programID` i wersją,
+  - nowe opcjonalne pola planu (drabina, zakresy, holdy, przerwy, pary i obwody), stare pliki dalej się wczytują, koperta zostaje w wersji 1,
+  - trening z planu idzie na aktualnym szczeblu drabiny; holdy podpowiadają sekundy (część A-8),
+  - onboarding: krok „Program na start” po teście poziomu,
+  - nie zrobione: podpowiedź przejścia z „Pierwszego podciągnięcia” do „Fundamentów”, pary i obwody na ekranie treningu, reszta A-8,
+  - testy: 482 (800 przypadków).
+- **Przypomnienia bez zrobionych dni** (`78df41e`, `8a8a469`, 2026-11-04):
+  - przypomnienia na konkretne daty zamiast powtarzanych, maks. 64 najbliższe; dzień, w którym plan jest zrobiony, nie dostaje przypomnienia,
+  - zapis albo usunięcie treningu od razu przelicza przypomnienia, a odświeżanie w tle (`BGAppRefreshTask`) dokłada je raz na dobę,
+  - granica: przy 3 planach po 3 dni w tygodniu przypomnienia sięgają ok. 7 tygodni naprzód, jeśli apka nie zostanie otwarta, a iOS nie uruchomi odświeżania w tle,
+  - testy: 501 (822 przypadki).
 - **Planer: zaliczenie planu i przypomnienia** (`bfb3796`, 2026-11-04):
   - plan jest zaliczony na dany dzień, gdy któryś wpis z tego dnia ma jego id; Home proponuje następny niezaliczony plan na dziś, a po wszystkich pokazuje „Dziś · Zrobione” (B-5),
   - przełącznik „Przypomnienie” i godzina w edytorze planu, zgoda pytana dopiero przy pierwszym włączeniu, a przy odmowie krótkie wyjaśnienie z linkiem do Ustawień („Przypomnienia o treningu w 1.0”),
   - `WorkoutPlanService` zapisuje i usuwa plany oraz synchronizuje przypomnienia po każdej zmianie, przy starcie i powrocie do apki; uszkodzony plik planów nie kasuje przypomnień,
   - scheduler: limit 64 powiadomień (najbliższe pierwsze), kolejne zmiany się nie przeplatają, błędy trafiają do logów, bez `.badge` (B-7),
-  - nie zrobione: B-8 (plan jednorazowy z datą w przeszłości), B-9 (strefa czasowa); przypomnienie tygodniowe odpala też w dzień, w którym plan już jest zrobiony,
+  - nie zrobione: B-8 (plan jednorazowy z datą w przeszłości), B-9 (strefa czasowa),
   - testy: 393 (656 przypadków).
 - **CI, krok F0 fundamentu** (`449024e`, `45de40c`, `3b5dd4a`, 2026-11-04):
   - GitHub Actions na każdym pushu na `main` (poza samymi dokumentami): build i testy jednostkowe na `macos-26` z Xcode 26.6, zero warningów albo czerwono (G-7),
