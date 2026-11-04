@@ -5,7 +5,7 @@ import Foundation
 /// name, the exercises it contains, and a recurrence rule. Persisted via
 /// `WorkoutPlanStoring`; the Home screen surfaces the plan whose next
 /// occurrence is soonest.
-struct WorkoutPlan: Identifiable, Codable, Equatable, Hashable {
+nonisolated struct WorkoutPlan: Identifiable, Codable, Equatable, Hashable {
     let id: UUID
     var name: String
     var exercises: [PlannedExercise]

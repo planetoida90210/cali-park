@@ -10,7 +10,7 @@ import Foundation
 /// three sets of 8 need; 9 in one set does not yet mean 3 × 8. This is
 /// transient UI input, never persisted: only the resulting rung index is stored
 /// in `SkillPlacement`.
-enum RepCountBucket: String, CaseIterable, Identifiable, Hashable, Sendable {
+nonisolated enum RepCountBucket: String, CaseIterable, Identifiable, Hashable, Sendable {
     case none
     case few
     case several

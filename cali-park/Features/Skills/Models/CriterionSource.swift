@@ -7,7 +7,7 @@ import Foundation
 /// The labels match the "Źródła" section of `docs/PROGRESSIONS.md` 1:1. A
 /// rung's own source (which ladder in which book lists it) is documented
 /// there too; only the criterion's source lives in code.
-enum CriterionSource: String, Codable, CaseIterable, Sendable {
+nonisolated enum CriterionSource: String, Codable, CaseIterable, Sendable {
     /// Recommended Routine, r/bodyweightfitness wiki.
     case rr
     /// Overcoming Gravity, 2nd ed. (Steven Low), a level from the chart.

@@ -10,7 +10,7 @@ import Foundation
 /// that many qualifying sets, which is why "3 × 8 in one session" counts while
 /// the same volume split across separate saves does not. This value only ever rises — a met rung stays met, so a bad week
 /// never demotes a ladder.
-struct RungProgress: Equatable, Sendable {
+nonisolated struct RungProgress: Equatable, Sendable {
     /// The target this rung is scored against.
     let criterion: AdvancementCriterion
     /// The athlete's best single-session value toward the criterion, in reps or

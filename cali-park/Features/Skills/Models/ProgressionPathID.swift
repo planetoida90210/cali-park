@@ -8,7 +8,7 @@ import Foundation
 /// onboarding calibration (SK4) key their per-path data on these, so a case's
 /// raw value must never change once shipped. Paths are fully independent —
 /// nothing here encodes a dependency between them.
-enum ProgressionPathID: String, Codable, CaseIterable, Identifiable, Sendable {
+nonisolated enum ProgressionPathID: String, Codable, CaseIterable, Identifiable, Sendable {
     case pullUp
     case row
     case pushUp

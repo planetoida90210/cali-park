@@ -4,7 +4,7 @@ import Foundation
 /// Pure, testable streak math derived from workout log dates.
 /// A streak is a run of consecutive calendar days with at least one logged
 /// workout. Training yesterday (but not yet today) keeps the streak alive.
-struct WorkoutStreak: Equatable {
+nonisolated struct WorkoutStreak: Equatable {
     /// Length of the run that is still alive today (0 after a gap).
     let current: Int
     /// The longest run ever recorded.

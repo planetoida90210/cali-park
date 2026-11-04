@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - ParkDistance
 /// A Park with its distance from the user, when the user's position is known.
-struct ParkDistance: Identifiable, Hashable, Sendable {
+nonisolated struct ParkDistance: Identifiable, Hashable, Sendable {
     let park: Park
     let meters: CLLocationDistance?
 
@@ -12,7 +12,7 @@ struct ParkDistance: Identifiable, Hashable, Sendable {
 
 // MARK: - ParkSearch
 /// Pure filtering and ordering for the Parks map, list and Home module.
-enum ParkSearch {
+nonisolated enum ParkSearch {
     /// Parks whose name or locality contains every word of `query`. Case,
     /// diacritics and "ł" are ignored, so "lodz" finds "Łódź". An empty query
     /// returns every Park.

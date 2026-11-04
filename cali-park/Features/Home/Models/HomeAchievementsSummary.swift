@@ -9,7 +9,7 @@ import Foundation
 /// logs the Skills tab reads (`ProgressionEngine`), so Home and Skills always
 /// agree. Declarations never contribute — level, badges, and advances all come
 /// from logs alone.
-struct HomeAchievementsSummary: Equatable, Sendable {
+nonisolated struct HomeAchievementsSummary: Equatable, Sendable {
     /// The athlete's current level (starts at 1).
     let level: Int
     /// XP still needed to reach the next level.

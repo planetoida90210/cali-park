@@ -24,7 +24,7 @@ import Foundation
 /// 6 after the arch hang went in (600 XP), +100 XP. A wall handstand push-up
 /// 3 × 5 goes from 3 to 6 handstand rungs, +300 XP. Celebrations are keyed by
 /// exercise ID, so nothing already celebrated plays again.
-enum ProgressionCatalog {
+nonisolated enum ProgressionCatalog {
     // MARK: Shared criteria
     // Dynamic ladders advance on Recommended Routine's "3 × 8 clean → next";
     // harder rep rungs (negatives, unilateral skills) use lower counts, which

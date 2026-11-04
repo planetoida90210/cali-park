@@ -5,7 +5,7 @@ import Foundation
 /// pending. No side effects and no `UserNotifications` dependency, so the
 /// mapping is fully unit-testable; the concrete scheduler just registers the
 /// results.
-enum WorkoutReminderPlanner {
+nonisolated enum WorkoutReminderPlanner {
     /// iOS keeps at most 64 pending local notifications per app and silently
     /// drops the rest, so the planner never asks for more.
     static let pendingLimit = 64

@@ -4,7 +4,7 @@ import Foundation
 /// The goal set in force from `effectiveFrom` until the next version. Keeping
 /// every version lets a closed week be judged by the goals that applied when it
 /// ended, so changing a goal never rewrites history.
-struct WeeklyGoalVersion: Codable, Equatable, Sendable {
+nonisolated struct WeeklyGoalVersion: Codable, Equatable, Sendable {
     var effectiveFrom: Date
     /// One to three goals. The first is the primary goal: it fills the hero
     /// ring and drives the week streak.

@@ -4,7 +4,7 @@ import Foundation
 /// Abstraction over workout-plan persistence, mirroring `WorkoutLogStoring`:
 /// view models stay testable with the in-memory stub, and the backend can be
 /// swapped later (local JSON now → Supabase/Firebase when it lands).
-protocol WorkoutPlanStoring {
+nonisolated protocol WorkoutPlanStoring {
     /// Returns all saved plans; empty when none exist yet. Throws when saved
     /// plans exist but cannot be read.
     func load() throws -> [WorkoutPlan]
@@ -20,7 +20,7 @@ protocol WorkoutPlanStoring {
 }
 
 // MARK: - Default replace
-extension WorkoutPlanStoring {
+nonisolated extension WorkoutPlanStoring {
     /// Fallback replace: deletes every plan, then saves the new ones. Not
     /// atomic — conformers that can write once should override this.
     func replaceAll(with plans: [WorkoutPlan]) throws {
@@ -37,7 +37,7 @@ extension WorkoutPlanStoring {
 /// Default `WorkoutPlanStoring` implementation: a single JSON file in the
 /// app's store directory, through `JSONFileStore`. Adequate for a handful
 /// of personal plans; deliberately not Core Data.
-struct FileWorkoutPlanStore: WorkoutPlanStoring {
+nonisolated struct FileWorkoutPlanStore: WorkoutPlanStoring {
     private let file: JSONFileStore<[WorkoutPlan]>
 
     /// Version 2 stores schedule days as `"yyyy-MM-dd"` (`CalendarDay`).
@@ -84,7 +84,7 @@ struct FileWorkoutPlanStore: WorkoutPlanStoring {
 
 // MARK: - InMemoryWorkoutPlanStore
 /// Non-persistent store for previews and unit tests.
-final class InMemoryWorkoutPlanStore: WorkoutPlanStoring {
+nonisolated final class InMemoryWorkoutPlanStore: WorkoutPlanStoring {
     private var plans: [WorkoutPlan]
 
     init(initial: [WorkoutPlan] = []) {

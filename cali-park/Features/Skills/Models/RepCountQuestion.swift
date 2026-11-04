@@ -9,7 +9,7 @@ import Foundation
 /// no answer can mark them conquered: "0" starts on the regression that builds
 /// the movement, "1–5" and "6–11" train the movement itself, and "12+" (enough
 /// for its 3 × 8) makes the next variant current, to be earned through logs.
-struct RepCountQuestion: Identifiable, Sendable {
+nonisolated struct RepCountQuestion: Identifiable, Sendable {
     /// The path this question places; also the question's identity, since there
     /// is one rep question per path.
     let path: ProgressionPathID

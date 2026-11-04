@@ -8,7 +8,7 @@ import Foundation
 /// so 70 pull-ups do not hand you a muscle-up. Produced by `ProgressionEngine`
 /// from logs and (optionally) a `SkillPlacement`; it is derived state, never
 /// persisted.
-struct PathState: Identifiable, Equatable, Sendable {
+nonisolated struct PathState: Identifiable, Equatable, Sendable {
     /// The path this state describes.
     let pathID: ProgressionPathID
     /// Total number of rungs on the path's ladder.

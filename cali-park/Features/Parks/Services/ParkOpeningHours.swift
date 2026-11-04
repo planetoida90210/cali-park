@@ -8,7 +8,7 @@ import Foundation
 /// `Mo-Fr 10:00-22:00; Sa,Su 08:00-20:00`. Anything else (holidays, months,
 /// sunrise, comments…) comes back unchanged, because a wrong translation is
 /// worse than the raw value.
-enum ParkOpeningHours {
+nonisolated enum ParkOpeningHours {
     /// "Całą dobę", "Codziennie 6:00–22:00", "Pon.–pt. 10:00–22:00", or the
     /// raw value when it isn't one of the simple forms.
     static func text(for raw: String) -> String {

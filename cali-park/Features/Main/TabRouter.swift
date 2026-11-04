@@ -5,7 +5,7 @@ import Observation
 /// The top-level tabs, in bar order. Raw values are the `TabView` selection, so
 /// cross-tab navigation (e.g. Home → Skille) stays type-safe instead of leaning
 /// on bare integers.
-enum AppTab: Int, CaseIterable, Sendable {
+nonisolated enum AppTab: Int, CaseIterable, Sendable {
     case home
     case parks
     case exercises

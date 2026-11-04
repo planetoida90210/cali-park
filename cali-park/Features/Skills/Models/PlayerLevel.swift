@@ -7,7 +7,7 @@ import Foundation
 /// `500 · (L - 1)²` XP, so early levels come fast and later ones ask for real
 /// volume. `PlayerLevel` owns its own curve; `ProgressionEngine` supplies the
 /// XP. It is derived state, never persisted.
-struct PlayerLevel: Equatable, Sendable {
+nonisolated struct PlayerLevel: Equatable, Sendable {
     /// The current level, starting at 1.
     let level: Int
     /// Total accumulated experience points.

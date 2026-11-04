@@ -19,7 +19,7 @@ import Foundation
 ///   adopts everything already earned as its baseline and celebrates nothing,
 ///   so an athlete upgrading with a long history is not buried in overlays.
 ///   Every later evaluation celebrates only what is genuinely new, exactly once.
-enum RewardEvaluator {
+nonisolated enum RewardEvaluator {
     /// The events to celebrate and the record to persist now.
     ///
     /// - Parameters:

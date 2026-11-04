@@ -16,7 +16,7 @@ import Foundation
 /// in the calendar under `CalendarDay.legacyCalendarKey` in the decoder's
 /// `userInfo`, or `Calendar.current` without one. That is the day the app
 /// showed for the plan before the change.
-struct CalendarDay: Hashable, Comparable, Sendable {
+nonisolated struct CalendarDay: Hashable, Comparable, Sendable {
     let year: Int
     let month: Int
     let day: Int
@@ -61,7 +61,7 @@ struct CalendarDay: Hashable, Comparable, Sendable {
 }
 
 // MARK: - Codable
-extension CalendarDay: Codable {
+nonisolated extension CalendarDay: Codable {
     /// `userInfo` key for the `Calendar` that turns a legacy instant into a day.
     static let legacyCalendarKey = CodingUserInfoKey(rawValue: "calipark.legacyDayCalendar")!
 

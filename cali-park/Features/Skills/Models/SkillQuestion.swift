@@ -7,7 +7,7 @@ import Foundation
 /// counts as conquered. A skill may share a path with a `RepCountQuestion` — the
 /// pistol squat and the squat count both place `legs` — in which case the
 /// calibration keeps the higher rung.
-struct SkillQuestion: Identifiable, Sendable {
+nonisolated struct SkillQuestion: Identifiable, Sendable {
     /// Stable identifier for the checkbox state; kept distinct from `path` since
     /// several skills can target the same path.
     let id: String

@@ -11,7 +11,7 @@ import Foundation
 /// it never lowers a rung already earned from logs: `ProgressionEngine` takes
 /// the max of declaration and logs. Placement is training data, not a secret,
 /// so it lives in a plain JSON file (see `PlacementStoring`).
-struct SkillPlacement: Codable, Equatable, Sendable {
+nonisolated struct SkillPlacement: Codable, Equatable, Sendable {
     /// The store schema version this type writes. Version 1 stored rung
     /// indices; version 2 stores the declared rung's step ID.
     static let schemaVersion = 2

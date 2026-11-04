@@ -8,7 +8,7 @@ import Foundation
 /// day carries its `planID` (a quick workout started from the plan stamps it).
 /// Day boundaries come from the injected calendar, so an entry at 23:59 belongs
 /// to that day and one at 00:01 to the next.
-enum PlanAgenda {
+nonisolated enum PlanAgenda {
     // MARK: Occurrence
     /// An active plan paired with the day it comes up (start of that day).
     struct Occurrence: Equatable {

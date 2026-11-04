@@ -4,7 +4,7 @@ import Foundation
 /// Difficulty tier of an exercise. Raw values are stable storage keys;
 /// user-facing text comes from `displayName`. Order of cases defines
 /// the progression (used for sorting and filter chips).
-enum ExerciseCategory: String, Codable, CaseIterable, Identifiable {
+nonisolated enum ExerciseCategory: String, Codable, CaseIterable, Identifiable {
     case basic
     case advanced
     case expert

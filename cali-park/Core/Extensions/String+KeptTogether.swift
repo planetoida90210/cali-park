@@ -1,7 +1,7 @@
 import Foundation
 
 // MARK: - Kept-together typography
-extension String {
+nonisolated extension String {
     /// The text with line breaks ruled out where they read badly in Polish UI
     /// copy: inside a number range ("45–60"), between a number and "min"
     /// ("60 min"), after "ok." ("ok. 45") and after "r/" ("r/bodyweightfitness"). Uses invisible

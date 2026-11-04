@@ -4,7 +4,7 @@ import Foundation
 /// Stable identifier of a ready-made program. The raw value is stored in
 /// `WorkoutPlan.programID`, so a case's raw value must never change once
 /// shipped.
-enum ProgramID: String, CaseIterable, Codable, Identifiable, Hashable, Sendable {
+nonisolated enum ProgramID: String, CaseIterable, Codable, Identifiable, Hashable, Sendable {
     case minimum
     case fundamentals
     case firstPullUp
@@ -18,7 +18,7 @@ enum ProgramID: String, CaseIterable, Codable, Identifiable, Hashable, Sendable 
 /// `docs/PROGRAMS.md`). A template never trains anything by itself:
 /// `ProgramPrescriber` turns it into ordinary, editable `WorkoutPlan`s on the
 /// athlete's current rungs.
-struct TrainingProgram: Identifiable, Hashable, Sendable {
+nonisolated struct TrainingProgram: Identifiable, Hashable, Sendable {
     let id: ProgramID
     /// Bumped whenever the template's content changes, and stored on every
     /// plan created from it (`WorkoutPlan.programVersion`).
@@ -48,7 +48,7 @@ struct TrainingProgram: Identifiable, Hashable, Sendable {
 
 // MARK: - ProgramSession
 /// One training day of a program, created as one `WorkoutPlan`.
-struct ProgramSession: Hashable, Sendable {
+nonisolated struct ProgramSession: Hashable, Sendable {
     /// The created plan's name.
     let name: String
     let items: [ProgramItem]
@@ -56,7 +56,7 @@ struct ProgramSession: Hashable, Sendable {
 
 // MARK: - ProgramItem
 /// One block of a program session: what is trained and how much.
-struct ProgramItem: Hashable, Sendable {
+nonisolated struct ProgramItem: Hashable, Sendable {
     // MARK: Movement
     enum Movement: Hashable, Sendable {
         /// The athlete's current main-line rung on a ladder. `holdRungsOnly`

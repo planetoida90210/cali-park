@@ -9,7 +9,7 @@ import Foundation
 /// a ladder reference, ranges, rest, a pair or circuit number, and so on.
 /// Every one of those fields is optional and absent from plans saved before
 /// programs existed, so old plan files still load (see `init(from:)`).
-struct PlannedExercise: Identifiable, Codable, Equatable, Hashable {
+nonisolated struct PlannedExercise: Identifiable, Codable, Equatable, Hashable {
     let id: UUID
     var exerciseID: UUID
     var targetSets: Int?

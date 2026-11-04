@@ -40,7 +40,7 @@ struct ModuleDropDelegate: DropDelegate {
 /// for the end of a drag, but the system releases the provider once the drag
 /// session is over, whether it was dropped or cancelled, so `deinit` reports
 /// the end. The module ID is visible to this app only.
-final class ModuleDragItemProvider: NSItemProvider {
+nonisolated final class ModuleDragItemProvider: NSItemProvider {
     private let onEnd: @MainActor @Sendable () -> Void
 
     init(moduleID: String, onEnd: @escaping @MainActor @Sendable () -> Void) {

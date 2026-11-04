@@ -7,7 +7,7 @@ import Foundation
 /// Ladder state comes from `ProgressionEngine.pathStates(logs:placement:)`,
 /// so the rung an item trains is the same one the Skills tab shows as
 /// current: the first unconquered main-line rung, never a parallel track.
-enum ProgramPrescriber {
+nonisolated enum ProgramPrescriber {
     // MARK: Plans
 
     /// The plans a program creates for an athlete: one per training day, with

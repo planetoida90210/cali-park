@@ -11,7 +11,7 @@ import os
 /// it from touching a store with the same name if Core Data ever returns.
 /// Missing files count as removed; a file that cannot be removed is logged
 /// and retried on the next launch.
-struct CoreDataScaffoldCleanup {
+nonisolated struct CoreDataScaffoldCleanup {
     static let fileNames = ["cali_park.sqlite", "cali_park.sqlite-wal", "cali_park.sqlite-shm"]
 
     /// Where `NSPersistentContainer` kept the store: Application Support.

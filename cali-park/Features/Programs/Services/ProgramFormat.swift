@@ -4,7 +4,7 @@ import Foundation
 /// Polish labels for program and plan items: what to do on an item ("3 × 5–8
 /// na nogę"), the pair or circuit it belongs to, and its rest. Shared by the
 /// program detail screen and the plan editor so both read the same.
-enum ProgramFormat {
+nonisolated enum ProgramFormat {
     /// What to do, e.g. "3 × 5–8", "3 × 10–30 s", "2–6 rund · 1–2 powtórzenia
     /// w zapasie", "do 10 min praktyki" or "łącznie do 3 min, holdy 10–30 s".
     /// `nil` when the item has no target at all (a plan built by hand).

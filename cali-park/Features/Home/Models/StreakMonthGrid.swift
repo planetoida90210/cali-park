@@ -4,7 +4,7 @@ import Foundation
 /// The "Seria dni" month grid: weeks start on Monday (as in Poland and in the
 /// weekly goal), so day 1 sits under its weekday and the cells before it are
 /// blank. A pure value built from the reference day and the calendar.
-struct StreakMonthGrid: Equatable {
+nonisolated struct StreakMonthGrid: Equatable {
     /// The weekday header, Monday first.
     static let weekdaySymbols = ["pn", "wt", "śr", "cz", "pt", "sb", "nd"]
 

@@ -7,7 +7,7 @@ import Foundation
 ///
 /// Like placement, this is not secret data: no tokens or entitlement flags, just
 /// which celebrations have played. A plain JSON file is the right store.
-protocol SkillProgressStoring {
+nonisolated protocol SkillProgressStoring {
     /// The saved progress record, or `nil` when nothing has been celebrated yet.
     /// Throws when a saved record exists but cannot be read.
     func load() throws -> SkillProgress?
@@ -21,7 +21,7 @@ protocol SkillProgressStoring {
 }
 
 // MARK: - Default replace
-extension SkillProgressStoring {
+nonisolated extension SkillProgressStoring {
     /// Fallback replace: saves a value, and refuses to delete one, since this
     /// store has no way to. Conformers that can delete should override this.
     func replace(with progress: SkillProgress?) throws {
@@ -36,7 +36,7 @@ extension SkillProgressStoring {
 // MARK: - FileSkillProgressStore
 /// Default `SkillProgressStoring` implementation: a single JSON file in the
 /// app's store directory, through `JSONFileStore`.
-struct FileSkillProgressStore: SkillProgressStoring {
+nonisolated struct FileSkillProgressStore: SkillProgressStoring {
     private let file: JSONFileStore<SkillProgress>
 
     init(directory: URL, fileName: String = StoreFile.skillProgress.fileName) {
@@ -62,7 +62,7 @@ struct FileSkillProgressStore: SkillProgressStoring {
 
 // MARK: - InMemorySkillProgressStore
 /// Non-persistent store for previews and unit tests.
-final class InMemorySkillProgressStore: SkillProgressStoring {
+nonisolated final class InMemorySkillProgressStore: SkillProgressStoring {
     private var progress: SkillProgress?
 
     init(initial: SkillProgress? = nil) {

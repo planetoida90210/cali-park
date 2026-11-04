@@ -1,7 +1,7 @@
 import Foundation
 
 // MARK: - CelebrationPresentation: weekly goal
-extension CelebrationPresentation {
+nonisolated extension CelebrationPresentation {
     /// The overlay copy for a weekly goal reached this week. No XP: XP stays
     /// with conquered rungs, so it cannot be farmed with easy goals.
     static func weeklyGoalMet(_ progress: WeeklyGoalProgress, isPrimary: Bool, streak: Int) -> CelebrationPresentation {

@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - ParkCatalog
 /// Every published Park plus where the data comes from.
-struct ParkCatalog: Hashable, Sendable {
+nonisolated struct ParkCatalog: Hashable, Sendable {
     var parks: [Park]
     /// When the OSM data was taken (Overpass `timestamp_osm_base`).
     var dataTimestamp: Date?
@@ -16,13 +16,13 @@ struct ParkCatalog: Hashable, Sendable {
 // MARK: - ParkDirectory
 /// Read-only source of Parks. Today it is the OSM snapshot bundled in the app;
 /// the backend replaces it later behind the same protocol.
-protocol ParkDirectory: Sendable {
+nonisolated protocol ParkDirectory: Sendable {
     /// Published Parks only. Throws when the data can't be read; callers show
     /// an error instead of an empty map.
     func catalog() async throws -> ParkCatalog
 }
 
-enum ParkDirectoryError: Error, Equatable {
+nonisolated enum ParkDirectoryError: Error, Equatable {
     case missingSnapshot
     case unsupportedSchema(Int)
 }
@@ -30,7 +30,7 @@ enum ParkDirectoryError: Error, Equatable {
 // MARK: - ParkSnapshot
 /// On-disk format written by `scripts/osm/build_parks_snapshot.py`. The same
 /// file is the public ODbL dump in `data/`.
-struct ParkSnapshot: Decodable, Sendable {
+nonisolated struct ParkSnapshot: Decodable, Sendable {
     static let supportedSchemaVersion = 1
 
     var schemaVersion: Int
@@ -92,7 +92,7 @@ actor BundledParkDirectory: ParkDirectory {
 
 // MARK: - InMemoryParkDirectory
 /// Fixed Parks for tests and previews; `error` makes `catalog()` throw.
-struct InMemoryParkDirectory: ParkDirectory {
+nonisolated struct InMemoryParkDirectory: ParkDirectory {
     var parks: [Park]
     var dataTimestamp: Date?
     var error: ParkDirectoryError?

@@ -4,7 +4,7 @@ import Foundation
 /// Abstraction over workout log persistence so view models stay testable
 /// (in-memory stub in tests) and the backend can be swapped later
 /// (local JSON now → Supabase/Firebase when the backend lands).
-protocol WorkoutLogStoring {
+nonisolated protocol WorkoutLogStoring {
     /// Returns all persisted entries; empty when nothing has been logged yet.
     /// Throws when saved entries exist but cannot be read, so callers never
     /// mistake a broken file for an empty journal.
@@ -29,7 +29,7 @@ protocol WorkoutLogStoring {
 }
 
 // MARK: - Default batch append
-extension WorkoutLogStoring {
+nonisolated extension WorkoutLogStoring {
     /// Fallback batch append for stores without an optimized version.
     /// Not atomic — conformers that can write once should override this.
     func append(contentsOf entries: [WorkoutLogEntry]) throws {
@@ -62,7 +62,7 @@ extension WorkoutLogStoring {
 /// app's store directory, through `JSONFileStore`. Adequate for a personal
 /// training log (tens–hundreds of entries); deliberately not Core Data. A file
 /// that cannot be read makes every call throw instead of being overwritten.
-struct FileWorkoutLogStore: WorkoutLogStoring {
+nonisolated struct FileWorkoutLogStore: WorkoutLogStoring {
     private let file: JSONFileStore<[WorkoutLogEntry]>
 
     init(directory: URL, fileName: String = StoreFile.workoutLog.fileName) {
@@ -102,7 +102,7 @@ struct FileWorkoutLogStore: WorkoutLogStoring {
 
 // MARK: - InMemoryWorkoutLogStore
 /// Non-persistent store for previews and unit tests.
-final class InMemoryWorkoutLogStore: WorkoutLogStoring {
+nonisolated final class InMemoryWorkoutLogStore: WorkoutLogStoring {
     private var entries: [WorkoutLogEntry]
 
     init(initial: [WorkoutLogEntry] = []) {

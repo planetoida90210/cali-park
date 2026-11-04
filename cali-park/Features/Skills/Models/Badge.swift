@@ -7,7 +7,7 @@ import Foundation
 /// computed by `ProgressionEngine.earnedBadges(from:)`. Declarations never grant
 /// a badge — there are no rewards for clicking, only for training. Raw values
 /// are stable storage keys.
-enum Badge: String, Codable, CaseIterable, Identifiable, Sendable {
+nonisolated enum Badge: String, Codable, CaseIterable, Identifiable, Sendable {
     /// First workout ever logged.
     case firstWorkout
     /// Trained on at least ten distinct days.

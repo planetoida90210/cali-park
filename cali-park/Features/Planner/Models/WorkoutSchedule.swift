@@ -11,7 +11,7 @@ import Foundation
 /// Days are `CalendarDay`s, not instants, so they don't move when the time
 /// zone changes. Plans saved before that stored instants; `CalendarDay`
 /// still decodes them.
-enum WorkoutSchedule: Codable, Equatable, Hashable {
+nonisolated enum WorkoutSchedule: Codable, Equatable, Hashable {
     case once(CalendarDay?)
     case weekly(Set<Weekday>)
     case everyNDays(Int, from: CalendarDay)

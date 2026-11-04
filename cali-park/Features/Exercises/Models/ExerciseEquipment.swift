@@ -7,7 +7,7 @@ import Foundation
 /// values (`fitness_pole`, `wall_bars`); the older English keys keep their
 /// spelling so stored values still match. A key only changes its label here,
 /// never its spelling. Park equipment uses `EquipmentType` instead.
-enum ExerciseEquipment {
+nonisolated enum ExerciseEquipment {
     static func displayName(for key: String) -> String {
         displayNames[key] ?? key
     }

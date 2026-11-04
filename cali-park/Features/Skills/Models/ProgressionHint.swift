@@ -9,7 +9,7 @@ import Foundation
 /// `ProgressionEngine.mostActionableHint(logs:placement:)` and turned into a
 /// display line by `ProgressionFormat.hintLine(_:)`. The Home hero shows it as a
 /// secondary line on rest days and free-training days.
-struct ProgressionHint: Equatable, Sendable {
+nonisolated struct ProgressionHint: Equatable, Sendable {
     /// The path this nudge is about.
     let pathID: ProgressionPathID
     /// The rung the athlete trains now — the one with partial progress.

@@ -7,7 +7,7 @@ import Foundation
 ///
 /// The pause ends by itself at `plannedEnd`, or earlier when the athlete ends
 /// it (`endedAt`).
-struct WeeklyGoalPause: Identifiable, Codable, Equatable, Sendable {
+nonisolated struct WeeklyGoalPause: Identifiable, Codable, Equatable, Sendable {
     let id: UUID
     /// Start of the first paused day.
     let start: Date

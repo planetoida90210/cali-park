@@ -3,7 +3,7 @@ import Foundation
 // MARK: - WeeklyGoalStoring
 /// Persistence for the weekly goal: goal versions, pauses and shown
 /// celebrations (`WeeklyGoalHistory`).
-protocol WeeklyGoalStoring {
+nonisolated protocol WeeklyGoalStoring {
     /// The saved history, or `nil` when nothing was saved yet (the implicit
     /// default goal applies). Throws when a saved history exists but cannot be
     /// read; callers must show an error, never fall back to the default.
@@ -18,7 +18,7 @@ protocol WeeklyGoalStoring {
 }
 
 // MARK: - Default replace
-extension WeeklyGoalStoring {
+nonisolated extension WeeklyGoalStoring {
     /// Fallback replace: saves a value, and refuses to delete one, since this
     /// store has no way to. Conformers that can delete should override this.
     func replace(with history: WeeklyGoalHistory?) throws {
@@ -34,7 +34,7 @@ extension WeeklyGoalStoring {
 /// Default `WeeklyGoalStoring` implementation: one JSON file in the app's
 /// store directory, through `JSONFileStore` (versioned envelope,
 /// quarantine of unreadable files, writes refused while the file is broken).
-struct FileWeeklyGoalStore: WeeklyGoalStoring {
+nonisolated struct FileWeeklyGoalStore: WeeklyGoalStoring {
     private let file: JSONFileStore<WeeklyGoalHistory>
 
     init(directory: URL, fileName: String = StoreFile.weeklyGoal.fileName) {
@@ -56,7 +56,7 @@ struct FileWeeklyGoalStore: WeeklyGoalStoring {
 
 // MARK: - InMemoryWeeklyGoalStore
 /// Non-persistent store for previews and unit tests.
-final class InMemoryWeeklyGoalStore: WeeklyGoalStoring {
+nonisolated final class InMemoryWeeklyGoalStore: WeeklyGoalStoring {
     private var history: WeeklyGoalHistory?
     /// How many times `save` ran, so tests can assert nothing was written.
     private(set) var saveCount = 0

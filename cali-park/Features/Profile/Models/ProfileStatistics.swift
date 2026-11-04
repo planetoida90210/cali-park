@@ -3,7 +3,7 @@ import Foundation
 // MARK: - ProfileStatistics
 /// The numbers at the top of Profile, all derived from the workout log (and
 /// the weekly goal for the week streak). Never persisted.
-struct ProfileStatistics: Equatable, Sendable {
+nonisolated struct ProfileStatistics: Equatable, Sendable {
     /// Workouts as the athlete counts them: a quick-workout session is one,
     /// a standalone log is one (`WorkoutSession.grouped`).
     let workouts: Int

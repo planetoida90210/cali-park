@@ -11,7 +11,7 @@ import Foundation
 /// keep) and adds each pending event to the record once it has been shown.
 /// That keeps the reward loop idempotent without losing an advance whose
 /// overlay never appeared.
-struct RewardEvaluation: Equatable, Sendable {
+nonisolated struct RewardEvaluation: Equatable, Sendable {
     /// Advances to celebrate now, in display order (rungs first, then levels).
     let pendingEvents: [CelebrationEvent]
     /// The record to save now, without the pending events.

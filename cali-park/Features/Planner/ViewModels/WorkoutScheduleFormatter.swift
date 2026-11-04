@@ -4,7 +4,7 @@ import Foundation
 /// Turns a `WorkoutSchedule` into a short, human Polish summary for the planner
 /// list and editor footer. Presentation logic lives here (not on the model) so
 /// the model stays free of localization concerns.
-enum WorkoutScheduleFormatter {
+nonisolated enum WorkoutScheduleFormatter {
     /// A one-line description, e.g. "Co tydzień · Pon, Czw", "Co 3 dni",
     /// "Codziennie", "Jednorazowo · 20 lip" or "Bez terminu". Month names
     /// follow `locale`, which is Polish in the app (development region `pl`).

@@ -9,7 +9,7 @@ import Foundation
 /// days") applies from the athlete's first logged workout. The first save
 /// writes that default version down before the new one, so the streak earned
 /// under the default survives the edit.
-struct WeeklyGoalHistory: Codable, Equatable, Sendable {
+nonisolated struct WeeklyGoalHistory: Codable, Equatable, Sendable {
     /// Oldest first. Empty until the athlete first changes the goals.
     var versions: [WeeklyGoalVersion]
     /// Oldest first. At most one is active at a time.
@@ -140,7 +140,7 @@ struct WeeklyGoalHistory: Codable, Equatable, Sendable {
 
 // MARK: - WeeklyGoalCelebration
 /// One shown "goal met" celebration: a goal in the week starting at `weekStart`.
-struct WeeklyGoalCelebration: Codable, Hashable, Sendable {
+nonisolated struct WeeklyGoalCelebration: Codable, Hashable, Sendable {
     let weekStart: Date
     let goalID: UUID
 }

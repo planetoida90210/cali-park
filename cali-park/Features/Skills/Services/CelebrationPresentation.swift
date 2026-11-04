@@ -6,7 +6,7 @@ import Foundation
 /// Kept separate from the event so the event stays a pure reference and the
 /// display strings — Polish copy, tuned for a celebratory moment — live in one
 /// testable place. Resolution reads only the static catalogs, so it is pure.
-struct CelebrationPresentation: Equatable, Sendable {
+nonisolated struct CelebrationPresentation: Equatable, Sendable {
     /// Short eyebrow above the title, e.g. "ZALICZONY SZCZEBEL".
     let eyebrow: String
     /// The headline: the conquered exercise, or "Poziom 3".

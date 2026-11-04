@@ -5,7 +5,7 @@ import Foundation
 /// dependency on `UserNotifications`. This keeps the scheduling logic pure and
 /// testable: `WorkoutReminderPlanner` builds these values, and the concrete
 /// scheduler turns them into `UNNotificationRequest`s.
-struct WorkoutReminderRequest: Equatable, Sendable {
+nonisolated struct WorkoutReminderRequest: Equatable, Sendable {
     /// Stable identifier so rescheduling replaces the matching pending
     /// notification instead of duplicating it. Always starts with `plan-` so
     /// the scheduler can clear only the reminders it owns.

@@ -9,7 +9,7 @@ import Foundation
 /// adds seconds to repetitions. On screen the seconds unit stays the invariant
 /// "s"; spoken variants spell it out for VoiceOver. Counted nouns go through
 /// `PolishPlural`.
-enum MeasureFormat {
+nonisolated enum MeasureFormat {
     /// The unit symbol for a hold — invariant in Polish, like "kg".
     static let secondsUnit = "s"
 

@@ -3,7 +3,7 @@ import Foundation
 // MARK: - WeeklyGoalFormat
 /// Polish copy for weekly goals, kept off the models and testable in one place.
 /// Holds show the invariant "s" on screen; spoken variants spell it out.
-enum WeeklyGoalFormat {
+nonisolated enum WeeklyGoalFormat {
     // MARK: Goal
 
     /// The goal in a few words: "3 dni treningowe", "4 treningi z planu",

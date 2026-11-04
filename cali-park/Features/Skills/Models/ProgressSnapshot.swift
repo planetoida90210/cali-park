@@ -8,7 +8,7 @@ import Foundation
 ///
 /// `ProgressService` keeps one per journal revision and placement change, so
 /// Skills, Home and the reward loop all read the same numbers.
-struct ProgressSnapshot: Sendable {
+nonisolated struct ProgressSnapshot: Sendable {
     /// The athlete's declaration, or `nil` when none was saved.
     let placement: SkillPlacement?
     /// Every path's state, with the placement as a floor.

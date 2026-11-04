@@ -9,7 +9,7 @@ import Foundation
 /// logs keyed by exercise ID work without special cases. `isParallelTrack`
 /// marks optional side routes — the resistance-band pull-up, for instance —
 /// that help but are never required to advance.
-struct ProgressionStep: Identifiable, Codable, Equatable, Hashable, Sendable {
+nonisolated struct ProgressionStep: Identifiable, Codable, Equatable, Hashable, Sendable {
     /// The catalog exercise trained on this rung; also the step's identity,
     /// since an exercise appears at most once per path.
     let exerciseID: UUID

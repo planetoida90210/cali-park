@@ -2,7 +2,7 @@ import CoreLocation
 import Foundation
 
 // MARK: - LocationAuthorization
-enum LocationAuthorization: Sendable, Equatable {
+nonisolated enum LocationAuthorization: Sendable, Equatable {
     case notDetermined
     /// Denied by the user, or restricted (parental controls, MDM).
     case denied

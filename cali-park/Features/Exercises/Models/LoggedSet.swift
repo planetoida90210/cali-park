@@ -12,7 +12,7 @@ import Foundation
 ///
 /// `weight` (kg) stays optional — the SetPad logs bodyweight sets for now, but
 /// the model is ready for it.
-struct LoggedSet: Codable, Equatable, Hashable {
+nonisolated struct LoggedSet: Codable, Equatable, Hashable {
     var reps: Int
     var weight: Double?
     /// Seconds held for an isometric set; `nil` for a rep-based set.
@@ -50,7 +50,7 @@ struct LoggedSet: Codable, Equatable, Hashable {
 }
 
 // MARK: - Set totals
-extension Sequence where Element == LoggedSet {
+nonisolated extension Sequence where Element == LoggedSet {
     /// Total repetitions across the rep-based sets; timed holds are excluded.
     var totalReps: Int {
         reduce(0) { $0 + ($1.isTimed ? 0 : $1.reps) }

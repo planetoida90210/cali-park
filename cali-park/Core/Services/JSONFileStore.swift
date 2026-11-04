@@ -5,7 +5,7 @@ import os
 /// Why a store file that exists could not be turned into a value. In every
 /// case the file on disk is left untouched and the store refuses to write over
 /// it, so a read failure can never become data loss.
-enum JSONFileStoreError: Error {
+nonisolated enum JSONFileStoreError: Error {
     /// The file exists but could not be read (I/O error, permissions, data
     /// protection while the device is locked).
     case unreadable(file: URL, underlying: any Error)
@@ -34,7 +34,7 @@ enum JSONFileStoreError: Error {
 ///   an older shape and migrate it in memory. The file itself is rewritten in
 ///   the current version on the next write.
 /// - Writes are atomic. Dates are ISO 8601 with whole seconds.
-struct JSONFileStore<Value: Codable>: Sendable {
+nonisolated struct JSONFileStore<Value: Codable>: Sendable {
     let fileURL: URL
     /// The version this store writes; reads accept `1...schemaVersion`.
     let schemaVersion: Int
@@ -190,7 +190,7 @@ struct JSONFileStore<Value: Codable>: Sendable {
 // MARK: - JSONFileFormat
 /// The on-disk format shared by every `JSONFileStore`. Kept outside the
 /// generic type so the coders are created once, and so tests can use them.
-enum JSONFileFormat {
+nonisolated enum JSONFileFormat {
     /// The version new writes carry, unless a store sets its own.
     static let currentSchemaVersion = 1
 

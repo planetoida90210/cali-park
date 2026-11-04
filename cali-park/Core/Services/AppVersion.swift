@@ -3,7 +3,7 @@ import Foundation
 // MARK: - AppVersion
 /// The marketing version and build number from the app's Info.plist, shown in
 /// "O apce" and stamped into backup files.
-struct AppVersion: Equatable, Sendable {
+nonisolated struct AppVersion: Equatable, Sendable {
     /// `CFBundleShortVersionString`, e.g. "1.0".
     let version: String
     /// `CFBundleVersion`, e.g. "5".

@@ -9,7 +9,7 @@ import Foundation
 /// The step ID, not the rung's position, is the identity, so inserting or
 /// reordering rungs in `ProgressionCatalog` never remaps a stored reference.
 /// Resolve the current position with `rungIndex` when a screen needs it.
-struct RungReference: Codable, Equatable, Hashable, Sendable {
+nonisolated struct RungReference: Codable, Equatable, Hashable, Sendable {
     let pathID: ProgressionPathID
     /// The exercise ID of the rung's step.
     let stepID: UUID
@@ -44,7 +44,7 @@ struct RungReference: Codable, Equatable, Hashable, Sendable {
 // MARK: - Schema version 1
 /// The version 1 shape of a rung reference, `{"pathID": …, "rungIndex": …}`,
 /// where the index points into the ladder order frozen in `LadderOrderV1`.
-struct RungReferenceV1: Decodable {
+nonisolated struct RungReferenceV1: Decodable {
     let pathID: ProgressionPathID
     let rungIndex: Int
 

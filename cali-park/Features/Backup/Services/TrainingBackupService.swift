@@ -3,7 +3,7 @@ import os
 
 // MARK: - TrainingBackupRestoreError
 /// Why an import did not replace the data.
-enum TrainingBackupRestoreError: Error, Equatable {
+nonisolated enum TrainingBackupRestoreError: Error, Equatable {
     /// The data on the phone could not be read, so nothing was touched: it
     /// could not have been restored if a write failed.
     case currentDataUnreadable

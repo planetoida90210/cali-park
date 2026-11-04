@@ -3,7 +3,7 @@ import Foundation
 // MARK: - ReminderAuthorizationStatus
 /// App-level view of notification permission, decoupled from
 /// `UNAuthorizationStatus` so view models don't import `UserNotifications`.
-enum ReminderAuthorizationStatus: Sendable {
+nonisolated enum ReminderAuthorizationStatus: Sendable {
     case notDetermined
     case denied
     case authorized
@@ -15,7 +15,7 @@ enum ReminderAuthorizationStatus: Sendable {
 // MARK: - ReminderSchedulingError
 /// Some reminders could not be registered. The others were, so the error
 /// lists only the failed request identifiers.
-struct ReminderSchedulingError: Error, Equatable {
+nonisolated struct ReminderSchedulingError: Error, Equatable {
     let failedRequestIDs: [String]
 }
 
@@ -23,7 +23,7 @@ struct ReminderSchedulingError: Error, Equatable {
 /// Abstraction over local-reminder scheduling, mirroring the store protocols:
 /// UI stays testable with the in-memory stub, and the real
 /// `UNUserNotificationCenter` implementation is swapped in via `AppEnvironment`.
-protocol WorkoutReminderScheduling: Sendable {
+nonisolated protocol WorkoutReminderScheduling: Sendable {
     /// Current permission state without prompting.
     func authorizationStatus() async -> ReminderAuthorizationStatus
 
@@ -40,7 +40,7 @@ protocol WorkoutReminderScheduling: Sendable {
     func reschedule(for plans: [WorkoutPlan], entries: [WorkoutLogEntry]) async throws
 }
 
-extension WorkoutReminderScheduling {
+nonisolated extension WorkoutReminderScheduling {
     /// Reschedules as if nothing were done yet.
     func reschedule(for plans: [WorkoutPlan]) async throws {
         try await reschedule(for: plans, entries: [])

@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - ModuleDefinition
 /// A Home module the athlete can show, hide and reorder.
-struct ModuleDefinition: Identifiable, Hashable {
+nonisolated struct ModuleDefinition: Identifiable, Hashable {
     let id: String
     let name: String
     let iconName: String

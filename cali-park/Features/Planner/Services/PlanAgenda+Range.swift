@@ -1,7 +1,7 @@
 import Foundation
 
 // MARK: - PlanAgenda: occurrences in a range
-extension PlanAgenda {
+nonisolated extension PlanAgenda {
     /// Every day in `interval` on which an active plan is scheduled, by the
     /// plans' own schedules, ordered by day and then by plan age. A plan
     /// counts only from the day it was created, so a new weekly plan does not

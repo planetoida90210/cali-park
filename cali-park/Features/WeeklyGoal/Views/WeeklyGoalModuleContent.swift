@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - WeeklyGoalModule
 /// The Home module id for "Cel tygodniowy". Stored in the module preferences,
 /// so it must never change.
-enum WeeklyGoalModule {
+nonisolated enum WeeklyGoalModule {
     static let id = "goal"
 }
 

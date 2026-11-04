@@ -4,7 +4,7 @@ import Foundation
 /// A single calisthenics exercise from the built-in catalog.
 /// Identifiers are fixed UUIDs (see `ExerciseCatalog`) so workout log entries
 /// keyed by `exerciseID` survive app restarts and catalog updates.
-struct Exercise: Identifiable, Codable, Equatable, Hashable {
+nonisolated struct Exercise: Identifiable, Codable, Equatable, Hashable {
     let id: UUID
     var name: String
     var category: ExerciseCategory

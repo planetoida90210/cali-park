@@ -3,7 +3,7 @@ import Observation
 
 // MARK: - ProfileRoute
 /// Push destinations from Profile, resolved with `navigationDestination(for:)`.
-enum ProfileRoute: Hashable {
+nonisolated enum ProfileRoute: Hashable {
     case history
     case backup
     case help

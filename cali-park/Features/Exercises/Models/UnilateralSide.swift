@@ -6,7 +6,7 @@ import Foundation
 /// A target like "3 × 5" on a unilateral exercise means 3 × 5 on each side.
 /// The log format has one value per set, so the athlete logs the weaker
 /// side's result; separate left/right logging would change the log schema.
-enum UnilateralSide: String, Codable, Sendable {
+nonisolated enum UnilateralSide: String, Codable, Sendable {
     case arm
     case leg
     case side

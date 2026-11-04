@@ -4,7 +4,7 @@ import os
 // MARK: - AppLog
 /// Factory for the app's `os.Logger`s: one subsystem (the bundle identifier),
 /// one category per component.
-enum AppLog {
+nonisolated enum AppLog {
     static let subsystem = Bundle.main.bundleIdentifier ?? "cali-park"
 
     static func logger(category: String) -> Logger {
@@ -17,7 +17,7 @@ enum AppLog {
 /// The store kept the file (and refuses to write over it), so the alert copy
 /// can promise nothing was deleted. Services expose this instead of an empty
 /// value, so a broken file never reads as an empty journal.
-struct StoreLoadFailure: Error, Equatable, Sendable {
+nonisolated struct StoreLoadFailure: Error, Equatable, Sendable {
     /// Shared alert copy for every screen whose data failed to load.
     static let message = "Nie udało się odczytać zapisanych treningów. Twoje dane nie zostały usunięte."
 

@@ -6,7 +6,7 @@ import Foundation
 /// Derived from log entries on read and never persisted, so the on-disk
 /// `WorkoutLogEntry` format stays unchanged. Shared by Home, the history list
 /// and the workout detail screen.
-struct WorkoutSession: Identifiable, Hashable {
+nonisolated struct WorkoutSession: Identifiable, Hashable {
     /// The shared `sessionID`, or the entry's own `id` for a standalone log.
     let id: UUID
     let date: Date

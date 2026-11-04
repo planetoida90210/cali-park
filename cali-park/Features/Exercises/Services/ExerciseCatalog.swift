@@ -8,7 +8,7 @@ import Foundation
 ///
 /// SF Symbols come from the `figure.*` family; there is no dedicated pull-up
 /// symbol, so the closest match is picked per exercise.
-enum ExerciseCatalog {
+nonisolated enum ExerciseCatalog {
     // MARK: Stable identifiers
     static let pullUpsID = UUID(uuidString: "E0000000-0000-4000-8000-000000000001")!
     static let pushUpsID = UUID(uuidString: "E0000000-0000-4000-8000-000000000002")!

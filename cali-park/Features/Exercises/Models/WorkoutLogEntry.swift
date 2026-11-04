@@ -13,7 +13,7 @@ import Foundation
 /// that something was logged today). Optional and backward compatible: the
 /// synthesized `Codable` decodes it to `nil` for entries saved before plans
 /// stamped their sessions, exactly like `sessionID`.
-struct WorkoutLogEntry: Identifiable, Codable, Equatable, Hashable {
+nonisolated struct WorkoutLogEntry: Identifiable, Codable, Equatable, Hashable {
     let id: UUID
     var exerciseID: UUID
     var date: Date

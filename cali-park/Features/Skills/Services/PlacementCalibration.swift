@@ -13,7 +13,7 @@ import Foundation
 /// A declaration only sets a starting point: it never grants XP or badges (those
 /// come from real logs), and the engine takes the max of declaration and logs so
 /// re-calibrating down never erases a rung already earned by training.
-enum PlacementCalibration {
+nonisolated enum PlacementCalibration {
     /// Equipment key for the resistance band, matching `Park.equipments`.
     static let bandEquipment = "Resistance bands"
 

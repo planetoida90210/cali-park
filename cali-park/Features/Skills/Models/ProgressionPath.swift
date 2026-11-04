@@ -8,7 +8,7 @@ import Foundation
 /// informational hint shown as a neutral note (e.g. "most people build the
 /// muscle-up on solid pull-ups and dips"); it is deliberately not a
 /// relationship and never gates or locks anything.
-struct ProgressionPath: Identifiable, Codable, Equatable, Hashable, Sendable {
+nonisolated struct ProgressionPath: Identifiable, Codable, Equatable, Hashable, Sendable {
     let id: ProgressionPathID
     /// Polish display name, e.g. "Podciąganie".
     var name: String

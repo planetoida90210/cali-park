@@ -4,7 +4,7 @@ import os
 // MARK: - StoreFile
 /// The JSON files the `File…` stores keep. The raw values are the file names
 /// already on devices: never rename one.
-enum StoreFile: String, CaseIterable, Sendable {
+nonisolated enum StoreFile: String, CaseIterable, Sendable {
     case workoutLog = "workout-log.json"
     case workoutPlans = "workout-plans.json"
     case skillPlacement = "skill-placement.json"
@@ -25,7 +25,7 @@ enum StoreFile: String, CaseIterable, Sendable {
 /// Where each store file lives after `StoreDirectoryMigration` ran: normally
 /// the app's store directory, or the legacy Documents directory for a file
 /// that could not be moved yet.
-struct StoreLocations: Equatable, Sendable {
+nonisolated struct StoreLocations: Equatable, Sendable {
     private let directories: [StoreFile: URL]
     private let fallback: URL
 
@@ -60,7 +60,7 @@ struct StoreLocations: Equatable, Sendable {
 /// Quarantine copies (`<name>.corrupt-…`) move along when their name is free
 /// at the destination; they are never read by the app, so a failure there is
 /// only logged.
-struct StoreDirectoryMigration {
+nonisolated struct StoreDirectoryMigration {
     /// Where versions up to 1.0 kept the files.
     let legacyDirectory: URL
     /// Where the stores keep their files from now on.

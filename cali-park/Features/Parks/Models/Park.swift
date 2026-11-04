@@ -10,7 +10,7 @@ import Foundation
 ///
 /// Fields the bundled OSM snapshot can't fill yet (`nearbyWater`, dates,
 /// `lastConfirmedAt`) arrive with the backend.
-struct Park: Identifiable, Hashable, Sendable {
+nonisolated struct Park: Identifiable, Hashable, Sendable {
     let id: UUID
     var latitude: Double
     var longitude: Double
@@ -96,7 +96,7 @@ struct Park: Identifiable, Hashable, Sendable {
 }
 
 // MARK: - Codable
-extension Park: Codable {
+nonisolated extension Park: Codable {
     private enum CodingKeys: String, CodingKey {
         case id, latitude, longitude, status, verification, source, osmRefs, name, generatedName
         case locality, equipment, isCalisthenicsTagged, hasMachines, surface, lit, covered, access, openingHours
@@ -137,12 +137,12 @@ extension Park: Codable {
 
 // MARK: - Status and provenance
 /// Who can see a Park (012 §5). The app only ever shows `published`.
-enum ParkStatus: String, Codable, Sendable {
+nonisolated enum ParkStatus: String, Codable, Sendable {
     case candidate, draft, pending, published, rejected, removed
 }
 
 /// How much we trust the data; a separate axis from `ParkStatus` (012 §5).
-enum ParkVerification: String, Codable, Sendable {
+nonisolated enum ParkVerification: String, Codable, Sendable {
     case osm, community, verified
 
     /// Badge text on the Park card.
@@ -155,16 +155,16 @@ enum ParkVerification: String, Codable, Sendable {
     }
 }
 
-enum ParkSource: String, Codable, Sendable {
+nonisolated enum ParkSource: String, Codable, Sendable {
     case osm, user, team
 }
 
-enum ParkAccess: String, Codable, Sendable {
+nonisolated enum ParkAccess: String, Codable, Sendable {
     case `public`, customers, `private`
 }
 
 /// OSM `surface` values a Park can have (012 §2).
-enum ParkSurface: String, Codable, Sendable, CaseIterable {
+nonisolated enum ParkSurface: String, Codable, Sendable, CaseIterable {
     case rubber, tartan, sand, woodchips, grass, ground, gravel, concrete, asphalt
     case artificialTurf = "artificial_turf"
     case pavingStones = "paving_stones"
@@ -172,7 +172,7 @@ enum ParkSurface: String, Codable, Sendable, CaseIterable {
 
 // MARK: - Locality
 /// City (gmina/town) and district, computed from OSM administrative boundaries.
-struct Locality: Codable, Hashable, Sendable {
+nonisolated struct Locality: Codable, Hashable, Sendable {
     var city: String?
     var district: String?
 
@@ -193,7 +193,7 @@ struct Locality: Codable, Hashable, Sendable {
 }
 
 // MARK: - Equipment
-struct ParkEquipment: Codable, Hashable, Sendable {
+nonisolated struct ParkEquipment: Codable, Hashable, Sendable {
     var type: EquipmentType
     /// Number of devices, when OSM maps them one by one.
     var count: Int?
@@ -207,6 +207,6 @@ struct ParkEquipment: Codable, Hashable, Sendable {
 }
 
 /// Bar height without centimetres (012, question 4).
-enum ParkBarHeight: String, Codable, Hashable, Sendable, CaseIterable {
+nonisolated enum ParkBarHeight: String, Codable, Hashable, Sendable, CaseIterable {
     case low, medium, high
 }

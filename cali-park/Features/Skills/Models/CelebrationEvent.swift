@@ -9,7 +9,7 @@ import Foundation
 /// and symbol from the catalogs on demand, keeping the event pure and
 /// order-comparable. Declarations never produce an event: the reward evaluator
 /// scores from logs alone (see `RewardEvaluator`).
-enum CelebrationEvent: Equatable, Hashable, Identifiable, Sendable {
+nonisolated enum CelebrationEvent: Equatable, Hashable, Identifiable, Sendable {
     /// A rung conquered through logged training.
     case rungConquered(RungReference)
     /// A new player level reached.

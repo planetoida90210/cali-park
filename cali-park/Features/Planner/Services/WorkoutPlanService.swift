@@ -3,7 +3,7 @@ import os
 
 // MARK: - ReminderSyncResult
 /// Whether the pending reminders now match the saved plans.
-enum ReminderSyncResult: Equatable, Sendable {
+nonisolated enum ReminderSyncResult: Equatable, Sendable {
     case synced
     /// The plans could not be read, or some reminders could not be scheduled.
     /// Pending reminders are left as they were rather than wiped.

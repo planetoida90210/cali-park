@@ -243,7 +243,7 @@ final class RewardCenter {
 // MARK: - RewardPresentation
 /// One overlay ready to show: its copy, the value that replays the haptic and
 /// the entrance pulse, and whether "Dalej" leads to another one.
-struct RewardPresentation: Equatable {
+nonisolated struct RewardPresentation: Equatable {
     let presentation: CelebrationPresentation
     let trigger: String
     let hasNext: Bool

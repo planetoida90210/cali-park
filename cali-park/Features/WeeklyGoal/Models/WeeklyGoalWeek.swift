@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - WeeklyGoalProgress
 /// One goal's progress in one week.
-struct WeeklyGoalProgress: Identifiable, Equatable, Sendable {
+nonisolated struct WeeklyGoalProgress: Identifiable, Equatable, Sendable {
     let goal: WeeklyGoal
     /// What the week asks for. `0` only for "all scheduled" with nothing
     /// scheduled that week.
@@ -24,7 +24,7 @@ struct WeeklyGoalProgress: Identifiable, Equatable, Sendable {
 // MARK: - WeeklyGoalWeekStatus
 /// How a week went for the primary goal. Only `met` extends the week streak and
 /// only `missed` breaks it; every other status is neutral.
-enum WeeklyGoalWeekStatus: Equatable, Sendable {
+nonisolated enum WeeklyGoalWeekStatus: Equatable, Sendable {
     /// The primary goal was reached.
     case met
     /// The current week, not reached yet.
@@ -49,7 +49,7 @@ enum WeeklyGoalWeekStatus: Equatable, Sendable {
 
 // MARK: - WeeklyGoalWeek
 /// One Monday–Sunday week judged against the goals in force for it.
-struct WeeklyGoalWeek: Equatable, Sendable {
+nonisolated struct WeeklyGoalWeek: Equatable, Sendable {
     /// Monday 00:00 to the next Monday 00:00.
     let interval: DateInterval
     /// Every goal's progress, primary first.
@@ -66,7 +66,7 @@ struct WeeklyGoalWeek: Equatable, Sendable {
 
 // MARK: - WeeklyGoalSnapshot
 /// Everything Home shows about the weekly goal right now.
-struct WeeklyGoalSnapshot: Equatable, Sendable {
+nonisolated struct WeeklyGoalSnapshot: Equatable, Sendable {
     /// The current week, judged by the latest goals.
     let week: WeeklyGoalWeek
     /// Weeks in a row with the primary goal met; neutral weeks are skipped.

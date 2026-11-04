@@ -6,7 +6,7 @@ import Foundation
 ///
 /// Favorite Parks are included as Park IDs. Progress (level, streaks, rungs)
 /// is never stored; it is recomputed from the log after an import.
-struct TrainingBackup: Equatable, Sendable {
+nonisolated struct TrainingBackup: Equatable, Sendable {
     var workoutLog: [WorkoutLogEntry]
     var workoutPlans: [WorkoutPlan]
     /// `nil` when the athlete never took the level test.
@@ -48,7 +48,7 @@ struct TrainingBackup: Equatable, Sendable {
 
 // MARK: - TrainingBackupSummary
 /// What a backup holds, in words: "142 treningi, 3 plany, test poziomu".
-struct TrainingBackupSummary: Equatable, Sendable {
+nonisolated struct TrainingBackupSummary: Equatable, Sendable {
     let workouts: Int
     let plans: Int
     let hasPlacement: Bool

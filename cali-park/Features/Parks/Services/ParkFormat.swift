@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - ParkFormat
 /// Polish text and links for Parks.
-enum ParkFormat {
+nonisolated enum ParkFormat {
     private static let polish = Locale(identifier: "pl_PL")
 
     /// Required OSM credit (ODbL, OSMF attribution guidelines).
@@ -143,7 +143,7 @@ enum ParkFormat {
 
 // MARK: - ParkDetail
 /// One row of the card's "Szczegóły" section.
-struct ParkDetail: Identifiable, Hashable, Sendable {
+nonisolated struct ParkDetail: Identifiable, Hashable, Sendable {
     enum Kind: String, Hashable, Sendable {
         case surface, lighting, roof, access, openingHours, machines
     }
@@ -176,7 +176,7 @@ struct ParkDetail: Identifiable, Hashable, Sendable {
 }
 
 // MARK: - Polish names
-extension ParkSurface {
+nonisolated extension ParkSurface {
     var title: String {
         switch self {
         case .rubber: "Gumowa"
@@ -194,7 +194,7 @@ extension ParkSurface {
     }
 }
 
-extension ParkAccess {
+nonisolated extension ParkAccess {
     var title: String {
         switch self {
         case .public: "Dla wszystkich"
@@ -204,7 +204,7 @@ extension ParkAccess {
     }
 }
 
-extension ParkBarHeight {
+nonisolated extension ParkBarHeight {
     var title: String {
         switch self {
         case .low: "niski"
@@ -214,7 +214,7 @@ extension ParkBarHeight {
     }
 }
 
-extension ParkVerification {
+nonisolated extension ParkVerification {
     /// What the badge means, for VoiceOver.
     var accessibilityLabel: String {
         switch self {

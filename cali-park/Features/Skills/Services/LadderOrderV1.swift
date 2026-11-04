@@ -9,7 +9,7 @@ import Foundation
 /// keep resolving to the same exercises after the live `ProgressionCatalog`
 /// inserts, removes or reorders rungs. Never edit it: it describes data already
 /// on users' devices, not the current ladders.
-enum LadderOrderV1 {
+nonisolated enum LadderOrderV1 {
     /// The exercise ID of the rung at a version 1 index, or `nil` when the
     /// index was never valid for that path.
     static func stepID(for path: ProgressionPathID, rungIndex: Int) -> UUID? {

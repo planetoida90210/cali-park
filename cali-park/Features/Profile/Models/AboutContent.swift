@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - SupportContact
 /// Where "Pomoc i opinie" sends mail.
-enum SupportContact {
+nonisolated enum SupportContact {
     /// PLACEHOLDER: the owner replaces this with the real support address
     /// before TestFlight. `.example` is a reserved domain, so mail sent to it
     /// bounces instead of reaching a stranger.
@@ -21,7 +21,7 @@ enum SupportContact {
 
 // MARK: - AboutSource
 /// One credited source in "O apce", linked to the page we used.
-struct AboutSource: Identifiable, Hashable, Sendable {
+nonisolated struct AboutSource: Identifiable, Hashable, Sendable {
     let name: String
     /// What we take from it, in a few words.
     let usage: String
@@ -34,7 +34,7 @@ struct AboutSource: Identifiable, Hashable, Sendable {
 /// The sources behind the ladders (`docs/PROGRESSIONS.md`, "Źródła") and the
 /// programs (`docs/PROGRAMS.md`), plus the map data attribution. Keep these
 /// lists in step with those documents.
-enum AboutContent {
+nonisolated enum AboutContent {
     static let ladderSources: [AboutSource] = [
         AboutSource(name: "Recommended Routine (r/bodyweightfitness)",
                     usage: "Drabiny dynamiczne i zasada 3 × 8",

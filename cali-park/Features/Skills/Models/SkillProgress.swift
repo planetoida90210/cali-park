@@ -8,7 +8,7 @@ import Foundation
 ///
 /// Nothing here is a secret, so it lives in a plain JSON file (see
 /// `SkillProgressStoring`).
-struct SkillProgress: Codable, Equatable, Sendable {
+nonisolated struct SkillProgress: Codable, Equatable, Sendable {
     /// The store schema version this type writes. Version 1 stored rung
     /// indices; version 2 stores step IDs (see `RungReference`).
     static let schemaVersion = 2

@@ -19,7 +19,7 @@ import Foundation
 /// entries per exercise (audit A-5) and reads holds in seconds (audit A-8).
 ///
 /// Paths are scored independently: one path's logs never move another's state.
-enum ProgressionEngine {
+nonisolated enum ProgressionEngine {
     // MARK: XP tuning
     /// One repetition is worth this much XP.
     static let xpPerRep = 10

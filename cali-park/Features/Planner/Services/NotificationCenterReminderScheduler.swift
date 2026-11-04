@@ -7,7 +7,7 @@ import UserNotifications
 /// app terms. The app uses `SystemNotificationCenter`; tests use a fake, so the
 /// diffing, the pending cap and the serialization are testable without the
 /// system.
-protocol UserNotificationCentering: Sendable {
+nonisolated protocol UserNotificationCentering: Sendable {
     func authorizationStatus() async -> ReminderAuthorizationStatus
     /// Prompts for alert + sound permission (no badge: the app never sets one).
     func requestAuthorization() async throws -> Bool
@@ -20,7 +20,7 @@ protocol UserNotificationCentering: Sendable {
 
 // MARK: - SystemNotificationCenter
 /// `UserNotificationCentering` backed by `UNUserNotificationCenter.current()`.
-struct SystemNotificationCenter: UserNotificationCentering {
+nonisolated struct SystemNotificationCenter: UserNotificationCentering {
     private var center: UNUserNotificationCenter { .current() }
 
     func authorizationStatus() async -> ReminderAuthorizationStatus {

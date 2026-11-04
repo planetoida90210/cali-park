@@ -15,7 +15,7 @@ import Foundation
 ///   Monday starts with a full week.
 /// - A week a pause touches is neutral unless the goal was met anyway.
 /// - The current week never breaks the streak while it is still running.
-enum WeeklyGoalEvaluator {
+nonisolated enum WeeklyGoalEvaluator {
     // MARK: Weeks
 
     /// The Monday–Sunday week containing `date`: Monday 00:00 up to the next

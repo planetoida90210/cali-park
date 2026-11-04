@@ -1,7 +1,7 @@
 import Foundation
 
 // MARK: - ProgramStartError
-enum ProgramStartError: Error, Equatable {
+nonisolated enum ProgramStartError: Error, Equatable {
     /// The journal or the placement exists but can't be read, so the current
     /// rungs are unknown. Nothing was saved.
     case ladderStateUnreadable

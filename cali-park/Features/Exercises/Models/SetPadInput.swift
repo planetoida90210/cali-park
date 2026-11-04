@@ -5,7 +5,7 @@ import Foundation
 /// digits currently being typed. Mirrors the calculator habit `6+6+6+8+6` —
 /// `+` commits the current number as a set, the trailing number (no `+`)
 /// still counts when saving.
-struct SetPadInput: Equatable {
+nonisolated struct SetPadInput: Equatable {
     /// Reps beyond 999 are not a thing — keeps the display compact.
     static let maxEntryDigits = 3
 

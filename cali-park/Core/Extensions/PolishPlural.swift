@@ -4,7 +4,7 @@ import Foundation
 /// Polish plural forms without pulling in localization infrastructure yet:
 /// 1 seria, 2–4 serie, 5+ serii — with the 12–14 teens exception
 /// (12 serii, but 22 serie).
-enum PolishPlural {
+nonisolated enum PolishPlural {
     /// Picks the right form for `count`:
     /// - `one` for exactly 1,
     /// - `few` for counts ending in 2–4 (except 12–14),

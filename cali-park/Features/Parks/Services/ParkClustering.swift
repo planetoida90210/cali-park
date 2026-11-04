@@ -3,7 +3,7 @@ import MapKit
 
 // MARK: - ParkCluster
 /// One map annotation: a single Park or a bubble for several close Parks.
-struct ParkCluster: Identifiable, Hashable, Sendable {
+nonisolated struct ParkCluster: Identifiable, Hashable, Sendable {
     let parks: [Park]
 
     /// Stable while the same Parks stay together, so SwiftUI keeps the view.
@@ -26,7 +26,7 @@ struct ParkCluster: Identifiable, Hashable, Sendable {
 /// Grid clustering for SwiftUI `Map`, which has no annotation clustering of its
 /// own. The grid is fixed to coordinates (not to the screen), so panning does
 /// not reshuffle bubbles; zooming in shrinks the cells and splits them.
-enum ParkClustering {
+nonisolated enum ParkClustering {
     /// Smallest cell, about 20 m: Parks are at least 40 m apart in the data, so
     /// at street zoom every Park is its own pin.
     static let minimumCellDegrees = 0.0002

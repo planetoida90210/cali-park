@@ -5,7 +5,7 @@ import Foundation
 /// (Sunday = 1 … Saturday = 7 in the Gregorian calendar). Storing the raw
 /// `Calendar` value keeps schedule math trivial: `Weekday(rawValue:)` maps a
 /// date's weekday straight back to a case.
-enum Weekday: Int, Codable, CaseIterable, Identifiable, Hashable {
+nonisolated enum Weekday: Int, Codable, CaseIterable, Identifiable, Hashable {
     case sunday = 1
     case monday
     case tuesday

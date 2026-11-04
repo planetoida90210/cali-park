@@ -6,7 +6,7 @@ import Foundation
 /// The athlete keeps one to three goals at a time (`WeeklyGoalVersion`). The
 /// `id` survives edits, so a goal changed mid-week is still the same goal for
 /// the "already celebrated" bookkeeping.
-struct WeeklyGoal: Identifiable, Codable, Hashable, Sendable {
+nonisolated struct WeeklyGoal: Identifiable, Codable, Hashable, Sendable {
     let id: UUID
     var metric: Metric
 

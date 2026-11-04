@@ -4,7 +4,7 @@ import Foundation
 /// Progression copy that resolves catalog names: the hero's "next rung" nudge
 /// and a rung's equipment. Sets, reps, seconds and criteria are formatted by
 /// `MeasureFormat`.
-enum ProgressionFormat {
+nonisolated enum ProgressionFormat {
     /// A one-line nudge toward the athlete's most actionable rung, resolving the
     /// catalog names for display: "Jeszcze 2 powtórzenia do 3 × 8 — następny
     /// szczebel: Pełne podciągnięcia". When the current rung is the skill itself

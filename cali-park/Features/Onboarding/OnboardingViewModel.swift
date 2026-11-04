@@ -6,7 +6,7 @@ import os
 /// The first-run steps, in order (ticket 026). There is no goals question
 /// (the program choice took its role) and no location step (the map asks
 /// when it first opens).
-enum OnboardingPage: Int, CaseIterable, Comparable, Sendable {
+nonisolated enum OnboardingPage: Int, CaseIterable, Comparable, Sendable {
     case welcome
     case placement
     case program

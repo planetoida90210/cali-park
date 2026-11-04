@@ -3,7 +3,7 @@ import Foundation
 // MARK: - TrainingBackupError
 /// Why a file cannot be imported. Nothing is written in any of these cases:
 /// the file is checked in full before any store is touched.
-enum TrainingBackupError: Error, Equatable {
+nonisolated enum TrainingBackupError: Error, Equatable {
     /// Not a CaliPark backup at all (another JSON file, a photo, …).
     case notABackup
     /// Written by a newer CaliPark with a format this build cannot read.
@@ -64,7 +64,7 @@ enum TrainingBackupError: Error, Equatable {
 /// `favoriteParks` came later than the other sections: files without it
 /// (from before favorites existed) still read, as a backup that says nothing
 /// about favorites.
-enum TrainingBackupCodec {
+nonisolated enum TrainingBackupCodec {
     static let formatIdentifier = "calipark-backup"
     /// The version this build writes; it reads `1...schemaVersion`.
     static let schemaVersion = 2

@@ -9,7 +9,7 @@ import Foundation
 /// the created plan then trains the athlete's current rung and grows with
 /// them. All wording is our own Polish text; the credit lines name the
 /// sources without suggesting any endorsement.
-enum ProgramCatalog {
+nonisolated enum ProgramCatalog {
     // MARK: Lookup
     /// Every program, in the order the Planner lists them.
     static let all: [TrainingProgram] = [minimum, fundamentals, firstPullUp, skills]

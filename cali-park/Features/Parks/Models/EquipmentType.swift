@@ -7,7 +7,7 @@ import Foundation
 ///
 /// Machines (ellipticals, rowers…) are deliberately not here: they never make
 /// a Park and are only flagged through `Park.hasMachines`.
-enum EquipmentType: String, Codable, Hashable, Sendable, CaseIterable, Identifiable {
+nonisolated enum EquipmentType: String, Codable, Hashable, Sendable, CaseIterable, Identifiable {
     case horizontalBar = "horizontal_bar"
     case parallelBars = "parallel_bars"
     case dipBench = "dip_bench"

@@ -17,7 +17,7 @@ import Foundation
 ///   plan prefill from before hold targets) is read as that many seconds, the
 ///   same way `LoggedSet.padValue(for:)` reads it back into the SetPad. The
 ///   stored log is never rewritten.
-struct ScoringLog: Sendable {
+nonisolated struct ScoringLog: Sendable {
     /// One exercise's sets in one workout.
     struct Session: Sendable, Equatable {
         /// When the workout was logged (the earliest of its merged entries).

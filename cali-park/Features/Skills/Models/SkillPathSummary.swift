@@ -7,7 +7,7 @@ import Foundation
 /// It bundles the static ladder (`ProgressionCatalog`) with the athlete's
 /// derived `PathState` (from `ProgressionEngine`) so views read one value
 /// instead of resolving both. Like `PathState`, it is derived, never persisted.
-struct SkillPathSummary: Identifiable, Equatable, Sendable {
+nonisolated struct SkillPathSummary: Identifiable, Equatable, Sendable {
     /// The static ladder definition.
     let path: ProgressionPath
     /// The athlete's computed progress along that ladder.

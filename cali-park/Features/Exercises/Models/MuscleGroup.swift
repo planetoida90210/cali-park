@@ -3,7 +3,7 @@ import Foundation
 // MARK: - MuscleGroup
 /// Muscle groups targeted by calisthenics exercises. Raw values are stable
 /// storage keys; user-facing text comes from `displayName`.
-enum MuscleGroup: String, Codable, CaseIterable, Identifiable {
+nonisolated enum MuscleGroup: String, Codable, CaseIterable, Identifiable {
     case back
     case chest
     case shoulders

@@ -11,7 +11,7 @@ import Foundation
 /// in every state. The hero no longer shows the
 /// day `streak` carried here (ticket 027: rest days are part of training); the
 /// "Seria dni" module still does.
-enum HomeHeroState: Equatable {
+nonisolated enum HomeHeroState: Equatable {
     /// A plan is scheduled for today and hasn't been completed yet. `plan`
     /// drives the big "Rozpocznij" call to action; `loggedTodayReps` is any
     /// progress already logged today (0 when the day is still untouched).
