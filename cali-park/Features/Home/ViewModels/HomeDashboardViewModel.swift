@@ -176,7 +176,7 @@ final class HomeDashboardViewModel {
 
         var lastTrained: [MuscleGroup: Date] = [:]
         for entry in entries {
-            guard let exercise = exercise(for: entry) else { continue }
+            guard let exercise = ExerciseCatalog.exercise(withID: entry.exerciseID) else { continue }
             for group in exercise.muscleGroups {
                 lastTrained[group] = max(lastTrained[group] ?? .distantPast, entry.date)
             }
