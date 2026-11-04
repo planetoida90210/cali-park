@@ -13,7 +13,7 @@ enum HeroWorkoutSummary {
             return MeasureFormat.summary(of: workout)
         }
         guard let entry = workout.entries.first else { return String(localized: "Trening") }
-        let name = ExerciseCatalog.exercise(withID: entry.exerciseID)?.name ?? String(localized: "Ćwiczenie")
+        let name = ExerciseCatalog.displayName(for: entry.exerciseID)
         let breakdown = MeasureFormat.breakdown(of: entry.sets)
         return breakdown.isEmpty ? name : "\(name) · \(breakdown)"
     }

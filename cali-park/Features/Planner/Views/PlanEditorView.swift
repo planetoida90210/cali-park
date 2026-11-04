@@ -169,12 +169,12 @@ private struct PlanExerciseRow: View {
     var body: some View {
         HStack(spacing: 12) {
             ExerciseIconView(
-                symbolName: exercise?.symbolName ?? "figure.strengthtraining.functional",
+                symbolName: exercise?.symbolName ?? ExerciseCatalog.unknownSymbolName,
                 size: .row
             )
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(exercise?.name ?? String(localized: "Ćwiczenie"))
+                Text(exercise?.name ?? ExerciseCatalog.unknownName)
                     .font(.bodyLarge)
                     .foregroundStyle(Color.textPrimary)
 

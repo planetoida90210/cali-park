@@ -139,10 +139,10 @@ private struct ProgramItemRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            ExerciseIconView(symbolName: exercise?.symbolName ?? "figure.strengthtraining.functional", size: .row)
+            ExerciseIconView(symbolName: exercise?.symbolName ?? ExerciseCatalog.unknownSymbolName, size: .row)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(exercise?.name ?? String(localized: "Ćwiczenie"))
+                Text(exercise?.name ?? ExerciseCatalog.unknownName)
                     .font(.bodyLarge)
                     .foregroundStyle(Color.textPrimary)
                 if let target {

@@ -13,6 +13,15 @@ import Testing
 // MARK: - ExerciseCatalog integrity
 
 struct ExerciseCatalogTests {
+    /// F-11: an unknown ID reads as a generic "Ćwiczenie", never as another
+    /// exercise.
+    @Test
+    func displayNameFallsBackToAGenericName() throws {
+        let pullUps = try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID))
+        #expect(ExerciseCatalog.displayName(for: ExerciseCatalog.pullUpsID) == pullUps.name)
+        #expect(ExerciseCatalog.displayName(for: UUID()) == "Ćwiczenie")
+    }
+
     @Test
     func catalogHoldsMainMovementsAndVariants() {
         // The original 19 stay the library; variants are appended on top.

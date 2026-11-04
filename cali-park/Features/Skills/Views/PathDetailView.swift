@@ -51,12 +51,16 @@ struct PathDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { viewModel.load() }
         .sheet(item: $selectedStep) { step in
-            StepDetailSheetView(
-                exercise: ExerciseCatalog.exercise(withID: step.exerciseID) ?? ExerciseCatalog.all[0],
-                step: step,
-                viewModel: viewModel,
-                environment: environment
-            )
+            // Every rung resolves (ProgressionCatalogTests); never show another
+            // exercise's sheet in its place.
+            if let exercise = ExerciseCatalog.exercise(withID: step.exerciseID) {
+                StepDetailSheetView(
+                    exercise: exercise,
+                    step: step,
+                    viewModel: viewModel,
+                    environment: environment
+                )
+            }
         }
         .sheet(isPresented: $showingCalibration) {
             PlacementCalibrationSheet(viewModel: environment.makePlacementCalibrationViewModel())

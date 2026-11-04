@@ -110,10 +110,6 @@ final class HomeDashboardViewModel {
     }
 
     // MARK: Last workout
-    func exercise(for entry: WorkoutLogEntry) -> Exercise? {
-        ExerciseCatalog.exercise(withID: entry.exerciseID)
-    }
-
     /// The most recent workout for the Home preview: a whole session when the
     /// latest entry belongs to one, otherwise the single standalone entry.
     var latestWorkout: WorkoutSession? {

@@ -114,6 +114,18 @@ nonisolated enum ExerciseCatalog {
         byID[id]
     }
 
+    /// The name shown for an exercise ID the catalog doesn't know (e.g. a
+    /// log or plan from a newer build): a generic "Ćwiczenie", never another
+    /// exercise's name.
+    static var unknownName: String { String(localized: "Ćwiczenie") }
+    /// The icon shown for an exercise ID the catalog doesn't know.
+    static let unknownSymbolName = "figure.strengthtraining.functional"
+
+    /// The exercise's name, or `unknownName` when the catalog doesn't know it.
+    static func displayName(for id: UUID) -> String {
+        exercise(withID: id)?.name ?? unknownName
+    }
+
     private static let byID: [UUID: Exercise] = Dictionary(
         uniqueKeysWithValues: all.map { ($0.id, $0) }
     )
