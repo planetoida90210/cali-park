@@ -38,7 +38,7 @@ private struct ReadOnlyWorkoutLogStore: WorkoutLogStoring {
 
 struct WorkoutSessionGroupingTests {
     @Test
-    func sessionEntriesShareTheSessionIdentifier() {
+    func sessionEntriesShareTheSessionIdentifier() throws {
         let sessionID = UUID()
         let a = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
                                 date: Date(timeIntervalSince1970: 3_000),
@@ -51,7 +51,7 @@ struct WorkoutSessionGroupingTests {
 
         let sessions = WorkoutSession.grouped(from: [a, b])
 
-        #expect(sessions.count == 1)
+        try #require(sessions.count == 1)
         #expect(sessions[0].id == sessionID)
         #expect(sessions[0].entries == [a, b])
         #expect(sessions[0].isSession)
@@ -61,12 +61,12 @@ struct WorkoutSessionGroupingTests {
     }
 
     @Test
-    func standaloneEntryIsItsOwnWorkout() {
+    func standaloneEntryIsItsOwnWorkout() throws {
         let entry = WorkoutLogEntry(exerciseID: ExerciseCatalog.pushUpsID, sets: [LoggedSet(reps: 10)])
 
         let sessions = WorkoutSession.grouped(from: [entry])
 
-        #expect(sessions.map(\.id) == [entry.id])
+        try #require(sessions.map(\.id) == [entry.id])
         #expect(!sessions[0].isSession)
     }
 

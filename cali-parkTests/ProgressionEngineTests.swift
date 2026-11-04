@@ -95,8 +95,8 @@ struct ProgressionEnginePathStateTests {
     }
 
     @Test
-    func timedHoldCriterionNeedsTheFullDuration() {
-        let path = ProgressionCatalog.path(withID: .frontLever)!
+    func timedHoldCriterionNeedsTheFullDuration() throws {
+        let path = try #require(ProgressionCatalog.path(withID: .frontLever))
         // Tuck front lever (index 0) asks for 3 × 20 s.
         let short = ProgressionEngine.pathState(
             for: path,
@@ -117,8 +117,8 @@ struct ProgressionEnginePathStateTests {
     }
 
     @Test
-    func topRungConqueredMarksPathComplete() {
-        let path = ProgressionCatalog.path(withID: .handstand)!
+    func topRungConqueredMarksPathComplete() throws {
+        let path = try #require(ProgressionCatalog.path(withID: .handstand))
         // Handstand top rung (index 5) is wall HSPU, 3 × 5 reps.
         let state = ProgressionEngine.pathState(
             for: path,

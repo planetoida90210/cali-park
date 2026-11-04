@@ -97,10 +97,9 @@ struct WorkoutScheduleDayLabelTests {
     @Test
     func daysWithinTheWeekReadAsWeekday() {
         // Reference day 0 is Thursday; +2 days is a Saturday.
-        let label = WorkoutScheduleFormatter.dayLabel(Fixtures.day(2), asOf: Fixtures.day(0), calendar: Fixtures.calendar)
-        #expect(!label.isEmpty)
-        #expect(label != "Dziś")
-        #expect(label != "Jutro")
+        let label = WorkoutScheduleFormatter.dayLabel(Fixtures.day(2), asOf: Fixtures.day(0),
+                                                      calendar: Fixtures.calendar, locale: Locale(identifier: "pl_PL"))
+        #expect(label == "sobota")
     }
 }
 

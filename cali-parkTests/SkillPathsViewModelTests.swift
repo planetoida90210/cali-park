@@ -114,19 +114,19 @@ struct SkillPathsViewModelTests {
         #expect(viewModel.summaries.allSatisfy { $0.state.conqueredRungCount == 0 })
     }
 
-    @Test func placementSetsTheCurrentRung() {
+    @Test func placementSetsTheCurrentRung() throws {
         // Declaring full pull-ups (rung 5) conquers everything below it.
         let placement = SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID])
         let viewModel = makeViewModel(placement: placement)
 
         #expect(viewModel.hasPlacement)
-        let pullUp = try! #require(viewModel.summary(for: .pullUp))
+        let pullUp = try #require(viewModel.summary(for: .pullUp))
         #expect(pullUp.state.currentRungIndex == 5)
         #expect(pullUp.state.conqueredRungCount == 5)
         #expect(pullUp.currentStep.exerciseID == ExerciseCatalog.pullUpsID)
     }
 
-    @Test func logsAdvanceThePathAndScoreTheRung() {
+    @Test func logsAdvanceThePathAndScoreTheRung() throws {
         let logs = [
             WorkoutLogEntry(
                 exerciseID: ExerciseCatalog.pullUpsID,
@@ -135,7 +135,7 @@ struct SkillPathsViewModelTests {
         ]
         let viewModel = makeViewModel(logs: logs)
 
-        let pullUp = try! #require(viewModel.summary(for: .pullUp))
+        let pullUp = try #require(viewModel.summary(for: .pullUp))
         // Conquering full pull-ups (index 5) puts the athlete on L-pull-ups (6).
         #expect(pullUp.state.currentRungIndex == 6)
         #expect(pullUp.currentStep.exerciseID == ExerciseCatalog.lPullUpsID)
@@ -144,7 +144,7 @@ struct SkillPathsViewModelTests {
         #expect(viewModel.level.level == 2)
     }
 
-    @Test func rungProgressScoresAnyRungFromLogs() {
+    @Test func rungProgressScoresAnyRungFromLogs() throws {
         let logs = [
             WorkoutLogEntry(
                 exerciseID: ExerciseCatalog.pullUpsID,
@@ -152,8 +152,8 @@ struct SkillPathsViewModelTests {
             )
         ]
         let viewModel = makeViewModel(logs: logs)
-        let path = ProgressionCatalog.path(withID: .pullUp)!
-        let pullUpStep = try! #require(path.steps.first { $0.exerciseID == ExerciseCatalog.pullUpsID })
+        let path = try #require(ProgressionCatalog.path(withID: .pullUp))
+        let pullUpStep = try #require(path.steps.first { $0.exerciseID == ExerciseCatalog.pullUpsID })
 
         let progress = viewModel.rungProgress(for: pullUpStep)
         #expect(progress.bestValue == 6)

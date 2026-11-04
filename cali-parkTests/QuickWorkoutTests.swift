@@ -230,7 +230,7 @@ struct WorkoutLogStoreBatchTests {
 @MainActor
 struct WorkoutHistorySectionTests {
     @Test
-    func sessionEntriesCollapseIntoOneSection() {
+    func sessionEntriesCollapseIntoOneSection() throws {
         let sessionID = UUID()
         let a = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
                                 date: Date(timeIntervalSince1970: 3_000),
@@ -243,7 +243,7 @@ struct WorkoutHistorySectionTests {
         let viewModel = WorkoutHistoryViewModel(store: InMemoryWorkoutLogStore(initial: [a, b]))
 
         let sections = viewModel.sections
-        #expect(sections.count == 1)
+        try #require(sections.count == 1)
         #expect(sections[0].isSession)
         #expect(sections[0].entries.count == 2)
         #expect(sections[0].totalReps == 14)
@@ -262,7 +262,7 @@ struct WorkoutHistorySectionTests {
     }
 
     @Test
-    func sectionsAreSortedNewestFirst() {
+    func sectionsAreSortedNewestFirst() throws {
         let sessionID = UUID()
         let sessionA = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
                                        date: Date(timeIntervalSince1970: 3_000),
@@ -283,7 +283,7 @@ struct WorkoutHistorySectionTests {
         )
 
         let sections = viewModel.sections
-        #expect(sections.count == 3)
+        try #require(sections.count == 3)
         #expect(sections[0].entries == [newest])   // 5000
         #expect(sections[1].isSession)             // 3000 session
         #expect(sections[2].entries == [oldest])   // 1000

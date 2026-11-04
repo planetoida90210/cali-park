@@ -238,9 +238,9 @@ struct ExerciseListSectionsTests {
         ("podciagniecia", ["Podciągnięcia", "Podciągnięcia australijskie", "Podciągnięcia łucznicze"]),
         ("  łucznicze ", ["Podciągnięcia łucznicze"])
     ])
-    func searchSearchesEverything(query: String, names: [String]) {
+    func searchSearchesEverything(query: String, names: [String]) throws {
         let result = sections(favorites: [S.muscleUp.id], query: query)
-        #expect(result.count == 1)
+        try #require(result.count == 1)
         #expect(result[0].kind == .catalog)
         #expect(result[0].title == nil)
         #expect(result[0].exercises.map(\.name) == names)

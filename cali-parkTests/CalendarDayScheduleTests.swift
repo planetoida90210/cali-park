@@ -168,7 +168,7 @@ struct ScheduleTimeZoneTests {
             """
         let backup = try TrainingBackupCodec.decode(Data(json.utf8))
 
-        #expect(backup.workoutPlans.count == 2)
+        try #require(backup.workoutPlans.count == 2)
         guard case .once(let day?) = backup.workoutPlans[0].schedule else {
             Issue.record("Expected a dated one-off plan")
             return
