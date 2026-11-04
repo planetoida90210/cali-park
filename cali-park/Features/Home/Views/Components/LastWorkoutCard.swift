@@ -2,7 +2,9 @@ import SwiftUI
 
 // MARK: - LastWorkoutCard
 /// The inner card of the "Ostatni trening" module: headline, the exercises it
-/// contained and when. The trailing chevron signals it opens the workout detail.
+/// contained and when. The module's header already names it, so the card
+/// doesn't repeat it. The trailing chevron signals it opens the workout
+/// detail.
 struct LastWorkoutCard: View {
     let headline: String
     let subtitle: String?
@@ -11,10 +13,6 @@ struct LastWorkoutCard: View {
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Ostatni trening")
-                    .font(.bodyMedium)
-                    .foregroundStyle(Color.textSecondary)
-
                 Text(headline)
                     .font(.bodyLarge)
                     .foregroundStyle(Color.textPrimary)
@@ -23,7 +21,7 @@ struct LastWorkoutCard: View {
                     Text(subtitle)
                         .font(.bodySmall)
                         .foregroundStyle(Color.textSecondary)
-                        .lineLimit(1)
+                        .oneLineAtStandardSizes()
                 }
 
                 Text(date, format: .dateTime.day().month().hour().minute())

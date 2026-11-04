@@ -32,13 +32,13 @@ struct HeroFreeModeView: View {
                 Text("Ostatnio: \(HeroWorkoutSummary.headline(for: lastWorkout))")
                     .font(.bodySmall)
                     .foregroundStyle(Color.textSecondary)
-                    .lineLimit(1)
+                    .oneLineAtStandardSizes()
 
                 if let suggestion {
                     Text("Na dziś proponuję: \(suggestion.name)")
                         .font(.bodySmall)
                         .foregroundStyle(Color.accent)
-                        .lineLimit(1)
+                        .oneLineAtStandardSizes()
                 }
             }
             .accessibilityElement(children: .combine)

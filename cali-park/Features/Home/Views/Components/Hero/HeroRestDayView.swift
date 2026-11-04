@@ -31,7 +31,7 @@ struct HeroRestDayView: View {
                 Text("Następny trening: \(WorkoutScheduleFormatter.dayLabel(date, asOf: now)) · \(nextPlan.name)")
                     .font(.bodySmall)
                     .foregroundStyle(Color.textSecondary)
-                    .lineLimit(1)
+                    .oneLineAtStandardSizes()
             }
             .accessibilityElement(children: .combine)
 

@@ -31,7 +31,7 @@ struct HeroCompletedTodayView: View {
                 Text(HeroWorkoutSummary.headline(for: summary))
                     .font(.bodyMedium)
                     .foregroundStyle(Color.textSecondary)
-                    .lineLimit(1)
+                    .oneLineAtStandardSizes()
             }
             .accessibilityElement(children: .combine)
 

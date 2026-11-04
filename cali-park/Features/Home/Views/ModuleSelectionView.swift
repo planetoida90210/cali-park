@@ -52,7 +52,7 @@ struct ModuleSelectionView: View {
             }
             .listStyle(.insetGrouped)
             .environment(\.editMode, $editMode)
-            .navigationTitle("Wybierz moduły")
+            .navigationTitle("Moduły")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
