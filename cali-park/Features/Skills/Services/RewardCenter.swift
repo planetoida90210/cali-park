@@ -61,7 +61,10 @@ final class RewardCenter {
 
     // MARK: Init
     /// Evaluates once right away (the first run seeds a silent baseline), then
-    /// after every progress change.
+    /// after every new progress snapshot. Snapshots are computed off the main
+    /// actor and only the newest of a burst is published, so two quick saves
+    /// are evaluated once, together: `RewardEvaluator` compares against the
+    /// "celebrated" record, so no rung of the first save is lost.
     init(progress: ProgressService, store: SkillProgressStoring, goals: WeeklyGoalService?) {
         self.progress = progress
         self.store = store
@@ -141,6 +144,10 @@ final class RewardCenter {
     /// toast, then evaluates silently, as on launch. The imported history is
     /// not progress made since the last save, and the imported "celebrated"
     /// record decides what is still owed.
+    ///
+    /// The imported snapshot is computed right here, on the main actor, rather
+    /// than off it as after a save: published later, it would be evaluated as
+    /// progress since the last save and toast the whole imported history.
     func rebaseline() {
         currentCelebration = nil
         pendingCelebrations = []
@@ -148,12 +155,15 @@ final class RewardCenter {
         batchStartXP = nil
         previousTotalXP = nil
         evaluatedRevision = nil
+        progress.settleSynchronously()
         refresh()
     }
 
     // MARK: Output
     /// What the overlay shows now: the next skill celebration, else a met
-    /// weekly goal; `nil` when the queue is empty.
+    /// weekly goal; `nil` when the queue is empty. A met goal waits while
+    /// progress is still computing the same save, which may queue rungs to
+    /// show first.
     var current: RewardPresentation? {
         if let event = currentCelebration {
             var presentation = CelebrationPresentation.resolving(event)
@@ -167,7 +177,7 @@ final class RewardCenter {
                 hasNext: !isLastOfBatch || goals?.pendingCelebration != nil
             )
         }
-        if let goals, let met = goals.pendingCelebration, let snapshot = goals.snapshot {
+        if let goals, !progress.isComputing, let met = goals.pendingCelebration, let snapshot = goals.snapshot {
             return RewardPresentation(
                 presentation: .weeklyGoalMet(met, isPrimary: met.id == snapshot.week.primary.id, streak: snapshot.streak),
                 trigger: "goal-\(met.id.uuidString)-\(snapshot.week.interval.start.timeIntervalSince1970)",

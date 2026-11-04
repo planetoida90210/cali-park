@@ -6,8 +6,9 @@ import Foundation
 /// athlete stands on each path, their XP and level, badges, the rungs the logs
 /// have conquered, and the most actionable nudge.
 ///
-/// `ProgressService` keeps one per journal revision and placement change, so
-/// Skills, Home and the reward loop all read the same numbers.
+/// `ProgressService` computes one off the main actor per journal revision and
+/// placement change, so Skills, Home and the reward loop all read the same
+/// numbers.
 nonisolated struct ProgressSnapshot: Sendable {
     /// The athlete's declaration, or `nil` when none was saved.
     let placement: SkillPlacement?

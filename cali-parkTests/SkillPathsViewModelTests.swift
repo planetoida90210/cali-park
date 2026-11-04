@@ -171,6 +171,7 @@ struct SkillPathsViewModelTests {
                 sets: [LoggedSet(reps: 8), LoggedSet(reps: 8), LoggedSet(reps: 8)]
             )
         )
+        await stack.settle()
 
         #expect(viewModel.summary(for: .pullUp)?.state.conqueredRungCount == 6)
     }

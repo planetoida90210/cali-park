@@ -82,15 +82,21 @@ struct JournalWriteBenchmarkTests {
         dashboard.reload()
         _ = dashboard.snapshot
         var derivedStalls: [Duration] = []
+        var derivedTotals: [Duration] = []
         for _ in 0..<7 {
+            let started = ContinuousClock.now
             derivedStalls.append(try await JournalBenchmark.longestMainActorStall {
                 try await journal.log(WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
                                                       date: JournalBenchmark.start,
                                                       sets: [LoggedSet(reps: 8)]))
-                _ = dashboard.snapshot
+                // Progress and Home are computed off the main actor; wait
+                // until Home holds the new snapshot.
+                await dashboard.settle()
             })
+            derivedTotals.append(ContinuousClock.now - started)
         }
         let derivedStall = derivedStalls.sorted()[derivedStalls.count / 2]
+        let derivedTotal = derivedTotals.sorted()[derivedTotals.count / 2]
         withExtendedLifetime(rewards) {}
 
         // What Home derives once per change (B-14) instead of on every render.
@@ -110,7 +116,8 @@ struct JournalWriteBenchmarkTests {
             [benchmark] journal.delete(ids:) through the file: \(JournalBenchmark.format(delete))
             [benchmark] journal.log(_:) in memory only: \(JournalBenchmark.format(inMemoryLog))
             [benchmark] longest main-actor stall during a save: \(JournalBenchmark.format(stall))
-            [benchmark] longest main-actor stall during a save, progress and Home included: \(JournalBenchmark.format(derivedStall))
+            [benchmark] save until Home shows it, progress and Home included: \(JournalBenchmark.format(derivedTotal))
+            [benchmark] longest main-actor stall during that: \(JournalBenchmark.format(derivedStall))
             [benchmark] HomeEngine.snapshot: \(JournalBenchmark.format(homeSnapshot))
             [benchmark] ProgressionEngine.snapshot: \(JournalBenchmark.format(progressSnapshot))
             """)

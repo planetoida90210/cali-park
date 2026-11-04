@@ -22,6 +22,12 @@ struct TrainingStack {
         rewards = RewardCenter(progress: progress, store: progressStore, goals: nil)
     }
 
+    /// Waits until progress, and so the rewards, reflect every change so far:
+    /// both are computed off the main actor after a write.
+    func settle() async {
+        await progress.settle()
+    }
+
     func skillPaths() -> SkillPathsViewModel {
         SkillPathsViewModel(progress: progress)
     }

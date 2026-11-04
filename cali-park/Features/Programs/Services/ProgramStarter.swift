@@ -55,7 +55,12 @@ final class ProgramStarter {
 
     /// Prescribes and saves the program's plans, returning them as saved.
     /// The plans have no reminder, so a reminder sync failure doesn't matter.
+    ///
+    /// Waits for progress first: it is computed off the main actor, and
+    /// onboarding saves the placement right before it starts a program, so
+    /// the plans must start on the rung just declared.
     func start(_ program: TrainingProgram) async throws -> [WorkoutPlan] {
+        await progress.settle()
         let plans = try preview(program)
         var saved: [WorkoutPlan] = []
         for plan in plans {
@@ -84,6 +89,7 @@ final class ProgramStarter {
     /// workouts keep their plan id, so history and closed weeks stay as they
     /// were. Returns the new plans as saved.
     func replace(_ plan: WorkoutPlan, with program: TrainingProgram) async throws -> [WorkoutPlan] {
+        await progress.settle()
         let plans = ProgramPrescriber.replacementPlans(for: plan, program: program,
                                                        pathStates: try pathStates(), today: clock())
         for created in plans {

@@ -262,10 +262,12 @@ struct LoweredFloorTests {
         let stack = TrainingStack(placementStore: placementStore)
 
         try await stack.journal.log(IntegrityFixture.pullUps3x8())
-        stack.drainCelebrations()
+        await stack.settle()
+        #expect(stack.drainCelebrations() > 0)
 
         try placementStore.save(SkillPlacement(declaredRungByPath: [:]))
         stack.progress.reloadPlacement()
+        await stack.settle()
 
         #expect(stack.rewards.currentCelebration == nil)
     }
@@ -337,6 +339,7 @@ struct CelebratedWhenShownTests {
         try await stack.journal.log(WorkoutLogEntry(exerciseID: ExerciseCatalog.lPullUpsID,
                                               date: IntegrityFixture.day,
                                               sets: [LoggedSet(reps: 5), LoggedSet(reps: 5), LoggedSet(reps: 5)]))
+        await stack.settle()
         #expect(stack.rewards.currentCelebration == .rungConquered(RungReference(pathID: .pullUp, stepID: ExerciseCatalog.lPullUpsID)))
         #expect(progressStore.saveCount == 1)
 

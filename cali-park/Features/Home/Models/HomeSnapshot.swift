@@ -5,11 +5,12 @@ import Foundation
 /// calendar day: the hero, the "Następny trening" and "Ostatni trening"
 /// modules, the day streak, the achievements and the hint.
 ///
-/// `HomeDashboardViewModel` computes it once per journal revision, plans
-/// change, progress revision and day (audit B-14), like
-/// `ProgressService.snapshot`, so a render, a module drag or a module
-/// expanding reads stored values instead of scanning the journal.
-nonisolated struct HomeSnapshot: Equatable {
+/// `HomeDashboardViewModel` computes it off the main actor once per progress
+/// revision (so once per journal change), plans change and day (audit B-14),
+/// like `ProgressService.snapshot`, so a save never freezes the interface and
+/// a render, a module drag or a module expanding reads stored values instead
+/// of scanning the journal.
+nonisolated struct HomeSnapshot: Equatable, Sendable {
     let hero: HomeHeroState
     let nextWorkout: NextWorkoutState
     /// The most recent workout, `nil` for an empty journal.

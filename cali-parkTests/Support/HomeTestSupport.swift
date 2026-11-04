@@ -35,6 +35,12 @@ struct HomeHarness {
         dashboard.reload()
     }
 
+    /// Waits until Home and progress reflect every change so far: both are
+    /// computed off the main actor.
+    func settle() async {
+        await dashboard.settle()
+    }
+
     /// The rail's "Szybki trening".
     func makeQuickWorkoutViewModel() -> QuickWorkoutViewModel {
         QuickWorkoutViewModel(journal: journal, clock: clock)

@@ -74,7 +74,7 @@ struct HomeDayRolloverTests {
     /// Trained Monday night, Tuesday's plan is due: the next morning Home must
     /// offer Tuesday's plan instead of "done today".
     @Test
-    func heroMovesFromDoneTodayToTodaysPlanAfterMidnight() {
+    func heroMovesFromDoneTodayToTodaysPlanAfterMidnight() async {
         let tuesdayPlan = WorkoutPlan(
             name: "Push",
             exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID)],
@@ -87,6 +87,7 @@ struct HomeDayRolloverTests {
 
         clock.now = Fixtures.tuesdayMorning
         dashboard.reload()
+        await dashboard.settle()
 
         guard case let .planToday(plan, loggedTodayReps, _) = dashboard.heroState() else {
             Issue.record("Expected planToday, got \(dashboard.heroState())")
@@ -97,7 +98,7 @@ struct HomeDayRolloverTests {
     }
 
     @Test
-    func nextPlannedWorkoutFollowsTheRefreshedDay() throws {
+    func nextPlannedWorkoutFollowsTheRefreshedDay() async throws {
         let tuesdayPlan = WorkoutPlan(
             name: "Push",
             exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID)],
@@ -112,6 +113,7 @@ struct HomeDayRolloverTests {
 
         clock.now = Fixtures.tuesdayMorning
         dashboard.reload()
+        await dashboard.settle()
 
         let after = try #require(dashboard.nextPlannedWorkout)
         #expect(after.date == before.date)
@@ -122,7 +124,7 @@ struct HomeDayRolloverTests {
     /// The streak's "today" moves too: a Monday workout still counts on
     /// Tuesday morning (the streak stays alive until a whole day is missed).
     @Test
-    func streakUsesTheRefreshedDay() {
+    func streakUsesTheRefreshedDay() async {
         let clock = TestClock(Fixtures.mondayEvening)
         let dashboard = dashboard(clock: clock,
                                   entries: [Fixtures.entry(on: Fixtures.mondayEvening - 3_600)])
@@ -130,6 +132,7 @@ struct HomeDayRolloverTests {
 
         clock.now = Fixtures.tuesdayMorning
         dashboard.reload()
+        await dashboard.settle()
         #expect(dashboard.streak == dashboard.streak(asOf: Fixtures.tuesdayMorning))
     }
 
@@ -170,6 +173,7 @@ struct HomeReloadAfterSummaryDeleteTests {
                             sets: [LoggedSet(reps: 8)])
         await session.finish()
         dashboard.reload() // onFinish
+        await home.settle()
         #expect(dashboard.heroState().isCompletedToday)
 
         let summary = session.makeSummaryViewModel()
@@ -177,6 +181,7 @@ struct HomeReloadAfterSummaryDeleteTests {
         #expect(summary.didDelete)
 
         dashboard.reload() // the sheet's onDismiss
+        await home.settle()
         #expect(dashboard.latestWorkout == nil)
         #expect(dashboard.heroState() == .firstRun)
     }

@@ -289,6 +289,7 @@ struct HomeSnapshotCachingTests {
         #expect(dashboard.snapshotComputationCount == 1)
 
         try await home.journal.log(F.entry(at: F.day(F.today, hour: 7)))
+        await dashboard.settle()
         _ = dashboard.heroState()
         _ = dashboard.streak
         #expect(dashboard.snapshotComputationCount == 2)
@@ -296,19 +297,23 @@ struct HomeSnapshotCachingTests {
 
         try home.planStore.save(F.plan("Środa", .weekly([.wednesday])))
         dashboard.reload()
+        await dashboard.settle()
         _ = dashboard.nextWorkoutState
         #expect(dashboard.snapshotComputationCount == 3)
         dashboard.reload()
+        await dashboard.settle()
         _ = dashboard.nextWorkoutState
         #expect(dashboard.snapshotComputationCount == 3)
 
         home.clock.now = F.day(F.today + 1, hour: 8)
         dashboard.reload()
+        await dashboard.settle()
         _ = dashboard.heroState()
         #expect(dashboard.snapshotComputationCount == 4)
 
         try home.placementStore.save(SkillPlacement(declaredRungByPath: [.core: 2]))
         home.progress.reloadPlacement()
+        await dashboard.settle()
         _ = dashboard.achievementsSummary
         #expect(dashboard.snapshotComputationCount == 5)
     }
@@ -321,6 +326,7 @@ struct HomeSnapshotCachingTests {
         let dashboard = home.dashboard
         _ = dashboard.heroState()
         try await home.journal.log(F.entry(at: F.day(F.today, hour: 7)))
+        await dashboard.settle()
 
         let fresh = HomeEngine.snapshot(entries: home.journal.newestFirst, plans: [wednesday],
                                         progress: home.progress.snapshot, calendar: F.calendar,

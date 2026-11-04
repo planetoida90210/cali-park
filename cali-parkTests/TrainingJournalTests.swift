@@ -217,6 +217,7 @@ struct ProgressServiceTests {
         let before = progress.computationCount
 
         try await journal.log(JournalFixture.pullUps([8, 8, 8]))
+        await home.settle()
         _ = rewards.currentCelebration
         _ = home.achievementsSummary
         _ = home.progressionHint
@@ -229,24 +230,25 @@ struct ProgressServiceTests {
     }
 
     @Test
-    func aPlacementChangeRecomputesOnlyWhenItChanged() throws {
+    func aPlacementChangeRecomputesOnlyWhenItChanged() async throws {
         let placementStore = InMemorySkillPlacementStore()
         let stack = TrainingStack(placementStore: placementStore)
         _ = stack.progress.snapshot
         let before = stack.progress.computationCount
 
         stack.progress.reloadPlacement() // nothing saved: no change
-        _ = stack.progress.snapshot
+        await stack.settle()
         #expect(stack.progress.computationCount == before)
 
         try placementStore.save(SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID]))
         stack.progress.reloadPlacement()
+        await stack.settle()
         #expect(stack.progress.snapshot.pathStates[.pullUp]?.currentRungIndex == 5)
         #expect(stack.progress.computationCount == before + 1)
     }
 
     @Test
-    func savingACalibrationUpdatesSharedProgress() {
+    func savingACalibrationUpdatesSharedProgress() async {
         let environment = AppEnvironment.seeded()
         let skills = environment.makeSkillPathsViewModel()
         #expect(skills.needsCalibration)
@@ -255,6 +257,7 @@ struct ProgressServiceTests {
         let question = PlacementCalibration.repQuestions.first { $0.path == .pullUp }!
         calibration.select(.many, for: question)
         calibration.save()
+        await environment.progressService.settle()
 
         #expect(calibration.didSave)
         #expect(skills.needsCalibration == false)
@@ -299,6 +302,7 @@ struct RewardCenterTests {
                                          journal: stack.journal)
         setPad.input.appendDigit(5)
         await setPad.save()
+        await stack.settle()
 
         let toast = try #require(stack.rewards.xpToastAmount)
         #expect(toast == 5 * ProgressionEngine.xpPerRep)
@@ -321,11 +325,13 @@ struct RewardCenterTests {
         let setPad = WorkoutLogViewModel(exercise: pullUps, journal: stack.journal)
         setPad.input.appendDigit(5)
         await setPad.save()
+        await stack.settle()
         let first = try #require(stack.rewards.xpToastAmount)
 
         let secondPad = WorkoutLogViewModel(exercise: pullUps, journal: stack.journal)
         secondPad.input.appendDigit(3)
         await secondPad.save()
+        await stack.settle()
         let second = try #require(stack.rewards.xpToastAmount)
         #expect(second != first)
 
@@ -343,6 +349,7 @@ struct RewardCenterTests {
         let stack = TrainingStack()
 
         try await stack.journal.log(JournalFixture.pullUps([8, 8, 8]))
+        await stack.settle()
         #expect(stack.rewards.currentCelebration == .rung(0, on: .pullUp))
         #expect(stack.rewards.xpToastAmount == nil)
 
@@ -363,6 +370,7 @@ struct RewardCenterTests {
         session.addExercise(try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
                             sets: [LoggedSet(reps: 8), LoggedSet(reps: 8), LoggedSet(reps: 8)])
         await session.finish()
+        await environment.progressService.settle()
 
         #expect(environment.rewardCenter.currentCelebration == .rung(0, on: .pullUp))
     }
@@ -450,6 +458,7 @@ struct PerSessionScoringTests {
         session.addExercise(dips, sets: [LoggedSet(reps: 10)])
         session.addExercise(pullUps, sets: [LoggedSet(reps: 8)])
         await session.finish()
+        await stack.settle()
 
         #expect(stack.journal.entries.count == 3)
         #expect(stack.skillPaths().summary(for: .pullUp)?.state.conqueredRungCount == 6)
@@ -578,6 +587,7 @@ struct LiveRungProgressTests {
             setPad.input.commitSet()
         }
         await setPad.save()
+        await environment.progressService.settle()
 
         // The sheet reads progress through the same view model, no reload.
         #expect(ladder.rungProgress(for: step).bestValue == 6)
@@ -637,6 +647,10 @@ struct RewardQueueTests {
                                       calendar: F.calendar, clock: { now })
             rewards = RewardCenter(progress: progress, store: InMemorySkillProgressStore(), goals: goals)
         }
+
+        func settle() async {
+            await progress.settle()
+        }
     }
 
     @Test
@@ -645,6 +659,7 @@ struct RewardQueueTests {
         let before = stack.progress.snapshot.level.totalXP
 
         try await stack.journal.log(F.entry(at: F.day(1), sets: Array(repeating: LoggedSet(reps: 8), count: 3)))
+        await stack.settle()
         let gained = stack.progress.snapshot.level.totalXP - before
 
         var overlays: [RewardPresentation] = []
@@ -667,6 +682,7 @@ struct RewardQueueTests {
 
         // The third training day meets the default goal (3 days).
         try await stack.journal.log(F.entry(at: F.day(3)))
+        await stack.settle()
 
         let goal = try #require(stack.rewards.current)
         #expect(goal.presentation.eyebrow == "CEL TYGODNIOWY WYKONANY")
@@ -681,6 +697,7 @@ struct RewardQueueTests {
         let stack = Stack(entries: F.trained(week: 0, days: [0, 1]))
 
         try await stack.journal.log(F.entry(at: F.day(3), sets: Array(repeating: LoggedSet(reps: 8), count: 3)))
+        await stack.settle()
 
         var eyebrows: [String] = []
         var lastSkillHasNext = false

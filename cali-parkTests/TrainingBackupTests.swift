@@ -329,8 +329,9 @@ struct TrainingBackupServiceTests {
                             sets: Array(repeating: LoggedSet(reps: 10), count: 3))
         }
         try await rig.service.restore(TrainingBackup(workoutLog: strongLog))
-
+        // The import's snapshot is settled synchronously; nothing lands later.
         #expect(rig.environment.progressService.snapshot.level.totalXP > 0)
+        await rig.environment.progressService.settle()
         #expect(rig.environment.rewardCenter.current == nil)
         #expect(rig.environment.rewardCenter.xpToastAmount == nil)
     }
@@ -339,6 +340,7 @@ struct TrainingBackupServiceTests {
     func restoreClearsOptionalSections() async throws {
         let rig = BackupRig.withOldData()
         try await rig.service.restore(TrainingBackup())
+        await rig.environment.progressService.settle()
 
         #expect(try rig.placement.load() == nil)
         // The old "celebrated" record is gone; the reward loop then seeds a

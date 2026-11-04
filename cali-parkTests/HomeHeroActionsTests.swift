@@ -40,6 +40,7 @@ struct HomeHeroActionsTests {
         let session = home.makeQuickWorkoutViewModel(plan: plan)
         await session.finish()
         dashboard.reload()
+        await home.settle()
 
         #expect(logStore.load().allSatisfy { $0.planID == plan.id })
         #expect(dashboard.heroState().isCompletedToday)
@@ -61,6 +62,7 @@ struct HomeHeroActionsTests {
         session.addExercise(ExerciseCatalog.all[0], sets: [LoggedSet(reps: 10)])
         await session.finish()
         dashboard.reload()
+        await home.settle()
 
         let saved = logStore.load()
         #expect(saved.count == 1)
@@ -99,6 +101,7 @@ struct HomeHeroActionsTests {
         free.addExercise(ExerciseCatalog.all[0], sets: [LoggedSet(reps: 8)])
         await free.finish()
         dashboard.reload()
+        await home.settle()
 
         guard case let .planToday(resolvedPlan, loggedTodayReps, _) = dashboard.heroState() else {
             Issue.record("expected .planToday after a free log")

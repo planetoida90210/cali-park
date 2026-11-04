@@ -167,6 +167,7 @@ struct RewardCenterLoopTests {
         #expect(stack.rewards.currentCelebration == nil)
 
         try await stack.journal.log(RewardFixture.pullUps3x8())
+        await stack.settle()
 
         #expect(stack.rewards.currentCelebration == .rung(0, on: .pullUp))
         // The XP toast stays silent while a celebration carries the moment.
@@ -191,6 +192,7 @@ struct RewardCenterLoopTests {
         // More volume on an already-conquered rung: XP grows, nothing new is
         // conquered, so the athlete gets a toast, not an overlay.
         try await stack.journal.log(RewardFixture.pullUps3x8())
+        await stack.settle()
 
         #expect(stack.rewards.currentCelebration == nil)
         let toast = try #require(stack.rewards.xpToastAmount)
@@ -201,6 +203,7 @@ struct RewardCenterLoopTests {
         let stack = TrainingStack()
 
         try await stack.journal.log(RewardFixture.pullUps3x8())
+        await stack.settle()
 
         #expect(stack.skillPaths().badges.contains(.firstWorkout))
     }

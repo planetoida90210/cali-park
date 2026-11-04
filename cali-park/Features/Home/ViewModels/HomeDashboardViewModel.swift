@@ -5,8 +5,9 @@ import Observation
 /// Feeds the Home modules (last workout, streak, next workout, hero card) from
 /// the app's `TrainingJournal` and `ProgressService`, so a workout saved on
 /// any tab shows here without a reload. `reload()` re-reads the plans. The
-/// derived state is one `HomeSnapshot`, cached per change. The sheets Home
-/// opens get their view models from `AppEnvironment`.
+/// derived state is one `HomeSnapshot`, computed once per change off the main
+/// actor (see `snapshot`). The sheets Home opens get their view models from
+/// `AppEnvironment`.
 ///
 /// Everything "today"-relative (hero, streak, next plan, weekly count) reads
 /// the cached `now`, which only moves on `reload()`. The view reloads when the
@@ -22,8 +23,15 @@ final class HomeDashboardViewModel {
     }
     /// Grows whenever `plans` changes, to key the snapshot.
     private var plansRevision = 0
-    /// The last snapshot and what it was computed for.
+    /// The snapshot shown and what it was computed for. Not observed: the
+    /// first one is stored while a view body reads it. Views track
+    /// `publications` instead.
     @ObservationIgnored private var cache: (key: SnapshotKey, snapshot: HomeSnapshot)?
+    /// Grows when a snapshot computed off the main actor lands, so the views
+    /// that read `snapshot` render it.
+    private var publications = 0
+    /// The computation in flight and the inputs it is for.
+    @ObservationIgnored private var pending: (key: SnapshotKey, task: Task<Void, Never>)?
     /// How many snapshots were computed; tests check it stays one per change.
     @ObservationIgnored private(set) var snapshotComputationCount = 0
     /// Set when a store fails to load, for the Home alert.
@@ -48,8 +56,10 @@ final class HomeDashboardViewModel {
     /// through the app-wide `RewardCenter`.
     var weeklyGoal: WeeklyGoalSnapshot? { goals.snapshot }
 
+    /// The inputs of a snapshot. The journal is keyed through progress: every
+    /// journal change publishes a new progress snapshot, so keying on both
+    /// would compute Home twice per save, once with the old progress.
     private struct SnapshotKey: Equatable {
-        let journal: Int
         let plans: Int
         let progress: Int
         let day: Date
@@ -110,23 +120,96 @@ final class HomeDashboardViewModel {
 
     // MARK: Snapshot
     /// Everything Home derives from the journal, the plans and progress, for
-    /// `now`'s day. Computed once per journal revision, plans change, progress
-    /// revision and day (B-14), not on every render. Reading it in a view body
-    /// tracks all of those, so a save anywhere refreshes Home.
+    /// `now`'s day. Computed once per progress revision (so once per journal
+    /// change), plans change and day (B-14), not on every render. Reading it
+    /// in a view body tracks all of those, so a save anywhere refreshes Home.
+    ///
+    /// `HomeEngine.snapshot` takes about 30 ms on a 10,000-entry journal, so
+    /// after a change it runs off the main actor and this keeps returning the
+    /// previous snapshot until the new one lands (a moment later, never an
+    /// empty Home). Only the very first read computes on the spot: there is
+    /// nothing earlier to show, and the journal is already loaded. The latest
+    /// inputs win: a change cancels the computation in flight. Tests
+    /// `await settle()`.
     var snapshot: HomeSnapshot {
-        let key = SnapshotKey(journal: journal.revision,
-                              plans: plansRevision,
-                              progress: progress.revision,
-                              day: calendar.startOfDay(for: now))
-        if let cache, cache.key == key { return cache.snapshot }
-        let snapshot = HomeEngine.snapshot(entries: journal.newestFirst,
-                                           plans: plans,
-                                           progress: progress.snapshot,
-                                           calendar: calendar,
-                                           today: now)
-        cache = (key, snapshot)
-        snapshotComputationCount += 1
-        return snapshot
+        _ = publications
+        let key = currentKey
+        guard let cache else {
+            let snapshot = currentInput().snapshot()
+            cache = (key, snapshot)
+            snapshotComputationCount += 1
+            return snapshot
+        }
+        if cache.key == key {
+            // Back to the inputs on screen: anything in flight is older.
+            cancelPending()
+        } else if pending?.key != key {
+            startComputing(for: key)
+        }
+        return cache.snapshot
+    }
+
+    /// Waits until `snapshot` reflects every change made so far, progress
+    /// included.
+    func settle() async {
+        await progress.settle()
+        _ = snapshot
+        while let pending { await pending.task.value }
+    }
+
+    private var currentKey: SnapshotKey {
+        SnapshotKey(plans: plansRevision,
+                    progress: progress.revision,
+                    day: calendar.startOfDay(for: now))
+    }
+
+    private func currentInput() -> SnapshotInput {
+        SnapshotInput(entries: journal.newestFirst, plans: plans, progress: progress.snapshot,
+                      calendar: calendar, today: now)
+    }
+
+    /// Computes the snapshot for `key` off the main actor and publishes it,
+    /// unless newer inputs replaced it meanwhile. Called while a view body
+    /// reads `snapshot`, so it changes no observed state until the result
+    /// lands.
+    private func startComputing(for key: SnapshotKey) {
+        pending?.task.cancel()
+        let input = currentInput()
+        let task = Task { [weak self] in
+            let snapshot = await Self.compute(input)
+            guard let self, self.pending?.key == key, let snapshot else { return }
+            self.pending = nil
+            self.cache = (key, snapshot)
+            self.snapshotComputationCount += 1
+            self.publications += 1
+        }
+        pending = (key, task)
+    }
+
+    private func cancelPending() {
+        pending?.task.cancel()
+        pending = nil
+    }
+
+    /// `HomeEngine.snapshot` on the cooperative pool, or `nil` when newer
+    /// inputs cancelled it before it started.
+    @concurrent
+    private nonisolated static func compute(_ input: SnapshotInput) async -> HomeSnapshot? {
+        guard !Task.isCancelled else { return nil }
+        return input.snapshot()
+    }
+
+    /// Everything a snapshot is computed from, copied off the main actor.
+    private nonisolated struct SnapshotInput: Sendable {
+        let entries: [WorkoutLogEntry]
+        let plans: [WorkoutPlan]
+        let progress: ProgressSnapshot
+        let calendar: Calendar
+        let today: Date
+
+        func snapshot() -> HomeSnapshot {
+            HomeEngine.snapshot(entries: entries, plans: plans, progress: progress, calendar: calendar, today: today)
+        }
     }
 
     /// The most recent workout for the "Ostatni trening" module.
