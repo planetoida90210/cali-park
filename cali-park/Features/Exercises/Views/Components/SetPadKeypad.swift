@@ -29,6 +29,7 @@ struct SetPadKeypad: View {
                 } content: {
                     Image(systemName: "plus")
                 }
+                .accessibilityIdentifier("setPad.addSet")
             }
         }
     }
@@ -43,5 +44,6 @@ struct SetPadKeypad: View {
         } content: {
             Text("\(digit)")
         }
+        .accessibilityIdentifier("setPad.digit.\(digit)")
     }
 }

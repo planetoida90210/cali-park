@@ -6,10 +6,10 @@ Każde znalezisko z [findings.md](findings.md) sprawdzone na kodzie po fundamenc
 
 | Status | Liczba |
 |---|---|
-| naprawione | 110 |
+| naprawione | 111 |
 | zniknęło | 25 |
 | świadomie odłożone | 3 |
-| otwarte | 3 |
+| otwarte | 2 |
 | **razem** | **141** |
 
 - **Wszystkie P0 z audytu są zamknięte**: dane i zaufanie (#1–#6), bloker uploadu (#7), mocki i uprawnienia (#8, #9), lokalizacja i dostępność (#10, #11). Swift 6, CI i lint też.
@@ -19,7 +19,8 @@ Każde znalezisko z [findings.md](findings.md) sprawdzone na kodzie po fundamenc
 - Gałąź `w-ui-consistency` zamknęła spójność UI: E-21, E-23, E-28, E-30 i F-10 (jeden alert błędu, jeden styl przycisku akcentowego i drugorzędnego, skala promieni, kolory z katalogu, podglądy AX5). Gałąź `w-tests-tooling` zamknęła testy i narzędzia: B-16, F-14, G-8, G-14, G-16, G-20, G-21, G-22, G-23.
 - Gałąź `w-perf` zamknęła wydajność przy dużym dzienniku i korzeń kompozycji: C-8, D-7, B-14 i F-7. Pomiary i przyjęty limit są w sekcji „Duży dziennik: pomiar i limit” niżej.
 - Gałąź `w-views` zamknęła porządek w widokach i resztę korzenia kompozycji: E-25 (duże widoki rozbite na `Components/`, widoki z właściwości `var x: some View` jako osobne struktury), F-15 (dublery i środowiska podglądów tylko w buildzie Debug, `cali-park/PreviewSupport/`) i resztę F-7 (edytor celu i formularz poziomu czytają store dopiero przy pokazaniu).
-- Otwarte zostały przenosiny folderów po TestFlighcie (F-8), testy UI (G-15) i katalog ćwiczeń, który czeka na drugi język (F-11). Rekomendacje są w tabeli niżej.
+- Gałąź `w-ui-tests` zamknęła G-15: argument `-uitest-reset` z wyborem danych startowych (`UITestSeed`), identyfikatory dostępności i testy UI trzech głównych ścieżek (onboarding → Home, szybki trening → Historia, plan z programu → Home) plus linijki na Home prowadzącej do „Czas na Fundamenty”.
+- Otwarte zostały przenosiny folderów po TestFlighcie (F-8) i katalog ćwiczeń, który czeka na drugi język (F-11). Rekomendacje są w tabeli niżej.
 
 Statusy:
 
@@ -32,13 +33,12 @@ Commity od `2a2c469` do `dd2dc49` pochodzą z tego przeglądu; pozostałe opisuj
 
 ## Co zostało otwarte i co z tym zrobić
 
-Żadne otwarte znalezisko nie dotyczy utraty danych ani blokera App Store. Zostały porządki w kodzie, testy UI oraz drobiazgi wymagające decyzji.
+Żadne otwarte znalezisko nie dotyczy utraty danych ani blokera App Store. Zostały porządki w kodzie oraz drobiazgi wymagające decyzji.
 
 | ID | Wysiłek | Decyzja właściciela | Rekomendacja |
 |---|---|---|---|
 | F-8 | M–L | tylko nazwy folderów | Jeden commit z samym przenoszeniem plików po TestFlighcie: `Domain/` (modele treningu, katalogi) i `Services/` (dziennik, postęp, nagrody, plany, store'y). |
 | F-11 | M | **tak** przy drugim języku | Katalog ćwiczeń jako JSON dopiero razem z lokalizacją treści (String Catalog nie wyciąga tekstów z JSON). Do tego czasu zostaje w kodzie; ciche zastępstwa już usunięte. |
-| G-15 | M | tylko wybór 3 ścieżek | Argument `-uitest-reset` budujący `AppEnvironment.seeded(...)`, identyfikatory dostępności i 3 testy UI (onboarding → Home, szybki trening → Historia, plan → Home). |
 
 ## Duży dziennik: pomiar i limit
 
@@ -187,7 +187,7 @@ Przyjęty limit: do ok. 10 000 wpisów. Realny intensywny użytkownik ma po 3 la
 | G-12 | Asercje wywalające testy | naprawione | `4041ab2` | `try #require` zamiast `try!` i indeksów po `#expect`; stałe katalogu w fixture'ach zostają. |
 | G-13 | Testy Codable bez formatu z dysku | naprawione | `daf0492` | Złote pliki w `Fixtures/`. |
 | G-14 | Ryzykowny kod bez testów | naprawione | `5fa6577`, `070794c` | `CoreLocationProvider` nad protokołem `LocationManaging`, testy oczekujących, zmian uprawnień, świeżości pozycji i timeoutu; wykrywanie hosta testów w `CaliParkApp` ma test. |
-| G-15 | UI testy z szablonu | otwarte | `cali-parkUITests/` | |
+| G-15 | UI testy z szablonu | naprawione | `cali-parkUITests/`, `UITestLaunch.swift` | `-uitest-reset` z `CALIPARK_UITEST_SEED` buduje `AppEnvironment.seeded(...)` (dane w pamięci, własny wyczyszczony zestaw `UserDefaults`); 4 testy UI, ok. 80 s lokalnie. Szablon i testy startu usunięte. Bez joba w CI, komenda w CLAUDE.md. |
 | G-16 | Brak schematu i test planu | naprawione | `070794c` | Współdzielony schemat i `cali-park.xctestplan`, `.timeLimit` w zestawach z testami asynchronicznymi, host testów bez `AppEnvironment.live()`. `xcschememanagement.plist` celowo dalej śledzony (usunięcie z indeksu skasowałoby go właścicielowi). |
 | G-17 | Przypomnienia bez konsumenta | naprawione | `5012b44`, `bfb3796` | |
 | G-18 | Brak lintu | naprawione | `449024e`, `bdade25`, `4114c35` | Reguły blokują CI; `swift-format` tylko raportuje (poza zakresem). |

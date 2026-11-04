@@ -14,9 +14,18 @@ xcodebuild -project cali-park.xcodeproj -scheme cali-park \
 
 - Simulator access fails inside the Bash sandbox (CoreSimulator, xcrun cache). Run xcodebuild with the sandbox disabled.
 - Some simulator names exist on more than one runtime. Without `OS=26.5` in the destination, xcodebuild may fail to match a device; `id=<UDID>` from `xcrun simctl list devices` also works.
-- Baseline as of 2026-11-04, after the view split (`792ac37`): the Debug and Release builds have zero warnings and every unit test passes (998 `@Test` functions, 1484 cases including parameterized ones; the journal write benchmark is skipped unless `TEST_RUNNER_CALIPARK_BENCHMARK=1`). Keep the build warning-free and the tests green.
+- Baseline as of 2026-11-04, after the UI tests (G-15): the Debug and Release builds have zero warnings and every unit test passes (1007 `@Test` functions, 1500 cases including parameterized ones; the journal write benchmark is skipped unless `TEST_RUNNER_CALIPARK_BENCHMARK=1`). Keep the build warning-free and the tests green.
 - Targets use synchronized folders. A new file under `cali-park/` or `cali-parkTests/` is compiled automatically, so add files without editing `project.pbxproj`.
 - The `cali-park` scheme is shared (`cali-park.xcodeproj/xcshareddata/xcschemes/`) and runs the `cali-park.xctestplan` test plan: Polish language and region, code coverage for the app, unit tests in parallel. When the app process only hosts the unit tests (`XCTestConfigurationFilePath` is set), `AppLauncher` starts an empty app instead of `AppEnvironment.live()`, so tests never touch the simulator's store files or reminders.
+- UI tests (`cali-parkUITests/`, XCTest) drive the three main paths: onboarding → Home, quick workout → history, plan from a program → Home, plus Home's line to "Czas na Fundamenty". They take about 1.5 minutes on top of the build and are not part of CI (see CI below). Run them after changing those screens, on your own simulator:
+
+  ```sh
+  xcodebuild -project cali-park.xcodeproj -scheme cali-park \
+    -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' \
+    -derivedDataPath "$TMPDIR/dd" -only-testing:cali-parkUITests test
+  ```
+
+  A plain `test` without `-only-testing` runs both targets. The tests launch the app with `-uitest-reset` and a seed in the `CALIPARK_UITEST_SEED` environment value (`fresh`, `onboarded`, `planToday`, `veteran`; `UITestSeed` in `cali-park/PreviewSupport/UITestLaunch.swift`, Debug only): in-memory stores, the cleared `cali-park.uitests` defaults suite, UIKit animations off. They find controls by `.accessibilityIdentifier` (stable English IDs such as `home.hero.start`, `setPad.digit.1`); add one to a control a test needs and never change visible text for a test. Wait on elements with timeouts (`waitToAppear`, `scrolledTo` in `cali-parkUITests/Support/`), never sleep. Home's modules start collapsed: tap `home.module.<case>` before reading their content.
 - Shared test helpers live in `cali-parkTests/Support/`: `TestCalendar.utc`/`.warsaw`, `TestDate`, the `.temporaryDirectories` trait with `TemporaryDirectory.make()` (removed after each test case), and the workout log store doubles (`UnreadableWorkoutLogStore`, `ReadOnlyWorkoutLogStore`, `SpyWorkoutLogStore`). Give every suite with async tests `.timeLimit(.minutes(1))`.
 
 ## CI
@@ -24,6 +33,7 @@ xcodebuild -project cali-park.xcodeproj -scheme cali-park \
 GitHub Actions (`.github/workflows/ci.yml`) runs on every push to `main`, on every pull request, and on manual dispatch. CI must stay green: a red `test` job on `main` is a regression to fix before anything else.
 
 - **`test`** (blocking): on the `macos-26` runner with Xcode 26.6 (CI uses an older Xcode than the local one; see `XCODE_VERSION` in the workflow), it runs the unit tests on an iPhone simulator picked by `scripts/ci-pick-simulator.sh` (iOS 26.5 when installed), with `CODE_SIGNING_ALLOWED=NO`. Then `scripts/check-build-warnings.sh` fails the job on any line containing `warning:`, except `appintentsmetadataprocessor` notes. When the job fails, it uploads the `.xcresult` and the full log as the `test-results` artifact. To bump Xcode, change the runner image and `XCODE_VERSION` together, after checking the image's readme in `actions/runner-images`.
+- The UI tests have no CI job yet: they were not run on CI's Xcode 26.6 runner, so their time and reliability there are unknown. Run them locally (see "Verify every change").
 - **`lint`**: the **Project rules** step (blocking) runs `scripts/lint-rules.sh --baseline scripts/lint-rules.baseline`, which counts violations of the clearest rules in `project-rules.mdc` and fails on any rule whose count exceeds the baseline. The **swift-format** step (report only, `continue-on-error: true`) runs `xcrun swift-format lint --recursive` against `.swift-format`. Both write a summary to the job page.
 - **`site`**: builds the static website in `site/` (`npm ci && npm run build` on Linux, parallel to the iOS jobs).
 - Run the same checks locally: `scripts/lint-rules.sh` (add `--baseline scripts/lint-rules.baseline` to check for new violations), `xcrun swift-format lint --recursive --parallel cali-park cali-parkTests cali-parkUITests`, and `scripts/check-build-warnings.sh <xcodebuild log>`.

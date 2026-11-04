@@ -40,6 +40,7 @@ struct WorkoutSessionDetailView: View {
             if let onDone {
                 Button("Gotowe", action: onDone)
                     .buttonStyle(.accent)
+                    .accessibilityIdentifier("workoutSummary.done")
                 .padding(.horizontal, 16)
                 .padding(.bottom, 8)
             }

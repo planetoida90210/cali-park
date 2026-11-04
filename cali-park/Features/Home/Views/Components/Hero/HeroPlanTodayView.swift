@@ -46,6 +46,7 @@ struct HeroPlanTodayView: View {
                 }
             }
             .buttonStyle(.accent)
+            .accessibilityIdentifier("home.hero.start")
 
             if let weeklyGoal {
                 Divider().overlay(Color.divider)

@@ -20,6 +20,7 @@ struct QuickWorkoutSessionList: View {
                             QuickWorkoutItemRow(item: item)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityIdentifier("quickWorkout.item.\(item.exercise.id.uuidString)")
                         .listRowBackground(Color.componentBackground)
                         .listRowSeparatorTint(Color.divider)
                     }

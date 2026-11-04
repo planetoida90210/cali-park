@@ -21,6 +21,7 @@ struct ExercisePickerRow: View {
             }
             .buttonStyle(.plain)
             .accessibilityHint("Wybierz wariant")
+            .accessibilityIdentifier("exercisePicker.\(exercise.id.uuidString)")
             .exerciseFavoriteActions(exercise)
         } else {
             Button {
@@ -30,6 +31,7 @@ struct ExercisePickerRow: View {
             }
             .buttonStyle(.plain)
             .accessibilityHint("Dodaj do treningu")
+            .accessibilityIdentifier("exercisePicker.\(exercise.id.uuidString)")
             .exerciseFavoriteActions(exercise)
         }
     }

@@ -46,9 +46,23 @@ struct ContextualHeroView: View {
         .padding(20)
         .background(Color.componentBackground)
         .clipShape(.rect(cornerRadius: AppRadius.medium))
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("home.hero.\(stateName)")
         .id(stateID)
         .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: 0.98)))
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: stateID)
+    }
+
+    /// The state's name in the hero's accessibility identifier, which the UI
+    /// tests read ("home.hero.planToday").
+    private var stateName: String {
+        switch state {
+        case .planToday: "planToday"
+        case .completedToday: "completedToday"
+        case .restDay: "restDay"
+        case .freeMode: "freeMode"
+        case .firstRun: "firstRun"
+        }
     }
 
     /// A stable discriminator per case so a state change gets a fresh identity

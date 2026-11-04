@@ -51,6 +51,7 @@ struct QuickWorkoutView: View {
                         .font(.buttonMedium)
                         .foregroundStyle(viewModel.canFinish ? Color.accent : Color.textSecondary)
                         .disabled(!viewModel.canFinish)
+                        .accessibilityIdentifier("quickWorkout.finish")
                 }
             }
             .sheet(item: $activeSheet) { sheet in

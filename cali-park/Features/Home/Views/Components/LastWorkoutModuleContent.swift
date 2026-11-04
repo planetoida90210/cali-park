@@ -19,6 +19,7 @@ struct LastWorkoutModuleContent: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityHint("Pokaż szczegóły treningu")
+                .accessibilityIdentifier("home.lastWorkout")
             } else {
                 HStack {
                     Text("Brak treningów. Zaloguj pierwszy.")

@@ -30,6 +30,22 @@ nonisolated enum AppLaunch {
     static func isHostingUnitTests(_ environment: [String: String]) -> Bool {
         environment["XCTestConfigurationFilePath"] != nil
     }
+
+    /// The app's composition root: the real stores, or in a Debug build
+    /// launched by the UI tests with `-uitest-reset`, a seeded in-memory
+    /// environment (`UITestSeed`).
+    @MainActor
+    static func makeEnvironment(_ process: ProcessInfo = .processInfo) -> AppEnvironment {
+        #if DEBUG
+        if let seed = UITestSeed.requested(arguments: process.arguments, environment: process.environment) {
+            // Sheets and pushes appear at once, so each UI test step only
+            // waits for the app to go idle, not for a transition.
+            UIView.setAnimationsEnabled(false)
+            return .uiTest(seed, defaults: AppEnvironment.uiTestDefaults())
+        }
+        #endif
+        return .live()
+    }
 }
 
 // MARK: - UnitTestHostApp
@@ -44,9 +60,7 @@ struct UnitTestHostApp: App {
 struct CaliParkApp: App {
     /// Composition root, built once and passed down the view tree through
     /// initializers. `@State` only keeps the one instance; nothing observes it.
-    @State private var environment = AppEnvironment.live()
-    @AppStorage(DefaultsKey.hasCompletedOnboarding.rawValue) private var hasCompletedOnboarding: Bool = false
-    @Environment(\.scenePhase) private var scenePhase
+    @State private var environment = AppLaunch.makeEnvironment()
 
     var body: some Scene {
         let planService = environment.workoutPlanService
@@ -73,20 +87,10 @@ struct CaliParkApp: App {
     private static let parkSubmissionOptions = ParkSubmissionLaunchOptions()
     #endif
 
+    /// Every `@AppStorage` below reads the environment's `UserDefaults`
+    /// (`.standard` in the app, the UI tests' own suite in a seeded launch).
     private var appContent: some View {
-        Group {
-            if hasCompletedOnboarding {
-                MainTabView(environment: environment)
-            } else {
-                OnboardingView(environment: environment)
-            }
-        }
-        .preferredColorScheme(.dark)
-        // Re-sync plan reminders on launch and on every return to the app:
-        // tops up the dated reminders and repairs any drift.
-        .task(id: scenePhase) {
-            guard scenePhase == .active else { return }
-            await environment.workoutPlanService.syncReminders()
-        }
+        AppRootView(environment: environment)
+            .defaultAppStorage(environment.defaults)
     }
 }

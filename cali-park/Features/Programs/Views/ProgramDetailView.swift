@@ -40,6 +40,7 @@ struct ProgramDetailView: View {
             }
             .buttonStyle(.accent)
             .disabled(!viewModel.canCreate)
+            .accessibilityIdentifier("programDetail.create")
             .padding()
             .background(Color.appBackground)
         }

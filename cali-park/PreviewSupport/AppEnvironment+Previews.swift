@@ -35,7 +35,8 @@ extension AppEnvironment {
                        favoriteParks: [UUID] = [],
                        favoriteExercises: [UUID] = [],
                        diagnosticReports: [DiagnosticReport] = [],
-                       location: LocationProviding? = nil) -> AppEnvironment {
+                       location: LocationProviding? = nil,
+                       defaults: UserDefaults = .throwaway()) -> AppEnvironment {
         AppEnvironment(
             parkDirectory: BundledParkDirectory(),
             locationProvider: location ?? FixedLocationProvider(
@@ -52,22 +53,25 @@ extension AppEnvironment {
             skillProgressStore: InMemorySkillProgressStore(),
             weeklyGoalStore: InMemoryWeeklyGoalStore(initial: weeklyGoal),
             diagnostics: DiagnosticsService(store: InMemoryDiagnosticReportStore(initial: diagnosticReports)),
-            defaults: .throwaway()
+            defaults: defaults
         )
     }
 
     /// Plan scheduled for today, nothing logged yet → hero shows "Rozpocznij".
     static var previewPlanToday: AppEnvironment {
-        seeded(plans: [
-            WorkoutPlan(
-                name: "Push Day",
-                exercises: [
-                    PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID, targetSets: 3, targetReps: 12),
-                    PlannedExercise(exerciseID: ExerciseCatalog.dipsID, targetSets: 3, targetReps: 10)
-                ],
-                schedule: .once(CalendarDay(.now, in: .current))
-            )
-        ])
+        seeded(plans: [planForToday()])
+    }
+
+    /// "Push Day", a one-off plan on `now`'s day.
+    static func planForToday(calendar: Calendar = .current, now: Date = .now) -> WorkoutPlan {
+        WorkoutPlan(
+            name: "Push Day",
+            exercises: [
+                PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID, targetSets: 3, targetReps: 12),
+                PlannedExercise(exerciseID: ExerciseCatalog.dipsID, targetSets: 3, targetReps: 10)
+            ],
+            schedule: .once(CalendarDay(now, in: calendar))
+        )
     }
 
     /// A whole session logged today → hero shows the day's summary.
@@ -99,23 +103,29 @@ extension AppEnvironment {
     /// through logs, plus a mid-ladder static (front lever conquered through the
     /// advanced tuck). Exercises the conquered / current / future rung states.
     static var skillsVeteran: AppEnvironment {
+        seeded(logs: veteranLogs(), placement: veteranPlacement)
+    }
+
+    /// The seasoned athlete's journal (see `skillsVeteran`), logged at `date`.
+    static func veteranLogs(at date: Date = .now) -> [WorkoutLogEntry] {
         func timed(_ id: UUID, seconds: Int, holds: Int = 3) -> WorkoutLogEntry {
-            WorkoutLogEntry(exerciseID: id, sets: Array(repeating: LoggedSet(reps: 1, durationSeconds: seconds), count: holds))
+            WorkoutLogEntry(exerciseID: id, date: date,
+                            sets: Array(repeating: LoggedSet(reps: 1, durationSeconds: seconds), count: holds))
         }
         func reps(_ id: UUID, reps: Int, sets: Int = 3) -> WorkoutLogEntry {
-            WorkoutLogEntry(exerciseID: id, sets: Array(repeating: LoggedSet(reps: reps), count: sets))
+            WorkoutLogEntry(exerciseID: id, date: date, sets: Array(repeating: LoggedSet(reps: reps), count: sets))
         }
-        return seeded(
-            logs: [
-                reps(ExerciseCatalog.archerPullUpsID, reps: 5),
-                reps(ExerciseCatalog.pseudoPlanchePushUpsID, reps: 8),
-                reps(ExerciseCatalog.ringDipsID, reps: 8),
-                timed(ExerciseCatalog.tuckFrontLeverID, seconds: 20),
-                timed(ExerciseCatalog.advancedTuckFrontLeverID, seconds: 20),
-                timed(ExerciseCatalog.straddleFrontLeverID, seconds: 12)
-            ],
-            placement: SkillPlacement(declaredRungByPath: [.core: 2, .legs: 3])
-        )
+        return [
+            reps(ExerciseCatalog.archerPullUpsID, reps: 5),
+            reps(ExerciseCatalog.pseudoPlanchePushUpsID, reps: 8),
+            reps(ExerciseCatalog.ringDipsID, reps: 8),
+            timed(ExerciseCatalog.tuckFrontLeverID, seconds: 20),
+            timed(ExerciseCatalog.advancedTuckFrontLeverID, seconds: 20),
+            timed(ExerciseCatalog.straddleFrontLeverID, seconds: 12)
+        ]
     }
+
+    /// The seasoned athlete's declared core and legs rungs.
+    static let veteranPlacement = SkillPlacement(declaredRungByPath: [.core: 2, .legs: 3])
 }
 #endif

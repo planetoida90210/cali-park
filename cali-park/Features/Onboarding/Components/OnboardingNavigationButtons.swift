@@ -34,6 +34,7 @@ struct OnboardingNavigationButtons: View {
             withAnimation { viewModel.goBack() }
         }
         .buttonStyle(.secondary(.large, fillsWidth: fullWidth))
+        .accessibilityIdentifier("onboarding.back")
     }
 
     private func forwardButton(fullWidth: Bool) -> some View {
@@ -48,5 +49,6 @@ struct OnboardingNavigationButtons: View {
         }
         .buttonStyle(.accent(.large, fillsWidth: fullWidth))
         .disabled(viewModel.isFinishing)
+        .accessibilityIdentifier("onboarding.forward")
     }
 }

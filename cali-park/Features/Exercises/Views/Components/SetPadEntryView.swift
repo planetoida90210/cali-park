@@ -57,6 +57,7 @@ struct SetPadEntryView: View {
                     .clipShape(.rect(cornerRadius: AppRadius.medium))
             }
             .disabled(!input.canSave)
+            .accessibilityIdentifier("setPad.save")
         }
         .sensoryFeedback(.impact(weight: .light), trigger: input.committedSets.count) { old, new in
             new > old

@@ -23,10 +23,10 @@ struct OnboardingView: View {
 
             VStack {
                 TabView(selection: pageBinding) {
-                    OnboardingWelcomePage().tag(OnboardingPage.welcome)
-                    OnboardingPlacementPage(viewModel: viewModel.calibration).tag(OnboardingPage.placement)
-                    ProgramChoiceView(viewModel: viewModel.programChoice).tag(OnboardingPage.program)
-                    OnboardingWeeklyGoalPage(viewModel: viewModel).tag(OnboardingPage.weeklyGoal)
+                    OnboardingWelcomePage().onboardingPage(.welcome)
+                    OnboardingPlacementPage(viewModel: viewModel.calibration).onboardingPage(.placement)
+                    ProgramChoiceView(viewModel: viewModel.programChoice).onboardingPage(.program)
+                    OnboardingWeeklyGoalPage(viewModel: viewModel).onboardingPage(.weeklyGoal)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
 
@@ -63,6 +63,28 @@ struct OnboardingView: View {
             if await viewModel.finish() {
                 hasCompletedOnboarding = true
             }
+        }
+    }
+}
+
+// MARK: - Page identity
+private extension View {
+    /// Tags the page for the `TabView` and names it for the UI tests
+    /// ("onboarding.page.program").
+    func onboardingPage(_ page: OnboardingPage) -> some View {
+        accessibilityElement(children: .contain)
+            .accessibilityIdentifier("onboarding.page.\(page.identifier)")
+            .tag(page)
+    }
+}
+
+private extension OnboardingPage {
+    var identifier: String {
+        switch self {
+        case .welcome: "welcome"
+        case .placement: "placement"
+        case .program: "program"
+        case .weeklyGoal: "weeklyGoal"
         }
     }
 }

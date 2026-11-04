@@ -29,6 +29,7 @@ struct ExerciseVariantPickerView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityHint("Dodaj do treningu")
+                    .accessibilityIdentifier("exerciseVariant.\(choice.id.uuidString)")
                     .exerciseFavoriteActions(choice)
                 }
             }

@@ -9,6 +9,7 @@ struct QuickWorkoutBottomBar: View {
     var body: some View {
         Button("Dodaj ćwiczenie", systemImage: "plus", action: onAdd)
             .buttonStyle(.secondary)
+            .accessibilityIdentifier("quickWorkout.addExercise")
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 8)

@@ -35,6 +35,7 @@ struct ModuleView: View {
             .sensoryFeedback(.impact, trigger: isExpanded)
             .accessibilityAddTraits(.isHeader)
             .accessibilityValue(isExpanded ? "rozwinięty" : "zwinięty")
+            .accessibilityIdentifier("home.module.\(String(describing: module))")
             .accessibilityActions {
                 if preferences.canMoveUp(module.id) {
                     Button("Przesuń wyżej") { move(up: true) }

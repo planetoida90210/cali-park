@@ -31,6 +31,7 @@ struct WeekdaySelector: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(day.displayName)
+                .accessibilityIdentifier("planEditor.weekday.\(day.rawValue)")
                 .accessibilityAddTraits(isOn ? .isSelected : [])
             }
         }

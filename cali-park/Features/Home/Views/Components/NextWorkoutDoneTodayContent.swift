@@ -38,5 +38,6 @@ struct NextWorkoutDoneTodayContent: View {
             Spacer()
         }
         .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("home.nextWorkout.doneToday")
     }
 }

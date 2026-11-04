@@ -28,6 +28,7 @@ struct WorkoutPlansEmptyState: View {
             .padding(.top, 8)
 
             Button("Wybierz gotowy program", systemImage: "list.bullet.clipboard", action: onBrowsePrograms)
+                .accessibilityIdentifier("plans.browsePrograms")
                 .font(.buttonMedium)
                 .foregroundStyle(Color.accent)
         }

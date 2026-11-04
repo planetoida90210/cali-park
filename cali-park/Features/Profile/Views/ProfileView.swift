@@ -38,6 +38,7 @@ struct ProfileView: View {
                     NavigationLink(value: ProfileRoute.history) {
                         ProfileRowLabel(title: "Historia treningów", systemImage: "clock.arrow.circlepath")
                     }
+                    .accessibilityIdentifier("profile.history")
                     NavigationLink(value: ProfileRoute.backup) {
                         ProfileRowLabel(title: "Eksport i import treningów", systemImage: "square.and.arrow.up.on.square")
                     }

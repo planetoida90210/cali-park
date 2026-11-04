@@ -28,6 +28,7 @@ struct WorkoutHistoryView: View {
                                     )
                                 }
                                 .accessibilityHint("Pokaż szczegóły treningu")
+                                .accessibilityIdentifier("history.entry.\(entry.exerciseID.uuidString)")
                                 .listRowBackground(Color.componentBackground)
                                 .listRowSeparatorTint(Color.divider)
                             }

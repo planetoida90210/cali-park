@@ -43,6 +43,7 @@ private struct ProgramListView: View {
                     NavigationLink(value: program.id) {
                         ProgramRow(program: program)
                     }
+                    .accessibilityIdentifier("programs.row.\(program.id.rawValue)")
                     .listRowBackground(Color.componentBackground)
                     .listRowSeparatorTint(Color.divider)
                 }

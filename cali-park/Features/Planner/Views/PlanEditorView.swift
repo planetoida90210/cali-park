@@ -56,6 +56,7 @@ struct PlanEditorView: View {
                     .font(.buttonMedium)
                     .foregroundStyle(canTapSave ? Color.accent : Color.textSecondary)
                     .disabled(!canTapSave)
+                    .accessibilityIdentifier("planEditor.save")
                 }
             }
             .sheet(isPresented: $showingPicker) {

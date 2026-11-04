@@ -31,6 +31,7 @@ struct ProgramChoiceView: View {
                         ) {
                             viewModel.pick(.program(program.id))
                         }
+                        .accessibilityIdentifier("onboarding.program.\(program.id.rawValue)")
                     }
 
                     ProgramChoiceRow(
@@ -42,6 +43,7 @@ struct ProgramChoiceView: View {
                     ) {
                         viewModel.pick(.none)
                     }
+                    .accessibilityIdentifier("onboarding.program.none")
                 }
             }
             .padding(.vertical, 8)

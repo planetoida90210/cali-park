@@ -47,6 +47,7 @@ struct CelebrationOverlayView: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Zamknij")
+            .accessibilityIdentifier("celebration.dismiss")
 
             CelebrationCard(presentation: presentation,
                             hasNext: hasNext,

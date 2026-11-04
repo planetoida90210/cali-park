@@ -31,10 +31,12 @@ struct PrimaryActionRailView: View {
             } label: {
                 railLabel(iconName: "bolt.fill", title: "Szybki trening", isPrimary: true)
             }
+            .accessibilityIdentifier("home.quickWorkout")
 
             NavigationLink(value: HomeRoute.plans) {
                 railLabel(iconName: "calendar", title: "Plany", isPrimary: false)
             }
+            .accessibilityIdentifier("home.plans")
         }
         .padding(.horizontal, 16)
         .sensoryFeedback(.impact(weight: .medium), trigger: showingQuickWorkout) { _, isShowing in

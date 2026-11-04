@@ -39,6 +39,8 @@ struct ProgramGraduationCard: View {
             .padding(.top, 4)
         }
         .padding(.vertical, 8)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("plans.graduationCard")
     }
 
     @ViewBuilder private var buttons: some View {
