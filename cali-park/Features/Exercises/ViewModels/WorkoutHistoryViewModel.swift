@@ -2,7 +2,7 @@ import Foundation
 import Observation
 
 // MARK: - WorkoutHistoryViewModel
-/// Drives the "Ostatnie treningi" list: the journal's entries (newest first),
+/// Drives the "Historia treningów" list: the journal's entries (newest first),
 /// quick-workout sessions grouped together, deletes on swipe, and failures
 /// surfaced for an alert.
 @MainActor

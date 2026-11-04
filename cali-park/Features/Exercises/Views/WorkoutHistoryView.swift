@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - WorkoutHistoryView
-/// "Ostatnie treningi": every logged entry, newest first, with
+/// "Historia treningów": every logged entry, newest first, with
 /// swipe-to-delete. Saved SetPad entries land here — that is the
 /// confirmation that a save worked. Tapping a row opens its whole workout.
 struct WorkoutHistoryView: View {
@@ -47,7 +47,7 @@ struct WorkoutHistoryView: View {
             }
         }
         .background(Color.appBackground.ignoresSafeArea())
-        .navigationTitle("Ostatnie treningi")
+        .navigationTitle("Historia treningów")
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: WorkoutSessionRoute.self) { route in
             WorkoutSessionDetailView(viewModel: viewModel.makeDetailViewModel(sessionID: route.sessionID))

@@ -46,7 +46,7 @@ struct ExerciseLibraryView: View {
                         Image(systemName: "clock.arrow.circlepath")
                             .foregroundStyle(Color.accent)
                     }
-                    .accessibilityLabel("Ostatnie treningi")
+                    .accessibilityLabel("Historia treningów")
                 }
             }
             .navigationDestination(for: Exercise.self) { exercise in
