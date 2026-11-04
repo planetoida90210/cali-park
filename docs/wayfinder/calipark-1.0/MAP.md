@@ -126,6 +126,11 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - kalibracja wskazuje szczeble po ID; dipy „12+” startują od podporu na kółkach,
   - jednorazowy skok XP za nowe niższe szczeble (np. +100 XP przy pełnych podciągnięciach, maks. +1100 XP), przyjęty w 015,
   - testy: 426 (722 przypadki).
+- **Dane na lata, krok F4 fundamentu** (`e3e2a39`, 2026-11-04):
+  - pliki treningów przeniesione z Documents do `Application Support/CaliPark/`; migracja przy starcie przenosi plik tylko, gdy w nowym miejscu go nie ma, a przy błędzie apka czyta stary plik (C-15),
+  - jedno `DefaultsKey` na klucze `UserDefaults` (C-15), martwe Core Data usunięte razem z pustym plikiem bazy (C-10, G-25),
+  - plan jednorazowy nie zapisze się z datą w przeszłości (B-8); dni planów zapisane jako dzień kalendarza, więc nie przesuwają się po zmianie strefy czasowej, stary format dalej się czyta, backup w wersji 2 (B-9),
+  - testy: 722 (1103 przypadki).
 - **Mapa Parków z OSM** (`34554ab`, `d1d1736`, 2026-11-04, „Wygląd mapy parków”, „Model Parku i sprzętu”, „Import z OSM i otwarte dane Parków (ODbL)”, „Plan fundamentu”):
   - skrypt `scripts/osm/build_parks_snapshot.py` (jedno zapytanie Overpass) daje 330 Parków z OSM (stan 2026-11-03), wbudowanych w apkę i opublikowanych w `data/` na ODbL,
   - nowy model Parku z 012, nazwy tylko z OSM (np. „Drążki · Park Jordana”, „Street workout · …”), stabilne ID,
