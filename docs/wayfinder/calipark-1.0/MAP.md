@@ -126,6 +126,11 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - kalibracja wskazuje szczeble po ID; dipy „12+” startują od podporu na kółkach,
   - jednorazowy skok XP za nowe niższe szczeble (np. +100 XP przy pełnych podciągnięciach, maks. +1100 XP), przyjęty w 015,
   - testy: 426 (722 przypadki).
+- **Jeden dziennik, krok F2 fundamentu** (`688ee1e`, 2026-11-04):
+  - `TrainingJournal` to jedyne miejsce zapisu treningów (SetPad, szybki trening, historia, Home, arkusz szczebla); `ProgressService` liczy postęp raz na zmianę dziennika (F-3, F-6, A-11),
+  - `RewardCenter`: jedna kolejka celebracji dla szczebli, poziomów i celu tygodniowego; koniec podwójnego toastu XP, a ostatnia celebracja pokazuje sumę „Razem +N XP” (F-4, D-V1, A-10),
+  - to samo ćwiczenie dwa razy w jednym treningu liczy się do awansu (A-5), holdy zapisane jako powtórzenia liczą się jako sekundy (A-8), arkusz szczebla pokazuje świeży wynik (A-12, E-19), jeden `MeasureFormat` (F-13),
+  - testy: 605 (951 przypadków).
 - **Cel tygodniowy** (`8d07335`, 2026-11-04, „Cel tygodniowy”):
   - 1–3 cele (dni treningowe, treningi z planów albo „wszystkie zaplanowane”, objętość ćwiczenia), jeden główny; każda zmiana to nowa wersja, zamknięte tygodnie liczą się według swojej,
   - pierwszy niepełny tydzień rozgrzewkowy, pauza 1–90 dni, tydzień z pauzą neutralny (chyba że cel i tak zrobiony),
