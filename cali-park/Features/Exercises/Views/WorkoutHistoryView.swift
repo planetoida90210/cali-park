@@ -33,7 +33,8 @@ struct WorkoutHistoryView: View {
                             }
                             .onDelete { offsets in
                                 // Resolve entries up front — deleting shifts indices.
-                                viewModel.delete(offsets.map { section.entries[$0] })
+                                let doomed = offsets.map { section.entries[$0] }
+                                Task { await viewModel.delete(doomed) }
                             }
                         } header: {
                             if section.isSession {

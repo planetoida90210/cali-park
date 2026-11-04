@@ -39,14 +39,14 @@ final class WorkoutHistoryViewModel {
         alertIfLoadFailed()
     }
 
-    func delete(_ entry: WorkoutLogEntry) {
-        delete([entry])
+    func delete(_ entry: WorkoutLogEntry) async {
+        await delete([entry])
     }
 
     /// Deletes the given rows in one write.
-    func delete(_ doomed: [WorkoutLogEntry]) {
+    func delete(_ doomed: [WorkoutLogEntry]) async {
         do {
-            try journal.delete(ids: Set(doomed.map(\.id)))
+            try await journal.delete(ids: Set(doomed.map(\.id)))
         } catch {
             errorMessage = TrainingJournal.deleteFailureMessage
         }

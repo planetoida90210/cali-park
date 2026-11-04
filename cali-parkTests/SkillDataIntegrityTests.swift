@@ -257,11 +257,11 @@ struct LoweredFloorTests {
     }
 
     @MainActor
-    @Test func recalibratingDownInTheAppShowsNoFalseOverlay() throws {
+    @Test func recalibratingDownInTheAppShowsNoFalseOverlay() async throws {
         let placementStore = InMemorySkillPlacementStore(initial: SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID]))
         let stack = TrainingStack(placementStore: placementStore)
 
-        try stack.journal.log(IntegrityFixture.pullUps3x8())
+        try await stack.journal.log(IntegrityFixture.pullUps3x8())
         stack.drainCelebrations()
 
         try placementStore.save(SkillPlacement(declaredRungByPath: [:]))
@@ -323,7 +323,7 @@ struct CelebratedWhenShownTests {
         #expect(later.rewards.currentCelebration != shown)
     }
 
-    @Test func evaluationsDoNotRewriteAnUnchangedRecord() throws {
+    @Test func evaluationsDoNotRewriteAnUnchangedRecord() async throws {
         let progressStore = CountingProgressStore()
         let stack = TrainingStack(logStore: InMemoryWorkoutLogStore(initial: [IntegrityFixture.pullUps3x8()]),
                                   progressStore: progressStore)
@@ -334,7 +334,7 @@ struct CelebratedWhenShownTests {
         #expect(progressStore.saveCount == 1)
 
         // A fresh advance is queued without a write, and written on dismissal.
-        try stack.journal.log(WorkoutLogEntry(exerciseID: ExerciseCatalog.lPullUpsID,
+        try await stack.journal.log(WorkoutLogEntry(exerciseID: ExerciseCatalog.lPullUpsID,
                                               date: IntegrityFixture.day,
                                               sets: [LoggedSet(reps: 5), LoggedSet(reps: 5), LoggedSet(reps: 5)]))
         #expect(stack.rewards.currentCelebration == .rungConquered(RungReference(pathID: .pullUp, stepID: ExerciseCatalog.lPullUpsID)))

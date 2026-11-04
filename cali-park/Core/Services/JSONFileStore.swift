@@ -66,6 +66,10 @@ nonisolated struct JSONFileStore<Value: Codable>: Sendable {
     // MARK: Read
     /// The stored value, or `nil` when the file does not exist yet.
     func read() throws -> Value? {
+        try readFile()
+    }
+
+    fileprivate func readFile() throws -> Value? {
         let data: Data
         do {
             data = try Data(contentsOf: fileURL)
@@ -82,7 +86,11 @@ nonisolated struct JSONFileStore<Value: Codable>: Sendable {
     /// Replaces the stored value. Refused (throws) while the existing file is
     /// unreadable or undecodable.
     func write(_ value: Value) throws {
-        _ = try read()
+        try writeFile(value)
+    }
+
+    fileprivate func writeFile(_ value: Value) throws {
+        _ = try readFile()
         try encodeAndWrite(value)
     }
 
@@ -90,7 +98,11 @@ nonisolated struct JSONFileStore<Value: Codable>: Sendable {
     /// missing), applies `transform` and writes the result. Refused (throws)
     /// while the existing file is unreadable or undecodable.
     func update(initial: Value, _ transform: (inout Value) throws -> Void) throws {
-        var value = try read() ?? initial
+        try updateFile(initial: initial, transform)
+    }
+
+    fileprivate func updateFile(initial: Value, _ transform: (inout Value) throws -> Void) throws {
+        var value = try readFile() ?? initial
         try transform(&value)
         try encodeAndWrite(value)
     }
@@ -99,7 +111,7 @@ nonisolated struct JSONFileStore<Value: Codable>: Sendable {
     /// (throws) while the existing file is unreadable or undecodable; a missing
     /// file is already removed.
     func remove() throws {
-        guard try read() != nil else { return }
+        guard try readFile() != nil else { return }
         do {
             try FileManager.default.removeItem(at: fileURL)
         } catch {
@@ -184,6 +196,32 @@ nonisolated struct JSONFileStore<Value: Codable>: Sendable {
             }
         }
         return nil
+    }
+}
+
+// MARK: - Off the main actor
+/// The same operations, run on the cooperative pool instead of the caller's
+/// actor. A large file takes a frame or more to decode and encode (C-8, D-7:
+/// about 150 ms to save a 10,000-entry journal), so stores that grow use these.
+/// Same guarantees as the synchronous versions. Calls are not ordered against
+/// each other: a caller that writes more than once serializes its writes.
+extension JSONFileStore where Value: Sendable {
+    /// `read()`, off the caller's actor.
+    @concurrent
+    func read() async throws -> Value? {
+        try readFile()
+    }
+
+    /// `write(_:)`, off the caller's actor.
+    @concurrent
+    func write(_ value: Value) async throws {
+        try writeFile(value)
+    }
+
+    /// `update(initial:_:)`, off the caller's actor.
+    @concurrent
+    func update(initial: Value, _ transform: @Sendable (inout Value) throws -> Void) async throws {
+        try updateFile(initial: initial, transform)
     }
 }
 

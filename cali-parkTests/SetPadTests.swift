@@ -88,14 +88,14 @@ struct SetPadInputTests {
 @MainActor
 struct WorkoutLogViewModelTests {
     @Test
-    func savePersistsCommittedAndPendingSets() throws {
+    func savePersistsCommittedAndPendingSets() async throws {
         let store = InMemoryWorkoutLogStore()
         let viewModel = WorkoutLogViewModel(exercise: ExerciseCatalog.all[0], store: store)
 
         viewModel.input.appendDigit(6)
         viewModel.input.commitSet()
         viewModel.input.appendDigit(8)
-        viewModel.save()
+        await viewModel.save()
 
         let entry = try #require(store.load().first)
         #expect(entry.exerciseID == ExerciseCatalog.all[0].id)
@@ -105,21 +105,21 @@ struct WorkoutLogViewModelTests {
     }
 
     @Test
-    func saveFailureSurfacesErrorAndDoesNotDismiss() {
+    func saveFailureSurfacesErrorAndDoesNotDismiss() async {
         let viewModel = WorkoutLogViewModel(exercise: ExerciseCatalog.all[0],
                                             store: ReadOnlyWorkoutLogStore())
         viewModel.input.appendDigit(6)
-        viewModel.save()
+        await viewModel.save()
 
         #expect(viewModel.errorMessage == TrainingJournal.saveFailureMessage)
         #expect(viewModel.didSave == false)
     }
 
     @Test
-    func saveWithEmptyInputIsANoOp() {
+    func saveWithEmptyInputIsANoOp() async {
         let store = InMemoryWorkoutLogStore()
         let viewModel = WorkoutLogViewModel(exercise: ExerciseCatalog.all[0], store: store)
-        viewModel.save()
+        await viewModel.save()
 
         #expect(store.load().isEmpty)
         #expect(viewModel.didSave == false)
@@ -144,13 +144,13 @@ struct WorkoutHistoryViewModelTests {
     }
 
     @Test
-    func deleteRemovesEntryFromStoreAndList() {
+    func deleteRemovesEntryFromStoreAndList() async {
         let entry = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
                                     sets: [LoggedSet(reps: 5)])
         let store = InMemoryWorkoutLogStore(initial: [entry])
         let viewModel = WorkoutHistoryViewModel(store: store)
 
-        viewModel.delete(entry)
+        await viewModel.delete(entry)
 
         #expect(viewModel.entries.isEmpty)
         #expect(store.load().isEmpty)
@@ -158,12 +158,12 @@ struct WorkoutHistoryViewModelTests {
     }
 
     @Test
-    func deleteFailureSurfacesError() {
+    func deleteFailureSurfacesError() async {
         let viewModel = WorkoutHistoryViewModel(store: ReadOnlyWorkoutLogStore())
         let entry = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
                                     sets: [LoggedSet(reps: 5)])
 
-        viewModel.delete(entry)
+        await viewModel.delete(entry)
 
         #expect(viewModel.errorMessage == TrainingJournal.deleteFailureMessage)
     }

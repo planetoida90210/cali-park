@@ -18,9 +18,9 @@ struct SetPadSheetView: View {
             exercise: viewModel.exercise,
             input: $viewModel.input,
             cancel: SetPadEntryView.Cancel(hasUnsavedChanges: viewModel.hasUnsavedChanges) { dismiss() },
-            onSave: viewModel.save
+            onSave: { Task { await viewModel.save() } }
         )
-        .disabled(viewModel.didSave)
+        .disabled(viewModel.didSave || viewModel.isSaving)
         .interactiveDismissDisabled(viewModel.hasUnsavedChanges)
         .padding(.horizontal, 16)
         .padding(.top, 24)

@@ -69,9 +69,9 @@ struct ProfileViewModelTests {
     }
 
     @Test("A workout logged anywhere shows up without a reload")
-    func observesTheJournal() throws {
+    func observesTheJournal() async throws {
         let (model, journal) = profile()
-        try journal.log(F.entry(at: Self.now))
+        try await journal.log(F.entry(at: Self.now))
 
         #expect(model.statistics.workouts == 10)
     }

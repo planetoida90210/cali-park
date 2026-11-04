@@ -116,14 +116,14 @@ struct QuickWorkoutViewModelTests {
     }
 
     @Test
-    func finishPersistsEveryExerciseUnderOneSessionInOneWrite() throws {
+    func finishPersistsEveryExerciseUnderOneSessionInOneWrite() async throws {
         let store = SpyWorkoutLogStore()
         let finishedAt = TestDate.epochDay(3, hour: 7)
         let viewModel = QuickWorkoutViewModel(store: store, clock: { finishedAt })
         viewModel.addExercise(ExerciseCatalog.all[0], sets: sets(6, 6, 8))
         viewModel.addExercise(ExerciseCatalog.all[1], sets: sets(10))
 
-        viewModel.finish()
+        await viewModel.finish()
 
         let saved = store.entries
         #expect(store.writes == [.append(saved.map(\.id))])
@@ -141,13 +141,13 @@ struct QuickWorkoutViewModelTests {
 
     /// D-15: a second tap on "Zakończ" before the summary shows saves nothing.
     @Test
-    func finishingTwiceSavesTheSessionOnce() {
+    func finishingTwiceSavesTheSessionOnce() async {
         let store = SpyWorkoutLogStore()
         let viewModel = QuickWorkoutViewModel(store: store)
         viewModel.addExercise(ExerciseCatalog.all[0], sets: sets(6))
 
-        viewModel.finish()
-        viewModel.finish()
+        await viewModel.finish()
+        await viewModel.finish()
 
         #expect(store.writeCount == 1)
         #expect(store.entries.count == 1)
@@ -155,18 +155,18 @@ struct QuickWorkoutViewModelTests {
     }
 
     @Test
-    func finishWithNoItemsIsANoOp() {
+    func finishWithNoItemsIsANoOp() async {
         let store = SpyWorkoutLogStore()
         let viewModel = QuickWorkoutViewModel(store: store)
 
-        viewModel.finish()
+        await viewModel.finish()
 
         #expect(store.writeCount == 0)
         #expect(viewModel.didFinish == false)
     }
 
     @Test
-    func finishFailureSurfacesErrorAndSavesNothing() {
+    func finishFailureSurfacesErrorAndSavesNothing() async {
         let earlier = WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID,
                                       date: TestDate.epochDay(1),
                                       sets: [LoggedSet(reps: 8)])
@@ -175,7 +175,7 @@ struct QuickWorkoutViewModelTests {
         let viewModel = QuickWorkoutViewModel(journal: journal, clock: { TestDate.reference })
         viewModel.addExercise(ExerciseCatalog.all[0], sets: sets(6))
 
-        viewModel.finish()
+        await viewModel.finish()
 
         #expect(viewModel.errorMessage == TrainingJournal.saveFailureMessage)
         #expect(viewModel.didFinish == false)
@@ -205,7 +205,7 @@ struct WorkoutLogStoreBatchTests {
     /// same entries, session included. (That the quick workout uses one
     /// batch write is checked with a spy store above.)
     @Test
-    func fileStoreBatchAppendPersistsEveryEntry() throws {
+    func fileStoreBatchAppendPersistsEveryEntry() async throws {
         let directory = try TemporaryDirectory.make()
 
         let store = FileWorkoutLogStore(directory: directory)
@@ -217,7 +217,7 @@ struct WorkoutLogStoreBatchTests {
                             sets: [LoggedSet(reps: 8)], sessionID: sessionID)
         ]
 
-        try store.append(contentsOf: entries)
+        try await store.append(contentsOf: entries)
 
         #expect(try FileWorkoutLogStore(directory: directory).load() == entries)
     }

@@ -111,12 +111,12 @@ final class TrainingBackupService {
         let steps = self.steps
         for (index, step) in steps.enumerated() {
             do {
-                try step.write(backup)
+                try await step.write(backup)
             } catch {
                 logger.error("Import failed, rolling back: \(String(describing: error), privacy: .public)")
                 // Includes the failed step: a non-atomic write may have
                 // changed part of its store before failing.
-                let rolledBack = rollBack(steps[...index], to: previous)
+                let rolledBack = await rollBack(steps[...index], to: previous)
                 await finish()
                 throw rolledBack ? .failedAndRolledBack : .failedRollbackIncomplete
             }
@@ -128,13 +128,15 @@ final class TrainingBackupService {
     /// One store's part of a restore: how to write a backup into it, and how to
     /// tell whether it already holds a backup's data.
     private struct Step {
-        let write: (TrainingBackup) throws -> Void
+        let write: (TrainingBackup) async throws -> Void
         let holds: (TrainingBackup) -> Bool
     }
 
     /// Every store, in write order. The log goes last: the journal's change
     /// handlers (reminders, progress) then run against everything else
-    /// already in place.
+    /// already in place. The journal settles the services right after its
+    /// write is applied, before a screen can render the rewards its change
+    /// queued.
     private var steps: [Step] {
         [
             Step(write: { [placementStore] in try placementStore.replace(with: $0.placement) },
@@ -158,7 +160,9 @@ final class TrainingBackupService {
                  holds: { [exerciseFavorites] backup in
                      backup.favoriteExerciseIDs.map { (try? exerciseFavorites.currentIDs()) == $0 } ?? true
                  }),
-            Step(write: { [journal] in try journal.replaceAll($0.workoutLog) },
+            Step(write: { [journal, weak self] backup in
+                     try await journal.replaceAll(backup.workoutLog, afterWrite: { [weak self] in self?.settleServices() })
+                 },
                  holds: { [journal] backup in journal.loadFailure == nil && journal.entries == backup.workoutLog })
         ]
     }
@@ -167,11 +171,11 @@ final class TrainingBackupService {
     /// write fails still counts as restored when its store already holds the
     /// old data (an atomic write that failed changed nothing). Returns whether
     /// every store holds `previous` again.
-    private func rollBack(_ steps: ArraySlice<Step>, to previous: TrainingBackup) -> Bool {
+    private func rollBack(_ steps: ArraySlice<Step>, to previous: TrainingBackup) async -> Bool {
         var complete = true
         for step in steps.reversed() {
             do {
-                try step.write(previous)
+                try await step.write(previous)
             } catch {
                 guard !step.holds(previous) else { continue }
                 logger.fault("Rollback after a failed import failed: \(String(describing: error), privacy: .public)")
@@ -181,13 +185,19 @@ final class TrainingBackupService {
         return complete
     }
 
-    /// Brings the shared services up to the stores. Runs before the first
-    /// suspension, so no screen renders the rewards the journal change queued
-    /// in between.
+    /// Brings the shared services up to the stores, then the reminders.
     private func finish() async {
+        settleServices()
+        await planService.syncReminders()
+    }
+
+    /// Re-reads placement and goals and rebaselines the rewards: the imported
+    /// history is not progress made since the last save. Synchronous, so the
+    /// journal can run it in the same main-actor turn as its change, and no
+    /// screen renders the rewards that change queued.
+    private func settleServices() {
         progress.reloadPlacement()
         goals.reload()
         rewards.rebaseline()
-        await planService.syncReminders()
     }
 }

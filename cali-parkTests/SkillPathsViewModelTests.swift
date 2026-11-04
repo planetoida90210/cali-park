@@ -160,12 +160,12 @@ struct SkillPathsViewModelTests {
         #expect(progress.isMet == false)
     }
 
-    @Test func trainingUpdatesTheProjectionWithoutAReload() throws {
+    @Test func trainingUpdatesTheProjectionWithoutAReload() async throws {
         let stack = TrainingStack()
         let viewModel = stack.skillPaths()
         #expect(viewModel.summary(for: .pullUp)?.state.conqueredRungCount == 0)
 
-        try stack.journal.log(
+        try await stack.journal.log(
             WorkoutLogEntry(
                 exerciseID: ExerciseCatalog.pullUpsID,
                 sets: [LoggedSet(reps: 8), LoggedSet(reps: 8), LoggedSet(reps: 8)]

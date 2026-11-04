@@ -30,7 +30,7 @@ struct HomeHeroActionsTests {
     /// planToday → tapping "Rozpocznij" (a plan-seeded quick workout) and
     /// finishing it stamps today's plan and flips the hero to completedToday.
     @Test
-    func startingTodaysPlanThenFinishingMovesHeroToCompleted() throws {
+    func startingTodaysPlanThenFinishingMovesHeroToCompleted() async throws {
         let plan = WorkoutPlan(
             name: "Push Day",
             exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID, targetSets: 3, targetReps: 12)],
@@ -43,7 +43,7 @@ struct HomeHeroActionsTests {
 
         // onStartPlan(plan) in the view resolves to this factory.
         let session = dashboard.makeQuickWorkoutViewModel(plan: plan)
-        session.finish()
+        await session.finish()
         dashboard.reload()
 
         #expect(logStore.load().allSatisfy { $0.planID == plan.id })
@@ -54,7 +54,7 @@ struct HomeHeroActionsTests {
     /// session flips the hero to completedToday. The firstRun hero itself only
     /// invites; the action lives in the permanent rail.
     @Test
-    func quickWorkoutFromFirstRunMovesHeroToCompleted() throws {
+    func quickWorkoutFromFirstRunMovesHeroToCompleted() async throws {
         let logStore = InMemoryWorkoutLogStore()
         let dashboard = dashboard(logStore: logStore, planStore: InMemoryWorkoutPlanStore())
 
@@ -63,7 +63,7 @@ struct HomeHeroActionsTests {
         // onQuickWorkout in the view resolves to this factory.
         let session = dashboard.makeQuickWorkoutViewModel()
         session.addExercise(ExerciseCatalog.all[0], sets: [LoggedSet(reps: 10)])
-        session.finish()
+        await session.finish()
         dashboard.reload()
 
         let saved = logStore.load()
@@ -75,13 +75,13 @@ struct HomeHeroActionsTests {
     /// A session started from Home finishes at Home's clock, not the wall
     /// clock, so "done today" and the saved entries agree.
     @Test
-    func aSessionFromHomeIsStampedWithHomesClock() throws {
+    func aSessionFromHomeIsStampedWithHomesClock() async throws {
         let logStore = InMemoryWorkoutLogStore()
         let dashboard = dashboard(logStore: logStore, planStore: InMemoryWorkoutPlanStore())
 
         let session = dashboard.makeQuickWorkoutViewModel()
         session.addExercise(ExerciseCatalog.all[0], sets: [LoggedSet(reps: 10)])
-        session.finish()
+        await session.finish()
 
         #expect(logStore.load().map(\.date) == [TestDate.reference])
     }
@@ -89,7 +89,7 @@ struct HomeHeroActionsTests {
     /// A free (unplanned) log while a plan is due today is progress, not "done":
     /// the hero stays on planToday so the plan's CTA remains available.
     @Test
-    func freeLogWhilePlanDueKeepsHeroOnPlanToday() throws {
+    func freeLogWhilePlanDueKeepsHeroOnPlanToday() async throws {
         let plan = WorkoutPlan(
             name: "Push Day",
             exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID)],
@@ -100,7 +100,7 @@ struct HomeHeroActionsTests {
 
         let free = dashboard.makeQuickWorkoutViewModel()
         free.addExercise(ExerciseCatalog.all[0], sets: [LoggedSet(reps: 8)])
-        free.finish()
+        await free.finish()
         dashboard.reload()
 
         guard case let .planToday(resolvedPlan, loggedTodayReps, _) = dashboard.heroState() else {

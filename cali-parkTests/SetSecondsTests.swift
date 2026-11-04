@@ -181,7 +181,7 @@ struct PolishPluralSecondsTests {
 @MainActor
 struct TimedWorkoutLogViewModelTests {
     @Test
-    func savingATimedExerciseStoresSecondsNotReps() throws {
+    func savingATimedExerciseStoresSecondsNotReps() async throws {
         let frontLever = try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.frontLeverID))
         #expect(frontLever.measurement == .seconds)
 
@@ -192,7 +192,7 @@ struct TimedWorkoutLogViewModelTests {
         viewModel.input.appendDigit(1); viewModel.input.appendDigit(5); viewModel.input.commitSet()
         viewModel.input.appendDigit(1); viewModel.input.appendDigit(5); viewModel.input.commitSet()
         viewModel.input.appendDigit(1); viewModel.input.appendDigit(5)
-        viewModel.save()
+        await viewModel.save()
 
         let entry = try #require(store.load().first)
         #expect(entry.sets.allSatisfy { $0.isTimed })

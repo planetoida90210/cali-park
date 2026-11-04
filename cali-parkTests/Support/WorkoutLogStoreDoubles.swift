@@ -4,6 +4,12 @@ import Foundation
 // MARK: - Workout log store doubles
 // Shared by every suite that needs a log store which fails, refuses writes or
 // reports how often it was read and written.
+//
+// `WorkoutLogStoring` writes are `async`. These doubles write synchronously,
+// which satisfies the requirements; `TrainingJournal` still awaits each write
+// in its own task, so tests exercise the same ordering as the file store.
+// `SlowWorkoutLogStore` suspends inside a write, to test what happens while
+// one is in flight.
 
 /// A journal file that exists but cannot be read; writes fail the same way.
 struct UnreadableWorkoutLogStore: WorkoutLogStoring {
@@ -75,5 +81,42 @@ final class SpyWorkoutLogStore: WorkoutLogStoring {
     func replaceAll(with newEntries: [WorkoutLogEntry]) throws {
         writes.append(.replaceAll(newEntries.map(\.id)))
         entries = newEntries
+    }
+}
+
+/// An in-memory log store whose writes suspend or fail on cue: appending an
+/// entry whose first set has `slowReps` reps sleeps for a while before it
+/// lands, one with `failingReps` reps throws. `started` records the reps of
+/// every append in the order it began, so a test can tell whether a later
+/// write overtook an earlier one.
+final class SlowWorkoutLogStore: WorkoutLogStoring {
+    struct WriteFailed: Error {}
+
+    private(set) var saved: [WorkoutLogEntry] = []
+    private(set) var started: [Int] = []
+    let slowReps: Int?
+    let failingReps: Int?
+
+    init(slowReps: Int? = nil, failingReps: Int? = nil) {
+        self.slowReps = slowReps
+        self.failingReps = failingReps
+    }
+
+    func load() throws -> [WorkoutLogEntry] { saved }
+
+    func append(_ entry: WorkoutLogEntry) async throws {
+        let reps = entry.sets.first?.reps ?? 0
+        started.append(reps)
+        if reps == slowReps { try await Task.sleep(for: .milliseconds(80)) }
+        if reps == failingReps { throw WriteFailed() }
+        saved.append(entry)
+    }
+
+    func append(contentsOf entries: [WorkoutLogEntry]) async throws {
+        for entry in entries { try await append(entry) }
+    }
+
+    func delete(id: UUID) async throws {
+        saved.removeAll { $0.id == id }
     }
 }

@@ -62,7 +62,7 @@ private final class FailingCreateFileManager: FileManager {
 @Suite("Store files move from Documents to Application Support", .temporaryDirectories)
 struct StoreDirectoryMigrationTests {
     @Test
-    func freshInstallCreatesTheStoreDirectoryAndUsesIt() throws {
+    func freshInstallCreatesTheStoreDirectoryAndUsesIt() async throws {
         let rig = try MigrationRig()
 
         let locations = rig.migration().run()
@@ -75,7 +75,7 @@ struct StoreDirectoryMigrationTests {
         }
         // A first write lands in the new directory.
         let log = FileWorkoutLogStore(directory: locations.directory(for: .workoutLog))
-        try log.append(WorkoutLogEntry(exerciseID: StoreFixtures.pullUpsID, date: StoreFixtures.october1,
+        try await log.append(WorkoutLogEntry(exerciseID: StoreFixtures.pullUpsID, date: StoreFixtures.october1,
                                        sets: [LoggedSet(reps: 5)]))
         #expect(rig.exists("workout-log.json", in: rig.destination))
         #expect(rig.exists("workout-log.json", in: rig.documents) == false)

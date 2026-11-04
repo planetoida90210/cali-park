@@ -45,7 +45,7 @@ struct QuickWorkoutView: View {
                     .foregroundStyle(Color.textSecondary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Zakończ") { viewModel.finish() }
+                    Button("Zakończ") { Task { await viewModel.finish() } }
                         .font(.buttonMedium)
                         .foregroundStyle(viewModel.canFinish ? Color.accent : Color.textSecondary)
                         .disabled(!viewModel.canFinish)

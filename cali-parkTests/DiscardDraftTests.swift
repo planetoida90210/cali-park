@@ -89,10 +89,10 @@ struct QuickWorkoutDiscardTests {
     }
 
     @Test
-    func finishingClearsTheFlag() {
+    func finishingClearsTheFlag() async {
         let session = QuickWorkoutViewModel(store: InMemoryWorkoutLogStore())
         session.addExercise(Fixtures.pullUps, sets: [LoggedSet(reps: 6)])
-        session.finish()
+        await session.finish()
         #expect(session.didFinish)
         #expect(session.hasUnsavedChanges == false)
     }
@@ -128,22 +128,22 @@ struct SetPadDiscardTests {
     }
 
     @Test
-    func savingClearsTheFlag() {
+    func savingClearsTheFlag() async {
         let pad = logger()
         pad.input.appendDigit(8)
-        pad.save()
+        await pad.save()
         #expect(pad.didSave)
         #expect(pad.hasUnsavedChanges == false)
     }
 
     /// C-12: a second tap on "Zapisz" while the sheet closes logs nothing.
     @Test
-    func savingTwiceLogsOneEntry() {
+    func savingTwiceLogsOneEntry() async {
         let store = InMemoryWorkoutLogStore()
         let pad = WorkoutLogViewModel(exercise: Fixtures.pullUps, store: store)
         pad.input.appendDigit(8)
-        pad.save()
-        pad.save()
+        await pad.save()
+        await pad.save()
         #expect(store.load().count == 1)
     }
 }

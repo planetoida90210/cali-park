@@ -65,7 +65,7 @@ struct WorkoutSessionDetailView: View {
             }
         }
         .confirmationDialog("Usunąć ten trening?", isPresented: $isConfirmingDelete, titleVisibility: .visible) {
-            Button("Usuń trening", role: .destructive) { viewModel.delete() }
+            Button("Usuń trening", role: .destructive) { Task { await viewModel.delete() } }
             Button("Anuluj", role: .cancel) {}
         } message: {
             Text("Tej operacji nie można cofnąć.")

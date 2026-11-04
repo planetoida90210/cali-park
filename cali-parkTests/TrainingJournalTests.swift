@@ -58,15 +58,15 @@ private final class FlakyJournalStore: WorkoutLogStoring {
 @Suite("TrainingJournal is the one write path for workouts", .temporaryDirectories)
 struct TrainingJournalTests {
     @Test
-    func loggingAppendsInSavedOrderAndBumpsTheRevision() throws {
+    func loggingAppendsInSavedOrderAndBumpsTheRevision() async throws {
         let store = InMemoryWorkoutLogStore()
         let journal = TrainingJournal(store: store)
         let start = journal.revision
         let older = JournalFixture.pullUps([5], date: JournalFixture.day)
         let newer = JournalFixture.dips([8], date: JournalFixture.day + 60)
 
-        try journal.log(newer)
-        try journal.log(older)
+        try await journal.log(newer)
+        try await journal.log(older)
 
         #expect(journal.entries == [newer, older])
         #expect(journal.newestFirst == [newer, older])
@@ -75,13 +75,13 @@ struct TrainingJournalTests {
     }
 
     @Test
-    func aSessionIsSavedInOneWriteAndOneRevision() throws {
+    func aSessionIsSavedInOneWriteAndOneRevision() async throws {
         let store = InMemoryWorkoutLogStore()
         let journal = TrainingJournal(store: store)
         let start = journal.revision
         let session = UUID()
 
-        try journal.logSession([JournalFixture.pullUps([8], session: session),
+        try await journal.logSession([JournalFixture.pullUps([8], session: session),
                                 JournalFixture.dips([10], session: session)])
 
         #expect(journal.entries.count == 2)
@@ -90,7 +90,7 @@ struct TrainingJournalTests {
     }
 
     @Test
-    func deletingAWholeWorkoutIsOneWrite() throws {
+    func deletingAWholeWorkoutIsOneWrite() async throws {
         let session = UUID()
         let a = JournalFixture.pullUps([8], session: session)
         let b = JournalFixture.dips([10], session: session)
@@ -99,7 +99,7 @@ struct TrainingJournalTests {
         let journal = TrainingJournal(store: store)
         let start = journal.revision
 
-        try journal.delete(ids: [a.id, b.id])
+        try await journal.delete(ids: [a.id, b.id])
 
         #expect(store.writes == [.delete([a.id, b.id])])
         #expect(journal.entries == [keep])
@@ -107,29 +107,29 @@ struct TrainingJournalTests {
     }
 
     @Test
-    func deletingAWholeWorkoutFromTheFileIsAllOrNothing() throws {
+    func deletingAWholeWorkoutFromTheFileIsAllOrNothing() async throws {
         let directory = try TemporaryDirectory.make("TrainingJournalTests")
         let session = UUID()
         let a = JournalFixture.pullUps([8], session: session)
         let b = JournalFixture.dips([10], session: session)
         let keep = JournalFixture.pullUps([5])
         let file = FileWorkoutLogStore(directory: directory)
-        try file.append(contentsOf: [a, b, keep])
+        try await file.append(contentsOf: [a, b, keep])
         let journal = TrainingJournal(store: file)
 
-        try journal.delete(ids: [a.id, b.id])
+        try await journal.delete(ids: [a.id, b.id])
 
         #expect(try FileWorkoutLogStore(directory: directory).load() == [keep])
     }
 
     @Test
-    func anUnreadableJournalIsAFailureNotAnEmptyJournal() {
+    func anUnreadableJournalIsAFailureNotAnEmptyJournal() async {
         let journal = TrainingJournal(store: UnreadableWorkoutLogStore())
 
         #expect(journal.hasLoadFailure)
         #expect(journal.loadFailure?.message == StoreLoadFailure.message)
         #expect(journal.entries.isEmpty)
-        #expect(throws: UnreadableWorkoutLogStore.Unreadable.self) { try journal.log(JournalFixture.pullUps([5])) }
+        await #expect(throws: UnreadableWorkoutLogStore.Unreadable.self) { try await journal.log(JournalFixture.pullUps([5])) }
     }
 
     @Test
@@ -147,27 +147,27 @@ struct TrainingJournalTests {
     }
 
     @Test
-    func aWriteAfterAFailedLoadReReadsInsteadOfGuessing() throws {
+    func aWriteAfterAFailedLoadReReadsInsteadOfGuessing() async throws {
         let saved = JournalFixture.pullUps([5])
         let store = FlakyJournalStore(initial: [saved])
         let journal = TrainingJournal(store: store)
         store.isReadable = true // the next read works, the journal hasn't noticed
 
         let new = JournalFixture.dips([8])
-        try journal.log(new)
+        try await journal.log(new)
 
         #expect(journal.entries == [saved, new])
     }
 
     @Test
-    func screensSeeEachOthersWritesWithoutReloading() throws {
+    func screensSeeEachOthersWritesWithoutReloading() async throws {
         let journal = TrainingJournal(store: InMemoryWorkoutLogStore())
         let history = WorkoutHistoryViewModel(journal: journal)
         let setPad = WorkoutLogViewModel(exercise: try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
                                          journal: journal)
 
         setPad.input.appendDigit(7)
-        setPad.save()
+        await setPad.save()
 
         #expect(history.entries.count == 1)
         #expect(history.entries.first?.sets == [LoggedSet(reps: 7)])
@@ -196,7 +196,7 @@ struct ProgressServiceTests {
     }
 
     @Test
-    func aNewRevisionIsComputedOnceForEveryScreen() throws {
+    func aNewRevisionIsComputedOnceForEveryScreen() async throws {
         let logStore = InMemoryWorkoutLogStore()
         let journal = TrainingJournal(store: logStore)
         let clock = { TestDate.reference }
@@ -215,7 +215,7 @@ struct ProgressServiceTests {
         let skills = SkillPathsViewModel(progress: progress)
         let before = progress.computationCount
 
-        try journal.log(JournalFixture.pullUps([8, 8, 8]))
+        try await journal.log(JournalFixture.pullUps([8, 8, 8]))
         _ = rewards.currentCelebration
         _ = home.achievementsSummary
         _ = home.progressionHint
@@ -288,7 +288,7 @@ struct RewardCenterTests {
     /// F-4 / D-V1: the ladder trains, the grid reappears. Before, each screen
     /// kept its own XP baseline and the grid toasted the same gain again.
     @Test
-    func theSameGainIsToastedOnceAcrossTwoScreens() throws {
+    func theSameGainIsToastedOnceAcrossTwoScreens() async throws {
         let stack = TrainingStack(logStore: InMemoryWorkoutLogStore(initial: [JournalFixture.pullUps([8, 8, 8])]))
         let grid = stack.skillPaths()
         let ladder = stack.skillPaths()
@@ -297,7 +297,7 @@ struct RewardCenterTests {
         let setPad = WorkoutLogViewModel(exercise: try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
                                          journal: stack.journal)
         setPad.input.appendDigit(5)
-        setPad.save()
+        await setPad.save()
 
         let toast = try #require(stack.rewards.xpToastAmount)
         #expect(toast == 5 * ProgressionEngine.xpPerRep)
@@ -313,18 +313,18 @@ struct RewardCenterTests {
 
     /// D-13: the overlay timer of an older toast must not hide a newer one.
     @Test
-    func clearingAnOlderToastKeepsTheNewerOne() throws {
+    func clearingAnOlderToastKeepsTheNewerOne() async throws {
         let stack = TrainingStack(logStore: InMemoryWorkoutLogStore(initial: [JournalFixture.pullUps([8, 8, 8])]))
         let pullUps = try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID))
         // Each save is its own SetPad sheet: a saved pad ignores further taps (C-12).
         let setPad = WorkoutLogViewModel(exercise: pullUps, journal: stack.journal)
         setPad.input.appendDigit(5)
-        setPad.save()
+        await setPad.save()
         let first = try #require(stack.rewards.xpToastAmount)
 
         let secondPad = WorkoutLogViewModel(exercise: pullUps, journal: stack.journal)
         secondPad.input.appendDigit(3)
-        secondPad.save()
+        await secondPad.save()
         let second = try #require(stack.rewards.xpToastAmount)
         #expect(second != first)
 
@@ -338,10 +338,10 @@ struct RewardCenterTests {
     /// A-10: after a celebration plays, popping back must not toast the same
     /// save (including the rung's bonus XP).
     @Test
-    func noToastFollowsACelebrationForTheSameSave() throws {
+    func noToastFollowsACelebrationForTheSameSave() async throws {
         let stack = TrainingStack()
 
-        try stack.journal.log(JournalFixture.pullUps([8, 8, 8]))
+        try await stack.journal.log(JournalFixture.pullUps([8, 8, 8]))
         #expect(stack.rewards.currentCelebration == .rung(0, on: .pullUp))
         #expect(stack.rewards.xpToastAmount == nil)
 
@@ -354,14 +354,14 @@ struct RewardCenterTests {
     }
 
     @Test
-    func aWorkoutLoggedOnHomeCelebratesWithoutVisitingSkills() throws {
+    func aWorkoutLoggedOnHomeCelebratesWithoutVisitingSkills() async throws {
         let environment = AppEnvironment.seeded()
         let home = environment.makeHomeDashboardViewModel()
 
         let session = home.makeQuickWorkoutViewModel()
         session.addExercise(try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
                             sets: [LoggedSet(reps: 8), LoggedSet(reps: 8), LoggedSet(reps: 8)])
-        session.finish()
+        await session.finish()
 
         #expect(environment.rewardCenter.currentCelebration == .rung(0, on: .pullUp))
     }
@@ -439,7 +439,7 @@ struct PerSessionScoringTests {
 
     @MainActor
     @Test
-    func addingTheSameExerciseTwiceInAQuickWorkoutAdvances() throws {
+    func addingTheSameExerciseTwiceInAQuickWorkoutAdvances() async throws {
         let stack = TrainingStack()
         let session = QuickWorkoutViewModel(journal: stack.journal, clock: { TestDate.reference })
         let pullUps = try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID))
@@ -448,7 +448,7 @@ struct PerSessionScoringTests {
         session.addExercise(pullUps, sets: [LoggedSet(reps: 8), LoggedSet(reps: 8)])
         session.addExercise(dips, sets: [LoggedSet(reps: 10)])
         session.addExercise(pullUps, sets: [LoggedSet(reps: 8)])
-        session.finish()
+        await session.finish()
 
         #expect(stack.journal.entries.count == 3)
         #expect(stack.skillPaths().summary(for: .pullUp)?.state.conqueredRungCount == 6)
@@ -527,7 +527,7 @@ struct HoldSecondsTests {
 @Suite("The rung sheet shows fresh results after training (A-12, E-19)")
 struct LiveRungProgressTests {
     @Test
-    func aSetSavedFromTheSheetShowsUpWithoutClosingIt() throws {
+    func aSetSavedFromTheSheetShowsUpWithoutClosingIt() async throws {
         let environment = AppEnvironment.seeded()
         let ladder = environment.makeSkillPathsViewModel()
         let step = JournalFixture.pullUpStep
@@ -539,7 +539,7 @@ struct LiveRungProgressTests {
             setPad.input.appendDigit(6)
             setPad.input.commitSet()
         }
-        setPad.save()
+        await setPad.save()
 
         // The sheet reads progress through the same view model, no reload.
         #expect(ladder.rungProgress(for: step).bestValue == 6)
@@ -602,11 +602,11 @@ struct RewardQueueTests {
     }
 
     @Test
-    func theLastRungOverlayShowsTheBatchTotal() throws {
+    func theLastRungOverlayShowsTheBatchTotal() async throws {
         let stack = Stack(entries: [])
         let before = stack.progress.snapshot.level.totalXP
 
-        try stack.journal.log(F.entry(at: F.day(1), sets: Array(repeating: LoggedSet(reps: 8), count: 3)))
+        try await stack.journal.log(F.entry(at: F.day(1), sets: Array(repeating: LoggedSet(reps: 8), count: 3)))
         let gained = stack.progress.snapshot.level.totalXP - before
 
         var overlays: [RewardPresentation] = []
@@ -623,12 +623,12 @@ struct RewardQueueTests {
     }
 
     @Test
-    func aGoalMetByALogCelebratesWithoutAReload() throws {
+    func aGoalMetByALogCelebratesWithoutAReload() async throws {
         let stack = Stack(entries: F.trained(week: 0, days: [0, 1]))
         #expect(stack.rewards.current == nil)
 
         // The third training day meets the default goal (3 days).
-        try stack.journal.log(F.entry(at: F.day(3)))
+        try await stack.journal.log(F.entry(at: F.day(3)))
 
         let goal = try #require(stack.rewards.current)
         #expect(goal.presentation.eyebrow == "CEL TYGODNIOWY WYKONANY")
@@ -639,10 +639,10 @@ struct RewardQueueTests {
     }
 
     @Test
-    func rungsComeFirstThenTheGoal() throws {
+    func rungsComeFirstThenTheGoal() async throws {
         let stack = Stack(entries: F.trained(week: 0, days: [0, 1]))
 
-        try stack.journal.log(F.entry(at: F.day(3), sets: Array(repeating: LoggedSet(reps: 8), count: 3)))
+        try await stack.journal.log(F.entry(at: F.day(3), sets: Array(repeating: LoggedSet(reps: 8), count: 3)))
 
         var eyebrows: [String] = []
         var lastSkillHasNext = false

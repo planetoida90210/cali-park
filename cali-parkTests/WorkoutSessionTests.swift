@@ -183,7 +183,7 @@ struct WorkoutSessionDetailViewModelTests {
     }
 
     @Test
-    func deleteRemovesEveryEntryOfTheWorkoutOnly() {
+    func deleteRemovesEveryEntryOfTheWorkoutOnly() async {
         let sessionID = UUID()
         let a = WorkoutLogEntry(exerciseID: ExerciseCatalog.pushUpsID, sets: [LoggedSet(reps: 15)], sessionID: sessionID)
         let b = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, sets: [LoggedSet(reps: 6)], sessionID: sessionID)
@@ -191,7 +191,7 @@ struct WorkoutSessionDetailViewModelTests {
         let store = InMemoryWorkoutLogStore(initial: [a, b, keep])
         let viewModel = WorkoutSessionDetailViewModel(sessionID: sessionID, store: store)
 
-        viewModel.delete()
+        await viewModel.delete()
 
         #expect(store.load() == [keep])
         #expect(viewModel.session == nil)
@@ -200,14 +200,14 @@ struct WorkoutSessionDetailViewModelTests {
     }
 
     @Test
-    func deleteFailureSurfacesErrorAndKeepsTheWorkout() {
+    func deleteFailureSurfacesErrorAndKeepsTheWorkout() async {
         let entry = WorkoutLogEntry(exerciseID: ExerciseCatalog.pushUpsID, sets: [LoggedSet(reps: 15)])
         let viewModel = WorkoutSessionDetailViewModel(
             sessionID: entry.id,
             store: UndeletableWorkoutLogStore(initial: [entry])
         )
 
-        viewModel.delete()
+        await viewModel.delete()
 
         #expect(viewModel.errorMessage == TrainingJournal.deleteFailureMessage)
         #expect(viewModel.didDelete == false)
@@ -217,13 +217,13 @@ struct WorkoutSessionDetailViewModelTests {
     /// Deleted from the history while the detail is open: both read the one
     /// journal, so the detail sees it gone without a reload.
     @Test
-    func workoutDeletedElsewhereReadsAsGone() throws {
+    func workoutDeletedElsewhereReadsAsGone() async throws {
         let entry = WorkoutLogEntry(exerciseID: ExerciseCatalog.pushUpsID, sets: [LoggedSet(reps: 15)])
         let journal = TrainingJournal(store: InMemoryWorkoutLogStore(initial: [entry]))
         let viewModel = WorkoutSessionDetailViewModel(sessionID: entry.id, journal: journal)
         let history = WorkoutHistoryViewModel(journal: journal)
 
-        history.delete(entry)
+        await history.delete(entry)
 
         #expect(viewModel.session == nil)
     }
@@ -246,7 +246,7 @@ struct QuickWorkoutSummaryTests {
     }
 
     @Test
-    func finishExposesTheSavedSessionForTheSummary() throws {
+    func finishExposesTheSavedSessionForTheSummary() async throws {
         let store = InMemoryWorkoutLogStore()
         let viewModel = QuickWorkoutViewModel(store: store)
         let pushUps = try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pushUpsID))
@@ -254,7 +254,7 @@ struct QuickWorkoutSummaryTests {
         viewModel.addExercise(pushUps, sets: sets(15, 12))
         viewModel.addExercise(diamond, sets: sets(8, 8, 6))
 
-        viewModel.finish()
+        await viewModel.finish()
 
         let savedID = try #require(viewModel.savedSessionID)
         #expect(Set(store.load().compactMap(\.sessionID)) == [savedID])
@@ -268,11 +268,11 @@ struct QuickWorkoutSummaryTests {
     }
 
     @Test
-    func singleExerciseWorkoutStillHasASummary() throws {
+    func singleExerciseWorkoutStillHasASummary() async throws {
         let viewModel = QuickWorkoutViewModel(store: InMemoryWorkoutLogStore())
         viewModel.addExercise(ExerciseCatalog.all[0], sets: sets(6, 6, 8))
 
-        viewModel.finish()
+        await viewModel.finish()
 
         let session = try #require(viewModel.makeSummaryViewModel().session)
         #expect(session.entries.count == 1)
@@ -280,11 +280,11 @@ struct QuickWorkoutSummaryTests {
     }
 
     @Test
-    func failedFinishShowsNoSummary() {
+    func failedFinishShowsNoSummary() async {
         let viewModel = QuickWorkoutViewModel(store: ReadOnlyWorkoutLogStore())
         viewModel.addExercise(ExerciseCatalog.all[0], sets: sets(6))
 
-        viewModel.finish()
+        await viewModel.finish()
 
         #expect(viewModel.savedSessionID == nil)
         #expect(viewModel.errorMessage == TrainingJournal.saveFailureMessage)

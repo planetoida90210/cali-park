@@ -269,7 +269,7 @@ struct WorkoutLogEntryPlanIDCodableTests {
 @MainActor
 struct QuickWorkoutPlanIDTests {
     @Test
-    func finishStampsEveryEntryWithThePlanID() throws {
+    func finishStampsEveryEntryWithThePlanID() async throws {
         let plan = WorkoutPlan(
             name: "Pull",
             exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID, targetSets: 2, targetReps: 5)],
@@ -278,7 +278,7 @@ struct QuickWorkoutPlanIDTests {
         let store = InMemoryWorkoutLogStore()
         let vm = QuickWorkoutViewModel(store: store, plan: plan)
 
-        vm.finish()
+        await vm.finish()
 
         let saved = store.load()
         #expect(saved.map(\.exerciseID) == [ExerciseCatalog.pullUpsID])
@@ -286,12 +286,12 @@ struct QuickWorkoutPlanIDTests {
     }
 
     @Test
-    func freeSessionSavesWithoutAPlanID() throws {
+    func freeSessionSavesWithoutAPlanID() async throws {
         let store = InMemoryWorkoutLogStore()
         let vm = QuickWorkoutViewModel(store: store)
         vm.addExercise(ExerciseCatalog.all[0], sets: [LoggedSet(reps: 6)])
 
-        vm.finish()
+        await vm.finish()
 
         let saved = store.load()
         #expect(saved.count == 1)

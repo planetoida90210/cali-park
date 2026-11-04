@@ -176,47 +176,47 @@ struct FileWorkoutLogStoreTests {
     }
 
     @Test
-    func appendedEntriesRoundtrip() throws {
+    func appendedEntriesRoundtrip() async throws {
         let store = try makeStore()
         let first = makeEntry(reps: [6, 6, 8])
         let second = makeEntry(reps: [10])
 
-        try store.append(first)
-        try store.append(second)
+        try await store.append(first)
+        try await store.append(second)
 
         #expect(try store.load() == [first, second])
     }
 
     @Test
-    func deleteRemovesOnlyTargetEntry() throws {
+    func deleteRemovesOnlyTargetEntry() async throws {
         let store = try makeStore()
         let keep = makeEntry(reps: [12])
         let remove = makeEntry(reps: [5])
-        try store.append(keep)
-        try store.append(remove)
+        try await store.append(keep)
+        try await store.append(remove)
 
-        try store.delete(id: remove.id)
+        try await store.delete(id: remove.id)
 
         #expect(try store.load() == [keep])
     }
 
     @Test
-    func deleteUnknownIDLeavesEntriesIntact() throws {
+    func deleteUnknownIDLeavesEntriesIntact() async throws {
         let store = try makeStore()
         let entry = makeEntry()
-        try store.append(entry)
+        try await store.append(entry)
 
-        try store.delete(id: UUID())
+        try await store.delete(id: UUID())
 
         #expect(try store.load() == [entry])
     }
 
     @Test
-    func persistenceSurvivesStoreReinstantiation() throws {
+    func persistenceSurvivesStoreReinstantiation() async throws {
         let directory = try TemporaryDirectory.make("workout-log-tests")
 
         let entry = makeEntry()
-        try FileWorkoutLogStore(directory: directory).append(entry)
+        try await FileWorkoutLogStore(directory: directory).append(entry)
 
         let reopened = FileWorkoutLogStore(directory: directory)
         #expect(try reopened.load() == [entry])

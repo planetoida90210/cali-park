@@ -26,6 +26,8 @@ final class QuickWorkoutViewModel {
     var errorMessage: String?
     /// Set after a successful save so the session screen can dismiss itself.
     private(set) var didFinish = false
+    /// Whether the session is being written, so a second tap waits for it.
+    private(set) var isFinishing = false
 
     // MARK: Dependencies
     private let journal: TrainingJournal
@@ -114,7 +116,7 @@ final class QuickWorkoutViewModel {
     var isEmpty: Bool { items.isEmpty }
     /// Finishing needs at least one exercise with logged sets (pending items,
     /// seeded from a plan but never confirmed, are skipped).
-    var canFinish: Bool { items.contains { !$0.isPending } }
+    var canFinish: Bool { !isFinishing && items.contains { !$0.isPending } }
     var exerciseCount: Int { items.count }
     var totalSets: Int { items.reduce(0) { $0 + $1.sets.count } }
     /// The saved workout's identifier once `finish()` succeeded, so the screen
@@ -153,9 +155,10 @@ final class QuickWorkoutViewModel {
 
     /// Persists every logged exercise as one session (shared `sessionID` and a
     /// single timestamp). Pending items are skipped; no-op with nothing logged
-    /// or once saved, so a double tap can't save the session twice (D-15).
-    func finish() {
-        guard !didFinish else { return }
+    /// or once saved or saving, so a double tap can't save the session twice
+    /// (D-15).
+    func finish() async {
+        guard !didFinish, !isFinishing else { return }
         let logged = items.filter { !$0.isPending }
         guard !logged.isEmpty else { return }
 
@@ -170,8 +173,10 @@ final class QuickWorkoutViewModel {
             )
         }
 
+        isFinishing = true
+        defer { isFinishing = false }
         do {
-            try journal.logSession(entries)
+            try await journal.logSession(entries)
             didFinish = true
         } catch {
             errorMessage = TrainingJournal.saveFailureMessage

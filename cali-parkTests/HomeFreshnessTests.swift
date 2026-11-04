@@ -161,7 +161,7 @@ struct HomeReloadAfterSummaryDeleteTests {
     /// Rail → Szybki trening → Zakończ → summary → Usuń trening. The rail's
     /// sheet reloads the dashboard on dismiss, which drops the deleted workout.
     @Test
-    func deletedWorkoutLeavesHomeAfterReload() throws {
+    func deletedWorkoutLeavesHomeAfterReload() async throws {
         let logStore = InMemoryWorkoutLogStore()
         let dashboard = HomeDashboardViewModel(
             store: logStore,
@@ -175,12 +175,12 @@ struct HomeReloadAfterSummaryDeleteTests {
         let session = dashboard.makeQuickWorkoutViewModel()
         session.addExercise(try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
                             sets: [LoggedSet(reps: 8)])
-        session.finish()
+        await session.finish()
         dashboard.reload() // onFinish
         #expect(dashboard.heroState().isCompletedToday)
 
         let summary = session.makeSummaryViewModel()
-        summary.delete()
+        await summary.delete()
         #expect(summary.didDelete)
 
         dashboard.reload() // the sheet's onDismiss

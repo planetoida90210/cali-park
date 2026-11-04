@@ -162,11 +162,11 @@ struct RewardCenterLoopTests {
         #expect(stack.skillPaths().badges.isEmpty)
     }
 
-    @Test func trainingANewRungQueuesACelebration() throws {
+    @Test func trainingANewRungQueuesACelebration() async throws {
         let stack = TrainingStack()
         #expect(stack.rewards.currentCelebration == nil)
 
-        try stack.journal.log(RewardFixture.pullUps3x8())
+        try await stack.journal.log(RewardFixture.pullUps3x8())
 
         #expect(stack.rewards.currentCelebration == .rung(0, on: .pullUp))
         // The XP toast stays silent while a celebration carries the moment.
@@ -181,7 +181,7 @@ struct RewardCenterLoopTests {
         #expect(stack.rewards.currentCelebration == nil)
     }
 
-    @Test func addedVolumeOnAConqueredRungToastsXPWithoutCelebrating() throws {
+    @Test func addedVolumeOnAConqueredRungToastsXPWithoutCelebrating() async throws {
         // Start already at the baseline (a 3 × 8 pre-logged), so its rungs are
         // seeded as celebrated on the first evaluation.
         let stack = TrainingStack(logStore: InMemoryWorkoutLogStore(initial: [RewardFixture.pullUps3x8()]))
@@ -190,17 +190,17 @@ struct RewardCenterLoopTests {
 
         // More volume on an already-conquered rung: XP grows, nothing new is
         // conquered, so the athlete gets a toast, not an overlay.
-        try stack.journal.log(RewardFixture.pullUps3x8())
+        try await stack.journal.log(RewardFixture.pullUps3x8())
 
         #expect(stack.rewards.currentCelebration == nil)
         let toast = try #require(stack.rewards.xpToastAmount)
         #expect(toast == 24 * ProgressionEngine.xpPerRep)
     }
 
-    @Test func earnedBadgesComeFromLogs() throws {
+    @Test func earnedBadgesComeFromLogs() async throws {
         let stack = TrainingStack()
 
-        try stack.journal.log(RewardFixture.pullUps3x8())
+        try await stack.journal.log(RewardFixture.pullUps3x8())
 
         #expect(stack.skillPaths().badges.contains(.firstWorkout))
     }

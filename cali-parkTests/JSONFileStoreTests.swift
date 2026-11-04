@@ -77,7 +77,7 @@ struct GoldenFixtureTests {
     }
 
     @Test
-    func writingOverLegacyFileKeepsEntriesAndAddsEnvelope() throws {
+    func writingOverLegacyFileKeepsEntriesAndAddsEnvelope() async throws {
         let directory = try StoreTestSupport.makeDirectory()
         let url = try StoreTestSupport.installFixture("workout-log-legacy", as: "workout-log.json", in: directory)
         let store = FileWorkoutLogStore(directory: directory)
@@ -85,7 +85,7 @@ struct GoldenFixtureTests {
                                     date: StoreFixtures.october2,
                                     sets: [LoggedSet(reps: 10)])
 
-        try store.append(added)
+        try await store.append(added)
 
         #expect(try store.load() == StoreFixtures.workoutLog + [added])
         let object = try StoreTestSupport.topLevelObject(at: url)
@@ -113,9 +113,9 @@ struct GoldenFixtureTests {
 @Suite("Versioned envelope round-trip", .temporaryDirectories)
 struct EnvelopeRoundTripTests {
     @Test
-    func workoutLogRoundTripsThroughEnvelope() throws {
+    func workoutLogRoundTripsThroughEnvelope() async throws {
         let directory = try StoreTestSupport.makeDirectory()
-        try FileWorkoutLogStore(directory: directory).append(contentsOf: StoreFixtures.workoutLog)
+        try await FileWorkoutLogStore(directory: directory).append(contentsOf: StoreFixtures.workoutLog)
 
         let url = directory.appending(path: "workout-log.json")
         let object = try StoreTestSupport.topLevelObject(at: url)
@@ -182,11 +182,11 @@ struct MissingFileTests {
     }
 
     @Test
-    func deleteOnMissingFileWritesEmptyEnvelope() throws {
+    func deleteOnMissingFileWritesEmptyEnvelope() async throws {
         let directory = try StoreTestSupport.makeDirectory()
         let store = FileWorkoutLogStore(directory: directory)
 
-        try store.delete(id: UUID())
+        try await store.delete(id: UUID())
 
         #expect(try store.load().isEmpty)
     }
@@ -217,7 +217,7 @@ struct CorruptFileTests {
     }
 
     @Test
-    func corruptLogRefusesEveryWriteAndStaysByteIdentical() throws {
+    func corruptLogRefusesEveryWriteAndStaysByteIdentical() async throws {
         let directory = try StoreTestSupport.makeDirectory()
         let url = try StoreTestSupport.write(Self.garbage, to: "workout-log.json", in: directory)
         let store = FileWorkoutLogStore(directory: directory)
@@ -225,9 +225,9 @@ struct CorruptFileTests {
                                     date: StoreFixtures.october1,
                                     sets: [LoggedSet(reps: 5)])
 
-        #expect(throws: JSONFileStoreError.self) { try store.append(entry) }
-        #expect(throws: JSONFileStoreError.self) { try store.append(contentsOf: [entry]) }
-        #expect(throws: JSONFileStoreError.self) { try store.delete(id: entry.id) }
+        await #expect(throws: JSONFileStoreError.self) { try await store.append(entry) }
+        await #expect(throws: JSONFileStoreError.self) { try await store.append(contentsOf: [entry]) }
+        await #expect(throws: JSONFileStoreError.self) { try await store.delete(id: entry.id) }
 
         #expect(try Data(contentsOf: url) == Data(Self.garbage.utf8))
     }
@@ -267,7 +267,7 @@ struct CorruptFileTests {
     }
 
     @Test
-    func oneBadRecordStillFailsLoudlyInsteadOfDroppingTheRest() throws {
+    func oneBadRecordStillFailsLoudlyInsteadOfDroppingTheRest() async throws {
         let directory = try StoreTestSupport.makeDirectory()
         let good = try StoreTestSupport.installFixture("workout-log-legacy", as: "source.json", in: directory)
         var text = try String(contentsOf: good, encoding: .utf8)
@@ -277,8 +277,8 @@ struct CorruptFileTests {
         let store = FileWorkoutLogStore(directory: directory)
 
         #expect(throws: JSONFileStoreError.self) { try store.load() }
-        #expect(throws: JSONFileStoreError.self) {
-            try store.append(WorkoutLogEntry(exerciseID: StoreFixtures.pullUpsID, sets: [LoggedSet(reps: 1)]))
+        await #expect(throws: JSONFileStoreError.self) {
+            try await store.append(WorkoutLogEntry(exerciseID: StoreFixtures.pullUpsID, sets: [LoggedSet(reps: 1)]))
         }
         #expect(try String(contentsOf: url, encoding: .utf8) == text)
     }
@@ -327,7 +327,7 @@ struct CorruptFileTests {
     }
 
     @Test
-    func newerSchemaVersionIsRefusedNotOverwritten() throws {
+    func newerSchemaVersionIsRefusedNotOverwritten() async throws {
         let directory = try StoreTestSupport.makeDirectory()
         let text = #"{"schemaVersion":99,"payload":[]}"#
         let url = try StoreTestSupport.write(text, to: "workout-log.json", in: directory)
@@ -338,8 +338,8 @@ struct CorruptFileTests {
             Issue.record("Expected .unsupportedSchemaVersion(99), got \(String(describing: error))")
             return
         }
-        #expect(throws: JSONFileStoreError.self) {
-            try store.append(WorkoutLogEntry(exerciseID: StoreFixtures.pullUpsID, sets: [LoggedSet(reps: 1)]))
+        await #expect(throws: JSONFileStoreError.self) {
+            try await store.append(WorkoutLogEntry(exerciseID: StoreFixtures.pullUpsID, sets: [LoggedSet(reps: 1)]))
         }
         #expect(try String(contentsOf: url, encoding: .utf8) == text)
     }
@@ -469,7 +469,7 @@ struct StoreLoadFailureViewModelTests {
     }
 
     @Test
-    func loggingASetOverACorruptJournalKeepsTheFile() throws {
+    func loggingASetOverACorruptJournalKeepsTheFile() async throws {
         let directory = try StoreTestSupport.makeDirectory()
         let garbage = #"[{"broken": true"#
         let url = try StoreTestSupport.write(garbage, to: "workout-log.json", in: directory)
@@ -481,7 +481,7 @@ struct StoreLoadFailureViewModelTests {
         let exercise = try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID))
         let setPad = WorkoutLogViewModel(exercise: exercise, store: store)
         setPad.input.appendDigit(5)
-        setPad.save()
+        await setPad.save()
 
         #expect(setPad.errorMessage == TrainingJournal.saveFailureMessage)
         #expect(try String(contentsOf: url, encoding: .utf8) == garbage)

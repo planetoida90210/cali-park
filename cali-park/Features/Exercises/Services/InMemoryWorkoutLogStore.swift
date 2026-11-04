@@ -15,6 +15,10 @@ nonisolated final class InMemoryWorkoutLogStore: WorkoutLogStoring {
         entries.append(entry)
     }
 
+    func append(contentsOf newEntries: [WorkoutLogEntry]) throws {
+        entries.append(contentsOf: newEntries)
+    }
+
     func delete(id: UUID) throws {
         entries.removeAll { $0.id == id }
     }

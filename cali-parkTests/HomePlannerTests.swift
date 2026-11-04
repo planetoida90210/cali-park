@@ -167,7 +167,7 @@ struct QuickWorkoutPrefillTests {
     }
 
     @Test
-    func pendingSessionCannotFinishUntilASetIsLogged() throws {
+    func pendingSessionCannotFinishUntilASetIsLogged() async throws {
         let plan = WorkoutPlan(
             name: "Push",
             exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID)],
@@ -177,14 +177,14 @@ struct QuickWorkoutPrefillTests {
         let vm = QuickWorkoutViewModel(store: store, plan: plan)
 
         #expect(vm.canFinish == false)
-        vm.finish()
+        await vm.finish()
         #expect(store.load().isEmpty) // nothing logged yet — no-op
 
         let pending = try #require(vm.items.first)
         vm.updateSets(itemID: pending.id, sets: [LoggedSet(reps: 10), LoggedSet(reps: 10)])
 
         #expect(vm.canFinish)
-        vm.finish()
+        await vm.finish()
 
         let saved = store.load()
         #expect(saved.count == 1)
@@ -193,7 +193,7 @@ struct QuickWorkoutPrefillTests {
     }
 
     @Test
-    func finishSavesOnlyConfirmedItemsUnderOneSession() throws {
+    func finishSavesOnlyConfirmedItemsUnderOneSession() async throws {
         let plan = WorkoutPlan(
             name: "Mixed",
             exercises: [
@@ -205,7 +205,7 @@ struct QuickWorkoutPrefillTests {
         let store = InMemoryWorkoutLogStore()
         let vm = QuickWorkoutViewModel(store: store, plan: plan)
 
-        vm.finish()
+        await vm.finish()
 
         let saved = store.load()
         #expect(saved.count == 1) // pending push-ups skipped

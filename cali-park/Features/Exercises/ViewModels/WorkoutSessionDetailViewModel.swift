@@ -46,10 +46,10 @@ final class WorkoutSessionDetailViewModel {
 
     /// Removes every entry of the workout in one write, so a failure never
     /// leaves half of it behind.
-    func delete() {
+    func delete() async {
         guard let session else { return }
         do {
-            try journal.delete(ids: Set(session.entries.map(\.id)))
+            try await journal.delete(ids: Set(session.entries.map(\.id)))
             didDelete = true
         } catch {
             errorMessage = TrainingJournal.deleteFailureMessage

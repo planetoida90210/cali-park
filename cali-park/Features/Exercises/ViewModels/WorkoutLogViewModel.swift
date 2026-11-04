@@ -14,6 +14,8 @@ final class WorkoutLogViewModel {
     var errorMessage: String?
     /// Set after a successful save so the sheet can dismiss itself.
     private(set) var didSave = false
+    /// Whether a save is being written, so a second tap waits for it.
+    private(set) var isSaving = false
 
     /// Whether closing now would drop typed sets that are not saved yet.
     var hasUnsavedChanges: Bool { !didSave && input != SetPadInput() }
@@ -30,14 +32,17 @@ final class WorkoutLogViewModel {
     // MARK: Intentions
     /// Persists the current sets (committed + pending entry) as one log entry.
     /// No-op when there is nothing to save, or when this entry is already
-    /// saved (a second tap while the sheet closes must not log it twice).
-    func save() {
-        guard !didSave else { return }
+    /// saved or being saved (a second tap while the sheet closes must not log
+    /// it twice).
+    func save() async {
+        guard !didSave, !isSaving else { return }
         let sets = input.loggedSets(for: exercise.measurement)
         guard !sets.isEmpty else { return }
 
+        isSaving = true
+        defer { isSaving = false }
         do {
-            try journal.log(WorkoutLogEntry(exerciseID: exercise.id, sets: sets))
+            try await journal.log(WorkoutLogEntry(exerciseID: exercise.id, sets: sets))
             didSave = true
         } catch {
             errorMessage = TrainingJournal.saveFailureMessage
