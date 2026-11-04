@@ -66,6 +66,33 @@ struct JournalWriteBenchmarkTests {
                                                   sets: [LoggedSet(reps: 8)]))
         }
 
+        // The same save with everything that derives from it wired up as in
+        // the app (progress, rewards, the weekly goal, Home), until Home shows
+        // the new state: the main-actor time a save costs the interface.
+        let calendar = Calendar.current
+        let progressService = ProgressService(journal: journal, placementStore: InMemorySkillPlacementStore(),
+                                              calendar: calendar, clock: { JournalBenchmark.start })
+        let rewards = RewardCenter(progress: progressService, store: InMemorySkillProgressStore(), goals: nil)
+        let planService = WorkoutPlanService.testing(InMemoryWorkoutPlanStore())
+        let goals = WeeklyGoalService(journal: journal, store: InMemoryWeeklyGoalStore(), planService: planService,
+                                      calendar: calendar, clock: { JournalBenchmark.start })
+        let dashboard = HomeDashboardViewModel(journal: journal, planService: planService, progress: progressService,
+                                               goals: goals, defaults: .throwaway(), calendar: calendar,
+                                               clock: { JournalBenchmark.start })
+        dashboard.reload()
+        _ = dashboard.snapshot
+        var derivedStalls: [Duration] = []
+        for _ in 0..<7 {
+            derivedStalls.append(try await JournalBenchmark.longestMainActorStall {
+                try await journal.log(WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
+                                                      date: JournalBenchmark.start,
+                                                      sets: [LoggedSet(reps: 8)]))
+                _ = dashboard.snapshot
+            })
+        }
+        let derivedStall = derivedStalls.sorted()[derivedStalls.count / 2]
+        withExtendedLifetime(rewards) {}
+
         // What Home derives once per change (B-14) instead of on every render.
         let progress = ProgressionEngine.snapshot(logs: entries, placement: nil, today: JournalBenchmark.start)
         let newestFirst = journal.newestFirst
@@ -83,10 +110,11 @@ struct JournalWriteBenchmarkTests {
             [benchmark] journal.delete(ids:) through the file: \(JournalBenchmark.format(delete))
             [benchmark] journal.log(_:) in memory only: \(JournalBenchmark.format(inMemoryLog))
             [benchmark] longest main-actor stall during a save: \(JournalBenchmark.format(stall))
+            [benchmark] longest main-actor stall during a save, progress and Home included: \(JournalBenchmark.format(derivedStall))
             [benchmark] HomeEngine.snapshot: \(JournalBenchmark.format(homeSnapshot))
             [benchmark] ProgressionEngine.snapshot: \(JournalBenchmark.format(progressSnapshot))
             """)
-        #expect(journal.entries.count == 10_001)
+        #expect(journal.entries.count == 10_008)
     }
 }
 
