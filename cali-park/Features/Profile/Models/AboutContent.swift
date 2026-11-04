@@ -92,7 +92,13 @@ nonisolated enum AboutContent {
 
     /// The app gives training advice, so it says plainly that it is not
     /// medical advice (App Review guideline 1.4.1).
-    static let healthNote = String(localized: "CaliPark podpowiada trening, ale nie zastąpi lekarza. Jeśli masz uraz, chorobę albo wątpliwości, zanim zaczniesz, porozmawiaj z lekarzem lub fizjoterapeutą. Gdy poczujesz ból, przerwij ćwiczenie.")
+    static let healthNote = String(
+        localized: """
+            CaliPark podpowiada trening, ale nie zastąpi lekarza. \
+            Jeśli masz uraz, chorobę albo wątpliwości, zanim zaczniesz, porozmawiaj z lekarzem lub fizjoterapeutą. \
+            Gdy poczujesz ból, przerwij ćwiczenie.
+            """
+    )
 
     private static func url(_ string: String) -> URL {
         guard let url = URL(string: string) else { preconditionFailure("Invalid source URL: \(string)") }
