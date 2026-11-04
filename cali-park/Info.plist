@@ -6,6 +6,15 @@
 	<array>
 		<string>com.michalbryk.cali-park.reminders-refresh</string>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+	</dict>
+	<key>UIUserInterfaceStyle</key>
+	<string>Dark</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
