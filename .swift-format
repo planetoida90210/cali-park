@@ -7,5 +7,6 @@
   "lineLength": 140,
   "maximumBlankLines": 1,
   "multiElementCollectionTrailingCommas": false,
-  "respectsExistingLineBreaks": true
+  "respectsExistingLineBreaks": true,
+  "spacesBeforeEndOfLineComments": 1
 }
