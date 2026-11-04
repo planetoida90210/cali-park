@@ -126,6 +126,14 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - kalibracja wskazuje szczeble po ID; dipy „12+” startują od podporu na kółkach,
   - jednorazowy skok XP za nowe niższe szczeble (np. +100 XP przy pełnych podciągnięciach, maks. +1100 XP), przyjęty w 015,
   - testy: 426 (722 przypadki).
+- **Prawdziwa karta Parku** (`76b46c3`…`bb51815`, 2026-11-04, „Karta parku”):
+  - kompaktowa karta (nazwa, okolica, odległość, etykieta „Z OSM”, ikony sprzętu, „Nawiguj”) i pełna karta jako arkusz w kolejności A, tylko z sekcjami, które wypełnia OSM: sprzęt z liczbą sztuk („Sprzęt nieznany” dla miejsc bez opisu), „Skąd te dane” z linkiem do OpenStreetMap, szczegóły (nawierzchnia, oświetlenie, dach, dostęp, godziny otwarcia po polsku),
+  - zdjęcia, opinie, pogoda i zgłoszenia dojdą z backendem; bez atrap,
+  - „Ulubione” na telefonie, bez Konta: serce na karcie, filtr na liście, w backupie (osobny commit `bb51815`, czeka na odpowiedź właściciela),
+  - dostępność całej zakładki (nagłówki, etykiety ikon, odległość „od Ciebie”),
+  - prototypy karty i wyglądu mapy usunięte (zrzuty zostają),
+  - testy: 768 (1185 przypadków).
+- **Przegląd wizualny nowych ekranów** (`c660092`, 2026-11-04): ok. 100 zrzutów od świeżej instalacji; onboarding, cel tygodniowy, przypomnienia, programy, eksport i import oraz kolejka celebracji działają. 8 poprawek: polskie nazwy sprzętu, „Usuń” zamiast „Delete”, alert importu z „Anuluj”, kafelki Profilu, podwójny przycisk w pustym szybkim treningu, atrybucja OSM, VoiceOver serii. Potwierdzone do zrobienia: angielskie daty mimo polskiego regionu (G-3), stały rozmiar czcionek (E-1), drobiazgi na Home. Testy: 773 (1190 przypadków).
 - **Resztki Home** (`16467aa`, 2026-11-04, „Home w 1.0”):
   - preferencje modułów jako `@Observable` z `AppEnvironment`; zapisany układ użytkowników zostaje,
   - kolejność modułów zmienisz bez przeciągania: „Zmień kolejność” na ekranie wyboru modułów oraz akcje VoiceOver „Przesuń wyżej / niżej” z komunikatem o pozycji (E-12); przeciąganie ma podgląd i przyciemnia moduł,
