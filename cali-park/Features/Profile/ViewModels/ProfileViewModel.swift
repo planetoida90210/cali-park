@@ -1,15 +1,6 @@
 import Foundation
 import Observation
 
-// MARK: - ProfileRoute
-/// Push destinations from Profile, resolved with `navigationDestination(for:)`.
-nonisolated enum ProfileRoute: Hashable {
-    case history
-    case backup
-    case help
-    case about
-}
-
 // MARK: - ProfileViewModel
 /// Drives the Profile tab: statistics (workouts, day and week streaks, level
 /// and XP) and the weekly goal summary. A read-only projection of the shared

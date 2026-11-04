@@ -1,12 +1,5 @@
 import SwiftUI
 
-// MARK: - HomeRoute
-/// Push destinations from Home. The primary action rail's "Plany" button
-/// resolves to `.plans`; kept type-safe via `navigationDestination(for:)`.
-enum HomeRoute: Hashable {
-    case plans
-}
-
 struct HomeView: View {
     // Real workout data for hero + modules.
     @State private var dashboard: HomeDashboardViewModel
