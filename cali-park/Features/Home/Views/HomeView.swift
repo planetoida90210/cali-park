@@ -214,6 +214,7 @@ private struct NearestParkRefreshKey: Equatable {
     let authorization: LocationAuthorization
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview("Plan na dziś") {
     HomeView(environment: .previewPlanToday)
@@ -236,3 +237,4 @@ private struct NearestParkRefreshKey: Equatable {
     HomeView(environment: .previewEmpty)
         .preferredColorScheme(.dark)
 }
+#endif

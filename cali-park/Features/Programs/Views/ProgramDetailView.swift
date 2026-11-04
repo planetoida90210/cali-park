@@ -143,6 +143,7 @@ private struct ProgramItemRow: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     let environment = AppEnvironment.seeded(placement: SkillPlacement(declaredRungByPath: [.pullUp: 3]))
@@ -154,3 +155,4 @@ private struct ProgramItemRow: View {
     }
     .preferredColorScheme(.dark)
 }
+#endif

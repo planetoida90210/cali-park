@@ -1,3 +1,4 @@
+#if DEBUG
 import Foundation
 
 // MARK: - InMemoryWeeklyGoalStore
@@ -23,3 +24,4 @@ nonisolated final class InMemoryWeeklyGoalStore: WeeklyGoalStoring {
         saveCount += 1
     }
 }
+#endif

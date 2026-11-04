@@ -1,3 +1,4 @@
+#if DEBUG
 import Foundation
 
 // MARK: - InMemoryWorkoutPlanStore
@@ -27,3 +28,4 @@ nonisolated final class InMemoryWorkoutPlanStore: WorkoutPlanStoring {
         self.plans = plans
     }
 }
+#endif

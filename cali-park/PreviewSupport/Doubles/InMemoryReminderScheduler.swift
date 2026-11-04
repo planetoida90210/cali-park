@@ -1,3 +1,4 @@
+#if DEBUG
 import Foundation
 
 // MARK: - InMemoryReminderScheduler
@@ -51,3 +52,4 @@ actor InMemoryReminderScheduler: WorkoutReminderScheduling {
         failsToSchedule = fails
     }
 }
+#endif

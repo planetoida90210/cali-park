@@ -123,8 +123,10 @@ struct ModuleSelectionView: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     ModuleSelectionView(preferences: AppEnvironment.seeded().modulePreferences)
         .preferredColorScheme(.dark)
 }
+#endif

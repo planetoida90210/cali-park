@@ -146,6 +146,7 @@ struct ModuleDragPreview: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     let environment = AppEnvironment.seeded()
@@ -173,3 +174,4 @@ struct ModuleDragPreview: View {
     }
     .preferredColorScheme(.dark)
 }
+#endif

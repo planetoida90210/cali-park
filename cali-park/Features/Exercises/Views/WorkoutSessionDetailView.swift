@@ -83,6 +83,7 @@ struct WorkoutSessionDetailView: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview("Szczegóły") {
     let session = UUID()
@@ -115,3 +116,4 @@ struct WorkoutSessionDetailView: View {
     }
     .preferredColorScheme(.dark)
 }
+#endif

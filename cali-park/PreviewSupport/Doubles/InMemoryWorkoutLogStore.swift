@@ -1,3 +1,4 @@
+#if DEBUG
 import Foundation
 
 // MARK: - InMemoryWorkoutLogStore
@@ -31,3 +32,4 @@ nonisolated final class InMemoryWorkoutLogStore: WorkoutLogStoring {
         self.entries = entries
     }
 }
+#endif

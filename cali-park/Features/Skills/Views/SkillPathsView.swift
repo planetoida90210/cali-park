@@ -199,6 +199,7 @@ private struct SkillPathCard: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview("Świeżak — bez placementu") {
     SkillPathsView(environment: .previewEmpty)
@@ -218,3 +219,4 @@ private struct SkillPathCard: View {
     SkillPathsView(environment: .skillsVeteran)
         .preferredColorScheme(.dark)
 }
+#endif

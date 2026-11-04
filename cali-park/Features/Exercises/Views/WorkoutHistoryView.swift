@@ -142,6 +142,7 @@ private struct WorkoutHistoryEmptyState: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     NavigationStack {
@@ -158,3 +159,4 @@ private struct WorkoutHistoryEmptyState: View {
     }
     .preferredColorScheme(.dark)
 }
+#endif

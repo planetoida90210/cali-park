@@ -226,6 +226,7 @@ private struct ExerciseInstructionRow: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     NavigationStack {
@@ -233,3 +234,4 @@ private struct ExerciseInstructionRow: View {
     }
     .preferredColorScheme(.dark)
 }
+#endif

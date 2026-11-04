@@ -176,6 +176,7 @@ private struct WeeklyGoalAmountField: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     let viewModel = AppEnvironment.previewEmpty.makeWeeklyGoalEditorViewModel()
@@ -188,3 +189,4 @@ private struct WeeklyGoalAmountField: View {
     }
     .preferredColorScheme(.dark)
 }
+#endif

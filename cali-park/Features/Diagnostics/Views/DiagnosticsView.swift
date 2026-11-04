@@ -222,6 +222,7 @@ enum DiagnosticKindIcon {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview("Raporty") {
     NavigationStack {
@@ -236,3 +237,4 @@ enum DiagnosticKindIcon {
     }
     .preferredColorScheme(.dark)
 }
+#endif

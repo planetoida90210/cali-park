@@ -308,6 +308,7 @@ private struct CalibrationButton: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     let environment = AppEnvironment.seeded(
@@ -341,3 +342,4 @@ private struct CalibrationButton: View {
     .dynamicTypeSize(.accessibility5)
     .preferredColorScheme(.dark)
 }
+#endif

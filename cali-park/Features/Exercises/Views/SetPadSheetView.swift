@@ -35,6 +35,7 @@ struct SetPadSheetView: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     Color.appBackground
@@ -49,3 +50,4 @@ struct SetPadSheetView: View {
         }
         .preferredColorScheme(.dark)
 }
+#endif

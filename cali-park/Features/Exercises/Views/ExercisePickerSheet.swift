@@ -98,6 +98,7 @@ private struct ExercisePickerList: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview("Ulubione i ostatnie") {
     let environment = AppEnvironment.seeded(
@@ -127,3 +128,4 @@ private struct ExercisePickerList: View {
                 .preferredColorScheme(.dark)
         }
 }
+#endif

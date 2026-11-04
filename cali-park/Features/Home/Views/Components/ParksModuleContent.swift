@@ -82,6 +82,7 @@ struct ParksModuleContent: View {
     }
 }
 
+#if DEBUG
 #Preview {
     let model = AppEnvironment.seeded().makeNearestParkViewModel()
     ParksModuleContent(model: model)
@@ -90,3 +91,4 @@ struct ParksModuleContent: View {
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }
+#endif

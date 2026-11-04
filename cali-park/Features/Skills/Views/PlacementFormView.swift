@@ -109,6 +109,7 @@ struct PlacementFormView: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     ScrollView {
@@ -120,3 +121,4 @@ struct PlacementFormView: View {
     .background(Color.appBackground.ignoresSafeArea())
     .preferredColorScheme(.dark)
 }
+#endif

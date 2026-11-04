@@ -41,6 +41,7 @@ struct ExerciseVariantPickerView: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     let pushUps = ExerciseCatalog.exercise(withID: ExerciseCatalog.pushUpsID)!
@@ -55,3 +56,4 @@ struct ExerciseVariantPickerView: View {
     .environment(environment.exerciseFavorites)
     .preferredColorScheme(.dark)
 }
+#endif

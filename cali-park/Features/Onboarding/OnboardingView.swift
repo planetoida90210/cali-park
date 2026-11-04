@@ -231,8 +231,10 @@ private struct OnboardingWeeklyGoalPage: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     OnboardingView(environment: .seeded())
         .preferredColorScheme(.dark)
 }
+#endif

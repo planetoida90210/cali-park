@@ -174,6 +174,7 @@ private struct NextWorkoutEmptyState: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     let environment = AppEnvironment.previewPlanToday
@@ -182,3 +183,4 @@ private struct NextWorkoutEmptyState: View {
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }
+#endif

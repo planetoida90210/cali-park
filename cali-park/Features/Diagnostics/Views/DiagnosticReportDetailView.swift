@@ -140,6 +140,7 @@ struct DiagnosticReportDetailView: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     NavigationStack {
@@ -152,3 +153,4 @@ struct DiagnosticReportDetailView: View {
     }
     .preferredColorScheme(.dark)
 }
+#endif

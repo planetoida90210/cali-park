@@ -1,3 +1,4 @@
+#if DEBUG
 import CoreLocation
 import Foundation
 
@@ -31,3 +32,4 @@ final class FixedLocationProvider: LocationProviding {
         authorization == .authorized ? location : nil
     }
 }
+#endif

@@ -71,6 +71,7 @@ struct PrimaryActionRailView: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     NavigationStack {
@@ -81,3 +82,4 @@ struct PrimaryActionRailView: View {
     }
     .preferredColorScheme(.dark)
 }
+#endif

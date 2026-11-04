@@ -390,6 +390,7 @@ struct ParkRow: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     NavigationStack {
@@ -397,3 +398,4 @@ struct ParkRow: View {
     }
     .preferredColorScheme(.dark)
 }
+#endif

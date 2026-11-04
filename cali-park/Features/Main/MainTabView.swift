@@ -43,8 +43,10 @@ struct MainTabView: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     MainTabView(environment: .previewEmpty)
         .preferredColorScheme(.dark)
 }
+#endif

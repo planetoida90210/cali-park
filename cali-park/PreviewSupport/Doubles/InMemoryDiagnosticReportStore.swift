@@ -1,3 +1,4 @@
+#if DEBUG
 import Foundation
 import Synchronization
 
@@ -45,3 +46,4 @@ nonisolated final class InMemoryDiagnosticReportStore: DiagnosticReportStoring {
         }
     }
 }
+#endif

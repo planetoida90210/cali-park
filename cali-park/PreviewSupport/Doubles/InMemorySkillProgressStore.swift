@@ -1,3 +1,4 @@
+#if DEBUG
 import Foundation
 
 // MARK: - InMemorySkillProgressStore
@@ -19,3 +20,4 @@ nonisolated final class InMemorySkillProgressStore: SkillProgressStoring {
         self.progress = progress
     }
 }
+#endif

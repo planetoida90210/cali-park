@@ -322,6 +322,7 @@ private struct WeekdaySelector: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     Color.appBackground
@@ -345,3 +346,4 @@ private struct WeekdaySelector: View {
             .preferredColorScheme(.dark)
         }
 }
+#endif

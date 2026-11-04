@@ -47,6 +47,7 @@ struct LastWorkoutModuleContent: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     NavigationStack {
@@ -56,3 +57,4 @@ struct LastWorkoutModuleContent: View {
     }
     .preferredColorScheme(.dark)
 }
+#endif

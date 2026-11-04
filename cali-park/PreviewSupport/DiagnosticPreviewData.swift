@@ -1,3 +1,4 @@
+#if DEBUG
 import Foundation
 
 // MARK: - DiagnosticPreviewData
@@ -91,3 +92,4 @@ nonisolated enum DiagnosticPreviewData {
         return DiagnosticReportParser.report(from: payload, receivedAt: receivedAt)
     }
 }
+#endif

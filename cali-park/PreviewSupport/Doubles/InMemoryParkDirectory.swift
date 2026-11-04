@@ -1,3 +1,4 @@
+#if DEBUG
 import Foundation
 
 // MARK: - InMemoryParkDirectory
@@ -18,3 +19,4 @@ nonisolated struct InMemoryParkDirectory: ParkDirectory {
         return ParkCatalog(parks: parks.filter { $0.status == .published }, dataTimestamp: dataTimestamp)
     }
 }
+#endif

@@ -87,6 +87,7 @@ private struct ProgramRow: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     Color.appBackground
@@ -96,3 +97,4 @@ private struct ProgramRow: View {
                 .preferredColorScheme(.dark)
         }
 }
+#endif

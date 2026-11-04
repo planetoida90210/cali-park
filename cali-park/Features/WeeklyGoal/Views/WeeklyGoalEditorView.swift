@@ -152,8 +152,10 @@ private struct WeeklyGoalEditorRow: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     WeeklyGoalEditorView(viewModel: AppEnvironment.previewEmpty.makeWeeklyGoalEditorViewModel())
         .preferredColorScheme(.dark)
 }
+#endif

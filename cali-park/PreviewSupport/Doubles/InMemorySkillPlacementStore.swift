@@ -1,3 +1,4 @@
+#if DEBUG
 import Foundation
 
 // MARK: - InMemorySkillPlacementStore
@@ -19,3 +20,4 @@ nonisolated final class InMemorySkillPlacementStore: SkillPlacementStoring {
         self.placement = placement
     }
 }
+#endif

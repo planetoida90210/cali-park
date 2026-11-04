@@ -227,6 +227,7 @@ private struct ExerciseEmptyState: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     let environment = AppEnvironment.seeded(favoriteExercises: [ExerciseCatalog.australianPullUpsID, ExerciseCatalog.dipsID])
@@ -242,3 +243,4 @@ private struct ExerciseEmptyState: View {
         .dynamicTypeSize(.accessibility5)
         .preferredColorScheme(.dark)
 }
+#endif

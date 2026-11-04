@@ -241,8 +241,10 @@ private struct ProfileStatisticsGrid: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     ProfileView(environment: .skillsVeteran)
         .preferredColorScheme(.dark)
 }
+#endif

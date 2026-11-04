@@ -1,3 +1,4 @@
+#if DEBUG
 import Foundation
 
 // MARK: - InMemoryReminderRefreshScheduler
@@ -12,3 +13,4 @@ final class InMemoryReminderRefreshScheduler: ReminderRefreshScheduling {
         scheduleCount += 1
     }
 }
+#endif

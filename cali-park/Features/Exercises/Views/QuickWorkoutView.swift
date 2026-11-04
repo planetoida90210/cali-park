@@ -386,6 +386,7 @@ private struct QuickWorkoutEmptyState: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview("Fundamenty") {
     let plan = ProgramPrescriber.plans(for: ProgramCatalog.fundamentals, pathStates: [:])[0]
@@ -410,3 +411,4 @@ private struct QuickWorkoutEmptyState: View {
             .preferredColorScheme(.dark)
         }
 }
+#endif

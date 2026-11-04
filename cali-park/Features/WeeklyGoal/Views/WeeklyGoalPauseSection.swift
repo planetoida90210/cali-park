@@ -59,6 +59,7 @@ struct WeeklyGoalPauseSection: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     Form {
@@ -66,3 +67,4 @@ struct WeeklyGoalPauseSection: View {
     }
     .preferredColorScheme(.dark)
 }
+#endif

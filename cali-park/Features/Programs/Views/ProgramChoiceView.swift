@@ -126,6 +126,7 @@ extension ProgramChoiceRow {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     ProgramChoiceView(viewModel: AppEnvironment.seeded().makeProgramChoiceViewModel())
@@ -133,3 +134,4 @@ extension ProgramChoiceRow {
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }
+#endif

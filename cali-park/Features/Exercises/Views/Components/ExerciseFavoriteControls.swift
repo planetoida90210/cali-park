@@ -118,6 +118,7 @@ struct ExerciseFavoritesHint: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     let environment = AppEnvironment.seeded(favoriteExercises: [ExerciseCatalog.pullUpsID])
@@ -136,3 +137,4 @@ struct ExerciseFavoritesHint: View {
     .environment(environment.exerciseFavorites)
     .preferredColorScheme(.dark)
 }
+#endif

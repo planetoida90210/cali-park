@@ -212,6 +212,7 @@ private struct ExerciseInstructionsList: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     let path = ProgressionCatalog.path(withID: .pullUp)!
@@ -232,3 +233,4 @@ private struct ExerciseInstructionsList: View {
             .preferredColorScheme(.dark)
         }
 }
+#endif

@@ -1,3 +1,4 @@
+#if DEBUG
 import Foundation
 
 // MARK: - InMemoryFavoriteExerciseStore
@@ -27,3 +28,4 @@ nonisolated final class InMemoryFavoriteExerciseStore: FavoriteExerciseStoring {
         saveCount += 1
     }
 }
+#endif

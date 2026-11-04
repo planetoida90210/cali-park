@@ -113,6 +113,7 @@ struct TrainingBackupView: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     NavigationStack {
@@ -120,3 +121,4 @@ struct TrainingBackupView: View {
     }
     .preferredColorScheme(.dark)
 }
+#endif

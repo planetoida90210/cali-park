@@ -45,6 +45,7 @@ struct PlacementCalibrationSheet: View {
     }
 }
 
+#if DEBUG
 // MARK: - Preview
 #Preview {
     Color.appBackground
@@ -56,3 +57,4 @@ struct PlacementCalibrationSheet: View {
         }
         .preferredColorScheme(.dark)
 }
+#endif
