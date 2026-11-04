@@ -23,7 +23,7 @@ struct QuickWorkoutView: View {
                 if viewModel.isEmpty {
                     QuickWorkoutEmptyState { activeSheet = .picker }
                 } else {
-                    sessionList
+                    QuickWorkoutSessionList(viewModel: viewModel) { activeSheet = .editItem($0) }
                 }
             }
             .background(Color.appBackground.ignoresSafeArea())
@@ -32,7 +32,9 @@ struct QuickWorkoutView: View {
             // The empty state has its own "Dodaj ćwiczenie" button, so the
             // bottom bar only appears once the workout has an exercise.
             .safeAreaInset(edge: .bottom) {
-                if !viewModel.isEmpty { bottomBar }
+                if !viewModel.isEmpty {
+                    QuickWorkoutBottomBar { activeSheet = .picker }
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -92,64 +94,6 @@ struct QuickWorkoutView: View {
         router?.selection = .home
         dismiss()
     }
-
-    // MARK: Session list
-    /// Exercises done on their own share a section; each pair or circuit of
-    /// the plan gets its own, with how it is done and a round counter.
-    private var sessionList: some View {
-        let blocks = viewModel.blocks
-        return List {
-            ForEach(blocks) { block in
-                Section {
-                    ForEach(block.items) { item in
-                        Button {
-                            activeSheet = .editItem(item)
-                        } label: {
-                            QuickWorkoutItemRow(item: item)
-                        }
-                        .buttonStyle(.plain)
-                        .listRowBackground(Color.componentBackground)
-                        .listRowSeparatorTint(Color.divider)
-                    }
-                    .onDelete { offsets in
-                        let doomed = offsets.map { block.items[$0] }
-                        for item in doomed { viewModel.remove(item) }
-                    }
-
-                    if case .group(let number) = block.kind, let tracker = viewModel.groups[number]?.tracker {
-                        RoundTrackerRow(
-                            tracker: tracker,
-                            onFinishRound: { viewModel.finishRound(inGroup: number) },
-                            onEndRest: { viewModel.endRest(inGroup: number) }
-                        )
-                        .listRowBackground(Color.componentBackground)
-                    }
-                } header: {
-                    if case .group(let number) = block.kind, let group = viewModel.groups[number] {
-                        SessionGroupHeader(group: group)
-                    }
-                } footer: {
-                    if block.id == blocks.last?.id {
-                        Text("\(PolishPlural.exercises(viewModel.exerciseCount)) · \(PolishPlural.sets(viewModel.totalSets))")
-                            .font(.bodySmall)
-                            .foregroundStyle(Color.textSecondary)
-                    }
-                }
-            }
-        }
-        .listStyle(.insetGrouped)
-        .scrollContentBackground(.hidden)
-    }
-
-    // MARK: Bottom bar
-    private var bottomBar: some View {
-        Button("Dodaj ćwiczenie", systemImage: "plus") {
-            activeSheet = .picker
-        }
-        .buttonStyle(.secondary)
-        .padding(.horizontal, 16)
-        .padding(.bottom, 8)
-    }
 }
 
 // MARK: - ActiveSheet
@@ -169,223 +113,6 @@ private enum ActiveSheet: Identifiable {
     }
 }
 
-// MARK: - SessionSetPadSheet
-/// SetPad tuned for a session: logs sets for one exercise and hands them back
-/// to the session (no persistence here — the session saves everything at once).
-/// Seeds the keypad with `initialSets` when confirming a prefilled plan item.
-private struct SessionSetPadSheet: View {
-    let exercise: Exercise
-    let initialSets: [LoggedSet]
-    let onSave: ([LoggedSet]) -> Void
-
-    /// What the keypad opened with; any difference is unsaved typing.
-    private let initialInput: SetPadInput
-    @State private var input: SetPadInput
-    @Environment(\.dismiss) private var dismiss
-
-    init(exercise: Exercise, initialSets: [LoggedSet], onSave: @escaping ([LoggedSet]) -> Void) {
-        self.exercise = exercise
-        self.initialSets = initialSets
-        self.onSave = onSave
-        let initialInput = SetPadInput(
-            committedSets: initialSets.map { $0.padValue(for: exercise.measurement) }
-        )
-        self.initialInput = initialInput
-        _input = State(initialValue: initialInput)
-    }
-
-    private var hasUnsavedChanges: Bool { input != initialInput }
-
-    var body: some View {
-        SetPadEntryView(
-            exercise: exercise,
-            input: $input,
-            saveTitle: "Dodaj do treningu",
-            cancel: SetPadEntryView.Cancel(hasUnsavedChanges: hasUnsavedChanges) { dismiss() }
-        ) {
-            onSave(input.loggedSets(for: exercise.measurement))
-        }
-        .interactiveDismissDisabled(hasUnsavedChanges)
-        .padding(.horizontal, 16)
-        .padding(.top, 24)
-        .padding(.bottom, 16)
-        .presentationContentHeight()
-        .presentationDragIndicator(.visible)
-        .presentationBackground(Color.appBackground)
-    }
-}
-
-// MARK: - QuickWorkoutItemRow
-private struct QuickWorkoutItemRow: View {
-    let item: QuickWorkoutViewModel.DraftItem
-
-    var body: some View {
-        HStack(spacing: 12) {
-            ExerciseIconView(symbolName: item.exercise.symbolName, size: .row)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(item.exercise.name)
-                    .font(.bodyLarge)
-                    .foregroundStyle(Color.textPrimary)
-
-                if item.isPending {
-                    Text("Dotknij, aby dodać serie")
-                        .font(.bodySmall)
-                        .foregroundStyle(Color.accent)
-                } else {
-                    Text(MeasureFormat.breakdown(of: item.sets))
-                        .font(.bodySmall)
-                        .monospacedDigit()
-                        .foregroundStyle(Color.textSecondary)
-                }
-            }
-
-            Spacer()
-
-            if item.isPending {
-                Image(systemName: "plus.circle")
-                    .foregroundStyle(Color.accent)
-            } else {
-                Text(MeasureFormat.total(of: item.sets))
-                    .font(.bodySmall)
-                    .foregroundStyle(Color.textSecondary)
-            }
-        }
-        .padding(.vertical, 4)
-        .contentShape(Rectangle())
-        .accessibilityElement(children: .combine)
-        .accessibilityHint(item.isPending ? "Dotknij, aby dodać serie" : "Dotknij, aby edytować serie")
-    }
-}
-
-// MARK: - SessionGroupHeader
-/// "Para 1" or "Obwód" above a group, with how it is done.
-private struct SessionGroupHeader: View {
-    let group: QuickWorkoutViewModel.SessionGroup
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(group.title)
-                .font(.bodyLarge.weight(.semibold))
-                .foregroundStyle(Color.textPrimary)
-                .accessibilityAddTraits(.isHeader)
-            if let instruction = group.instruction {
-                Text(instruction)
-                    .font(.bodySmall)
-                    .foregroundStyle(Color.textSecondary)
-            }
-        }
-        .textCase(nil)
-        .padding(.bottom, 4)
-    }
-}
-
-// MARK: - RoundTrackerRow
-/// The round counter of a pair or circuit: "Runda 2/3" with "Runda
-/// zrobiona", then the rest countdown with "Pomiń". The rest clears itself
-/// when it runs out.
-private struct RoundTrackerRow: View {
-    let tracker: RoundTracker
-    let onFinishRound: () -> Void
-    let onEndRest: () -> Void
-
-    @Environment(\.dynamicTypeSize) private var typeSize
-
-    var body: some View {
-        let layout = typeSize.isAccessibilitySize
-            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
-            : AnyLayout(HStackLayout(spacing: 12))
-        layout {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(ProgramFormat.roundLabel(for: tracker))
-                    .font(.bodyLarge)
-                    .foregroundStyle(Color.textPrimary)
-                    .monospacedDigit()
-                if let rest = tracker.rest {
-                    restCountdown(rest)
-                } else if tracker.hasMetMinimum, !tracker.isFinished {
-                    Text("Minimum zrobione, kolejne rundy są dla chętnych")
-                        .font(.bodySmall)
-                        .foregroundStyle(Color.textSecondary)
-                }
-            }
-
-            if !typeSize.isAccessibilitySize { Spacer(minLength: 0) }
-
-            if tracker.rest != nil {
-                Button("Pomiń przerwę", action: onEndRest)
-                    .font(.buttonMedium)
-                    .foregroundStyle(Color.accent)
-            } else if !tracker.isFinished {
-                Button("Runda zrobiona", systemImage: "checkmark", action: onFinishRound)
-                    .buttonStyle(.accent(.compact, fillsWidth: false))
-            } else {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(Color.accent)
-                    .accessibilityHidden(true)
-            }
-        }
-        .padding(.vertical, 4)
-        .task(id: tracker.rest) {
-            guard let rest = tracker.rest else { return }
-            let remaining = rest.end.timeIntervalSinceNow
-            if remaining > 0 {
-                do {
-                    try await Task.sleep(for: .seconds(remaining))
-                } catch {
-                    return
-                }
-            }
-            onEndRest()
-        }
-        .sensoryFeedback(.impact(weight: .medium), trigger: tracker.rest) { old, new in
-            old != nil && new == nil
-        }
-    }
-
-    private func restCountdown(_ rest: DateInterval) -> some View {
-        HStack(spacing: 4) {
-            Image(systemName: "timer")
-                .accessibilityHidden(true)
-            Text("Przerwa")
-            Text(timerInterval: rest.start...rest.end, countsDown: true)
-                .monospacedDigit()
-        }
-        .font(.bodySmall)
-        .foregroundStyle(Color.accent)
-        .accessibilityElement(children: .combine)
-    }
-}
-
-// MARK: - QuickWorkoutEmptyState
-private struct QuickWorkoutEmptyState: View {
-    let onAdd: () -> Void
-
-    var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "dumbbell")
-                .font(.appLargeTitle)
-                .foregroundStyle(Color.accent)
-
-            Text("Zbuduj trening")
-                .font(.appTitle3)
-                .foregroundStyle(Color.textPrimary)
-                .accessibilityAddTraits(.isHeader)
-
-            Text("Dodaj dowolne ćwiczenia i zapisz je jako jeden trening.")
-                .font(.bodyMedium)
-                .foregroundStyle(Color.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 32)
-
-            Button("Dodaj ćwiczenie", systemImage: "plus", action: onAdd)
-                .buttonStyle(.accent(.compact, fillsWidth: false))
-            .padding(.top, 8)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
-
 #if DEBUG
 // MARK: - Preview
 #Preview("Fundamenty") {
@@ -397,6 +124,20 @@ private struct QuickWorkoutEmptyState: View {
                 viewModel: QuickWorkoutViewModel(journal: TrainingJournal(store: InMemoryWorkoutLogStore()),
                                                  plan: plan, clock: { .now })
             )
+            .preferredColorScheme(.dark)
+        }
+}
+
+#Preview("Fundamenty AX5") {
+    let plan = ProgramPrescriber.plans(for: ProgramCatalog.fundamentals, pathStates: [:])[0]
+    Color.appBackground
+        .ignoresSafeArea()
+        .sheet(isPresented: .constant(true)) {
+            QuickWorkoutView(
+                viewModel: QuickWorkoutViewModel(journal: TrainingJournal(store: InMemoryWorkoutLogStore()),
+                                                 plan: plan, clock: { .now })
+            )
+            .dynamicTypeSize(.accessibility5)
             .preferredColorScheme(.dark)
         }
 }
