@@ -4,8 +4,8 @@ import SwiftUI
 /// The placement form as a sheet, for athletes who did not set their level at
 /// onboarding or want to adjust it later.
 ///
-/// Presented on first contact with the Skills tab and from "Ustaw poziom" in a
-/// path's detail (SK5 wires those entry points). The form opens pre-filled
+/// Presented on first contact with the Skills tab (`SkillPathsView`) and from
+/// "Ustaw poziom" in a path's detail (`PathDetailView`). The form opens pre-filled
 /// from the saved placement, and saving re-declares only the paths answered in
 /// this session. Re-calibrating down never erases rungs already earned from
 /// logs, because the engine takes the max of declaration and logs.

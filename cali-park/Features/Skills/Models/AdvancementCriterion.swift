@@ -6,7 +6,7 @@ import Foundation
 /// Criteria come straight from the source routines: dynamic movements advance
 /// on clean sets of reps (Recommended Routine's "3 × 8 → next"), isometric
 /// holds on clean sets of seconds (Overcoming Gravity's "3 × 20 s → next").
-/// The engine (SK3) compares logged sets against this to score progress.
+/// `ProgressionEngine` compares logged sets against this to score progress.
 nonisolated enum AdvancementCriterion: Codable, Equatable, Hashable, Sendable {
     /// A number of clean sets at a rep count, e.g. `sets: 3, reps: 8`.
     case setsOfReps(sets: Int, reps: Int)
@@ -21,7 +21,7 @@ nonisolated enum AdvancementCriterion: Codable, Equatable, Hashable, Sendable {
     }
 
     /// The value each qualifying set must reach: reps for a rep criterion,
-    /// seconds held for a hold criterion. The engine (SK3) compares a logged
+    /// seconds held for a hold criterion. `ProgressionEngine` compares a logged
     /// set's reps or `durationSeconds` against this.
     var targetValue: Int {
         switch self {

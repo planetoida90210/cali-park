@@ -2,7 +2,7 @@
 //  ExercisesDataTests.swift
 //  cali-parkTests
 //
-//  Sprint 1 — data foundation for the Exercises tab:
+//  Data foundation for the Exercises tab:
 //  catalog integrity and workout log store roundtrip.
 //
 
@@ -136,7 +136,7 @@ struct ExerciseCatalogTests {
 
     @Test
     func isometricHoldsAreMeasuredInSeconds() {
-        // Statics must be second-based so the SetPad (SK2) logs holds correctly.
+        // Statics must be second-based so the SetPad logs holds in seconds.
         let holdIDs: [UUID] = [
             ExerciseCatalog.plankID, ExerciseCatalog.lSitID, ExerciseCatalog.frontLeverID,
             ExerciseCatalog.backLeverID, ExerciseCatalog.plancheID, ExerciseCatalog.humanFlagID

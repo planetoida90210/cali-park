@@ -2,10 +2,10 @@
 //  PlacementCalibrationTests.swift
 //  cali-parkTests
 //
-//  Sprint SK4 — the placement questionnaire: mapping answers to starting rungs
+//  The placement questionnaire: mapping answers to starting rungs
 //  (rep buckets and skill checkboxes, highest wins per path), the resistance
 //  band as owned equipment, integrity of every mapped rung, the view model's
-//  save/load through the store, and the SK3 regression that declarations grant
+//  save/load through the store, and a regression test that declarations grant
 //  no XP. Pure and deterministic: the declared date is injected.
 //
 
@@ -248,7 +248,7 @@ struct PlacementCalibrationViewModelTests {
     }
 }
 
-// MARK: - SK3 regression: declarations grant no XP
+// MARK: - Regression: declarations grant no XP
 
 @MainActor
 struct PlacementNeverGrantsXPTests {

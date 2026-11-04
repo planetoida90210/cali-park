@@ -2,7 +2,7 @@
 //  SetSecondsTests.swift
 //  cali-parkTests
 //
-//  Sprint SK2 — seconds in the journal: timed sets (LoggedSet.durationSeconds),
+//  Seconds in the journal: timed sets (LoggedSet.durationSeconds),
 //  Codable back-compat, honest reps/seconds totals, and Polish formatting.
 //
 
@@ -188,7 +188,7 @@ struct TimedWorkoutLogViewModelTests {
         let store = InMemoryWorkoutLogStore()
         let viewModel = WorkoutLogViewModel(exercise: frontLever, store: store)
 
-        // Log "3 × 15 s" (the SK2 acceptance example) via the pad.
+        // Log "3 × 15 s", a typical plank, via the pad.
         viewModel.input.appendDigit(1); viewModel.input.appendDigit(5); viewModel.input.commitSet()
         viewModel.input.appendDigit(1); viewModel.input.appendDigit(5); viewModel.input.commitSet()
         viewModel.input.appendDigit(1); viewModel.input.appendDigit(5)

@@ -2,7 +2,7 @@
 //  HomeHeroStateTests.swift
 //  cali-parkTests
 //
-//  Sprint H1 — contextual Home hero foundation: the pure state resolver
+//  Contextual Home hero foundation: the pure state resolver
 //  (HomeDashboardViewModel.heroState(asOf:)), backward-compatible planID
 //  persistence on WorkoutLogEntry, and finish() stamping the plan.
 //

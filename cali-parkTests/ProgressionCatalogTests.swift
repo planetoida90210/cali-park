@@ -2,9 +2,9 @@
 //  ProgressionCatalogTests.swift
 //  cali-parkTests
 //
-//  Sprint SK1 — integrity of the progression paths and their encoding of
+//  Integrity of the progression paths and their encoding of
 //  docs/PROGRESSIONS.md. Content correctness lives in the doc; these tests
-//  guard the structural invariants the later sprints rely on.
+//  guard the structural invariants the engine and the Skills tab rely on.
 //
 
 import Foundation

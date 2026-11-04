@@ -2,7 +2,7 @@
 //  WorkoutPlanTests.swift
 //  cali-parkTests
 //
-//  Sprint 6 — planner data foundation: schedule math, store roundtrip, Codable.
+//  Planner data foundation: schedule math, store roundtrip, Codable.
 //
 
 import Foundation

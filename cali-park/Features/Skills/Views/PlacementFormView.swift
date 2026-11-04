@@ -6,7 +6,7 @@ import SwiftUI
 /// here (ticket 026): it stays a visible option on the ladder, and a band
 /// declared earlier is kept on save.
 ///
-/// Shared by onboarding (SK4) and the in-app calibration sheet so the two never
+/// Shared by the onboarding level test and the in-app calibration sheet so the two never
 /// drift apart. It lays out sections only — the caller supplies the scroll
 /// container and any title — so it drops cleanly into a paged onboarding screen
 /// or a navigation sheet.

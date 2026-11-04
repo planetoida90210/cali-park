@@ -2,7 +2,7 @@
 //  HomePlannerTests.swift
 //  cali-parkTests
 //
-//  Sprint 8 — Home surfaces the next scheduled workout: nearest-plan selection
+//  Home surfaces the next scheduled workout: nearest-plan selection
 //  from many plans, and prefilling a session's DraftItems from a plan.
 //
 

@@ -27,7 +27,7 @@ nonisolated struct RungProgress: Equatable, Sendable {
     var isMet: Bool { bestValue >= criterion.targetValue }
 
     /// Fraction of the target value reached, clamped to `0...1`. Suitable for a
-    /// progress ring; the exact "3 × 8 — your best: 3 × 6" copy is built in SK5
+    /// progress ring; the Skills tab builds the "3 × 8 — your best: 3 × 6" copy
     /// from `targetSets`, `targetValue`, and `bestValue`.
     var fractionComplete: Double {
         guard criterion.targetValue > 0 else { return isMet ? 1 : 0 }

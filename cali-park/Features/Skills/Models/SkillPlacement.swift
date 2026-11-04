@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - SkillPlacement
 /// The athlete's self-declared starting point across the progression paths,
-/// captured once at onboarding (SK4) and re-adjustable later via calibration.
+/// captured by the onboarding level test and re-adjustable later via calibration.
 ///
 /// A declaration sets the *current* rung of a path — everything below it is
 /// treated as conquered without needing logs, so someone who already does 12

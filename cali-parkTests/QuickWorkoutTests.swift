@@ -2,7 +2,7 @@
 //  QuickWorkoutTests.swift
 //  cali-parkTests
 //
-//  Sprint 5 — "Szybki trening": session accumulation/save, backward-compatible
+//  "Szybki trening": session accumulation/save, backward-compatible
 //  sessionID persistence, and history grouping.
 //
 

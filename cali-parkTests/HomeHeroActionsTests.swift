@@ -2,7 +2,7 @@
 //  HomeHeroActionsTests.swift
 //  cali-parkTests
 //
-//  Sprint H3 — Home hero integration: the contextual actions wired into
+//  Home hero integration: the contextual actions wired into
 //  HomeView must move the hero through the right states as the user acts.
 //  These exercise the same view-model seams the view uses (the factories
 //  `makeQuickWorkoutViewModel(plan:)` / `makeQuickWorkoutViewModel()` and

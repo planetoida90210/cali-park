@@ -47,11 +47,11 @@ final class AppEnvironment {
     /// Owns saving and deleting plans and keeps their reminders in sync. View
     /// models change plans only through it.
     let workoutPlanService: WorkoutPlanService
-    /// Persists the athlete's self-declared skill placement. Consumed by the
-    /// onboarding calibration (SK4) and the Skills tab (SK5).
+    /// Persists the athlete's self-declared skill placement. Written by the
+    /// onboarding level test and the calibration sheet, read by progress.
     let placementStore: SkillPlacementStoring
-    /// Persists which rewards have already been celebrated, so the reward loop
-    /// (SK6a) stays idempotent. Only `rewardCenter` talks to it.
+    /// Persists which rewards have already been celebrated, so each rung and
+    /// level celebrates once. Only `rewardCenter` talks to it.
     let skillProgressStore: SkillProgressStoring
     /// Persists the weekly goal: goal versions, pauses and shown celebrations.
     /// Read by Home (hero ring, "Cel tygodniowy") and the goal editor.

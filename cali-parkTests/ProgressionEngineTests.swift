@@ -2,7 +2,7 @@
 //  ProgressionEngineTests.swift
 //  cali-parkTests
 //
-//  Sprint SK3 — the progression engine and its stores: path state from logs and
+//  The progression engine and its stores: path state from logs and
 //  declarations (max of the two, paths independent), XP/levels backward from
 //  history, badges from logs only, and store roundtrips. Pure and deterministic:
 //  a fixed UTC calendar drives the streak-based badges.

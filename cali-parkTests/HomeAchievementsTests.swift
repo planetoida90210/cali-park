@@ -2,10 +2,10 @@
 //  HomeAchievementsTests.swift
 //  cali-parkTests
 //
-//  Sprint SK6b — Home lives off the same progression data: the real
+//  Home lives off the same progression data: the real
 //  achievements module summary (level / XP / last advancement), the hero's
 //  progression hint, and a regression that adding the placement store left the
-//  H1 hero state machine untouched. Pure and deterministic: in-memory stores,
+//  hero state machine untouched. Pure and deterministic: in-memory stores,
 //  an injected UTC calendar, no timing.
 //
 
@@ -152,7 +152,7 @@ struct HomeAchievementsSummaryTests {
         #expect(hint.hasPrefix("Jeszcze 2 powtórzenia do 3 × 8"))
     }
 
-    // MARK: H1 regression — the placement store must not disturb heroState.
+    // MARK: Regression — the placement store must not disturb heroState.
     @Test func placementDoesNotChangeHeroStateForAnEmptyJournal() {
         let vm = dashboard(placement: SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID]))
 

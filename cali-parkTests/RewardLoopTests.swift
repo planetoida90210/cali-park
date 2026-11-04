@@ -2,7 +2,7 @@
 //  RewardLoopTests.swift
 //  cali-parkTests
 //
-//  Sprint SK6a — the reward loop: the pure evaluator that turns logs plus the
+//  The reward loop: the pure evaluator that turns logs plus the
 //  "already celebrated" record into celebration events (log-only, idempotent,
 //  baseline-not-flood), the celebration copy, and the Skills view model's queue
 //  and XP toast. Pure and deterministic: in-memory stores, no timing.

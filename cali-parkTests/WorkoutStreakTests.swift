@@ -2,7 +2,7 @@
 //  WorkoutStreakTests.swift
 //  cali-parkTests
 //
-//  Sprint 4 — streak math (today, yesterday, gap) and day plurals.
+//  Streak math (today, yesterday, gap) and day plurals.
 //
 
 import Foundation

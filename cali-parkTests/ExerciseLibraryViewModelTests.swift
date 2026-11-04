@@ -2,7 +2,7 @@
 //  ExerciseLibraryViewModelTests.swift
 //  cali-parkTests
 //
-//  Sprint 2 — category filter and search in the exercise library.
+//  Category filter and search in the exercise library.
 //
 
 import Foundation

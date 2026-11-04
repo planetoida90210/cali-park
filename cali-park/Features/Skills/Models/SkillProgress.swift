@@ -4,7 +4,7 @@ import Foundation
 /// The record of which rewards have already been celebrated, so each fires only
 /// once. Progress state itself (rungs, XP, level) is always recomputed from logs
 /// by `ProgressionEngine`; this type persists *only* the "already celebrated"
-/// bookkeeping the reward loop (SK6) needs to stay idempotent.
+/// bookkeeping `RewardCenter` needs so each reward celebrates once.
 ///
 /// Nothing here is a secret, so it lives in a plain JSON file (see
 /// `SkillProgressStoring`).

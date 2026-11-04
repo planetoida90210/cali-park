@@ -4,8 +4,8 @@ import Foundation
 /// Stable identifier for a progression path (one ladder of variations from
 /// regression to skill).
 ///
-/// Raw values are durable storage keys: the placement store (SK3) and the
-/// onboarding calibration (SK4) key their per-path data on these, so a case's
+/// Raw values are durable storage keys: the placement store and the level test
+/// key their per-path data on these, so a case's
 /// raw value must never change once shipped. Paths are fully independent —
 /// nothing here encodes a dependency between them.
 nonisolated enum ProgressionPathID: String, Codable, CaseIterable, Identifiable, Sendable {

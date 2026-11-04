@@ -2,7 +2,7 @@
 //  WorkoutReminderTests.swift
 //  cali-parkTests
 //
-//  Sprint 1 (Profil + powiadomienia) — reminder request building & scheduling.
+//  Reminder request building & scheduling.
 //
 
 import Foundation

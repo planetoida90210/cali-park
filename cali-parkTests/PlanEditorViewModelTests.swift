@@ -2,7 +2,7 @@
 //  PlanEditorViewModelTests.swift
 //  cali-parkTests
 //
-//  Sprint 7 — planner UI: editor validation, exercise editing, schedule
+//  Planner UI: editor validation, exercise editing, schedule
 //  selection, upsert on save, and the plans-list view model + schedule text.
 //
 

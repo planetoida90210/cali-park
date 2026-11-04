@@ -2,7 +2,7 @@
 //  SkillPathsViewModelTests.swift
 //  cali-parkTests
 //
-//  Sprint SK5 — the Skills tab view model and its copy: mapping logs and
+//  The Skills tab view model and its copy: mapping logs and
 //  placement to per-path summaries, the level, per-rung progress, detecting
 //  fresh advances between loads, and the criterion/progress formatting shown on
 //  ladders. Pure and deterministic: stores are in-memory, no timing.

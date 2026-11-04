@@ -3,7 +3,7 @@ import Foundation
 // MARK: - HomeHeroState
 /// What the Home hero should say right now, resolved from the workout log and
 /// the user's plans. A plain value describing the state — the view that renders
-/// it (Sprint H2) stays "dumb" and switches on these cases. Deciding which case
+/// it (`ContextualHeroView`) stays "dumb" and switches on these cases. Deciding which case
 /// applies lives in `HomeDashboardViewModel.heroState(asOf:)`.
 ///
 /// The weekly goal and its week streak never live *inside* these cases: they

@@ -2,7 +2,7 @@
 //  SetPadTests.swift
 //  cali-parkTests
 //
-//  Sprint 3 — SetPad input logic, workout log view models, Polish plurals.
+//  SetPad input logic, workout log view models, Polish plurals.
 //
 
 import Foundation

@@ -8,7 +8,7 @@ import Foundation
 /// both land on a sensible starting rung without a long quiz. Paths left unasked
 /// simply get no declaration and start from the bottom, where logs take over.
 ///
-/// This mapping is the single source of truth shared by onboarding (SK4) and the
+/// This mapping is the single source of truth shared by the onboarding level test and the
 /// in-app calibration sheet, and it mirrors the ladders in `docs/PROGRESSIONS.md`.
 /// A declaration only sets a starting point: it never grants XP or badges (those
 /// come from real logs), and the engine takes the max of declaration and logs so

@@ -4,8 +4,8 @@ import SwiftUI
 /// The Home hero, rebuilt to react to context instead of always showing the
 /// same greeting + weekly count. It is a "dumb" view: it renders a resolved
 /// `HomeHeroState` (from `HomeDashboardViewModel.heroState(asOf:)`) inside one
-/// shared card frame and forwards taps through closures. Wiring it into
-/// `HomeView` happens in Sprint H3 — for now it drives the previews below.
+/// shared card frame and forwards taps through closures, which `HomeView`
+/// wires to starting a plan or a quick workout.
 ///
 /// The weekly goal lives *outside* the state (on the view model), so it is
 /// passed in here and shown as a secondary row, with the week streak, in every

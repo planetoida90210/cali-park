@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - SkillProgressStoring
 /// Abstraction over `SkillProgress` persistence — the "already celebrated"
-/// bookkeeping that keeps the reward loop (SK6) idempotent. Mirrors the other
+/// bookkeeping that makes each reward celebrate once. Mirrors the other
 /// stores so it stays testable and swappable.
 ///
 /// Like placement, this is not secret data: no tokens or entitlement flags, just
