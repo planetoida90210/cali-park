@@ -97,7 +97,7 @@ nonisolated struct CelebrationPresentation: Equatable, Sendable {
 
     // MARK: Several rungs
 
-    /// "Nowe szczeble: 6", the exercises listed under it, the paths they are
+    /// "6 nowych szczebli", the exercises listed under it, the paths they are
     /// on, and the XP all of them earned. VoiceOver hears it as one sentence:
     /// "6 nowych szczebli na ścieżce Podciąganie: …. +600 XP."
     private static func rungsPresentation(_ rungs: [RungReference]) -> CelebrationPresentation {
@@ -121,7 +121,7 @@ nonisolated struct CelebrationPresentation: Equatable, Sendable {
         }
         return CelebrationPresentation(
             eyebrow: String(localized: "ZALICZONE SZCZEBLE"),
-            title: String(localized: "Nowe szczeble: \(rungs.count)"),
+            title: count,
             subtitle: pathNames.isEmpty ? nil : pathNames,
             list: names,
             xpNote: xpNote,

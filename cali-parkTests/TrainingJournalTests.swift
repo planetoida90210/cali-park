@@ -388,7 +388,7 @@ struct RewardCenterTests {
         let card = try #require(stack.rewards.current)
         #expect(stack.rewards.currentCelebration == .rungs(0...5, on: .pullUp))
         #expect(card.presentation.eyebrow == "ZALICZONE SZCZEBLE")
-        #expect(card.presentation.title == "Nowe szczeble: 6")
+        #expect(card.presentation.title == "6 nowych szczebli")
         #expect(card.presentation.subtitle == "Podciąganie")
         #expect(card.presentation.list.count == 6)
         #expect(card.presentation.xpNote == "+600 XP")
@@ -413,7 +413,7 @@ struct RewardCenterTests {
             + (0...2).compactMap { RungReference(pathID: .dip, rungIndex: $0) }
         let presentation = CelebrationPresentation.resolving(QueuedCelebration.rungs(rungs))
 
-        #expect(presentation.title == "Nowe szczeble: 5")
+        #expect(presentation.title == "5 nowych szczebli")
         #expect(presentation.list.count == 5)
         #expect(presentation.xpNote == "+500 XP")
         #expect(presentation.symbolName == "checkmark.seal.fill") // two paths

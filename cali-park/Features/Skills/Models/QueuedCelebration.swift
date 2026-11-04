@@ -5,7 +5,7 @@ import Foundation
 /// came in together, shown as one card.
 ///
 /// One save can clear several rungs at once (a first logged workout often
-/// clears five or six). They read as one moment, "Nowe szczeble: 6", instead
+/// clears five or six). They read as one moment, "6 nowych szczebli", instead
 /// of six overlays in a row; a level-up still follows on its own card.
 /// Dismissing the card marks each of its rungs as celebrated.
 nonisolated enum QueuedCelebration: Equatable, Hashable, Identifiable, Sendable {

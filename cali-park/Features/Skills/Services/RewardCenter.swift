@@ -18,7 +18,7 @@ import os
 /// on screen, or an app quit mid-queue, never loses a celebration.
 ///
 /// Rungs conquered together share one overlay (`QueuedCelebration.rungs`):
-/// a save that clears six rungs shows "Nowe szczeble: 6" once, not six cards
+/// a save that clears six rungs shows "6 nowych szczebli" once, not six cards
 /// in a row. Level-ups and met weekly goals keep their own overlays after it.
 ///
 /// XP: each rung overlay says what its rungs earned ("+100 XP", "+600 XP"),
