@@ -126,6 +126,12 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - kalibracja wskazuje szczeble po ID; dipy „12+” startują od podporu na kółkach,
   - jednorazowy skok XP za nowe niższe szczeble (np. +100 XP przy pełnych podciągnięciach, maks. +1100 XP), przyjęty w 015,
   - testy: 426 (722 przypadki).
+- **Resztki Home** (`16467aa`, 2026-11-04, „Home w 1.0”):
+  - preferencje modułów jako `@Observable` z `AppEnvironment`; zapisany układ użytkowników zostaje,
+  - kolejność modułów zmienisz bez przeciągania: „Zmień kolejność” na ekranie wyboru modułów oraz akcje VoiceOver „Przesuń wyżej / niżej” z komunikatem o pozycji (E-12); przeciąganie ma podgląd i przyciemnia moduł,
+  - nagłówki modułów mówią „rozwinięty / zwinięty” (część E-13),
+  - usunięte atrapy i martwy kod: leaderboard, feed, `MockDataProvider`, nieosiągalna Społeczność, martwy tryb edycji (F-12),
+  - testy: 736 (1125 przypadków).
 - **Dane na lata, krok F4 fundamentu** (`e3e2a39`, 2026-11-04):
   - pliki treningów przeniesione z Documents do `Application Support/CaliPark/`; migracja przy starcie przenosi plik tylko, gdy w nowym miejscu go nie ma, a przy błędzie apka czyta stary plik (C-15),
   - jedno `DefaultsKey` na klucze `UserDefaults` (C-15), martwe Core Data usunięte razem z pustym plikiem bazy (C-10, G-25),
