@@ -58,7 +58,7 @@ private enum Fixtures {
 }
 
 /// A log store whose file cannot be read.
-private struct UnreadableLogStore: WorkoutLogStoring {
+private struct FailingReminderLogStore: WorkoutLogStoring {
     struct Unreadable: Error {}
     func load() throws -> [WorkoutLogEntry] { throw Unreadable() }
     func append(_ entry: WorkoutLogEntry) throws { throw Unreadable() }
@@ -185,7 +185,7 @@ struct WorkoutPlanServiceDoneDayTests {
         let plan = Fixtures.plan()
         let scheduler = Fixtures.scheduler()
         let service = WorkoutPlanService.testing(InMemoryWorkoutPlanStore(initial: [plan]),
-                                                 logStore: UnreadableLogStore(),
+                                                 logStore: FailingReminderLogStore(),
                                                  scheduler: scheduler)
 
         #expect(await service.syncReminders() == .synced)
@@ -245,10 +245,10 @@ struct ChangeNotifyingWorkoutLogStoreTests {
     @Test
     func failedWritesDoNotNotify() {
         let counter = CallCounter()
-        let store = ChangeNotifyingWorkoutLogStore(base: UnreadableLogStore()) { counter.increment() }
+        let store = ChangeNotifyingWorkoutLogStore(base: FailingReminderLogStore()) { counter.increment() }
 
-        #expect(throws: UnreadableLogStore.Unreadable.self) { try store.append(Fixtures.entry(planID: nil)) }
-        #expect(throws: UnreadableLogStore.Unreadable.self) { try store.delete(id: UUID()) }
+        #expect(throws: FailingReminderLogStore.Unreadable.self) { try store.append(Fixtures.entry(planID: nil)) }
+        #expect(throws: FailingReminderLogStore.Unreadable.self) { try store.delete(id: UUID()) }
         #expect(counter.count == 0)
     }
 }
