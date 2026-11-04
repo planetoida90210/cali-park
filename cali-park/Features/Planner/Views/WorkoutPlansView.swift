@@ -94,9 +94,8 @@ struct WorkoutPlansView: View {
                     }
                     .listRowBackground(Color.componentBackground)
                     .listRowSeparatorTint(Color.divider)
-                    // An explicit "Usuń": `.onDelete` shows the system "Delete"
-                    // label, which stays English while the app declares only
-                    // the English localization (audit G-3).
+                    // An explicit "Usuń" in red, instead of `.onDelete`'s
+                    // system label.
                     .swipeActions(edge: .trailing) {
                         Button("Usuń", systemImage: "trash", role: .destructive) {
                             Task { await viewModel.delete(plan) }

@@ -24,6 +24,13 @@ enum WorkoutSchedule: Codable, Equatable, Hashable {
         }
     }
 
+    /// A one-off plan whose day is before `reference`'s day: it will never
+    /// come up again. Other schedules never expire.
+    func isExpired(asOf reference: Date, calendar: Calendar = .current) -> Bool {
+        guard case .once(let day?) = self else { return false }
+        return day.startDate(in: calendar) < calendar.startOfDay(for: reference)
+    }
+
     // MARK: Next occurrence
     /// The soonest scheduled day on or after `reference`, at the start of that
     /// day, or `nil` when nothing is scheduled (empty weekly set, a past

@@ -228,6 +228,46 @@ struct WorkoutPlansViewModelTests {
     }
 }
 
+// MARK: - Expired one-off plans in the list
+
+@MainActor
+struct ExpiredPlanListTests {
+    private static let polish = Locale(identifier: "pl_PL")
+
+    @Test
+    func pastOneOffPlanReadsAsPassed() throws {
+        let day = try #require(CalendarDay(year: 2026, month: 11, day: 3))
+        let today = try #require(CalendarDay(year: 2026, month: 11, day: 4)).startDate(in: Fixtures.calendar)
+
+        #expect(WorkoutSchedule.once(day).isExpired(asOf: today, calendar: Fixtures.calendar))
+        let line = WorkoutScheduleFormatter.listSummary(.once(day), asOf: today, calendar: Fixtures.calendar, locale: Self.polish)
+        #expect(line == "Minął · 3 lis")
+    }
+
+    @Test
+    func todaysOneOffPlanAndRecurringPlansAreNotPassed() throws {
+        let today = try #require(CalendarDay(year: 2026, month: 11, day: 4))
+        let now = today.startDate(in: Fixtures.calendar) + 23 * 3_600
+
+        #expect(!WorkoutSchedule.once(today).isExpired(asOf: now, calendar: Fixtures.calendar))
+        #expect(!WorkoutSchedule.once(nil).isExpired(asOf: now, calendar: Fixtures.calendar))
+        #expect(!WorkoutSchedule.weekly([.monday]).isExpired(asOf: now, calendar: Fixtures.calendar))
+        let line = WorkoutScheduleFormatter.listSummary(.once(today), asOf: now, calendar: Fixtures.calendar, locale: Self.polish)
+        #expect(line == "Jednorazowo · 4 lis")
+    }
+
+    @Test
+    func plansListMarksThePassedPlan() async throws {
+        let past = try #require(CalendarDay(year: 2026, month: 11, day: 3))
+        let now = try #require(CalendarDay(year: 2026, month: 11, day: 4)).startDate(in: Fixtures.calendar)
+        let plan = WorkoutPlan(name: "Raz", schedule: .once(past))
+        let viewModel = WorkoutPlansViewModel(service: .testing(InMemoryWorkoutPlanStore(initial: [plan])),
+                                              calendar: Fixtures.calendar, now: { now })
+
+        #expect(viewModel.scheduleSummary(for: plan).hasPrefix("Minął · 3 "))
+    }
+}
+
 // MARK: - WorkoutScheduleFormatter
 
 struct WorkoutScheduleFormatterTests {

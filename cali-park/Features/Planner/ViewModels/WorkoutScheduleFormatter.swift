@@ -31,6 +31,20 @@ enum WorkoutScheduleFormatter {
         }
     }
 
+    /// The plans list's line: `summary`, except that a one-off plan whose day
+    /// has passed reads "Minął · 10 lis", so it doesn't look upcoming.
+    static func listSummary(
+        _ schedule: WorkoutSchedule,
+        asOf reference: Date = .now,
+        calendar: Calendar = .current,
+        locale: Locale = .current
+    ) -> String {
+        guard schedule.isExpired(asOf: reference, calendar: calendar),
+              case .once(let day?) = schedule
+        else { return summary(schedule, calendar: calendar, locale: locale) }
+        return "Minął · " + shortDate(day.startDate(in: calendar), calendar: calendar, locale: locale)
+    }
+
     /// A short "when" label for a scheduled day: "Dziś", "Jutro", a weekday name
     /// within the coming week ("sobota"), otherwise a day/month date ("20 lip").
     static func dayLabel(

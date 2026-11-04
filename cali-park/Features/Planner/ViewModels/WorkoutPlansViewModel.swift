@@ -15,10 +15,18 @@ final class WorkoutPlansViewModel {
 
     // MARK: Dependencies
     private let service: WorkoutPlanService
+    private let calendar: Calendar
+    /// Today's date, read when a row is formatted, so the list stays right
+    /// after midnight.
+    private let now: () -> Date
 
     // MARK: Init
-    init(service: WorkoutPlanService) {
+    init(service: WorkoutPlanService,
+         calendar: Calendar = .current,
+         now: @escaping () -> Date = { .now }) {
         self.service = service
+        self.calendar = calendar
+        self.now = now
         reload()
     }
 
@@ -50,9 +58,10 @@ final class WorkoutPlansViewModel {
         }
     }
 
-    /// Short Polish recurrence summary for a plan row.
+    /// Short Polish recurrence summary for a plan row; a past one-off plan
+    /// reads "Minął · 10 lis".
     func scheduleSummary(for plan: WorkoutPlan) -> String {
-        WorkoutScheduleFormatter.summary(plan.schedule)
+        WorkoutScheduleFormatter.listSummary(plan.schedule, asOf: now(), calendar: calendar)
     }
 
     /// The reminder's time for a plan row, e.g. "18:30", or `nil` when the

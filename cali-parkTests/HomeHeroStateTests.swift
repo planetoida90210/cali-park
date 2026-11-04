@@ -55,6 +55,18 @@ struct HomeHeroStateResolutionTests {
         )
     }
 
+    /// A one-off plan whose day has passed is not offered on Home: no
+    /// "Rozpocznij", no "Następny trening".
+    @Test
+    func expiredOneOffPlanIsNotOffered() {
+        let expired = WorkoutPlan(name: "Wczoraj",
+                                  exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)],
+                                  schedule: .once(Fixtures.day(9), in: Fixtures.calendar))
+        let viewModel = dashboard(plans: [expired])
+
+        #expect(viewModel.heroState(asOf: Fixtures.middayOf(10)) == .firstRun)
+    }
+
     /// A plan scheduled on the reference day (Thursday, day 0).
     private func thursdayPlan(name: String = "Pull") -> WorkoutPlan {
         WorkoutPlan(name: name,
