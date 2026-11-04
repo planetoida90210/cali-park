@@ -85,7 +85,7 @@ struct HomeView: View {
                         showModuleSelector = true
                     } label: {
                         Image(systemName: modulePreferences.enabledModules.isEmpty ? "plus.circle" : "slider.horizontal.3")
-                            .font(.title3)
+                            .font(.appTitle3)
                             .foregroundStyle(Color.accent)
                     }
                     .accessibilityLabel("Dostosuj moduły")
@@ -198,12 +198,12 @@ struct HomeView: View {
     private var emptyStateView: some View {
         VStack(spacing: 16) {
             Image(systemName: "square.stack.3d.up")
-                .font(.largeTitle)
+                .font(.appLargeTitle)
                 .foregroundStyle(Color.accent)
                 .accessibilityHidden(true)
 
             Text("Start jest pusty")
-                .font(.title3)
+                .font(.appTitle3)
                 .foregroundStyle(Color.textPrimary)
                 .accessibilityAddTraits(.isHeader)
 

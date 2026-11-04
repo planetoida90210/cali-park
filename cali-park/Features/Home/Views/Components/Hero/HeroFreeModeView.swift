@@ -22,7 +22,7 @@ struct HeroFreeModeView: View {
                 HeroHeaderView(now: now)
 
                 Text("Trenuj po swojemu")
-                    .font(.title2)
+                    .font(.appTitle2)
                     .foregroundStyle(Color.textPrimary)
 
                 Text("Ostatnio: \(HeroWorkoutSummary.headline(for: lastWorkout))")

@@ -64,7 +64,7 @@ struct CelebrationOverlayView: View {
                     .foregroundStyle(Color.accent)
 
                 Text(presentation.title)
-                    .font(.title1)
+                    .font(.appTitle)
                     .foregroundStyle(Color.textPrimary)
                     .multilineTextAlignment(.center)
 

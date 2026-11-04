@@ -99,11 +99,11 @@ struct ModuleHeaderCard: View {
         HStack {
             Image(systemName: module.iconName)
                 .foregroundStyle(Color.accent)
-                .font(.title3)
+                .font(.appTitle3)
                 .accessibilityHidden(true)
 
             Text(module.name)
-                .font(.title3)
+                .font(.appTitle3)
                 .foregroundStyle(Color.textPrimary)
 
             Spacer()
@@ -141,10 +141,10 @@ struct ModuleDragPreview: View {
         HStack(spacing: 10) {
             Image(systemName: module.iconName)
                 .foregroundStyle(Color.accent)
-                .font(.title3)
+                .font(.appTitle3)
 
             Text(module.name)
-                .font(.title3)
+                .font(.appTitle3)
                 .foregroundStyle(Color.textPrimary)
         }
         .padding(.horizontal, 20)

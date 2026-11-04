@@ -39,7 +39,7 @@ struct PrimaryActionRailView: View {
     ) -> some View {
         VStack(spacing: 6) {
             Image(systemName: iconName)
-                .font(.title3)
+                .font(.appTitle3)
                 .accessibilityHidden(true)
 
             Text(title)

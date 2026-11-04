@@ -70,7 +70,7 @@ private struct StepPage: View {
                 StepProgress(number: number, total: total)
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title)
-                        .font(.title1)
+                        .font(.appTitle)
                         .foregroundStyle(Color.textPrimary)
                     Text(subtitle)
                         .font(.subheadline)

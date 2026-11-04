@@ -11,7 +11,7 @@ struct ProgramChoiceView: View {
             VStack(alignment: .leading, spacing: 24) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Program na start")
-                        .font(.title2)
+                        .font(.appTitle2)
                         .foregroundStyle(Color.textPrimary)
 
                     Text("Na podstawie Twoich odpowiedzi polecamy jeden program. Możesz wybrać inny albo żaden. Utworzymy z niego zwykły plan, który zmienisz w każdej chwili.")
@@ -96,7 +96,7 @@ private struct ProgramChoiceRow: View {
                 Spacer(minLength: 0)
 
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .font(.title3)
+                    .font(.appTitle3)
                     .foregroundStyle(isSelected ? Color.accent : Color.textTertiary)
                     .accessibilityHidden(true)
             }

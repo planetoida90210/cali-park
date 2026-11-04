@@ -190,7 +190,7 @@ struct PhotosSection: View {
             if model.draft.photos.isEmpty {
                 VStack(spacing: 10) {
                     Image(systemName: "camera.viewfinder")
-                        .font(.largeTitle)
+                        .font(.appLargeTitle)
                         .foregroundStyle(Color.accent)
                     Text("Zrób zdjęcie drążka albo poręczy")
                         .font(.headline)
@@ -267,7 +267,7 @@ struct NameSection: View {
                     .font(.footnote)
                     .foregroundStyle(Color.textSecondary)
                 Text(model.draft.generatedName)
-                    .font(.title3.weight(.semibold))
+                    .font(.appTitle3.weight(.semibold))
                     .foregroundStyle(Color.textPrimary)
                 Text("Nazwę tworzymy sami z okolicy i sprzętu, żeby na mapie nie było nazw typu „Mój park”.")
                     .font(.footnote)

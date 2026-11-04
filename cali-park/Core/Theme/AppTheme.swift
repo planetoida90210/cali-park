@@ -55,22 +55,29 @@ extension Color {
 }
 
 // MARK: - Font Extensions
+/// The app's type scale: SF Rounded on top of the system text styles, so
+/// every token scales with Dynamic Type. At the default text size each one
+/// matches the point size it had before (34, 28, 22, 20, 17, 15, 13).
+///
+/// The titles carry an `app` prefix on purpose: an app-level `Font.title3`
+/// would shadow SwiftUI's own, and every `.font(.title3)` would silently
+/// resolve to the app token.
 extension Font {
-    // Title fonts - Using SF Rounded when available
-    static let largeTitle = Font.system(size: 34, weight: .bold, design: .rounded)
-    static let title1 = Font.system(size: 28, weight: .bold, design: .rounded)
-    static let title2 = Font.system(size: 22, weight: .bold, design: .rounded)
-    static let title3 = Font.system(size: 20, weight: .semibold, design: .rounded)
-    
-    // Body fonts
-    static let bodyLarge = Font.system(size: 17, weight: .regular, design: .rounded)
-    static let bodyMedium = Font.system(size: 15, weight: .regular, design: .rounded)
-    static let bodySmall = Font.system(size: 13, weight: .regular, design: .rounded)
-    
-    // Button fonts
-    static let buttonLarge = Font.system(size: 17, weight: .semibold, design: .rounded)
-    static let buttonMedium = Font.system(size: 15, weight: .semibold, design: .rounded)
-    static let buttonSmall = Font.system(size: 13, weight: .semibold, design: .rounded)
+    // Titles
+    static let appLargeTitle = Font.system(.largeTitle, design: .rounded, weight: .bold)
+    static let appTitle = Font.system(.title, design: .rounded, weight: .bold)
+    static let appTitle2 = Font.system(.title2, design: .rounded, weight: .bold)
+    static let appTitle3 = Font.system(.title3, design: .rounded, weight: .semibold)
+
+    // Body
+    static let bodyLarge = Font.system(.body, design: .rounded)
+    static let bodyMedium = Font.system(.subheadline, design: .rounded)
+    static let bodySmall = Font.system(.footnote, design: .rounded)
+
+    // Buttons
+    static let buttonLarge = Font.system(.body, design: .rounded, weight: .semibold)
+    static let buttonMedium = Font.system(.subheadline, design: .rounded, weight: .semibold)
+    static let buttonSmall = Font.system(.footnote, design: .rounded, weight: .semibold)
 }
 
 // MARK: - Button Styles
@@ -78,11 +85,11 @@ struct PrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.buttonLarge)
-            .foregroundColor(.black)
+            .foregroundStyle(.black)
             .padding(.vertical, 16)
             .padding(.horizontal, 24)
             .background(Color.accent)
-            .cornerRadius(12)
+            .clipShape(.rect(cornerRadius: 12))
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
             .opacity(configuration.isPressed ? 0.9 : 1)
     }
@@ -92,11 +99,11 @@ struct SecondaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.buttonLarge)
-            .foregroundColor(Color.accent)
+            .foregroundStyle(Color.accent)
             .padding(.vertical, 16)
             .padding(.horizontal, 24)
             .background(Color.componentBackground)
-            .cornerRadius(12)
+            .clipShape(.rect(cornerRadius: 12))
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color.accent, lineWidth: 1)

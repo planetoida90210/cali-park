@@ -23,7 +23,7 @@ struct HeroPlanTodayView: View {
                 HeroHeaderView(now: now)
 
                 Text(plan.name)
-                    .font(.title2)
+                    .font(.appTitle2)
                     .foregroundStyle(Color.textPrimary)
 
                 Text("Plan na dziś · \(PolishPlural.exercises(plan.exerciseCount))")

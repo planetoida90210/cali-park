@@ -18,8 +18,8 @@ struct ExerciseIconView: View {
 
         var glyphFont: Font {
             switch self {
-            case .row: .title3
-            case .detail: .largeTitle
+            case .row: .appTitle3
+            case .detail: .appLargeTitle
             }
         }
     }

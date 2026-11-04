@@ -36,7 +36,7 @@ private struct StreakSummaryRow: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(PolishPlural.days(streak.current))
-                    .font(.title3)
+                    .font(.appTitle3)
                     .foregroundStyle(Color.textPrimary)
                     .contentTransition(.numericText())
 
@@ -133,7 +133,7 @@ private struct StreakEmptyState: View {
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: "flame")
-                .font(.title2)
+                .font(.appTitle2)
                 .foregroundStyle(Color.textSecondary)
                 .accessibilityHidden(true)
 

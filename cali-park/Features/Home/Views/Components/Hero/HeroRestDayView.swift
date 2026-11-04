@@ -21,7 +21,7 @@ struct HeroRestDayView: View {
                 HeroHeaderView(now: now)
 
                 Text("Dziś odpoczywasz")
-                    .font(.title2)
+                    .font(.appTitle2)
                     .foregroundStyle(Color.textPrimary)
 
                 Text("Następny trening: \(WorkoutScheduleFormatter.dayLabel(date, asOf: now)) · \(nextPlan.name)")

@@ -124,7 +124,7 @@ struct OnboardingView: View {
                 .foregroundStyle(Color.accent)
 
             Text("Witaj w CaliPark")
-                .font(.largeTitle)
+                .font(.appLargeTitle)
                 .foregroundStyle(Color.textPrimary)
                 .multilineTextAlignment(.center)
 
@@ -143,7 +143,7 @@ struct OnboardingView: View {
             VStack(alignment: .leading, spacing: 24) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Co już potrafisz?")
-                        .font(.title2)
+                        .font(.appTitle2)
                         .foregroundStyle(Color.textPrimary)
 
                     Text("Zaczniesz od właściwego szczebla, nie od zera.")
@@ -169,7 +169,7 @@ private struct OnboardingWeeklyGoalPage: View {
             VStack(alignment: .leading, spacing: 24) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Cel tygodniowy")
-                        .font(.title2)
+                        .font(.appTitle2)
                         .foregroundStyle(Color.textPrimary)
 
                     Text(hint)
@@ -186,7 +186,7 @@ private struct OnboardingWeeklyGoalPage: View {
                 ) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(PolishPlural.trainingDays(viewModel.trainingDays))
-                            .font(.title3)
+                            .font(.appTitle3)
                             .foregroundStyle(Color.textPrimary)
                         Text("w tygodniu, w dowolne dni")
                             .font(.bodySmall)

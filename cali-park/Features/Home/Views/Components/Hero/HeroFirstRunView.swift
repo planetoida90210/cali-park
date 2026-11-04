@@ -17,7 +17,7 @@ struct HeroFirstRunView: View {
                 HeroHeaderView(now: now)
 
                 Text("Zacznij swoją serię")
-                    .font(.title2)
+                    .font(.appTitle2)
                     .foregroundStyle(Color.textPrimary)
 
                 Text("Wybierz poniżej szybki trening albo ułóż swój pierwszy plan.")

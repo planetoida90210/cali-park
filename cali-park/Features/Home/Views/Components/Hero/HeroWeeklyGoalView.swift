@@ -74,7 +74,7 @@ private struct HeroWeekStreakBadge: View {
                 Image(systemName: "flame.fill")
                     .foregroundStyle(weeks > 0 ? Color.orange : Color.textSecondary)
                 Text(weeks, format: .number)
-                    .font(.title3)
+                    .font(.appTitle3)
                     .monospacedDigit()
                     .foregroundStyle(Color.textPrimary)
                     .contentTransition(.numericText())

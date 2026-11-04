@@ -103,7 +103,7 @@ struct ModuleSelectionView: View {
         ) {
             HStack {
                 Image(systemName: module.iconName)
-                    .font(.title3)
+                    .font(.appTitle3)
                     .foregroundStyle(Color.accent)
                     .frame(width: 32, height: 32)
                     .accessibilityHidden(true)

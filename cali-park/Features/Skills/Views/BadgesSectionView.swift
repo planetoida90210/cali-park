@@ -17,7 +17,7 @@ struct BadgesSectionView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Odznaki")
-                    .font(.title3)
+                    .font(.appTitle3)
                     .foregroundStyle(Color.textPrimary)
 
                 Spacer()
@@ -53,7 +53,7 @@ private struct BadgeCell: View {
                 .frame(width: 56, height: 56)
                 .overlay {
                     Image(systemName: badge.symbolName)
-                        .font(.title3)
+                        .font(.appTitle3)
                         .foregroundStyle(isEarned ? Color.black : Color.textTertiary)
                 }
 

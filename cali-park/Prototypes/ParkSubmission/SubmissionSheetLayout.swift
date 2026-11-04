@@ -93,7 +93,7 @@ private struct SheetBlock<Content: View>: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(title)
-                    .font(.title3)
+                    .font(.appTitle3)
                     .foregroundStyle(Color.textPrimary)
                 Spacer()
                 Text(badge.title)

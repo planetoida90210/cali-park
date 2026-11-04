@@ -101,7 +101,7 @@ private struct ExercisePickerList: View {
         if sections.isEmpty {
             VStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
-                    .font(.title2)
+                    .font(.appTitle2)
                     .foregroundStyle(Color.accent.opacity(0.8))
 
                 Text("Brak wyników")

@@ -79,7 +79,7 @@ struct SetPadHeader<Accessory: View>: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(exercise.name)
-                    .font(.title3)
+                    .font(.appTitle3)
                     .foregroundStyle(Color.textPrimary)
 
                 if exercise.measurement == .seconds {
@@ -125,7 +125,7 @@ private struct SetPadDisplay: View {
 
                 if measurement == .seconds {
                     Text("s")
-                        .font(.title3)
+                        .font(.appTitle3)
                         .foregroundStyle(Color.textSecondary)
                 }
             }
@@ -214,7 +214,7 @@ private struct SetPadKey<Content: View>: View {
     var body: some View {
         Button(action: action) {
             content()
-                .font(.title3)
+                .font(.appTitle3)
                 .monospacedDigit()
                 .frame(maxWidth: .infinity, minHeight: 48)
                 .background(isAccent ? Color.accent : Color.componentBackground)

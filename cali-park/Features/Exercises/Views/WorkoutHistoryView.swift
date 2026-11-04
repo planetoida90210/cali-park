@@ -139,7 +139,7 @@ private struct WorkoutHistoryEmptyState: View {
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: "clock.arrow.circlepath")
-                .font(.title2)
+                .font(.appTitle2)
                 .foregroundStyle(Color.accent.opacity(0.8))
 
             Text("Brak treningów")

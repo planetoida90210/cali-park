@@ -133,7 +133,7 @@ private struct SubmissionMapTopBar: View {
 
             Button("Moje zgłoszenia", systemImage: "tray.full", action: onMine)
                 .labelStyle(.iconOnly)
-                .font(.title3)
+                .font(.appTitle3)
                 .foregroundStyle(Color.accent)
                 .frame(width: 46, height: 46)
                 .mapLookGlass(in: .circle)
@@ -182,7 +182,7 @@ private struct PlacingCard: View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Gdzie jest ten Park?")
-                    .font(.title3.weight(.semibold))
+                    .font(.appTitle3.weight(.semibold))
                     .foregroundStyle(Color.textPrimary)
                 Text("Postaw pinezkę dokładnie przy sprzęcie, nie przy wejściu do parku. Kropka to Twoja lokalizacja.")
                     .font(.subheadline)
@@ -223,7 +223,7 @@ private struct OpenedParkCard: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(park.name)
-                        .font(.title3.weight(.semibold))
+                        .font(.appTitle3.weight(.semibold))
                         .foregroundStyle(Color.textPrimary)
                     Text(park.district)
                         .font(.subheadline)
@@ -287,7 +287,7 @@ private struct DuplicateWarningSheet: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Label("Ten Park już jest obok", systemImage: "exclamationmark.triangle.fill")
-                    .font(.title2.weight(.bold))
+                    .font(.appTitle2.weight(.bold))
                     .foregroundStyle(Color.textPrimary)
                     .symbolRenderingMode(.multicolor)
                 Text("Twoja pinezka jest \(SubmissionFormat.meters(park.distance(from: pin))) od Parku, który już mamy na mapie. Sprawdź, czy to nie to samo miejsce.")
@@ -383,7 +383,7 @@ struct SubmissionNewPin: View {
     var body: some View {
         VStack(spacing: -4) {
             Image(systemName: "plus")
-                .font(.title3.weight(.bold))
+                .font(.appTitle3.weight(.bold))
                 .foregroundStyle(.black)
                 .frame(width: 48, height: 48)
                 .background(Color.accent, in: .circle)

@@ -100,7 +100,7 @@ private struct SkillLevelHeader: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Poziom \(level.level)")
-                .font(.title1)
+                .font(.appTitle)
                 .foregroundStyle(Color.textPrimary)
                 .contentTransition(.numericText())
 
@@ -130,7 +130,7 @@ private struct CalibrationPrompt: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Ustaw swój poziom")
-                .font(.title3)
+                .font(.appTitle3)
                 .foregroundStyle(Color.textPrimary)
 
             Text("Zaczniesz od właściwego szczebla, nie od zera.")

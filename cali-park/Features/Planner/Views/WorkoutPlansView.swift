@@ -191,7 +191,7 @@ private struct ProgramsEntryRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: "list.bullet.clipboard")
-                .font(.title3)
+                .font(.appTitle3)
                 .foregroundStyle(Color.accent)
                 .accessibilityHidden(true)
 
@@ -225,11 +225,11 @@ private struct WorkoutPlansEmptyState: View {
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "calendar")
-                .font(.largeTitle)
+                .font(.appLargeTitle)
                 .foregroundStyle(Color.accent)
 
             Text("Zaplanuj trening")
-                .font(.title3)
+                .font(.appTitle3)
                 .foregroundStyle(Color.textPrimary)
 
             Text("Zbuduj plan z ulubionych ćwiczeń i ustaw, jak często chcesz go trenować.")

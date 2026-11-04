@@ -66,7 +66,7 @@ struct PlacementFormView: View {
     private var skillSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Opanowane ruchy")
-                .font(.title3)
+                .font(.appTitle3)
                 .foregroundStyle(Color.textPrimary)
 
             Text("Zaznacz te, które już robisz.")

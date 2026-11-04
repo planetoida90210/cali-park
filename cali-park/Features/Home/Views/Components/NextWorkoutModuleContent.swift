@@ -53,7 +53,7 @@ private struct PlannedWorkoutContent: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
                 Image(systemName: "calendar")
-                    .font(.title3)
+                    .font(.appTitle3)
                     .foregroundStyle(Color.black)
                     .frame(width: 44, height: 44)
                     .background(Color.accent)
@@ -98,7 +98,7 @@ private struct DoneTodayContent: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: "checkmark")
-                .font(.title3)
+                .font(.appTitle3)
                 .foregroundStyle(Color.black)
                 .frame(width: 44, height: 44)
                 .background(Color.accent)
@@ -168,7 +168,7 @@ private struct NextWorkoutEmptyState: View {
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: "dumbbell")
-                .font(.title2)
+                .font(.appTitle2)
                 .foregroundStyle(Color.textSecondary)
                 .accessibilityHidden(true)
 

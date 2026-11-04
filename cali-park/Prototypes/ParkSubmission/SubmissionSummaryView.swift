@@ -13,7 +13,7 @@ struct SubmissionSummaryView: View {
             VStack(alignment: .leading, spacing: 22) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Sprawdź i wyślij")
-                        .font(.title1)
+                        .font(.appTitle)
                         .foregroundStyle(Color.textPrimary)
                     Text("Do akceptacji Moderatora Zgłoszenie widzisz tylko Ty.")
                         .font(.subheadline)
@@ -156,12 +156,12 @@ struct SubmissionSentView: View {
         VStack(spacing: 18) {
             Spacer()
             Image(systemName: "checkmark.circle.fill")
-                .font(.largeTitle)
+                .font(.appLargeTitle)
                 .imageScale(.large)
                 .foregroundStyle(Color.accent)
                 .accessibilityHidden(true)
             Text("Dzięki! Zgłoszenie wysłane")
-                .font(.title2)
+                .font(.appTitle2)
                 .foregroundStyle(Color.textPrimary)
             Text("Czeka na moderację. Moderator sprawdzi zdjęcia i sprzęt, a po akceptacji Park pojawi się na mapie. Status znajdziesz w „Moje zgłoszenia”.")
                 .font(.subheadline)

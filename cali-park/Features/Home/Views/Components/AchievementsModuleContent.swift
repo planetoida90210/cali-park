@@ -71,7 +71,7 @@ struct AchievementsModuleContent: View {
             if let advancement = summary.lastAdvancement {
                 HStack(spacing: 12) {
                     Image(systemName: advancement.symbolName)
-                        .font(.title3)
+                        .font(.appTitle3)
                         .foregroundStyle(Color.accent)
                         .frame(width: 40, height: 40)
                         .background(Color.accent.opacity(0.15))

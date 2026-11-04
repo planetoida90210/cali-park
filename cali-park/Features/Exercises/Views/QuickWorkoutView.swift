@@ -264,11 +264,11 @@ private struct QuickWorkoutEmptyState: View {
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "dumbbell")
-                .font(.largeTitle)
+                .font(.appLargeTitle)
                 .foregroundStyle(Color.accent)
 
             Text("Zbuduj trening")
-                .font(.title3)
+                .font(.appTitle3)
                 .foregroundStyle(Color.textPrimary)
 
             Text("Dodaj dowolne ćwiczenia i zapisz je jako jeden trening.")

@@ -23,7 +23,7 @@ struct HeroCompletedTodayView: View {
                         .accessibilityHidden(true)
 
                     Text("Zrobione na dziś")
-                        .font(.title2)
+                        .font(.appTitle2)
                         .foregroundStyle(Color.textPrimary)
                 }
 

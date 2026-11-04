@@ -107,7 +107,7 @@ private struct SubmissionDetailView: View {
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(submission.name)
-                        .font(.title2)
+                        .font(.appTitle2)
                         .foregroundStyle(Color.textPrimary)
                     StatusPill(status: submission.status)
                 }

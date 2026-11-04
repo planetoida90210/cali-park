@@ -75,7 +75,7 @@ struct StepDetailSheetView: View {
                 .textCase(.uppercase)
 
             Text(MeasureFormat.criterion(for: step))
-                .font(.title3)
+                .font(.appTitle3)
                 .foregroundStyle(Color.textPrimary)
 
             if let note = step.criterionNote {

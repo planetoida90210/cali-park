@@ -252,7 +252,7 @@ private struct RungRail: View {
         switch displayState {
         case .conquered:
             Image(systemName: "checkmark.circle.fill")
-                .font(.title3)
+                .font(.appTitle3)
                 .foregroundStyle(Color.accent)
         case .current:
             ZStack {
