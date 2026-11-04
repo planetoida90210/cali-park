@@ -179,7 +179,8 @@ private struct ProfileStatisticsGrid: View {
                 .font(.bodySmall)
                 .foregroundStyle(Color.textSecondary)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        // Fills the grid cell, so both tiles in a row share one height.
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding()
         .background(Color.componentBackground)
         .clipShape(.rect(cornerRadius: 12))
@@ -200,8 +201,10 @@ private struct ProfileStatisticsGrid: View {
             Text("\(level.totalXP) XP · \(level.xpToNextLevel) do następnego")
                 .font(.bodySmall)
                 .foregroundStyle(Color.textSecondary)
+                // Wraps instead of truncating "do następnego" in the half-width tile.
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding()
         .background(Color.componentBackground)
         .clipShape(.rect(cornerRadius: 12))
