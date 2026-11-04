@@ -7,7 +7,8 @@ import SwiftUI
 /// which handles its own empty state). Quick workout writes to the shared
 /// journal Home reads, so Home updates as soon as the workout is saved.
 struct PrimaryActionRailView: View {
-    let dashboard: HomeDashboardViewModel
+    /// Builds the quick workout's view model.
+    let environment: AppEnvironment
 
     @State private var showingQuickWorkout = false
     @Environment(\.dynamicTypeSize) private var typeSize
@@ -40,7 +41,7 @@ struct PrimaryActionRailView: View {
             isShowing
         }
         .sheet(isPresented: $showingQuickWorkout) {
-            QuickWorkoutView(viewModel: dashboard.makeQuickWorkoutViewModel())
+            QuickWorkoutView(viewModel: environment.makeQuickWorkoutViewModel())
         }
     }
 
@@ -73,7 +74,7 @@ struct PrimaryActionRailView: View {
 // MARK: - Preview
 #Preview {
     NavigationStack {
-        PrimaryActionRailView(dashboard: AppEnvironment.previewEmpty.makeHomeDashboardViewModel())
+        PrimaryActionRailView(environment: .previewEmpty)
             .padding()
             .frame(maxHeight: .infinity)
             .background(Color.appBackground)

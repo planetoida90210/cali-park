@@ -31,10 +31,13 @@ final class ProgramDetailViewModel {
     private let starter: ProgramStarter
 
     // MARK: Init
+    /// Reads nothing: the view builds this while SwiftUI may re-run its
+    /// parent's body, so the view calls `reload()` in `.task` (F-7).
+    /// `create()` reads the ladder state itself, so it never depends on the
+    /// preview being loaded.
     init(program: TrainingProgram, starter: ProgramStarter) {
         self.program = program
         self.starter = starter
-        reload()
     }
 
     // MARK: Derived state

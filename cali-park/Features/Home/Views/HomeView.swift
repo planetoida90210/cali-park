@@ -52,7 +52,7 @@ struct HomeView: View {
                         .padding(.bottom, 16)
 
                         // B. Primary Action Rail
-                        PrimaryActionRailView(dashboard: dashboard)
+                        PrimaryActionRailView(environment: environment)
                             .padding(.bottom, 16)
 
                         // C. Smart Stack (Modules)
@@ -91,7 +91,7 @@ struct HomeView: View {
                 WeeklyGoalEditorView(viewModel: editor)
             }
             .sheet(item: $startingPlan) { plan in
-                QuickWorkoutView(viewModel: dashboard.makeQuickWorkoutViewModel(plan: plan))
+                QuickWorkoutView(viewModel: environment.makeQuickWorkoutViewModel(plan: plan))
             }
             .navigationDestination(for: HomeRoute.self) { route in
                 switch route {
@@ -101,7 +101,7 @@ struct HomeView: View {
             }
             .navigationDestination(for: WorkoutSessionRoute.self) { route in
                 WorkoutSessionDetailView(
-                    viewModel: dashboard.makeWorkoutSessionDetailViewModel(sessionID: route.sessionID)
+                    viewModel: environment.makeWorkoutSessionDetailViewModel(sessionID: route.sessionID)
                 )
             }
             .onAppear {
@@ -157,6 +157,7 @@ struct HomeView: View {
                 ModuleView(
                     module: module,
                     dashboard: dashboard,
+                    environment: environment,
                     nearestPark: nearestPark,
                     preferences: modulePreferences,
                     isDragging: moduleDrag.liftedID == module.id,

@@ -8,6 +8,8 @@ import SwiftUI
 /// state.
 struct NextWorkoutModuleContent: View {
     let dashboard: HomeDashboardViewModel
+    /// Builds the SetPad and quick workout view models for the sheets.
+    let environment: AppEnvironment
 
     /// Payload-driven sheets — set only when an action starts.
     @State private var loggingExercise: Exercise?
@@ -34,17 +36,17 @@ struct NextWorkoutModuleContent: View {
         .background(Color.componentBackground)
         .clipShape(.rect(cornerRadius: AppRadius.medium))
         .sheet(item: $loggingExercise) { exercise in
-            SetPadSheetView(viewModel: dashboard.makeWorkoutLogViewModel(exercise: exercise))
+            SetPadSheetView(viewModel: environment.makeWorkoutLogViewModel(exercise: exercise))
         }
         .sheet(item: $startingPlan) { plan in
-            QuickWorkoutView(viewModel: dashboard.makeQuickWorkoutViewModel(plan: plan))
+            QuickWorkoutView(viewModel: environment.makeQuickWorkoutViewModel(plan: plan))
         }
     }
 }
 
 // MARK: - PlannedWorkoutContent
 private struct PlannedWorkoutContent: View {
-    let planned: HomeDashboardViewModel.PlannedWorkout
+    let planned: PlanAgenda.Occurrence
     let today: Date
     let calendar: Calendar
     let onStart: () -> Void
@@ -84,7 +86,7 @@ private struct PlannedWorkoutContent: View {
 /// a start button so today's plan is not logged twice by accident.
 private struct DoneTodayContent: View {
     let plans: [WorkoutPlan]
-    let next: HomeDashboardViewModel.PlannedWorkout?
+    let next: PlanAgenda.Occurrence?
     let today: Date
     let calendar: Calendar
 
@@ -174,7 +176,8 @@ private struct NextWorkoutEmptyState: View {
 
 // MARK: - Preview
 #Preview {
-    NextWorkoutModuleContent(dashboard: AppEnvironment.previewPlanToday.makeHomeDashboardViewModel())
+    let environment = AppEnvironment.previewPlanToday
+    NextWorkoutModuleContent(dashboard: environment.makeHomeDashboardViewModel(), environment: environment)
         .padding()
         .background(Color.appBackground)
         .preferredColorScheme(.dark)

@@ -191,7 +191,7 @@ struct HomePlanCompletionTests {
             clock: { Fixtures.today }
         )
 
-        let suggestion = try #require(vm.suggestedExercise)
+        let suggestion = try #require(HomeEngine.suggestedExercise(entries: [Fixtures.entry(at: Fixtures.day(-2))]))
         #expect(vm.nextWorkoutState(asOf: Fixtures.today) == .suggestion(suggestion))
     }
 }

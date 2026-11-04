@@ -162,17 +162,10 @@ struct HomeReloadAfterSummaryDeleteTests {
     /// sheet reloads the dashboard on dismiss, which drops the deleted workout.
     @Test
     func deletedWorkoutLeavesHomeAfterReload() async throws {
-        let logStore = InMemoryWorkoutLogStore()
-        let dashboard = HomeDashboardViewModel(
-            store: logStore,
-            planService: .testing(InMemoryWorkoutPlanStore()),
-            placementStore: InMemorySkillPlacementStore(),
-            goalStore: InMemoryWeeklyGoalStore(),
-            calendar: Fixtures.calendar,
-            clock: { Fixtures.mondayEvening }
-        )
+        let home = HomeHarness(calendar: Fixtures.calendar, clock: { Fixtures.mondayEvening })
+        let dashboard = home.dashboard
 
-        let session = dashboard.makeQuickWorkoutViewModel()
+        let session = home.makeQuickWorkoutViewModel()
         session.addExercise(try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
                             sets: [LoggedSet(reps: 8)])
         await session.finish()

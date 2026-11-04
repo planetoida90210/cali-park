@@ -9,6 +9,8 @@ struct ModuleView: View {
     let module: HomeModule
     /// Real journal data for the training modules.
     let dashboard: HomeDashboardViewModel
+    /// Builds the view models of the sheets the modules open.
+    let environment: AppEnvironment
     /// The nearest Park, for the "parks" module.
     let nearestPark: NearestParkViewModel
     /// Owns the order, for the move actions.
@@ -74,7 +76,7 @@ struct ModuleView: View {
         case .lastWorkout:
             LastWorkoutModuleContent(dashboard: dashboard)
         case .nextWorkout:
-            NextWorkoutModuleContent(dashboard: dashboard)
+            NextWorkoutModuleContent(dashboard: dashboard, environment: environment)
         case .nearestPark:
             ParksModuleContent(model: nearestPark)
         case .weeklyGoal:
@@ -158,6 +160,7 @@ struct ModuleDragPreview: View {
                     ModuleView(
                         module: module,
                         dashboard: dashboard,
+                        environment: environment,
                         nearestPark: nearestPark,
                         preferences: environment.modulePreferences,
                         isDragging: module == .nextWorkout

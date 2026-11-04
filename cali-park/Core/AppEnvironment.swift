@@ -64,25 +64,24 @@ final class AppEnvironment {
     let diagnostics: DiagnosticsService
 
     // MARK: Init
-    /// Every store is passed explicitly: the app's file stores come from
-    /// `live()`, tests and previews pass in-memory ones.
-    init(parkDirectory: ParkDirectory = BundledParkDirectory(),
-         locationProvider: LocationProviding? = nil,
+    /// Every dependency is passed explicitly, with no defaults, so nothing
+    /// silently falls back to a real service: the app's come from `live()`,
+    /// tests and previews pass in-memory ones (`seeded(...)`).
+    init(parkDirectory: ParkDirectory,
+         locationProvider: LocationProviding,
          favoriteParkStore: FavoriteParkStoring,
          favoriteExerciseStore: FavoriteExerciseStoring,
          workoutLogStore: WorkoutLogStoring,
          workoutPlanStore: WorkoutPlanStoring,
-         reminderScheduler: WorkoutReminderScheduling = NotificationCenterReminderScheduler(center: SystemNotificationCenter()),
-         reminderRefreshScheduler: ReminderRefreshScheduling = AppRefreshScheduler(),
+         reminderScheduler: WorkoutReminderScheduling,
+         reminderRefreshScheduler: ReminderRefreshScheduling,
          placementStore: SkillPlacementStoring,
          skillProgressStore: SkillProgressStoring,
          weeklyGoalStore: WeeklyGoalStoring,
          diagnostics: DiagnosticsService,
          defaults: UserDefaults) {
         self.parkDirectory = parkDirectory
-        // Built here: a main-actor default argument can't be evaluated in the
-        // caller's nonisolated context.
-        self.locationProvider = locationProvider ?? CoreLocationProvider(manager: SystemLocationManager(), clock: { .now })
+        self.locationProvider = locationProvider
         self.favoriteParkStore = favoriteParkStore
         self.parkFavorites = ParkFavorites(store: favoriteParkStore)
         self.favoriteExerciseStore = favoriteExerciseStore
@@ -161,6 +160,12 @@ final class AppEnvironment {
 
     func makeQuickWorkoutViewModel() -> QuickWorkoutViewModel {
         QuickWorkoutViewModel(journal: journal, clock: { .now })
+    }
+
+    /// A quick workout seeded with a plan's exercises, started from Home.
+    /// Items from a program follow the athlete's current rung.
+    func makeQuickWorkoutViewModel(plan: WorkoutPlan) -> QuickWorkoutViewModel {
+        QuickWorkoutViewModel(journal: journal, plan: plan, progress: progressService, clock: { .now })
     }
 
     func makeHomeDashboardViewModel() -> HomeDashboardViewModel {
@@ -265,10 +270,14 @@ final class AppEnvironment {
             await diagnostics.startReceivingMetricKit()
         }
         return AppEnvironment(
+            parkDirectory: BundledParkDirectory(),
+            locationProvider: CoreLocationProvider(manager: SystemLocationManager(), clock: { .now }),
             favoriteParkStore: FileFavoriteParkStore(directory: locations.directory(for: .favoriteParks)),
             favoriteExerciseStore: FileFavoriteExerciseStore(directory: locations.directory(for: .favoriteExercises)),
             workoutLogStore: FileWorkoutLogStore(directory: locations.directory(for: .workoutLog)),
             workoutPlanStore: FileWorkoutPlanStore(directory: locations.directory(for: .workoutPlans)),
+            reminderScheduler: NotificationCenterReminderScheduler(center: SystemNotificationCenter()),
+            reminderRefreshScheduler: AppRefreshScheduler(),
             placementStore: FileSkillPlacementStore(directory: locations.directory(for: .skillPlacement)),
             skillProgressStore: FileSkillProgressStore(directory: locations.directory(for: .skillProgress)),
             weeklyGoalStore: FileWeeklyGoalStore(directory: locations.directory(for: .weeklyGoal)),

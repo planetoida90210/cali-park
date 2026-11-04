@@ -79,6 +79,21 @@ final class QuickWorkoutViewModel {
         self.initialItems = seeded
     }
 
+    /// A plan's session on the athlete's current rungs from the shared
+    /// progress, with the journal's logs for the "+1 rep" prefill. When the
+    /// journal or the placement can't be read, the ladder state is unknown,
+    /// so items keep their stored exercise.
+    convenience init(journal: TrainingJournal,
+                     plan: WorkoutPlan,
+                     progress: ProgressService,
+                     clock: @escaping () -> Date) {
+        self.init(journal: journal,
+                  plan: plan,
+                  pathStates: progress.hasLoadError ? nil : progress.snapshot.pathStates,
+                  logs: journal.newestFirst,
+                  clock: clock)
+    }
+
     /// Maps a planned exercise to a session item, moving a ladder item to the
     /// current rung when `pathStates` are known. Returns `nil` when the
     /// exercise is no longer in the catalog.

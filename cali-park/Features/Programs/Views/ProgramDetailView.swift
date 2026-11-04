@@ -61,6 +61,8 @@ struct ProgramDetailView: View {
         .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle(viewModel.program.name)
         .navigationBarTitleDisplayMode(.inline)
+        // The ladder state is read here, not when the view model is built.
+        .task { viewModel.reload() }
         .safeAreaInset(edge: .bottom) {
             Button(viewModel.isCreating ? "Tworzę plan…" : "Utwórz plan") {
                 Task { await viewModel.requestCreate() }

@@ -431,7 +431,7 @@ struct StoreLoadFailureViewModelTests {
             clock: { StoreFixtures.october2 }
         )
 
-        #expect(viewModel.entries == [entry])
+        #expect(viewModel.latestWorkout?.entries == [entry])
         #expect(viewModel.hasLoadError)
         #expect(viewModel.errorMessage == StoreLoadFailure.message)
     }

@@ -4,7 +4,7 @@
 //
 //  Home hero integration: the contextual actions wired into
 //  HomeView must move the hero through the right states as the user acts.
-//  These exercise the same view-model seams the view uses (the factories
+//  These exercise the same seams the view uses (the factories
 //  `makeQuickWorkoutViewModel(plan:)` / `makeQuickWorkoutViewModel()` and
 //  `reload()`), proving each state's CTA does a real thing and the hero reacts.
 //
@@ -15,16 +15,10 @@ import Testing
 
 @MainActor
 struct HomeHeroActionsTests {
-    private func dashboard(logStore: WorkoutLogStoring,
-                           planStore: WorkoutPlanStoring) -> HomeDashboardViewModel {
-        HomeDashboardViewModel(
-            store: logStore,
-            planService: .testing(planStore),
-            placementStore: InMemorySkillPlacementStore(),
-            goalStore: InMemoryWeeklyGoalStore(),
-            calendar: TestCalendar.utc,
-            clock: { TestDate.reference }
-        )
+    private func makeHome(logStore: WorkoutLogStoring,
+                          planStore: WorkoutPlanStoring) -> HomeHarness {
+        HomeHarness(logStore: logStore, planStore: planStore,
+                    calendar: TestCalendar.utc, clock: { TestDate.reference })
     }
 
     /// planToday → tapping "Rozpocznij" (a plan-seeded quick workout) and
@@ -37,12 +31,13 @@ struct HomeHeroActionsTests {
             schedule: .once(TestDate.reference, in: TestCalendar.utc)
         )
         let logStore = InMemoryWorkoutLogStore()
-        let dashboard = dashboard(logStore: logStore, planStore: InMemoryWorkoutPlanStore(initial: [plan]))
+        let home = makeHome(logStore: logStore, planStore: InMemoryWorkoutPlanStore(initial: [plan]))
+        let dashboard = home.dashboard
 
         #expect(dashboard.heroState().isPlanToday)
 
         // onStartPlan(plan) in the view resolves to this factory.
-        let session = dashboard.makeQuickWorkoutViewModel(plan: plan)
+        let session = home.makeQuickWorkoutViewModel(plan: plan)
         await session.finish()
         dashboard.reload()
 
@@ -56,12 +51,13 @@ struct HomeHeroActionsTests {
     @Test
     func quickWorkoutFromFirstRunMovesHeroToCompleted() async throws {
         let logStore = InMemoryWorkoutLogStore()
-        let dashboard = dashboard(logStore: logStore, planStore: InMemoryWorkoutPlanStore())
+        let home = makeHome(logStore: logStore, planStore: InMemoryWorkoutPlanStore())
+        let dashboard = home.dashboard
 
         #expect(dashboard.heroState() == .firstRun)
 
         // onQuickWorkout in the view resolves to this factory.
-        let session = dashboard.makeQuickWorkoutViewModel()
+        let session = home.makeQuickWorkoutViewModel()
         session.addExercise(ExerciseCatalog.all[0], sets: [LoggedSet(reps: 10)])
         await session.finish()
         dashboard.reload()
@@ -77,9 +73,9 @@ struct HomeHeroActionsTests {
     @Test
     func aSessionFromHomeIsStampedWithHomesClock() async throws {
         let logStore = InMemoryWorkoutLogStore()
-        let dashboard = dashboard(logStore: logStore, planStore: InMemoryWorkoutPlanStore())
+        let home = makeHome(logStore: logStore, planStore: InMemoryWorkoutPlanStore())
 
-        let session = dashboard.makeQuickWorkoutViewModel()
+        let session = home.makeQuickWorkoutViewModel()
         session.addExercise(ExerciseCatalog.all[0], sets: [LoggedSet(reps: 10)])
         await session.finish()
 
@@ -96,9 +92,10 @@ struct HomeHeroActionsTests {
             schedule: .once(TestDate.reference, in: TestCalendar.utc)
         )
         let logStore = InMemoryWorkoutLogStore()
-        let dashboard = dashboard(logStore: logStore, planStore: InMemoryWorkoutPlanStore(initial: [plan]))
+        let home = makeHome(logStore: logStore, planStore: InMemoryWorkoutPlanStore(initial: [plan]))
+        let dashboard = home.dashboard
 
-        let free = dashboard.makeQuickWorkoutViewModel()
+        let free = home.makeQuickWorkoutViewModel()
         free.addExercise(ExerciseCatalog.all[0], sets: [LoggedSet(reps: 8)])
         await free.finish()
         dashboard.reload()

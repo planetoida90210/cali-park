@@ -66,6 +66,16 @@ struct JournalWriteBenchmarkTests {
                                                   sets: [LoggedSet(reps: 8)]))
         }
 
+        // What Home derives once per change (B-14) instead of on every render.
+        let progress = ProgressionEngine.snapshot(logs: entries, placement: nil, today: JournalBenchmark.start)
+        let newestFirst = journal.newestFirst
+        let homeSnapshot = await JournalBenchmark.median(runs: 7) {
+            _ = HomeEngine.snapshot(entries: newestFirst, plans: [], progress: progress, today: JournalBenchmark.start)
+        }
+        let progressSnapshot = await JournalBenchmark.median(runs: 3) {
+            _ = ProgressionEngine.snapshot(logs: entries, placement: nil, today: JournalBenchmark.start)
+        }
+
         print("""
             [benchmark] journal file: \(entries.count) entries, \(bytes / 1024) KB
             [benchmark] store.load(): \(JournalBenchmark.format(load))
@@ -73,6 +83,8 @@ struct JournalWriteBenchmarkTests {
             [benchmark] journal.delete(ids:) through the file: \(JournalBenchmark.format(delete))
             [benchmark] journal.log(_:) in memory only: \(JournalBenchmark.format(inMemoryLog))
             [benchmark] longest main-actor stall during a save: \(JournalBenchmark.format(stall))
+            [benchmark] HomeEngine.snapshot: \(JournalBenchmark.format(homeSnapshot))
+            [benchmark] ProgressionEngine.snapshot: \(JournalBenchmark.format(progressSnapshot))
             """)
         #expect(journal.entries.count == 10_001)
     }

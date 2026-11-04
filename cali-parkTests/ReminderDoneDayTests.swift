@@ -261,7 +261,9 @@ struct AppEnvironmentReminderSyncTests {
     func savingTodaysPlanWorkoutDropsTodaysReminder() async throws {
         let plan = Fixtures.plan()
         let scheduler = Fixtures.scheduler()
-        let environment = AppEnvironment(favoriteParkStore: InMemoryFavoriteParkStore(),
+        let environment = AppEnvironment(parkDirectory: InMemoryParkDirectory(),
+                                         locationProvider: FixedLocationProvider(authorization: .denied),
+                                         favoriteParkStore: InMemoryFavoriteParkStore(),
                                          favoriteExerciseStore: InMemoryFavoriteExerciseStore(),
                                          workoutLogStore: InMemoryWorkoutLogStore(),
                                          workoutPlanStore: InMemoryWorkoutPlanStore(initial: [plan]),
@@ -291,7 +293,9 @@ struct AppEnvironmentReminderSyncTests {
         let plan = Fixtures.plan()
         let logStore = SpyWorkoutLogStore()
         let scheduler = Fixtures.scheduler()
-        let environment = AppEnvironment(favoriteParkStore: InMemoryFavoriteParkStore(),
+        let environment = AppEnvironment(parkDirectory: InMemoryParkDirectory(),
+                                         locationProvider: FixedLocationProvider(authorization: .denied),
+                                         favoriteParkStore: InMemoryFavoriteParkStore(),
                                          favoriteExerciseStore: InMemoryFavoriteExerciseStore(),
                                          workoutLogStore: logStore,
                                          workoutPlanStore: InMemoryWorkoutPlanStore(initial: [plan]),

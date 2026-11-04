@@ -356,9 +356,9 @@ struct RewardCenterTests {
     @Test
     func aWorkoutLoggedOnHomeCelebratesWithoutVisitingSkills() async throws {
         let environment = AppEnvironment.seeded()
-        let home = environment.makeHomeDashboardViewModel()
+        _ = environment.makeHomeDashboardViewModel()
 
-        let session = home.makeQuickWorkoutViewModel()
+        let session = environment.makeQuickWorkoutViewModel()
         session.addExercise(try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
                             sets: [LoggedSet(reps: 8), LoggedSet(reps: 8), LoggedSet(reps: 8)])
         await session.finish()
