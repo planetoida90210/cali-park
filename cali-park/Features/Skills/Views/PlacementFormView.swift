@@ -68,6 +68,7 @@ struct PlacementFormView: View {
             Text("Opanowane ruchy")
                 .font(.appTitle3)
                 .foregroundStyle(Color.textPrimary)
+                .accessibilityAddTraits(.isHeader)
 
             Text("Zaznacz te, które już robisz.")
                 .font(.bodySmall)

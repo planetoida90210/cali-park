@@ -103,6 +103,7 @@ private struct SkillLevelHeader: View {
                 .font(.appTitle)
                 .foregroundStyle(Color.textPrimary)
                 .contentTransition(.numericText())
+                .accessibilityAddTraits(.isHeader)
 
             ProgressView(value: level.progressToNextLevel)
                 .tint(Color.accent)
@@ -132,6 +133,7 @@ private struct CalibrationPrompt: View {
             Text("Ustaw swój poziom")
                 .font(.appTitle3)
                 .foregroundStyle(Color.textPrimary)
+                .accessibilityAddTraits(.isHeader)
 
             Text("Zaczniesz od właściwego szczebla, nie od zera.")
                 .font(.bodySmall)

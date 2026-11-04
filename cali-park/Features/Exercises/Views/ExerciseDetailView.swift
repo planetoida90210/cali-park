@@ -92,6 +92,7 @@ private struct ExerciseMuscleGroupsRow: View {
                 .font(.bodySmall)
                 .foregroundStyle(Color.textSecondary)
                 .textCase(.uppercase)
+                .accessibilityAddTraits(.isHeader)
 
             HStack(spacing: 8) {
                 ForEach(groups) { group in
@@ -119,6 +120,7 @@ private struct ExerciseEquipmentRow: View {
                 .font(.bodySmall)
                 .foregroundStyle(Color.textSecondary)
                 .textCase(.uppercase)
+                .accessibilityAddTraits(.isHeader)
 
             Text(ProgressionFormat.equipment(equipment))
                 .font(.bodyMedium)
@@ -147,6 +149,7 @@ private struct ExerciseProgressionsSection: View {
                     .font(.bodySmall)
                     .foregroundStyle(Color.textSecondary)
                     .textCase(.uppercase)
+                    .accessibilityAddTraits(.isHeader)
 
                 VStack(spacing: 8) {
                     ForEach(paths) { path in
@@ -188,6 +191,7 @@ private struct ExerciseInstructionsCard: View {
                 .font(.bodySmall)
                 .foregroundStyle(Color.textSecondary)
                 .textCase(.uppercase)
+                .accessibilityAddTraits(.isHeader)
 
             VStack(spacing: 0) {
                 ForEach(steps.indices, id: \.self) { index in

@@ -127,6 +127,7 @@ struct OnboardingView: View {
                 .font(.appLargeTitle)
                 .foregroundStyle(Color.textPrimary)
                 .multilineTextAlignment(.center)
+                .accessibilityAddTraits(.isHeader)
 
             Text("Trenuj kalistenikę krok po kroku, od szczebla, na którym już jesteś.")
                 .font(.bodyLarge)
@@ -145,6 +146,7 @@ struct OnboardingView: View {
                     Text("Co już potrafisz?")
                         .font(.appTitle2)
                         .foregroundStyle(Color.textPrimary)
+                        .accessibilityAddTraits(.isHeader)
 
                     Text("Zaczniesz od właściwego szczebla, nie od zera.")
                         .font(.bodyMedium)
@@ -171,6 +173,7 @@ private struct OnboardingWeeklyGoalPage: View {
                     Text("Cel tygodniowy")
                         .font(.appTitle2)
                         .foregroundStyle(Color.textPrimary)
+                        .accessibilityAddTraits(.isHeader)
 
                     Text(hint)
                         .font(.bodyMedium)

@@ -270,6 +270,7 @@ private struct QuickWorkoutEmptyState: View {
             Text("Zbuduj trening")
                 .font(.appTitle3)
                 .foregroundStyle(Color.textPrimary)
+                .accessibilityAddTraits(.isHeader)
 
             Text("Dodaj dowolne ćwiczenia i zapisz je jako jeden trening.")
                 .font(.bodyMedium)

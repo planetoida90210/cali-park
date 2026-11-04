@@ -168,6 +168,7 @@ private struct RungRow: View {
                 Text("Tor równoległy — opcjonalny")
                     .font(.bodySmall)
                     .foregroundStyle(Color.textTertiary)
+                    .accessibilityAddTraits(.isHeader)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

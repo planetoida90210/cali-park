@@ -25,6 +25,7 @@ struct HeroCompletedTodayView: View {
                     Text("Zrobione na dziś")
                         .font(.appTitle2)
                         .foregroundStyle(Color.textPrimary)
+                        .accessibilityAddTraits(.isHeader)
                 }
 
                 Text(HeroWorkoutSummary.headline(for: summary))

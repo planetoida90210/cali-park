@@ -19,6 +19,7 @@ struct BadgesSectionView: View {
                 Text("Odznaki")
                     .font(.appTitle3)
                     .foregroundStyle(Color.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
 
                 Spacer()
 

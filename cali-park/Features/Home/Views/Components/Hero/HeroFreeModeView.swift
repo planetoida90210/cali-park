@@ -24,6 +24,7 @@ struct HeroFreeModeView: View {
                 Text("Trenuj po swojemu")
                     .font(.appTitle2)
                     .foregroundStyle(Color.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
 
                 Text("Ostatnio: \(HeroWorkoutSummary.headline(for: lastWorkout))")
                     .font(.bodySmall)

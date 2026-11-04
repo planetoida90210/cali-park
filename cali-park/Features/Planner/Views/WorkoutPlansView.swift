@@ -231,6 +231,7 @@ private struct WorkoutPlansEmptyState: View {
             Text("Zaplanuj trening")
                 .font(.appTitle3)
                 .foregroundStyle(Color.textPrimary)
+                .accessibilityAddTraits(.isHeader)
 
             Text("Zbuduj plan z ulubionych ćwiczeń i ustaw, jak często chcesz go trenować.")
                 .font(.bodyMedium)

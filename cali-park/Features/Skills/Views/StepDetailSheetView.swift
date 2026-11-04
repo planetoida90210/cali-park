@@ -73,6 +73,7 @@ struct StepDetailSheetView: View {
                 .font(.bodySmall)
                 .foregroundStyle(Color.textSecondary)
                 .textCase(.uppercase)
+                .accessibilityAddTraits(.isHeader)
 
             Text(MeasureFormat.criterion(for: step))
                 .font(.appTitle3)
@@ -140,6 +141,7 @@ struct StepDetailSheetView: View {
                 .font(.bodySmall)
                 .foregroundStyle(Color.textSecondary)
                 .textCase(.uppercase)
+                .accessibilityAddTraits(.isHeader)
 
             Text(ProgressionFormat.equipment(step.equipment))
                 .font(.bodyMedium)
@@ -185,6 +187,7 @@ private struct ExerciseInstructionsList: View {
                 .font(.bodySmall)
                 .foregroundStyle(Color.textSecondary)
                 .textCase(.uppercase)
+                .accessibilityAddTraits(.isHeader)
 
             VStack(spacing: 0) {
                 ForEach(steps.indices, id: \.self) { index in

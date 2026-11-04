@@ -23,6 +23,7 @@ struct HeroRestDayView: View {
                 Text("Dziś odpoczywasz")
                     .font(.appTitle2)
                     .foregroundStyle(Color.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
 
                 Text("Następny trening: \(WorkoutScheduleFormatter.dayLabel(date, asOf: now)) · \(nextPlan.name)")
                     .font(.bodySmall)
