@@ -183,7 +183,7 @@ struct ScheduleTimeZoneTests {
 // MARK: - B-8: one-off plans in the past
 
 @MainActor
-@Suite("One-off plans can't be saved in the past (B-8)", .temporaryDirectories)
+@Suite("One-off plans can't be saved in the past (B-8)", .temporaryDirectories, .timeLimit(.minutes(1)))
 struct PastOneOffPlanTests {
     private let calendar = Zones.warsaw
     /// 4 Nov 2026, 15:00 in Warsaw.

@@ -31,6 +31,7 @@ private enum Fixtures {
 // MARK: - PlanEditorViewModel
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct PlanEditorViewModelTests {
     private func newEditor(store: WorkoutPlanStoring = InMemoryWorkoutPlanStore()) -> PlanEditorViewModel {
         PlanEditorViewModel(plan: nil, service: .testing(store), calendar: Fixtures.calendar)
@@ -199,6 +200,7 @@ struct PlanEditorViewModelTests {
 // MARK: - WorkoutPlansViewModel
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct WorkoutPlansViewModelTests {
     @Test
     func loadsNewestFirst() {
@@ -241,6 +243,7 @@ struct WorkoutPlansViewModelTests {
 // MARK: - Expired one-off plans in the list
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct ExpiredPlanListTests {
     private static let polish = Locale(identifier: "pl_PL")
 

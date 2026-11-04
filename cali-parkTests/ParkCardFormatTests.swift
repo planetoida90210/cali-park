@@ -4,7 +4,7 @@ import Testing
 
 // MARK: - Opening hours
 
-@Suite("OSM opening hours on the Park card")
+@Suite("OSM opening hours on the Park card", .timeLimit(.minutes(1)))
 struct ParkOpeningHoursTests {
     @Test("Simple forms read as Polish text", arguments: [
         ("24/7", "Całą dobę"),

@@ -47,7 +47,7 @@ private struct OnboardingRig {
 
 // MARK: - Tests
 @MainActor
-@Suite("Onboarding flow")
+@Suite("Onboarding flow", .timeLimit(.minutes(1)))
 struct OnboardingFlowTests {
     @Test("The steps are welcome, level test, program, weekly goal")
     func steps() {

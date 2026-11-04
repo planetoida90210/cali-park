@@ -288,7 +288,7 @@ private final class BundleToken {}
 
 // MARK: - Service
 @MainActor
-@Suite("Training backup restore", .temporaryDirectories)
+@Suite("Training backup restore", .temporaryDirectories, .timeLimit(.minutes(1)))
 struct TrainingBackupServiceTests {
     @Test("Restore replaces every store and the export reads it back")
     func restoreReplacesEverything() async throws {
@@ -451,7 +451,7 @@ struct TrainingBackupServiceTests {
 
 // MARK: - View model
 @MainActor
-@Suite("Export and import screen", .temporaryDirectories)
+@Suite("Export and import screen", .temporaryDirectories, .timeLimit(.minutes(1)))
 struct TrainingBackupViewModelTests {
     private func viewModel(_ rig: BackupRig, directory: URL) -> TrainingBackupViewModel {
         TrainingBackupViewModel(
@@ -561,7 +561,7 @@ struct TrainingBackupViewModelTests {
 
 // MARK: - Favorite Parks
 @MainActor
-@Suite("Favorite Parks in the training backup")
+@Suite("Favorite Parks in the training backup", .timeLimit(.minutes(1)))
 struct TrainingBackupFavoritesTests {
     /// A version 1 file written before favorites existed: no `favoriteParks`.
     private static func oldBackupData() throws -> Data {
@@ -647,7 +647,7 @@ struct TrainingBackupFavoritesTests {
 
 // MARK: - Favorite exercises
 @MainActor
-@Suite("Favorite exercises in the training backup")
+@Suite("Favorite exercises in the training backup", .timeLimit(.minutes(1)))
 struct TrainingBackupExerciseFavoritesTests {
     /// A file written before exercise favorites existed: no `favoriteExercises`.
     private static func oldBackupData() throws -> Data {

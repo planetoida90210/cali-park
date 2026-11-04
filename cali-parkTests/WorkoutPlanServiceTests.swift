@@ -48,6 +48,7 @@ private struct UnreadablePlanStore: WorkoutPlanStoring {
 // MARK: - WorkoutPlanService
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct WorkoutPlanServiceTests {
     @Test
     func saveStoresThePlanAndSchedulesItsReminders() async throws {
@@ -121,6 +122,7 @@ struct WorkoutPlanServiceTests {
 // MARK: - Plan editor reminder
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct PlanEditorReminderTests {
     private func editor(_ plan: WorkoutPlan? = nil,
                         store: InMemoryWorkoutPlanStore = InMemoryWorkoutPlanStore(),
@@ -246,6 +248,7 @@ struct PlanEditorReminderTests {
 // MARK: - Plans list
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct WorkoutPlansListReminderTests {
     @Test
     func deletingAPlanRemovesItsReminders() async {

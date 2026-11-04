@@ -109,6 +109,7 @@ struct ParkSnapshotTests {
 
 // MARK: - Directories
 
+@Suite(.timeLimit(.minutes(1)))
 struct ParkDirectoryTests {
     /// The real snapshot shipped in the app, written by
     /// `scripts/osm/build_parks_snapshot.py`.

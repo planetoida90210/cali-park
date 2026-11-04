@@ -1,0 +1,51 @@
+{
+  "configurations" : [
+    {
+      "id" : "6F0D2B7A-4C1E-4E8B-9A57-3C2D1E0F4A61",
+      "name" : "Default",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:cali-park.xcodeproj",
+          "identifier" : "0078928A2DC8032E0025762F",
+          "name" : "cali-park"
+        }
+      ]
+    },
+    "language" : "pl",
+    "region" : "PL",
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:cali-park.xcodeproj",
+      "identifier" : "0078928A2DC8032E0025762F",
+      "name" : "cali-park"
+    },
+    "testTimeoutsEnabled" : true,
+    "defaultTestExecutionTimeAllowance" : 60,
+    "maximumTestExecutionTimeAllowance" : 300
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:cali-park.xcodeproj",
+        "identifier" : "0078929C2DC803300025762F",
+        "name" : "cali-parkTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:cali-park.xcodeproj",
+        "identifier" : "007892A62DC803300025762F",
+        "name" : "cali-parkUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

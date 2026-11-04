@@ -16,6 +16,8 @@ xcodebuild -project cali-park.xcodeproj -scheme cali-park \
 - Some simulator names exist on more than one runtime. Without `OS=26.5` in the destination, xcodebuild may fail to match a device; `id=<UDID>` from `xcrun simctl list devices` also works.
 - Baseline as of 2026-11-04, after the MetricKit diagnostics (`e25a224`): the build has zero warnings and every unit test passes (901 `@Test` functions, 1360 cases including parameterized ones). Keep the build warning-free and the tests green.
 - Targets use synchronized folders. A new file under `cali-park/` or `cali-parkTests/` is compiled automatically, so add files without editing `project.pbxproj`.
+- The `cali-park` scheme is shared (`cali-park.xcodeproj/xcshareddata/xcschemes/`) and runs the `cali-park.xctestplan` test plan: Polish language and region, code coverage for the app, unit tests in parallel. When the app process only hosts the unit tests (`XCTestConfigurationFilePath` is set), `AppLauncher` starts an empty app instead of `AppEnvironment.live()`, so tests never touch the simulator's store files or reminders.
+- Shared test helpers live in `cali-parkTests/Support/`: `TestCalendar.utc`/`.warsaw`, `TestDate`, the `.temporaryDirectories` trait with `TemporaryDirectory.make()` (removed after each test case), and the workout log store doubles (`UnreadableWorkoutLogStore`, `ReadOnlyWorkoutLogStore`, `SpyWorkoutLogStore`). Give every suite with async tests `.timeLimit(.minutes(1))`.
 
 ## CI
 

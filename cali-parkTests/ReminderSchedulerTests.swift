@@ -182,6 +182,7 @@ struct ReminderPlannerCapTests {
 
 // MARK: - Scheduler
 
+@Suite(.timeLimit(.minutes(1)))
 struct NotificationCenterReminderSchedulerTests {
     @Test
     func rescheduleRemovesOnlyStaleOwnedRequests() async throws {

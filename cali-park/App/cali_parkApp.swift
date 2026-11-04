@@ -7,7 +7,40 @@
 
 import SwiftUI
 
+// MARK: - Entry point
+/// Starts the real app, or an empty one when the process only hosts the unit
+/// tests: those build their own in-memory environments, and must not move
+/// store files, load the journal or schedule reminders on the simulator.
 @main
+enum AppLauncher {
+    static func main() {
+        if AppLaunch.isHostingUnitTests(ProcessInfo.processInfo.environment) {
+            UnitTestHostApp.main()
+        } else {
+            cali_parkApp.main()
+        }
+    }
+}
+
+// MARK: - AppLaunch
+nonisolated enum AppLaunch {
+    /// Whether this process was started by XCTest to host the unit test
+    /// bundle. UI tests launch the app as a separate process without this
+    /// variable, so they still get the real app.
+    static func isHostingUnitTests(_ environment: [String: String]) -> Bool {
+        environment["XCTestConfigurationFilePath"] != nil
+    }
+}
+
+// MARK: - UnitTestHostApp
+/// The app while hosting unit tests: one empty window, no `AppEnvironment`.
+struct UnitTestHostApp: App {
+    var body: some Scene {
+        WindowGroup { Color.clear }
+    }
+}
+
+// MARK: - cali_parkApp
 struct cali_parkApp: App {
     /// Composition root, built once and passed down the view tree through
     /// initializers. `@State` only keeps the one instance; nothing observes it.

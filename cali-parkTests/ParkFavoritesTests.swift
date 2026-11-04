@@ -21,7 +21,7 @@ private enum FavoritesTestSupport {
 
 // MARK: - FileFavoriteParkStore
 
-@Suite("Favorite Parks file store", .temporaryDirectories)
+@Suite("Favorite Parks file store", .temporaryDirectories, .timeLimit(.minutes(1)))
 struct FileFavoriteParkStoreTests {
     @Test("A missing file reads as no favorites")
     func missingFile() throws {
@@ -127,7 +127,7 @@ struct ParkFavoritesTests {
 // MARK: - ParkMapViewModel favorites
 
 @MainActor
-@Suite("Favorites on the Parks tab")
+@Suite("Favorites on the Parks tab", .timeLimit(.minutes(1)))
 struct ParkMapFavoritesTests {
     private func makeViewModel(
         favorites initial: [UUID] = [],

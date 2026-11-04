@@ -7,6 +7,7 @@ import Testing
 // MARK: - ParkMapViewModel
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct ParkMapViewModelTests {
     private func makeViewModel(
         authorization: LocationAuthorization,
@@ -199,6 +200,7 @@ struct ParkMapViewModelTests {
 // MARK: - NearestParkViewModel
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct NearestParkViewModelTests {
     @Test func showsTheNearestParkWhenLocationIsAllowed() async {
         let location = FixedLocationProvider(authorization: .authorized, location: ParkFixtures.warsawCentre)

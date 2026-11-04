@@ -18,7 +18,7 @@ private func makeStarter(plans: WorkoutPlanStoring = InMemoryWorkoutPlanStore(),
 // MARK: - Starter
 
 @MainActor
-@Suite("ProgramStarter saves prescribed plans through WorkoutPlanService")
+@Suite("ProgramStarter saves prescribed plans through WorkoutPlanService", .timeLimit(.minutes(1)))
 struct ProgramStarterTests {
     @Test
     func startSavesThePlansOnTheDeclaredRungs() async throws {
@@ -59,7 +59,7 @@ struct ProgramStarterTests {
 // MARK: - Planner: program detail
 
 @MainActor
-@Suite("Program detail screen")
+@Suite("Program detail screen", .timeLimit(.minutes(1)))
 struct ProgramDetailViewModelTests {
     @Test
     func previewShowsThePlanOnTheCurrentRungs() {
@@ -181,7 +181,7 @@ struct ProgramFormatTests {
 // MARK: - Onboarding: program choice
 
 @MainActor
-@Suite("Onboarding suggests a program after the level test")
+@Suite("Onboarding suggests a program after the level test", .timeLimit(.minutes(1)))
 struct ProgramChoiceViewModelTests {
     private static let zeroPullUps = PlacementCalibration.placement(
         repAnswers: [.pullUp: .none], masteredSkills: [], ownsBand: false, declaredAt: ProgramFixtures.today)
@@ -328,7 +328,7 @@ struct ProgramSessionTests {
 // MARK: - "Utwórz plan": cancel and duplicates
 
 @MainActor
-@Suite("Utwórz plan: Anuluj deletes the new plan, a second copy asks first")
+@Suite("Utwórz plan: Anuluj deletes the new plan, a second copy asks first", .timeLimit(.minutes(1)))
 struct ProgramCreateCancelTests {
     private func editor(for plan: WorkoutPlan?, service: WorkoutPlanService, isJustCreated: Bool) -> PlanEditorViewModel {
         PlanEditorViewModel(plan: plan, service: service, isJustCreated: isJustCreated,

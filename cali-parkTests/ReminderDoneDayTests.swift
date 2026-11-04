@@ -151,6 +151,7 @@ struct ReminderPlannerDoneDayTests {
 // MARK: - Service
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct WorkoutPlanServiceDoneDayTests {
     @Test
     func syncSkipsThePlanDoneToday() async {
@@ -245,6 +246,7 @@ struct TrainingJournalChangeTests {
 }
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct AppEnvironmentReminderSyncTests {
     /// Waits until the scheduler has run `count` reschedules (the journal
     /// starts the sync in its own task).

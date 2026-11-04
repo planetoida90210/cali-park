@@ -151,6 +151,7 @@ struct SetPadDiscardTests {
 // MARK: - Plan editor
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct PlanEditorDiscardTests {
     private func editor(_ plan: WorkoutPlan?, store: WorkoutPlanStoring = InMemoryWorkoutPlanStore()) -> PlanEditorViewModel {
         PlanEditorViewModel(plan: plan, service: .testing(store), calendar: Fixtures.calendar, now: Fixtures.reference)
@@ -222,6 +223,7 @@ struct PlanEditorDiscardTests {
 // MARK: - Plan editor keeps unedited fields (B-6 / C-13)
 
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct PlanEditorPreservesFieldsTests {
     @Test
     func savingAnEditKeepsFieldsTheEditorDoesNotShow() async throws {
