@@ -126,6 +126,14 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - kalibracja wskazuje szczeble po ID; dipy „12+” startują od podporu na kółkach,
   - jednorazowy skok XP za nowe niższe szczeble (np. +100 XP przy pełnych podciągnięciach, maks. +1100 XP), przyjęty w 015,
   - testy: 426 (722 przypadki).
+- **Mapa Parków z OSM** (`34554ab`, `d1d1736`, 2026-11-04, „Wygląd mapy parków”, „Model Parku i sprzętu”, „Import z OSM i otwarte dane Parków (ODbL)”, „Plan fundamentu”):
+  - skrypt `scripts/osm/build_parks_snapshot.py` (jedno zapytanie Overpass) daje 330 Parków z OSM (stan 2026-11-03), wbudowanych w apkę i opublikowanych w `data/` na ODbL,
+  - nowy model Parku z 012, nazwy tylko z OSM (np. „Drążki · Park Jordana”, „Street workout · …”), stabilne ID,
+  - zakładka „Siłownie”: wyciszona mapa (wariant A), grupowanie, karta jako arkusz z „Z OSM” i „Nawiguj”, przełącznik mapa/lista, wyszukiwanie bez polskich znaków (E-5, D-9), atrybucja OSM,
+  - o lokalizację pytamy dopiero przy pierwszym otwarciu mapy; przy odmowie cała Polska bez udawanej pozycji,
+  - stare Parki z mockami usunięte (C-3, E-8, E-9, E-18, F-9, C-14, F-V1, G-V1, D-5), moduł Home „Najbliższy Park” z prawdziwym Parkiem,
+  - nie zrobione: własne ikony sprzętu, ulubione Parki, pola z backendu (woda, WC),
+  - testy: 690 (1066 przypadków).
 - **Profil, onboarding, eksport i import** (`89a3528`, 2026-11-04, „Profil i ustawienia w 1.0”, „Onboarding w 1.0”):
   - Profil: statystyki (treningi, seria dni z rekordem, seria tygodni, poziom i XP), cel tygodniowy z edytorem, historia, eksport i import, „Pomoc i opinie”, „O apce” ze źródłami i OSM/ODbL; bez „Michała” na Home (E-4, G-V2),
   - eksport do jednego pliku `calipark-backup-RRRR-MM-DD.json`; import sprawdza cały plik, pokazuje podsumowanie i zastępuje dane „wszystko albo nic”, bez fałszywych celebracji,
