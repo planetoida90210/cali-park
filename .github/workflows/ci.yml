@@ -113,25 +113,28 @@ jobs:
       - name: Project rules
         run: scripts/lint-rules.sh --baseline scripts/lint-rules.baseline
 
-      # Report only until the code is formatted and the step gets --strict.
+      # Blocking: any finding fails the job. Fix with
+      # `xcrun swift-format format --in-place --recursive --parallel <dirs>`.
       - name: swift-format
         if: always()
-        continue-on-error: true
         run: |
-          set -o pipefail
-          xcrun swift-format lint --recursive --parallel \
+          set +e
+          xcrun swift-format lint --strict --recursive --parallel \
             cali-park cali-parkTests cali-parkUITests 2>&1 | tee "$RUNNER_TEMP/swift-format.log"
-          count="$(grep -c ': warning: ' "$RUNNER_TEMP/swift-format.log" || true)"
+          status="${PIPESTATUS[0]}"
+          set -e
+          count="$(grep -cE ': (warning|error): ' "$RUNNER_TEMP/swift-format.log" || true)"
           {
             echo "### swift-format"
             echo
             echo "$count findings. Count per rule:"
             echo
             echo '```'
-            grep -oE ': warning: \[[A-Za-z]+\]' "$RUNNER_TEMP/swift-format.log" \
-              | sed 's/: warning: //' | sort | uniq -c | sort -rn || true
+            grep -oE ': (warning|error): \[[A-Za-z]+\]' "$RUNNER_TEMP/swift-format.log" \
+              | sed -E 's/: (warning|error): //' | sort | uniq -c | sort -rn || true
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
 
   site:
     # The landing page in site/ (static Next.js export, deployed by Vercel).
