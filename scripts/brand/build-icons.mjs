@@ -60,11 +60,12 @@ function iconSVG(name, { color = lime, fill = background, tile = false, border =
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">${shape}${edge}${glyphBody(name, color)}</svg>\n`;
 }
 
-const png = (svg, size, file) =>
-  sharp(Buffer.from(svg), { density: 72 * (size / 1024) * 4 })
-    .resize(size, size, { kernel: "lanczos3" })
-    .png({ compressionLevel: 9 })
-    .toFile(file);
+/** `opaque` drops the alpha channel: App Store Connect rejects an app icon
+ *  that has one (ITMS-90717), even when every pixel is opaque. */
+const png = (svg, size, file, { opaque = false } = {}) => {
+  const image = sharp(Buffer.from(svg), { density: 72 * (size / 1024) * 4 }).resize(size, size, { kernel: "lanczos3" });
+  return (opaque ? image.removeAlpha() : image).png({ compressionLevel: 9 }).toFile(file);
+};
 
 // MARK: - App: Icon Composer bundle
 
@@ -98,7 +99,7 @@ writeFileSync(path.join(iconBundle, "icon.json"), JSON.stringify(iconJSON, null,
 const appIconSet = path.join(resources, "Assets.xcassets", "AppIcon.appiconset");
 rmSync(appIconSet, { recursive: true, force: true });
 mkdirSync(appIconSet, { recursive: true });
-await png(iconSVG(active), 1024, path.join(appIconSet, "AppIcon-1024.png"));
+await png(iconSVG(active), 1024, path.join(appIconSet, "AppIcon-1024.png"), { opaque: true });
 // Dark and tinted: transparent background, the system draws its own.
 await png(iconSVG(active, { fill: null }), 1024, path.join(appIconSet, "AppIcon-1024-dark.png"));
 await png(iconSVG(active, { fill: null, color: "#FFFFFF" }), 1024, path.join(appIconSet, "AppIcon-1024-tinted.png"));
