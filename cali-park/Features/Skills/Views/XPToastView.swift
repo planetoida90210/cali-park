@@ -14,8 +14,17 @@ struct XPToastView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
             .background(Color.accent, in: .capsule)
-            .accessibilityLabel("Zdobyto \(amount) XP")
+            .accessibilityLabel(Self.spokenText(amount: amount))
     }
+
+    /// What VoiceOver reads and announces for the toast: "Zdobyto 30 XP".
+    static func spokenText(amount: Int) -> String {
+        "Zdobyto \(amount) XP"
+    }
+
+    /// How far below the top safe area the toast sits, so it clears the
+    /// inline navigation bar and its title instead of covering them.
+    static let navigationBarClearance: CGFloat = 60
 }
 
 // MARK: - Preview
@@ -23,7 +32,7 @@ struct XPToastView: View {
     Color.appBackground.ignoresSafeArea()
         .overlay(alignment: .top) {
             XPToastView(amount: 34)
-                .padding(.top, 8)
+                .padding(.top, XPToastView.navigationBarClearance)
         }
         .preferredColorScheme(.dark)
 }

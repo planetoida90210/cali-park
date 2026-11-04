@@ -47,6 +47,8 @@ struct CelebrationOverlayView: View {
             card
                 .padding(.horizontal, 32)
         }
+        // Full screen over the app: VoiceOver stays inside until it is dismissed.
+        .accessibilityAddTraits(.isModal)
         .sensoryFeedback(.success, trigger: trigger)
     }
 

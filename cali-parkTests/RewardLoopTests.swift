@@ -205,3 +205,13 @@ struct RewardCenterLoopTests {
         #expect(stack.skillPaths().badges.contains(.firstWorkout))
     }
 }
+
+// MARK: - XP toast for VoiceOver
+
+@MainActor
+struct XPToastSpokenTextTests {
+    @Test
+    func announcementSaysTheEarnedXP() {
+        #expect(XPToastView.spokenText(amount: 30) == "Zdobyto 30 XP")
+    }
+}

@@ -38,10 +38,13 @@ private struct RewardOverlayContent: ViewModifier {
         content
             .overlay(alignment: .top) {
                 if let amount = toastAmount {
+                    // Below the navigation bar, so the screen's title stays readable.
                     XPToastView(amount: amount)
-                        .padding(.top, 8)
+                        .padding(.top, XPToastView.navigationBarClearance)
                         .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
                         .task(id: amount) {
+                            // The toast never takes focus, so VoiceOver hears it as an announcement.
+                            AccessibilityNotification.Announcement(XPToastView.spokenText(amount: amount)).post()
                             try? await Task.sleep(for: .seconds(2))
                             center.clearXPToast()
                         }
