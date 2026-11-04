@@ -53,7 +53,7 @@ struct ProgramDetailView: View {
             } header: {
                 Text("Jak trenować")
             } footer: {
-                Text(viewModel.program.creditLine)
+                Text(viewModel.program.creditLine.keptTogether)
             }
         }
         .listStyle(.insetGrouped)
@@ -119,9 +119,9 @@ private struct ProgramHeaderSection: View {
             .padding(.vertical, 4)
             .listRowBackground(Color.componentBackground)
 
-            LabeledContent("Jak często", value: program.frequency)
+            LabeledContent("Jak często", value: program.frequency.keptTogether)
                 .listRowBackground(Color.componentBackground)
-            LabeledContent("Czas treningu", value: program.sessionLength)
+            LabeledContent("Czas treningu", value: program.sessionLength.keptTogether)
                 .listRowBackground(Color.componentBackground)
             LabeledContent("Dni na start", value: schedule)
                 .listRowBackground(Color.componentBackground)

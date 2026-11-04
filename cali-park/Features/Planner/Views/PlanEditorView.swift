@@ -153,7 +153,7 @@ private struct PlanOriginSection: View {
                 .foregroundStyle(Color.textPrimary)
                 .listRowBackground(Color.componentBackground)
         } footer: {
-            Text(credit)
+            Text(credit.keptTogether)
         }
     }
 }

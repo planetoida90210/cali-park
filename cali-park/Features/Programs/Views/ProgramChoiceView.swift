@@ -23,8 +23,8 @@ struct ProgramChoiceView: View {
                     ForEach(orderedPrograms) { program in
                         ProgramChoiceRow(
                             title: program.name,
-                            subtitle: "\(program.tagline) \(program.frequency), \(program.sessionLength).",
-                            credit: program.creditLine,
+                            subtitle: "\(program.tagline) \(program.frequency), \(program.sessionLength).".keptTogether,
+                            credit: program.creditLine.keptTogether,
                             isSuggested: viewModel.isSuggested(program),
                             isSelected: viewModel.choice == .program(program.id)
                         ) {

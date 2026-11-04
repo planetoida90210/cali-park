@@ -73,11 +73,11 @@ private struct ProgramRow: View {
                     .font(.bodyMedium)
                     .foregroundStyle(Color.textSecondary)
 
-                Text("\(program.frequency) · \(program.sessionLength)")
+                Text("\(program.frequency) · \(program.sessionLength)".keptTogether)
                     .font(.bodySmall)
                     .foregroundStyle(Color.textSecondary)
 
-                Text(program.creditLine)
+                Text(program.creditLine.keptTogether)
                     .font(.bodySmall)
                     .foregroundStyle(Color.textTertiary)
             }
