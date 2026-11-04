@@ -118,13 +118,18 @@ private struct WeeklyGoalEditorRow: View {
     let isPrimary: Bool
 
     @ScaledMetric(relativeTo: .body) private var iconWidth: CGFloat = 28
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: goal.metric.kind.symbolName)
-                .foregroundStyle(Color.accent)
-                .frame(width: iconWidth)
-                .accessibilityHidden(true)
+            // The kind is also the subtitle, so at accessibility sizes the
+            // icon gives its width to the title instead of hyphenating it.
+            if !typeSize.isAccessibilitySize {
+                Image(systemName: goal.metric.kind.symbolName)
+                    .foregroundStyle(Color.accent)
+                    .frame(width: iconWidth)
+                    .accessibilityHidden(true)
+            }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(WeeklyGoalFormat.title(goal.metric))

@@ -44,23 +44,24 @@ private struct WeeklyGoalModuleHeader: View {
     let snapshot: WeeklyGoalSnapshot
 
     var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "flame.fill")
-                .foregroundStyle(snapshot.streak > 0 ? Color.streak : Color.textSecondary)
-                .accessibilityHidden(true)
+        // At accessibility sizes the note moves under the streak instead of
+        // being cut ("Tydzień…").
+        AdaptiveDetailRow {
+            HStack(spacing: 8) {
+                Image(systemName: "flame.fill")
+                    .foregroundStyle(snapshot.streak > 0 ? Color.streak : Color.textSecondary)
+                    .accessibilityHidden(true)
 
-            Text(WeeklyGoalFormat.streak(snapshot.streak))
-                .font(.bodyLarge)
-                .foregroundStyle(Color.textPrimary)
-                .contentTransition(.numericText())
-
-            Spacer(minLength: 8)
-
+                Text(WeeklyGoalFormat.streak(snapshot.streak))
+                    .font(.bodyLarge)
+                    .foregroundStyle(Color.textPrimary)
+                    .contentTransition(.numericText())
+            }
+        } details: {
             if let note {
                 Text(note)
                     .font(.bodySmall)
                     .foregroundStyle(Color.textSecondary)
-                    .lineLimit(1)
             }
         }
         .accessibilityElement(children: .combine)
