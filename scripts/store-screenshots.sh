@@ -5,8 +5,8 @@
 #
 # 1. Boots the simulator (default: "iPhone 17 Pro Max" on iOS 26.5, a 6.9"
 #    display at 1320 x 2868; override with --udid, or STORE_SHOTS_DEVICE and
-#    STORE_SHOTS_OS) and sets a clean status bar: 9:41, full battery, full
-#    signal.
+#    STORE_SHOTS_OS) and sets a clean status bar: 9:41, a full battery
+#    without the charging bolt, full signal.
 # 2. Runs the StoreScreenshotTour UI test on the `storeTour` seed, which the
 #    normal test runs skip.
 # 3. Exports its screenshots from the result bundle into
@@ -68,7 +68,7 @@ xcrun simctl status_bar "$udid" override \
     --time 9:41 \
     --dataNetwork wifi --wifiMode active --wifiBars 3 \
     --cellularMode active --cellularBars 4 --operatorName "" \
-    --batteryState charged --batteryLevel 100
+    --batteryState discharging --batteryLevel 100
 
 echo "Running the screenshot tour (log: $work/xcodebuild.log)"
 set +e

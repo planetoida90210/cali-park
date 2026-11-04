@@ -104,10 +104,10 @@ Ruch główny: **Podciągnięcia** (`pullUpsID`). Źródła: RR, OG2, SBW, Cali 
 | 4 | Negatywy podciągnięć | `negativePullUpsID` | 3 × 5, zjazd 5–10 s | RR, OG2 L2 / konwencja CaliPark | Pull-up bar | fundament zero→jeden |
 | 5 | Podciągnięcia z gumą | `bandPullUpsID` | 3 × 8 | Cali Move (guma na ok. 4–8 powtórzeń) / RR | Pull-up bar, Resistance bands | **tor równoległy** (opcja) |
 | 6 | Pełne podciągnięcia | `pullUpsID` | 3 × 8 | RR, OG2 L3 / RR | Pull-up bar | ruch główny |
-| 7 | L-pull-ups | `lPullUpsID` | 3 × 5 | RR (gałąź), OG2 L4 / konwencja CaliPark | Pull-up bar | + napięcie core |
+| 7 | Podciągnięcia w L | `lPullUpsID` | 3 × 5 | RR (gałąź), OG2 L4 / konwencja CaliPark | Pull-up bar | + napięcie core |
 | 8 | Podciągnięcia łucznicze | `archerPullUpsID` | 3 × 5 na rękę | RR (gałąź), OG2 L7 / SBW (≤ 6 na rękę) | Pull-up bar | krok do jednorącz |
 
-- RR traktuje L-pull-ups i łucznicze jako dwie alternatywne gałęzie po 3 × 8
+- RR traktuje podciągnięcia w L i łucznicze jako dwie alternatywne gałęzie po 3 × 8
   podciągnięć. Zostawiamy jedną linię w kolejności poziomów OG2 (L4 → L7), bo
   drabina i tak nie blokuje żadnego szczebla.
 - Skoki do podciągnięć (OG2 L1) pomijamy, bo negatywy pełnią tę rolę. Żadne
@@ -299,7 +299,7 @@ to osobny plan.
 ## Deklaracja startu (placement) — `PlacementCalibration`
 
 Pytanie „Ile … robisz w jednej serii?" mówi **tylko o ruchu, o który pyta**.
-Trudniejsze warianty (diamentowe, L-pull-upy, wykroki, dipy na kółkach) to
+Trudniejsze warianty (diamentowe, podciągnięcia w L, wykroki, dipy na kółkach) to
 osobne ćwiczenia — żadna odpowiedź ich nie zalicza. Zdobywa się je logami albo
 (dla skilli, których nie da się policzyć powtórzeniami) checkboxem.
 
@@ -314,7 +314,7 @@ szczebli ich nie przesuwa.
 
 | Ścieżka | Regresja przy „0" | Ruch z pytania | Przy „12+" aktualny |
 |---|---|---|---|
-| Podciąganie | Negatywy | Pełne podciągnięcia | L-pull-ups |
+| Podciąganie | Negatywy | Pełne podciągnięcia | Podciągnięcia w L |
 | Pompki | Pompki z kolan | Pełne pompki | Pompki diamentowe |
 | Dipy | Negatywy dipów | Dipy na poręczach | Podpór na kółkach |
 | Nogi | Przysiad z asystą | Pełny przysiad | Wykroki |

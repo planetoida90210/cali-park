@@ -21,6 +21,18 @@ struct ProgressionCatalogTests {
         #expect(ids.count == ProgressionPathID.allCases.count)
     }
 
+    /// The pull-up ladder's rung names, as in docs/PROGRESSIONS.md: Polish,
+    /// with "Podciągnięcia w L" instead of the English "L-pull-ups".
+    @Test
+    func thePullUpLadderNamesItsRungsInPolish() throws {
+        let path = try #require(ProgressionCatalog.path(withID: .pullUp))
+        let names = path.steps.map { ExerciseCatalog.exercise(withID: $0.exerciseID)?.name }
+        #expect(names == [
+            "Zwis na drążku", "Ściąganie łopatek w zwisie", "Zwis z wygięciem", "Negatywy podciągnięć",
+            "Podciągnięcia z gumą", "Podciągnięcia", "Podciągnięcia w L", "Podciągnięcia łucznicze"
+        ])
+    }
+
     @Test
     func lookupResolvesEveryPath() {
         for id in ProgressionPathID.allCases {

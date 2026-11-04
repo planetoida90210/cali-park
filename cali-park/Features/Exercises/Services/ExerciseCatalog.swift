@@ -544,7 +544,7 @@ nonisolated enum ExerciseCatalog {
         ),
         Exercise(
             id: lPullUpsID,
-            name: "L-pull-ups",
+            name: "Podciągnięcia w L",
             category: .advanced,
             muscleGroups: [.back, .arms, .core],
             description: "Podciągnięcia z nogami trzymanymi w poziomie. Łączą siłę pleców z napięciem core.",
