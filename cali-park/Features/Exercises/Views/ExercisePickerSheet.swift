@@ -19,7 +19,7 @@ struct ExercisePickerSheet: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    ExercisePickerCategoryChips(selection: $viewModel.selectedCategory)
+                    ExerciseCategoryChips(selection: $viewModel.selectedCategory)
                     ExerciseFavoritesHint(isSearching: viewModel.isSearching)
                     ExercisePickerList(viewModel: viewModel, onPick: onPick)
                 }
@@ -49,39 +49,6 @@ struct ExercisePickerSheet: View {
                 )
             }
         }
-    }
-}
-
-// MARK: - ExercisePickerCategoryChips
-private struct ExercisePickerCategoryChips: View {
-    @Binding var selection: ExerciseCategory?
-
-    var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                chip(title: String(localized: "Wszystkie"), isSelected: selection == nil) { selection = nil }
-
-                ForEach(ExerciseCategory.allCases) { category in
-                    chip(title: category.displayName, isSelected: selection == category) {
-                        selection = category
-                    }
-                }
-            }
-        }
-        .scrollClipDisabled()
-    }
-
-    private func chip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.bodyMedium)
-                .padding(.vertical, 8)
-                .padding(.horizontal, 16)
-                .background(isSelected ? Color.accent : Color.componentBackground)
-                .foregroundStyle(isSelected ? Color.black : Color.textPrimary)
-                .clipShape(.capsule)
-        }
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 

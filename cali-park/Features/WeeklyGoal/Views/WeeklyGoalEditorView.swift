@@ -40,18 +40,9 @@ struct WeeklyGoalEditorView: View {
                     .disabled(viewModel.hasUnsavedChanges && !viewModel.canSave)
                 }
             }
-            .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
-                Button("Rozumiem", role: .cancel) {}
-            }
+            .errorAlert($viewModel.errorMessage)
         }
         .interactiveDismissDisabled(viewModel.hasUnsavedChanges)
-    }
-
-    private var errorBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )
     }
 }
 

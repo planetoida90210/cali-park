@@ -53,9 +53,7 @@ struct ParksView: View {
                 .presentationBackgroundInteraction(.enabled(upThrough: compactDetent))
                 .presentationContentInteraction(.resizes)
                 .presentationDragIndicator(.visible)
-                .alert(viewModel.favoritesMessage ?? "", isPresented: favoritesAlertBinding) {
-                    Button("OK", role: .cancel) {}
-                }
+                .errorAlert($viewModel.favoritesMessage)
             }
         }
         .onChange(of: viewModel.selectedParkID == nil) {
@@ -74,7 +72,7 @@ struct ParksView: View {
                 Task { await viewModel.refreshLocation() }
             }
         }
-        .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
+        .messageAlert($viewModel.errorMessage) {
             Button("Spróbuj ponownie") {
                 Task { await viewModel.load() }
             }
@@ -187,20 +185,6 @@ struct ParksView: View {
         Binding(
             get: { viewModel.selectedParkID != nil },
             set: { if !$0 { viewModel.clearSelection() } }
-        )
-    }
-
-    private var favoritesAlertBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.favoritesMessage != nil },
-            set: { if !$0 { viewModel.favoritesMessage = nil } }
-        )
-    }
-
-    private var errorBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
         )
     }
 }

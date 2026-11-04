@@ -70,12 +70,11 @@ struct PlanEditorView: View {
                 // A reminder warning shows first; its button closes the editor.
                 if viewModel.errorMessage == nil { dismiss() }
             }
-            .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
-                Button("Rozumiem", role: .cancel) {
-                    if viewModel.didSave { dismiss() }
-                }
-            } message: {
-                Text(viewModel.didSave ? "Sprawdź ustawienia powiadomień." : "Spróbuj ponownie.")
+            .errorAlert(
+                $viewModel.errorMessage,
+                hint: viewModel.didSave ? "Sprawdź ustawienia powiadomień." : "Spróbuj ponownie."
+            ) {
+                if viewModel.didSave { dismiss() }
             }
             .task { await viewModel.refreshNotificationPermission() }
         }
@@ -86,14 +85,6 @@ struct PlanEditorView: View {
     }
 
     private var canTapSave: Bool { viewModel.canSave && !viewModel.isSaving }
-
-    // Bridges the optional `errorMessage` to a Bool binding for `.alert`.
-    private var errorBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )
-    }
 }
 
 // MARK: - PlanNameSection

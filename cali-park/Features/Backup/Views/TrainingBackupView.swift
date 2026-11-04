@@ -76,12 +76,8 @@ struct TrainingBackupView: View {
         } message: { pending in
             Text(confirmationMessage(pending))
         }
-        .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
-            Button("Rozumiem", role: .cancel) {}
-        }
-        .alert(viewModel.resultMessage ?? "", isPresented: resultBinding) {
-            Button("OK", role: .cancel) {}
-        }
+        .errorAlert($viewModel.errorMessage)
+        .errorAlert($viewModel.resultMessage)
     }
 
     // MARK: Export
@@ -115,20 +111,6 @@ struct TrainingBackupView: View {
         Binding(
             get: { viewModel.pendingImport != nil },
             set: { if !$0 { viewModel.cancelImport() } }
-        )
-    }
-
-    private var errorBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )
-    }
-
-    private var resultBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.resultMessage != nil },
-            set: { if !$0 { viewModel.resultMessage = nil } }
         )
     }
 }

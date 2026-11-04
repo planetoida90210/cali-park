@@ -130,11 +130,7 @@ struct HomeView: View {
             // onAppear anyway.
             .task { await reloadOnEach(.NSCalendarDayChanged) }
             .task { await reloadOnEach(UIApplication.significantTimeChangeNotification) }
-            .alert(dashboard.errorMessage ?? "", isPresented: errorBinding) {
-                Button("Rozumiem", role: .cancel) {}
-            } message: {
-                Text("Spróbuj ponownie.")
-            }
+            .errorAlert($dashboard.errorMessage, hint: "Spróbuj ponownie.")
         }
     }
 
@@ -151,14 +147,6 @@ struct HomeView: View {
         for await _ in NotificationCenter.default.notifications(named: name) {
             dashboard.reload()
         }
-    }
-
-    // Bridges the optional `errorMessage` to a Bool binding for `.alert`.
-    private var errorBinding: Binding<Bool> {
-        Binding(
-            get: { dashboard.errorMessage != nil },
-            set: { if !$0 { dashboard.errorMessage = nil } }
-        )
     }
 
     // Smart Stack Modules View

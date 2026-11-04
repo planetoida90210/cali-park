@@ -77,11 +77,7 @@ struct ProfileView: View {
             .onChange(of: scenePhase) { _, phase in
                 if phase == .active { viewModel.reload() }
             }
-            .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
-                Button("Rozumiem", role: .cancel) {}
-            } message: {
-                Text("Spróbuj ponownie.")
-            }
+            .errorAlert($viewModel.errorMessage, hint: "Spróbuj ponownie.")
         }
     }
 
@@ -128,14 +124,6 @@ struct ProfileView: View {
         Text("Zmień")
             .font(.buttonSmall)
             .foregroundStyle(Color.accent)
-    }
-
-    // Bridges the optional `errorMessage` to a Bool binding for `.alert`.
-    private var errorBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )
     }
 }
 

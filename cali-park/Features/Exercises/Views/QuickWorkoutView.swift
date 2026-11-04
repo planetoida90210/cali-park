@@ -77,11 +77,7 @@ struct QuickWorkoutView: View {
             .navigationDestination(item: $summarySessionID) { _ in
                 WorkoutSessionDetailView(viewModel: viewModel.makeSummaryViewModel(), onDone: returnToStart)
             }
-            .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
-                Button("Rozumiem", role: .cancel) {}
-            } message: {
-                Text("Spróbuj ponownie.")
-            }
+            .errorAlert($viewModel.errorMessage, hint: "Spróbuj ponownie.")
         }
         // The sheet stays up on the summary after "Zakończ", so a conquered
         // rung celebrates here.
@@ -140,14 +136,6 @@ struct QuickWorkoutView: View {
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 8)
-    }
-
-    // Bridges the optional `errorMessage` to a Bool binding for `.alert`.
-    private var errorBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )
     }
 }
 

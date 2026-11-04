@@ -44,9 +44,7 @@ struct OnboardingView: View {
             }
             .padding()
         }
-        .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
-            Button("Rozumiem", role: .cancel) { hasCompletedOnboarding = true }
-        }
+        .errorAlert($viewModel.errorMessage, onDismiss: { hasCompletedOnboarding = true })
     }
 
     // Swipes go through the view model too, so each step's suggestion is
@@ -60,12 +58,6 @@ struct OnboardingView: View {
 
     // Bridges the optional error to a Bool binding for `.alert`. Closing the
     // alert finishes onboarding with whatever could be saved.
-    private var errorBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )
-    }
 
     // MARK: - Navigation chrome
 

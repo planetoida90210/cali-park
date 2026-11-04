@@ -116,7 +116,7 @@ struct ModuleHeaderCard: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .contentShape(.rect)
-        .background(Color.glassBackground.blur(radius: 30))
+        .background(Color.glassBackground)
         .clipShape(.rect(cornerRadius: 12))
     }
 }

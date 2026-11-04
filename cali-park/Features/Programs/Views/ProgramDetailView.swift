@@ -85,19 +85,7 @@ struct ProgramDetailView: View {
         } message: {
             Text("Utworzyć drugi?")
         }
-        .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
-            Button("Rozumiem", role: .cancel) {}
-        } message: {
-            Text("Spróbuj ponownie.")
-        }
-    }
-
-    // Bridges the optional `errorMessage` to a Bool binding for `.alert`.
-    private var errorBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )
+        .errorAlert($viewModel.errorMessage, hint: "Spróbuj ponownie.")
     }
 }
 

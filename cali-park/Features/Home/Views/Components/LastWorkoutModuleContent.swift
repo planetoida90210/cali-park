@@ -34,7 +34,7 @@ struct LastWorkoutModuleContent: View {
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
-        .background(Color.glassBackground.blur(radius: 30))
+        .background(Color.glassBackground)
         .clipShape(.rect(cornerRadius: 12))
     }
 

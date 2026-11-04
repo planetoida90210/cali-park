@@ -40,20 +40,8 @@ struct PlacementCalibrationSheet: View {
             .onChange(of: viewModel.didSave) { _, didSave in
                 if didSave { dismiss() }
             }
-            .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
-                Button("Rozumiem", role: .cancel) {}
-            } message: {
-                Text("Spróbuj ponownie.")
-            }
+            .errorAlert($viewModel.errorMessage, hint: "Spróbuj ponownie.")
         }
-    }
-
-    // Bridges the optional `errorMessage` to a Bool binding for `.alert`.
-    private var errorBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )
     }
 }
 

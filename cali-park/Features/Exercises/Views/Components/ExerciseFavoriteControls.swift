@@ -38,9 +38,7 @@ private struct ExerciseFavoriteActionsModifier: ViewModifier {
                 .accessibilityAction(named: ExerciseFavoriteLabels.title(isFavorite: isFavorite)) {
                     toggle(in: favorites)
                 }
-                .alert(failureMessage ?? "", isPresented: failureBinding) {
-                    Button("Rozumiem", role: .cancel) {}
-                }
+                .errorAlert($failureMessage)
         } else {
             content
         }
@@ -48,10 +46,6 @@ private struct ExerciseFavoriteActionsModifier: ViewModifier {
 
     private func toggle(in favorites: ExerciseFavorites) {
         failureMessage = favorites.toggleReportingFailure(exercise.id)
-    }
-
-    private var failureBinding: Binding<Bool> {
-        Binding(get: { failureMessage != nil }, set: { if !$0 { failureMessage = nil } })
     }
 }
 
@@ -93,13 +87,7 @@ struct ExerciseFavoriteButton: View {
         }
         .accessibilityLabel(ExerciseFavoriteLabels.title(isFavorite: isFavorite))
         .sensoryFeedback(.selection, trigger: isFavorite)
-        .alert(failureMessage ?? "", isPresented: failureBinding) {
-            Button("Rozumiem", role: .cancel) {}
-        }
-    }
-
-    private var failureBinding: Binding<Bool> {
-        Binding(get: { failureMessage != nil }, set: { if !$0 { failureMessage = nil } })
+        .errorAlert($failureMessage)
     }
 }
 
