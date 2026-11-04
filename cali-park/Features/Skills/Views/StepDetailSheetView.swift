@@ -104,7 +104,7 @@ struct StepDetailSheetView: View {
                 .tint(Color.accent)
                 .padding(.top, 4)
 
-            Text(step.criterionSource.sourceLine)
+            Text(step.criterionSource.sourceLine.keptTogether)
                 .font(.bodySmall)
                 .foregroundStyle(Color.textTertiary)
                 .padding(.top, 4)
