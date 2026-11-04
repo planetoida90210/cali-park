@@ -7,12 +7,23 @@ struct OnboardingWelcomePage: View {
     @ScaledMetric private var heroIconSize: CGFloat = 80
 
     var body: some View {
-        VStack(spacing: 32) {
-            Spacer()
+        // Centered while it fits; at large text sizes it scrolls instead of
+        // cutting the title and the text short.
+        ViewThatFits(in: .vertical) {
+            content
+            ScrollView {
+                content
+            }
+            .scrollBounceBehavior(.basedOnSize)
+        }
+    }
 
+    private var content: some View {
+        VStack(spacing: 32) {
             Image(systemName: "figure.gymnastics")
                 .font(.system(size: heroIconSize))
                 .foregroundStyle(Color.accent)
+                .accessibilityHidden(true)
 
             Text("Witaj w CaliPark")
                 .font(.appLargeTitle)
@@ -24,9 +35,9 @@ struct OnboardingWelcomePage: View {
                 .font(.bodyLarge)
                 .foregroundStyle(Color.textSecondary)
                 .multilineTextAlignment(.center)
-
-            Spacer()
         }
+        .fixedSize(horizontal: false, vertical: true)
         .padding()
+        .frame(maxWidth: .infinity)
     }
 }

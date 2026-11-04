@@ -34,6 +34,8 @@ struct PlacementSkillSection: View {
                 Text(question.label)
                     .font(.bodyLarge)
                     .foregroundStyle(Color.textPrimary)
+                    // A button centers wrapped lines; the row reads from the left.
+                    .multilineTextAlignment(.leading)
 
                 Spacer()
 
