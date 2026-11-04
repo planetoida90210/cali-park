@@ -9,7 +9,8 @@ struct PlanEditorView: View {
     @State private var showingPicker = false
     @Environment(\.dismiss) private var dismiss
 
-    /// Called after a successful save so the presenter can refresh its list.
+    /// Called after a successful save, or after "Anuluj" deleted a plan just
+    /// created from a program, so the presenter can refresh its list.
     var onSave: () -> Void = {}
 
     init(viewModel: PlanEditorViewModel, onSave: @escaping () -> Void = {}) {
@@ -38,7 +39,13 @@ struct PlanEditorView: View {
                         hasUnsavedChanges: viewModel.hasUnsavedChanges,
                         title: "Odrzucić zmiany w planie?",
                         message: "Wprowadzone zmiany nie zostaną zapisane.",
-                        onDiscard: { dismiss() }
+                        onDiscard: {
+                            Task {
+                                guard await viewModel.cancel() else { return }
+                                if viewModel.isJustCreated { onSave() }
+                                dismiss()
+                            }
+                        }
                     )
                     .foregroundStyle(Color.textSecondary)
                 }
@@ -72,8 +79,10 @@ struct PlanEditorView: View {
             }
             .task { await viewModel.refreshNotificationPermission() }
         }
-        // A swipe must not drop unsaved edits; "Anuluj" asks first.
-        .interactiveDismissDisabled(viewModel.hasUnsavedChanges)
+        // A swipe must not drop unsaved edits; "Anuluj" asks first. A plan
+        // just created from a program closes only through "Anuluj" (which
+        // deletes it) or "Zapisz", so a swipe can't leave it half-decided.
+        .interactiveDismissDisabled(viewModel.hasUnsavedChanges || viewModel.isJustCreated)
     }
 
     private var canTapSave: Bool { viewModel.canSave && !viewModel.isSaving }

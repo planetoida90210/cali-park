@@ -54,6 +54,9 @@ final class PlanEditorViewModel {
     private(set) var didSave = false
     /// A save is in flight; blocks a second tap from saving twice.
     private(set) var isSaving = false
+    /// The plan was saved a moment ago by "Utwórz plan" and opened here for a
+    /// first look, so "Anuluj" deletes it instead of leaving it behind.
+    let isJustCreated: Bool
 
     // MARK: Dependencies & identity
     private let service: WorkoutPlanService
@@ -82,8 +85,13 @@ final class PlanEditorViewModel {
     }
 
     // MARK: Init
-    init(plan: WorkoutPlan?, service: WorkoutPlanService, calendar: Calendar = .current, now: Date = .now) {
+    init(plan: WorkoutPlan?,
+         service: WorkoutPlanService,
+         isJustCreated: Bool = false,
+         calendar: Calendar = .current,
+         now: Date = .now) {
         self.service = service
+        self.isJustCreated = isJustCreated && plan != nil
         self.calendar = calendar
         let today = calendar.startOfDay(for: now)
         self.today = today
@@ -219,6 +227,20 @@ final class PlanEditorViewModel {
     /// Resolves the catalog exercise a planned entry points to.
     func exercise(for planned: PlannedExercise) -> Exercise? {
         ExerciseCatalog.exercise(withID: planned.exerciseID)
+    }
+
+    /// "Anuluj": for a plan "Utwórz plan" just saved, deletes it through
+    /// `WorkoutPlanService` (which re-syncs reminders). Returns whether the
+    /// editor may close; on a failed delete it shows an error and stays.
+    func cancel() async -> Bool {
+        guard isJustCreated, !didSave else { return true }
+        do {
+            try await service.delete(id: original.id)
+            return true
+        } catch {
+            errorMessage = "Nie udało się usunąć planu."
+            return false
+        }
     }
 
     // MARK: Program origin

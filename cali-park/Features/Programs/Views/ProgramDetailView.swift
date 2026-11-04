@@ -63,7 +63,7 @@ struct ProgramDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .bottom) {
             Button {
-                Task { await viewModel.create() }
+                Task { await viewModel.requestCreate() }
             } label: {
                 Text(viewModel.isCreating ? "Tworzę plan…" : "Utwórz plan")
                     .frame(maxWidth: .infinity)
@@ -76,6 +76,14 @@ struct ProgramDetailView: View {
         }
         .onChange(of: viewModel.createdPlans) { _, plans in
             if let plans { onCreated(plans) }
+        }
+        .alert("Masz już plan z tego programu", isPresented: $viewModel.asksToCreateAnother) {
+            Button("Anuluj", role: .cancel) {}
+            Button("Utwórz drugi") {
+                Task { await viewModel.create() }
+            }
+        } message: {
+            Text("Utworzyć drugi?")
         }
         .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
             Button("Rozumiem", role: .cancel) {}

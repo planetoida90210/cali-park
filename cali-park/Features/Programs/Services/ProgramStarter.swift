@@ -38,6 +38,13 @@ final class ProgramStarter {
         return progress.snapshot.pathStates
     }
 
+    /// Whether a saved plan already comes from `program`, so creating it again
+    /// would make a second copy. An unreadable plans file counts as no.
+    func hasPlan(from program: TrainingProgram) -> Bool {
+        let plans = (try? planService.loadPlans()) ?? []
+        return plans.contains { $0.programID == program.id.rawValue }
+    }
+
     /// The plans the program would create now, without saving them.
     func preview(_ program: TrainingProgram) throws -> [WorkoutPlan] {
         ProgramPrescriber.plans(for: program, pathStates: try pathStates(), today: clock())

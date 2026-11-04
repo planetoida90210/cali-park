@@ -161,8 +161,10 @@ final class AppEnvironment: ObservableObject {
     }
 
     /// `plan == nil` starts a new plan; pass an existing plan to edit it.
-    func makePlanEditorViewModel(plan: WorkoutPlan? = nil) -> PlanEditorViewModel {
-        PlanEditorViewModel(plan: plan, service: workoutPlanService)
+    /// `isJustCreated` marks a plan "Utwórz plan" saved a moment ago, so the
+    /// editor's "Anuluj" deletes it.
+    func makePlanEditorViewModel(plan: WorkoutPlan? = nil, isJustCreated: Bool = false) -> PlanEditorViewModel {
+        PlanEditorViewModel(plan: plan, service: workoutPlanService, isJustCreated: isJustCreated)
     }
 
     /// Creates a ready-made program's plans on the athlete's current rungs.

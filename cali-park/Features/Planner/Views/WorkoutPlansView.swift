@@ -51,7 +51,8 @@ struct WorkoutPlansView: View {
             }
         }
         .sheet(item: $editorRoute) { route in
-            PlanEditorView(viewModel: environment.makePlanEditorViewModel(plan: route.plan)) {
+            PlanEditorView(viewModel: environment.makePlanEditorViewModel(plan: route.plan,
+                                                                          isJustCreated: route.isJustCreated)) {
                 viewModel.reload()
             }
         }
@@ -67,7 +68,7 @@ struct WorkoutPlansView: View {
     private func openCreatedPlan() {
         guard let plan = planCreatedFromProgram else { return }
         planCreatedFromProgram = nil
-        editorRoute = .edit(plan)
+        editorRoute = .created(plan)
     }
 
     // MARK: Plan list
@@ -125,19 +126,25 @@ struct WorkoutPlansView: View {
 private enum PlanEditorRoute: Identifiable {
     case new
     case edit(WorkoutPlan)
+    /// A plan "Utwórz plan" just saved: "Anuluj" deletes it.
+    case created(WorkoutPlan)
 
     var id: String {
         switch self {
         case .new: "new"
-        case .edit(let plan): plan.id.uuidString
+        case .edit(let plan), .created(let plan): plan.id.uuidString
         }
     }
 
     var plan: WorkoutPlan? {
         switch self {
         case .new: nil
-        case .edit(let plan): plan
+        case .edit(let plan), .created(let plan): plan
         }
+    }
+
+    var isJustCreated: Bool {
+        if case .created = self { true } else { false }
     }
 }
 

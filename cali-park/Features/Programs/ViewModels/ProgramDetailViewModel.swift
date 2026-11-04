@@ -23,6 +23,9 @@ final class ProgramDetailViewModel {
     /// The plans saved by `create()`, once it succeeded.
     private(set) var createdPlans: [WorkoutPlan]?
     var errorMessage: String?
+    /// A plan from this program already exists, so "Utwórz plan" asks
+    /// before making a second one.
+    var asksToCreateAnother = false
 
     // MARK: Dependencies
     private let starter: ProgramStarter
@@ -48,6 +51,17 @@ final class ProgramDetailViewModel {
         } catch {
             if !hasLoadError { errorMessage = StoreLoadFailure.message }
             hasLoadError = true
+        }
+    }
+
+    /// "Utwórz plan": asks first when a plan from this program already
+    /// exists (`asksToCreateAnother`), otherwise creates right away.
+    func requestCreate() async {
+        guard canCreate else { return }
+        if starter.hasPlan(from: program) {
+            asksToCreateAnother = true
+        } else {
+            await create()
         }
     }
 

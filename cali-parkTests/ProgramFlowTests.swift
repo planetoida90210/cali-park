@@ -323,3 +323,90 @@ struct ProgramSessionTests {
         #expect(session.items.first?.exercise.id == E.deadHangID)
     }
 }
+
+// MARK: - "Utwórz plan": cancel and duplicates
+
+@MainActor
+@Suite("Utwórz plan: Anuluj deletes the new plan, a second copy asks first")
+struct ProgramCreateCancelTests {
+    private func editor(for plan: WorkoutPlan?, service: WorkoutPlanService, isJustCreated: Bool) -> PlanEditorViewModel {
+        PlanEditorViewModel(plan: plan, service: service, isJustCreated: isJustCreated,
+                            calendar: ProgramFixtures.calendar, now: ProgramFixtures.today)
+    }
+
+    @Test
+    func cancelRightAfterCreationDeletesThePlanAndResyncsReminders() async throws {
+        let store = InMemoryWorkoutPlanStore()
+        let scheduler = InMemoryReminderScheduler(status: .authorized)
+        let service = WorkoutPlanService.testing(store, scheduler: scheduler)
+        let created = try #require(try await makeStarter(plans: store).start(ProgramCatalog.minimum).first)
+        let syncsBefore = await scheduler.rescheduleCount
+
+        let viewModel = editor(for: created, service: service, isJustCreated: true)
+        let mayClose = await viewModel.cancel()
+
+        #expect(mayClose)
+        #expect(store.load().isEmpty)
+        #expect(await scheduler.rescheduleCount == syncsBefore + 1)
+    }
+
+    @Test
+    func cancelOnAnExistingPlanKeepsIt() async throws {
+        let store = InMemoryWorkoutPlanStore()
+        let created = try #require(try await makeStarter(plans: store).start(ProgramCatalog.minimum).first)
+
+        let viewModel = editor(for: created, service: .testing(store), isJustCreated: false)
+        #expect(await viewModel.cancel())
+        #expect(store.load() == [created])
+    }
+
+    @Test
+    func cancelAfterSavingKeepsThePlan() async throws {
+        let store = InMemoryWorkoutPlanStore()
+        let created = try #require(try await makeStarter(plans: store).start(ProgramCatalog.minimum).first)
+
+        let viewModel = editor(for: created, service: .testing(store), isJustCreated: true)
+        await viewModel.save()
+        #expect(viewModel.didSave)
+        #expect(await viewModel.cancel())
+        #expect(store.load().count == 1)
+    }
+
+    @Test
+    func failedDeleteShowsAnErrorAndKeepsTheEditorOpen() async {
+        let plan = WorkoutPlan(name: "Minimum", schedule: .weekly([.monday]), programID: "minimum", programVersion: 1)
+        let viewModel = editor(for: plan, service: .testing(ReadOnlyPlanStore()), isJustCreated: true)
+
+        #expect(await viewModel.cancel() == false)
+        #expect(viewModel.errorMessage == "Nie udało się usunąć planu.")
+    }
+
+    @Test
+    func secondPlanFromTheSameProgramAsksFirst() async throws {
+        let store = InMemoryWorkoutPlanStore()
+        _ = try await makeStarter(plans: store).start(ProgramCatalog.minimum)
+
+        let viewModel = ProgramDetailViewModel(program: ProgramCatalog.minimum, starter: makeStarter(plans: store))
+        await viewModel.requestCreate()
+
+        #expect(viewModel.asksToCreateAnother)
+        #expect(viewModel.createdPlans == nil)
+        #expect(store.load().count == 1)
+
+        await viewModel.create()
+        #expect(store.load().count == 2)
+    }
+
+    @Test
+    func firstPlanFromAProgramIsCreatedRightAway() async {
+        let store = InMemoryWorkoutPlanStore()
+        _ = try? await makeStarter(plans: store).start(ProgramCatalog.skills)
+
+        let viewModel = ProgramDetailViewModel(program: ProgramCatalog.minimum, starter: makeStarter(plans: store))
+        await viewModel.requestCreate()
+
+        #expect(!viewModel.asksToCreateAnother)
+        #expect(viewModel.createdPlans?.count == 1)
+        #expect(store.load().count == 2)
+    }
+}
