@@ -33,10 +33,12 @@ nonisolated enum ParkClustering {
 
     /// Clusters for Parks inside `region` (plus a margin, so pins don't pop in
     /// at the edges while panning). `selectedID` always stays a single pin.
-    static func clusters(for parks: [Park],
-                         in region: MKCoordinateRegion,
-                         selectedID: UUID? = nil,
-                         cellsAcross: Double = 5) -> [ParkCluster] {
+    static func clusters(
+        for parks: [Park],
+        in region: MKCoordinateRegion,
+        selectedID: UUID? = nil,
+        cellsAcross: Double = 5
+    ) -> [ParkCluster] {
         let visible = expanded(region, by: 1.5)
         let cell = max(region.span.longitudeDelta / cellsAcross, minimumCellDegrees)
         // Degrees of latitude are longer than degrees of longitude in Poland;
@@ -50,13 +52,15 @@ nonisolated enum ParkClustering {
                 selected.append(ParkCluster(parks: [park]))
                 continue
             }
-            let key = GridKey(row: Int((park.latitude / latitudeCell).rounded(.down)),
-                              column: Int((park.longitude / cell).rounded(.down)))
+            let key = GridKey(
+                row: Int((park.latitude / latitudeCell).rounded(.down)),
+                column: Int((park.longitude / cell).rounded(.down)))
             buckets[key, default: []].append(park)
         }
-        let grouped = mergeNeighbours(Array(buckets.values),
-                                      longitudeThreshold: cell * 0.75,
-                                      latitudeThreshold: latitudeCell * 0.75)
+        let grouped = mergeNeighbours(
+            Array(buckets.values),
+            longitudeThreshold: cell * 0.75,
+            latitudeThreshold: latitudeCell * 0.75)
         let clusters = grouped.map { members in
             ParkCluster(parks: members.sorted { $0.id.uuidString < $1.id.uuidString })
         }
@@ -66,9 +70,11 @@ nonisolated enum ParkClustering {
     /// Grid cells split Parks that sit just either side of a cell edge, and
     /// their bubbles then overlap on screen. Merge groups whose centres are
     /// closer than most of a cell; bigger groups absorb smaller ones.
-    private static func mergeNeighbours(_ groups: [[Park]],
-                                        longitudeThreshold: Double,
-                                        latitudeThreshold: Double) -> [[Park]] {
+    private static func mergeNeighbours(
+        _ groups: [[Park]],
+        longitudeThreshold: Double,
+        latitudeThreshold: Double
+    ) -> [[Park]] {
         let ordered = groups.sorted { lhs, rhs in
             if lhs.count != rhs.count { return lhs.count > rhs.count }
             return (lhs.map(\.id.uuidString).min() ?? "") < (rhs.map(\.id.uuidString).min() ?? "")
@@ -91,23 +97,29 @@ nonisolated enum ParkClustering {
 
     private static func centroid(_ parks: [Park]) -> CLLocationCoordinate2D {
         let count = Double(parks.count)
-        return CLLocationCoordinate2D(latitude: parks.map(\.latitude).reduce(0, +) / count,
-                                      longitude: parks.map(\.longitude).reduce(0, +) / count)
+        return CLLocationCoordinate2D(
+            latitude: parks.map(\.latitude).reduce(0, +) / count,
+            longitude: parks.map(\.longitude).reduce(0, +) / count)
     }
 
     /// A region that shows every Park in `parks` with some padding.
     static func region(fitting parks: [Park], minimumSpan: CLLocationDegrees = 0.004) -> MKCoordinateRegion? {
         guard let first = parks.first else { return nil }
-        var minLat = first.latitude, maxLat = first.latitude
-        var minLon = first.longitude, maxLon = first.longitude
+        var minLat = first.latitude
+        var maxLat = first.latitude
+        var minLon = first.longitude
+        var maxLon = first.longitude
         for park in parks.dropFirst() {
-            minLat = min(minLat, park.latitude); maxLat = max(maxLat, park.latitude)
-            minLon = min(minLon, park.longitude); maxLon = max(maxLon, park.longitude)
+            minLat = min(minLat, park.latitude)
+            maxLat = max(maxLat, park.latitude)
+            minLon = min(minLon, park.longitude)
+            maxLon = max(maxLon, park.longitude)
         }
         return MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: (minLat + maxLat) / 2, longitude: (minLon + maxLon) / 2),
-            span: MKCoordinateSpan(latitudeDelta: max((maxLat - minLat) * 1.6, minimumSpan),
-                                   longitudeDelta: max((maxLon - minLon) * 1.6, minimumSpan))
+            span: MKCoordinateSpan(
+                latitudeDelta: max((maxLat - minLat) * 1.6, minimumSpan),
+                longitudeDelta: max((maxLon - minLon) * 1.6, minimumSpan))
         )
     }
 
@@ -119,9 +131,11 @@ nonisolated enum ParkClustering {
     }
 
     private static func expanded(_ region: MKCoordinateRegion, by factor: Double) -> MKCoordinateRegion {
-        MKCoordinateRegion(center: region.center,
-                           span: MKCoordinateSpan(latitudeDelta: region.span.latitudeDelta * factor,
-                                                  longitudeDelta: region.span.longitudeDelta * factor))
+        MKCoordinateRegion(
+            center: region.center,
+            span: MKCoordinateSpan(
+                latitudeDelta: region.span.latitudeDelta * factor,
+                longitudeDelta: region.span.longitudeDelta * factor))
     }
 
     private static func contains(_ region: MKCoordinateRegion, _ park: Park) -> Bool {

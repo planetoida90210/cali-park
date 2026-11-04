@@ -113,10 +113,13 @@ struct LocationPreview: View {
     let model: ParkSubmissionPrototypeModel
 
     var body: some View {
-        Map(initialPosition: .region(MKCoordinateRegion(
-            center: model.draft.coordinate,
-            span: MKCoordinateSpan(latitudeDelta: 0.002, longitudeDelta: 0.002)
-        )), interactionModes: []) {
+        Map(
+            initialPosition: .region(
+                MKCoordinateRegion(
+                    center: model.draft.coordinate,
+                    span: MKCoordinateSpan(latitudeDelta: 0.002, longitudeDelta: 0.002)
+                )), interactionModes: []
+        ) {
             Annotation("Nowy Park", coordinate: model.draft.coordinate, anchor: .bottom) {
                 SubmissionNewPin()
                     .scaleEffect(0.7, anchor: .bottom)

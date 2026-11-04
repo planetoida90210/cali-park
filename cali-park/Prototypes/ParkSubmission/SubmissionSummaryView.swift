@@ -23,10 +23,12 @@ struct SubmissionSummaryView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     SummaryRow(label: "Źródło", value: "zgłoszenie użytkownika")
                     SummaryRow(label: "Wysyłasz jako", value: SubmissionSampleData.nickname)
-                    Text("Fakty o Parku (miejsce, sprzęt, szczegóły) trafią do otwartej bazy Parków na licencji ODbL. Zdjęcia i Twój Pseudonim nie.")
-                        .font(.footnote)
-                        .foregroundStyle(Color.textTertiary)
-                        .padding(.top, 2)
+                    Text(
+                        "Fakty o Parku (miejsce, sprzęt, szczegóły) trafią do otwartej bazy Parków na licencji ODbL. Zdjęcia i Twój Pseudonim nie."
+                    )
+                    .font(.footnote)
+                    .foregroundStyle(Color.textTertiary)
+                    .padding(.top, 2)
                 }
                 .padding(14)
                 .background(Color.componentBackground, in: .rect(cornerRadius: AppRadius.large))
@@ -157,10 +159,12 @@ struct SubmissionSentView: View {
             Text("Dzięki! Zgłoszenie wysłane")
                 .font(.appTitle2)
                 .foregroundStyle(Color.textPrimary)
-            Text("Czeka na moderację. Moderator sprawdzi zdjęcia i sprzęt, a po akceptacji Park pojawi się na mapie. Status znajdziesz w „Moje zgłoszenia”.")
-                .font(.subheadline)
-                .foregroundStyle(Color.textSecondary)
-                .multilineTextAlignment(.center)
+            Text(
+                "Czeka na moderację. Moderator sprawdzi zdjęcia i sprzęt, a po akceptacji Park pojawi się na mapie. Status znajdziesz w „Moje zgłoszenia”."
+            )
+            .font(.subheadline)
+            .foregroundStyle(Color.textSecondary)
+            .multilineTextAlignment(.center)
             Spacer()
             Button {
                 model.finish(showingMine: true)

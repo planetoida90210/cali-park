@@ -25,15 +25,17 @@ nonisolated struct WorkoutPlan: Identifiable, Codable, Equatable, Hashable {
     /// The template version of `programID` the plan was created from.
     var programVersion: Int?
 
-    init(id: UUID = UUID(),
-         name: String,
-         exercises: [PlannedExercise] = [],
-         schedule: WorkoutSchedule = .once(nil),
-         isActive: Bool = true,
-         createdAt: Date = .now,
-         reminderTime: DateComponents? = nil,
-         programID: String? = nil,
-         programVersion: Int? = nil) {
+    init(
+        id: UUID = UUID(),
+        name: String,
+        exercises: [PlannedExercise] = [],
+        schedule: WorkoutSchedule = .once(nil),
+        isActive: Bool = true,
+        createdAt: Date = .now,
+        reminderTime: DateComponents? = nil,
+        programID: String? = nil,
+        programVersion: Int? = nil
+    ) {
         self.id = id
         self.name = name
         self.exercises = exercises

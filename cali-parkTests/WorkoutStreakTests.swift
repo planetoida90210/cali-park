@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 struct WorkoutStreakTests {
@@ -52,9 +53,10 @@ struct WorkoutStreakTests {
     func trainedDaysAreNormalizedToStartOfDay() {
         let morning = Self.daysAgo(0)
         let evening = Self.calendar.date(byAdding: .hour, value: 8, to: morning)!
-        let streak = WorkoutStreak.compute(from: [morning, evening],
-                                           calendar: Self.calendar,
-                                           today: Self.today)
+        let streak = WorkoutStreak.compute(
+            from: [morning, evening],
+            calendar: Self.calendar,
+            today: Self.today)
 
         #expect(streak.trainedDays.count == 1)
         #expect(streak.trainedDays.first == Self.calendar.startOfDay(for: morning))

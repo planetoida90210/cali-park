@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 /// B-16: day math across the Europe/Warsaw clock changes (2026-03-29, when a
@@ -79,11 +80,12 @@ struct DaylightSavingReminderTests {
 
     /// A daily plan from 20 March with a reminder at `hour:minute`.
     private static func dailyPlan(at hour: Int, _ minute: Int) -> WorkoutPlan {
-        WorkoutPlan(name: "Nocny",
-                    exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)],
-                    schedule: .everyNDays(1, from: CalendarDay(year: 2026, month: 3, day: 20)!),
-                    createdAt: TestDate.at(2026, 3, 1),
-                    reminderTime: DateComponents(hour: hour, minute: minute))
+        WorkoutPlan(
+            name: "Nocny",
+            exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)],
+            schedule: .everyNDays(1, from: CalendarDay(year: 2026, month: 3, day: 20)!),
+            createdAt: TestDate.at(2026, 3, 1),
+            reminderTime: DateComponents(hour: hour, minute: minute))
     }
 
     /// The `(month, day)` of each request, in order.
@@ -93,8 +95,9 @@ struct DaylightSavingReminderTests {
 
     @Test
     func theSpringForwardNightStillGetsItsReminder() {
-        let requests = WorkoutReminderPlanner.requests(for: Self.dailyPlan(at: 2, 30), calendar: Self.warsaw,
-                                                       asOf: Self.local(3, 27, 12), limit: 4)
+        let requests = WorkoutReminderPlanner.requests(
+            for: Self.dailyPlan(at: 2, 30), calendar: Self.warsaw,
+            asOf: Self.local(3, 27, 12), limit: 4)
 
         #expect(Self.days(requests) == [[3, 28], [3, 29], [3, 30], [3, 31]])
         #expect(requests.allSatisfy { $0.dateComponents.hour == 2 && $0.dateComponents.minute == 30 })
@@ -103,16 +106,18 @@ struct DaylightSavingReminderTests {
 
     @Test
     func justBeforeTheJumpTheReminderIsStillAhead() {
-        let requests = WorkoutReminderPlanner.requests(for: Self.dailyPlan(at: 2, 30), calendar: Self.warsaw,
-                                                       asOf: Self.local(3, 29, 1, 59), limit: 2)
+        let requests = WorkoutReminderPlanner.requests(
+            for: Self.dailyPlan(at: 2, 30), calendar: Self.warsaw,
+            asOf: Self.local(3, 29, 1, 59), limit: 2)
 
         #expect(Self.days(requests) == [[3, 29], [3, 30]])
     }
 
     @Test
     func theFallBackNightGetsOneReminder() {
-        let requests = WorkoutReminderPlanner.requests(for: Self.dailyPlan(at: 2, 30), calendar: Self.warsaw,
-                                                       asOf: Self.local(10, 24, 12), limit: 3)
+        let requests = WorkoutReminderPlanner.requests(
+            for: Self.dailyPlan(at: 2, 30), calendar: Self.warsaw,
+            asOf: Self.local(10, 24, 12), limit: 3)
 
         #expect(Self.days(requests) == [[10, 25], [10, 26], [10, 27]])
         #expect(Set(requests.map(\.id)).count == 3)
@@ -123,20 +128,25 @@ struct DaylightSavingReminderTests {
     /// again for the repeated 02:30.
     @Test
     func aSyncBetweenTheTwo0230sDoesNotRemindTwice() throws {
-        let betweenThem = try #require(TestCalendar.utc.date(from: DateComponents(year: 2026, month: 10, day: 25,
-                                                                                  hour: 1, minute: 0)))
+        let betweenThem = try #require(
+            TestCalendar.utc.date(
+                from: DateComponents(
+                    year: 2026, month: 10, day: 25,
+                    hour: 1, minute: 0)))
         #expect(Self.warsaw.component(.hour, from: betweenThem) == 2) // 02:00 CET, the second time round
 
-        let requests = WorkoutReminderPlanner.requests(for: Self.dailyPlan(at: 2, 30), calendar: Self.warsaw,
-                                                       asOf: betweenThem, limit: 2)
+        let requests = WorkoutReminderPlanner.requests(
+            for: Self.dailyPlan(at: 2, 30), calendar: Self.warsaw,
+            asOf: betweenThem, limit: 2)
 
         #expect(Self.days(requests) == [[10, 26], [10, 27]])
     }
 
     @Test(arguments: [(3, 28), (10, 24)])
     func anEveningReminderKeepsItsLocalTimeAcrossTheChange(month: Int, saturday: Int) throws {
-        let requests = WorkoutReminderPlanner.requests(for: Self.dailyPlan(at: 18, 30), calendar: Self.warsaw,
-                                                       asOf: Self.local(month, saturday, 12), limit: 3)
+        let requests = WorkoutReminderPlanner.requests(
+            for: Self.dailyPlan(at: 18, 30), calendar: Self.warsaw,
+            asOf: Self.local(month, saturday, 12), limit: 3)
 
         #expect(Self.days(requests) == [[month, saturday], [month, saturday + 1], [month, saturday + 2]])
         for request in requests {
@@ -171,11 +181,15 @@ struct DaylightSavingWeeklyGoalTests {
         #expect(week.start == Self.local(month, monday, 0))
         #expect(week.end == Self.local(month, nextMonday, 0))
         #expect(week.duration == TimeInterval(hours * 3_600))
-        #expect(WeeklyGoalEvaluator.week(containing: Self.local(month, nextMonday, 0, 30), calendar: Self.warsaw).start
+        #expect(
+            WeeklyGoalEvaluator.week(containing: Self.local(month, nextMonday, 0, 30), calendar: Self.warsaw).start
                 == week.end)
-        #expect(WeeklyGoalEvaluator.week(before: WeeklyGoalEvaluator.week(containing: Self.local(month, nextMonday, 12),
-                                                                          calendar: Self.warsaw),
-                                         calendar: Self.warsaw) == week)
+        #expect(
+            WeeklyGoalEvaluator.week(
+                before: WeeklyGoalEvaluator.week(
+                    containing: Self.local(month, nextMonday, 12),
+                    calendar: Self.warsaw),
+                calendar: Self.warsaw) == week)
     }
 
     @Test(arguments: weeks)
@@ -203,8 +217,9 @@ struct DaylightSavingWeeklyGoalTests {
         let entries = [-7, 0, 7].map { F.entry(at: Self.local(month, sunday, 20).addingTimeInterval(Double($0) * 86_400)) }
         let versions = [F.version([F.days(1)], from: Self.local(month, monday - 7, 0))]
 
-        let streak = WeeklyGoalEvaluator.streak(versions: versions, pauses: [], entries: entries, plans: [],
-                                                calendar: Self.warsaw, asOf: Self.local(month, nextMonday + 6, 22))
+        let streak = WeeklyGoalEvaluator.streak(
+            versions: versions, pauses: [], entries: entries, plans: [],
+            calendar: Self.warsaw, asOf: Self.local(month, nextMonday + 6, 22))
 
         #expect(streak == 3)
     }

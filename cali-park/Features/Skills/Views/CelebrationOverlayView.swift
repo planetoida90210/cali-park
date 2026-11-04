@@ -25,10 +25,12 @@ struct CelebrationOverlayView: View {
     /// them too: both modifiers fire only when their trigger changes (A-9).
     @State private var playedTrigger: String?
 
-    init(presentation: CelebrationPresentation,
-         trigger: String,
-         hasNext: Bool,
-         onDismiss: @escaping () -> Void) {
+    init(
+        presentation: CelebrationPresentation,
+        trigger: String,
+        hasNext: Bool,
+        onDismiss: @escaping () -> Void
+    ) {
         self.presentation = presentation
         self.trigger = trigger
         self.hasNext = hasNext
@@ -41,12 +43,14 @@ struct CelebrationOverlayView: View {
     }
 
     private var card: some View {
-        CelebrationCard(presentation: presentation,
-                        hasNext: hasNext,
-                        playedTrigger: playedTrigger,
-                        onDismiss: onDismiss)
-            .padding(.horizontal, 32)
-            .padding(.vertical, 16)
+        CelebrationCard(
+            presentation: presentation,
+            hasNext: hasNext,
+            playedTrigger: playedTrigger,
+            onDismiss: onDismiss
+        )
+        .padding(.horizontal, 32)
+        .padding(.vertical, 16)
     }
 
     var body: some View {

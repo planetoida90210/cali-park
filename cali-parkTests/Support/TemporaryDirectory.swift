@@ -72,9 +72,11 @@ struct TemporaryDirectoryTrait: TestTrait, SuiteTrait, TestScoping {
         testCase == nil || test.isSuite ? nil : self
     }
 
-    func provideScope(for test: Test,
-                      testCase: Test.Case?,
-                      performing function: @concurrent @Sendable () async throws -> Void) async throws {
+    func provideScope(
+        for test: Test,
+        testCase: Test.Case?,
+        performing function: @concurrent @Sendable () async throws -> Void
+    ) async throws {
         let scope = TemporaryDirectory.Scope()
         defer { scope.removeAll() }
         try await TemporaryDirectory.$scope.withValue(scope) {

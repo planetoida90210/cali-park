@@ -56,13 +56,15 @@ final class OnboardingViewModel {
     private let logger = AppLog.logger(category: "Onboarding")
 
     // MARK: Init
-    init(calibration: PlacementCalibrationViewModel,
-         programChoice: ProgramChoiceViewModel,
-         goalStore: WeeklyGoalStoring,
-         goals: WeeklyGoalService?,
-         journal: TrainingJournal,
-         calendar: Calendar = .current,
-         clock: @escaping () -> Date = { .now }) {
+    init(
+        calibration: PlacementCalibrationViewModel,
+        programChoice: ProgramChoiceViewModel,
+        goalStore: WeeklyGoalStoring,
+        goals: WeeklyGoalService?,
+        journal: TrainingJournal,
+        calendar: Calendar = .current,
+        clock: @escaping () -> Date = { .now }
+    ) {
         self.calibration = calibration
         self.programChoice = programChoice
         self.goalStore = goalStore
@@ -100,7 +102,8 @@ final class OnboardingViewModel {
     /// The chosen program's sessions per week, or 3 without a program.
     var suggestedTrainingDays: Int {
         guard case .program(let id) = programChoice.choice,
-              let program = ProgramCatalog.program(withID: id) else {
+            let program = ProgramCatalog.program(withID: id)
+        else {
             return WeeklyGoal.defaultTrainingDays
         }
         return program.weekdays.count
@@ -157,10 +160,12 @@ final class OnboardingViewModel {
         do {
             let history = try goalStore.load() ?? .empty
             let start = WeeklyGoalEvaluator.implicitStart(entries: journal.entries, asOf: now)
-            guard let updated = history.settingGoals(
-                WeeklyGoal.defaultGoals(trainingDaysPerWeek: trainingDays),
-                at: now, implicitStart: start, calendar: calendar
-            ) else { return false }
+            guard
+                let updated = history.settingGoals(
+                    WeeklyGoal.defaultGoals(trainingDaysPerWeek: trainingDays),
+                    at: now, implicitStart: start, calendar: calendar
+                )
+            else { return false }
             if updated != history { try goalStore.save(updated) }
             goals?.reload()
             return true

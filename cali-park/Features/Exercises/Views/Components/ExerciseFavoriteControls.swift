@@ -30,8 +30,10 @@ private struct ExerciseFavoriteActionsModifier: ViewModifier {
             let isFavorite = favorites.contains(exercise.id)
             content
                 .contextMenu {
-                    Button(ExerciseFavoriteLabels.title(isFavorite: isFavorite),
-                           systemImage: ExerciseFavoriteLabels.symbol(isFavorite: isFavorite)) {
+                    Button(
+                        ExerciseFavoriteLabels.title(isFavorite: isFavorite),
+                        systemImage: ExerciseFavoriteLabels.symbol(isFavorite: isFavorite)
+                    ) {
                         toggle(in: favorites)
                     }
                 }

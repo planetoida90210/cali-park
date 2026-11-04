@@ -12,6 +12,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 /// A clock the test moves by hand.
@@ -29,8 +30,9 @@ private enum Fixtures {
     static let tuesdayMorning = Date(timeIntervalSince1970: 1_793_692_800)
 
     static func entry(on date: Date, planID: UUID? = nil) -> WorkoutLogEntry {
-        WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, date: date,
-                        sets: [LoggedSet(reps: 8)], sessionID: UUID(), planID: planID)
+        WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.pullUpsID, date: date,
+            sets: [LoggedSet(reps: 8)], sessionID: UUID(), planID: planID)
     }
 }
 
@@ -38,9 +40,11 @@ private enum Fixtures {
 
 @MainActor
 struct HomeDayRolloverTests {
-    private func dashboard(clock: TestClock,
-                           plans: [WorkoutPlan] = [],
-                           entries: [WorkoutLogEntry] = []) -> HomeDashboardViewModel {
+    private func dashboard(
+        clock: TestClock,
+        plans: [WorkoutPlan] = [],
+        entries: [WorkoutLogEntry] = []
+    ) -> HomeDashboardViewModel {
         HomeDashboardViewModel(
             store: InMemoryWorkoutLogStore(initial: entries),
             planService: .testing(InMemoryWorkoutPlanStore(initial: plans)),
@@ -81,15 +85,16 @@ struct HomeDayRolloverTests {
             schedule: .weekly([.tuesday])
         )
         let clock = TestClock(Fixtures.mondayEvening)
-        let dashboard = dashboard(clock: clock, plans: [tuesdayPlan],
-                                  entries: [Fixtures.entry(on: Fixtures.mondayEvening - 3_600)])
+        let dashboard = dashboard(
+            clock: clock, plans: [tuesdayPlan],
+            entries: [Fixtures.entry(on: Fixtures.mondayEvening - 3_600)])
         #expect(dashboard.heroState().isCompletedToday)
 
         clock.now = Fixtures.tuesdayMorning
         dashboard.reload()
         await dashboard.settle()
 
-        guard case let .planToday(plan, loggedTodayReps, _) = dashboard.heroState() else {
+        guard case .planToday(let plan, let loggedTodayReps, _) = dashboard.heroState() else {
             Issue.record("Expected planToday, got \(dashboard.heroState())")
             return
         }
@@ -126,8 +131,9 @@ struct HomeDayRolloverTests {
     @Test
     func streakUsesTheRefreshedDay() async {
         let clock = TestClock(Fixtures.mondayEvening)
-        let dashboard = dashboard(clock: clock,
-                                  entries: [Fixtures.entry(on: Fixtures.mondayEvening - 3_600)])
+        let dashboard = dashboard(
+            clock: clock,
+            entries: [Fixtures.entry(on: Fixtures.mondayEvening - 3_600)])
         #expect(dashboard.streak == dashboard.streak(asOf: Fixtures.mondayEvening))
 
         clock.now = Fixtures.tuesdayMorning
@@ -169,8 +175,9 @@ struct HomeReloadAfterSummaryDeleteTests {
         let dashboard = home.dashboard
 
         let session = home.makeQuickWorkoutViewModel()
-        session.addExercise(try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
-                            sets: [LoggedSet(reps: 8)])
+        session.addExercise(
+            try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
+            sets: [LoggedSet(reps: 8)])
         await session.finish()
         dashboard.reload() // onFinish
         await home.settle()

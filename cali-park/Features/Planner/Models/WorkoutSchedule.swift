@@ -35,10 +35,11 @@ nonisolated enum WorkoutSchedule: Codable, Equatable, Hashable {
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: Kind.self)
         guard container.allKeys.count == 1, let kind = container.allKeys.first else {
-            throw DecodingError.dataCorrupted(DecodingError.Context(
-                codingPath: container.codingPath,
-                debugDescription: "Expected exactly one schedule kind, found \(container.allKeys.map(\.stringValue))"
-            ))
+            throw DecodingError.dataCorrupted(
+                DecodingError.Context(
+                    codingPath: container.codingPath,
+                    debugDescription: "Expected exactly one schedule kind, found \(container.allKeys.map(\.stringValue))"
+                ))
         }
         let payload = try container.nestedContainer(keyedBy: PayloadKey.self, forKey: kind)
         switch kind {
@@ -47,8 +48,9 @@ nonisolated enum WorkoutSchedule: Codable, Equatable, Hashable {
         case .weekly:
             self = .weekly(try payload.decode(Set<Weekday>.self, forKey: .value))
         case .everyNDays:
-            self = .everyNDays(try payload.decode(Int.self, forKey: .value),
-                               from: try payload.decode(CalendarDay.self, forKey: .from))
+            self = .everyNDays(
+                try payload.decode(Int.self, forKey: .value),
+                from: try payload.decode(CalendarDay.self, forKey: .from))
         }
     }
 
@@ -102,8 +104,8 @@ nonisolated enum WorkoutSchedule: Codable, Equatable, Hashable {
             guard !days.isEmpty else { return nil }
             for offset in 0..<7 {
                 guard let candidate = calendar.date(byAdding: .day, value: offset, to: referenceDay),
-                      let weekday = Weekday(rawValue: calendar.component(.weekday, from: candidate)),
-                      days.contains(weekday)
+                    let weekday = Weekday(rawValue: calendar.component(.weekday, from: candidate)),
+                    days.contains(weekday)
                 else { continue }
                 return candidate
             }

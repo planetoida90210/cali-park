@@ -40,9 +40,11 @@ struct OnboardingWeeklyGoalPage: View {
                 .background(Color.componentBackground)
                 .clipShape(.rect(cornerRadius: AppRadius.medium))
 
-                Text("Odpoczynek jest elastyczny: liczy się, ile dni w tygodniu trenujesz, nie które. Cel i pauzę zmienisz później w Profilu.")
-                    .font(.bodySmall)
-                    .foregroundStyle(Color.textSecondary)
+                Text(
+                    "Odpoczynek jest elastyczny: liczy się, ile dni w tygodniu trenujesz, nie które. Cel i pauzę zmienisz później w Profilu."
+                )
+                .font(.bodySmall)
+                .foregroundStyle(Color.textSecondary)
             }
             .padding(.vertical, 8)
         }

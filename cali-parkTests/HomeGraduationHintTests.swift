@@ -22,15 +22,19 @@ struct HomeGraduationHintTests {
     /// A "Pierwsze podciągnięcie" plan on Mondays, so the Wednesday is a rest day.
     private static func firstPullUpPlan() throws -> WorkoutPlan {
         var plan = try #require(
-            ProgramPrescriber.plans(for: ProgramCatalog.firstPullUp, pathStates: ProgramFixtures.newcomer,
-                                    today: ProgramFixtures.today).first)
+            ProgramPrescriber.plans(
+                for: ProgramCatalog.firstPullUp, pathStates: ProgramFixtures.newcomer,
+                today: ProgramFixtures.today
+            ).first)
         plan.schedule = .weekly([.monday])
         return plan
     }
 
-    private static func dashboard(pullUpReps: Int,
-                                  plans: [WorkoutPlan],
-                                  defaults: UserDefaults = .throwaway()) -> HomeDashboardViewModel {
+    private static func dashboard(
+        pullUpReps: Int,
+        plans: [WorkoutPlan],
+        defaults: UserDefaults = .throwaway()
+    ) -> HomeDashboardViewModel {
         HomeDashboardViewModel(
             store: InMemoryWorkoutLogStore(initial: [ProgramFixtures.reps(E.pullUpsID, pullUpReps, on: yesterday)]),
             planService: .testing(InMemoryWorkoutPlanStore(initial: plans)),

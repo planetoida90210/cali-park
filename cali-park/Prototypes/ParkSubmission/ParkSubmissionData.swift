@@ -92,8 +92,11 @@ enum BarHeight: String, CaseIterable, Identifiable, Hashable {
 
 /// Optional facts from proposal 012 §2.
 enum SubmissionSurface: String, CaseIterable, Identifiable, Hashable {
-    case rubber, tartan, artificialTurf = "artificial_turf", sand, woodchips, grass, ground, gravel
-    case pavingStones = "paving_stones", concrete, asphalt
+    case rubber, tartan
+    case artificialTurf = "artificial_turf"
+    case sand, woodchips, grass, ground, gravel
+    case pavingStones = "paving_stones"
+    case concrete, asphalt
 
     var id: String { rawValue }
 
@@ -222,7 +225,7 @@ enum SubmissionNaming {
         NamedArea(label: "Park Ujazdowski", latitude: 52.2205, longitude: 21.0275, radius: 250),
         NamedArea(label: "Ogród Saski", latitude: 52.2405, longitude: 21.0080, radius: 300),
         NamedArea(label: "przy SP 12", latitude: 52.2290, longitude: 20.9890, radius: 120),
-        NamedArea(label: "ul. Kasprzaka", latitude: 52.2290, longitude: 20.9700, radius: 400),
+        NamedArea(label: "ul. Kasprzaka", latitude: 52.2290, longitude: 20.9700, radius: 400)
     ]
 
     static func generatedName(at coordinate: CLLocationCoordinate2D, equipment: Set<SubmissionEquipment>) -> String {
@@ -358,7 +361,8 @@ enum SubmissionSampleData {
             equipment: [.horizontalBar, .parallelBars], photoCount: 1,
             status: .rejected(
                 reason: "To nie jest Park",
-                explanation: "Na zdjęciu widać tylko maszyny: orbitrek i wioślarz. Nie ma drążka ani poręczy, a Park musi mieć jedno z nich."
+                explanation:
+                    "Na zdjęciu widać tylko maszyny: orbitrek i wioślarz. Nie ma drążka ani poręczy, a Park musi mieć jedno z nich."
             ),
             sentAt: daysAgo(16), decidedAt: daysAgo(15)
         ),
@@ -384,7 +388,7 @@ enum SubmissionSampleData {
             id: 6, name: "Street workout · Ogród Saski", proposedName: nil,
             equipment: [.horizontalBar], photoCount: 0,
             status: .draft, sentAt: daysAgo(1)
-        ),
+        )
     ]
 }
 

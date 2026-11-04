@@ -10,6 +10,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Fixtures
@@ -48,7 +49,7 @@ struct RewardEvaluatorTests {
         let evaluation = RewardEvaluator.evaluate(logs: [RewardFixture.pullUps3x8()], placement: nil, celebrated: baseline)
 
         let rungEvents = evaluation.pendingEvents.compactMap { event -> RungReference? in
-            if case let .rungConquered(rung) = event { return rung }
+            if case .rungConquered(let rung) = event { return rung }
             return nil
         }
         #expect(rungEvents == RewardFixture.conqueredPullUpRungs)
@@ -103,7 +104,7 @@ struct RewardEvaluatorTests {
         let events = RewardEvaluator.evaluate(logs: logs, placement: nil, celebrated: baseline).pendingEvents
 
         let firstRung = events.first
-        if case let .rungConquered(rung) = firstRung {
+        if case .rungConquered(let rung) = firstRung {
             // Pull-up precedes dip in the catalog, so its rung 0 comes first.
             #expect(rung == RungReference(pathID: .pullUp, rungIndex: 0)!)
         } else {
@@ -155,7 +156,8 @@ struct RewardCenterLoopTests {
         // A declaration conquers rungs, but the reward loop scores from logs
         // only — so nothing is celebrated and no badge is granted.
         let stack = TrainingStack(
-            placementStore: InMemorySkillPlacementStore(initial: SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.archerPullUpsID]))
+            placementStore: InMemorySkillPlacementStore(
+                initial: SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.archerPullUpsID]))
         )
 
         #expect(stack.rewards.currentCelebration == nil)

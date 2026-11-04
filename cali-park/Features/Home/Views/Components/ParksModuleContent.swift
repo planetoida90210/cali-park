@@ -17,8 +17,9 @@ struct ParksModuleContent: View {
             case .nearest(let item):
                 nearest(item)
             case .needsLocation:
-                message(Text("Włącz lokalizację na mapie Parków, a pokażemy tu najbliższy Park."),
-                        systemImage: "location")
+                message(
+                    Text("Włącz lokalizację na mapie Parków, a pokażemy tu najbliższy Park."),
+                    systemImage: "location")
                 mapButton("Otwórz mapę") { router?.selection = .parks }
             case .noParks:
                 message(Text("Nie mamy jeszcze Parków do pokazania."), systemImage: "mappin.slash")
@@ -61,9 +62,13 @@ struct ParksModuleContent: View {
     }
 
     private func message(_ text: Text, systemImage: String) -> some View {
-        Label { text } icon: { Image(systemName: systemImage) }
-            .font(.bodyMedium)
-            .foregroundStyle(Color.textSecondary)
+        Label {
+            text
+        } icon: {
+            Image(systemName: systemImage)
+        }
+        .font(.bodyMedium)
+        .foregroundStyle(Color.textSecondary)
     }
 
     private func mapButton(_ title: LocalizedStringKey, action: @escaping () -> Void) -> some View {

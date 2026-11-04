@@ -53,10 +53,12 @@ extension AppEnvironment {
     /// The environment for a UI test launch: `seeded(...)` with `seed`'s data,
     /// writing its flags to `defaults`. The app passes `uiTestDefaults()`;
     /// unit tests pass a throwaway suite.
-    static func uiTest(_ seed: UITestSeed,
-                       defaults: UserDefaults,
-                       calendar: Calendar = .current,
-                       now: Date = .now) -> AppEnvironment {
+    static func uiTest(
+        _ seed: UITestSeed,
+        defaults: UserDefaults,
+        calendar: Calendar = .current,
+        now: Date = .now
+    ) -> AppEnvironment {
         defaults.set(seed.hasCompletedOnboarding, forKey: DefaultsKey.hasCompletedOnboarding.rawValue)
         switch seed {
         case .fresh, .onboarded:
@@ -66,10 +68,11 @@ extension AppEnvironment {
         case .veteran:
             // Logged yesterday, so today is still a rest day.
             let yesterday = calendar.date(byAdding: .day, value: -1, to: now) ?? now
-            return seeded(logs: veteranLogs(at: yesterday) + [Self.fullPullUps(at: yesterday)],
-                          plans: [firstPullUpPlan(restingOn: now, calendar: calendar)],
-                          placement: veteranPlacement,
-                          defaults: defaults)
+            return seeded(
+                logs: veteranLogs(at: yesterday) + [Self.fullPullUps(at: yesterday)],
+                plans: [firstPullUpPlan(restingOn: now, calendar: calendar)],
+                placement: veteranPlacement,
+                defaults: defaults)
         case .storeTour:
             let tour = StoreTour(calendar: calendar, now: now)
             return seeded(logs: tour.logs, plans: [tour.plan], placement: StoreTour.placement, defaults: defaults)
@@ -88,8 +91,9 @@ extension AppEnvironment {
 
     /// 3 × 8 full pull-ups at `date`: "Pierwsze podciągnięcie" is done.
     private static func fullPullUps(at date: Date) -> WorkoutLogEntry {
-        WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, date: date,
-                        sets: Array(repeating: LoggedSet(reps: 8), count: 3))
+        WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.pullUpsID, date: date,
+            sets: Array(repeating: LoggedSet(reps: 8), count: 3))
     }
 
     /// A "Pierwsze podciągnięcie" plan on every weekday except `now`'s, so
@@ -156,11 +160,13 @@ nonisolated struct StoreTour {
     static func session(_ index: Int, at date: Date, planID: UUID) -> [WorkoutLogEntry] {
         let sessionID = UUID()
         func entry(_ exerciseID: UUID, _ reps: Int) -> WorkoutLogEntry {
-            WorkoutLogEntry(exerciseID: exerciseID, date: date,
-                            sets: Array(repeating: LoggedSet(reps: reps), count: 3),
-                            sessionID: sessionID, planID: planID)
+            WorkoutLogEntry(
+                exerciseID: exerciseID, date: date,
+                sets: Array(repeating: LoggedSet(reps: reps), count: 3),
+                sessionID: sessionID, planID: planID)
         }
-        let pullUps = index < 4
+        let pullUps =
+            index < 4
             ? entry(ExerciseCatalog.negativePullUpsID, 2 + index)
             : entry(ExerciseCatalog.pullUpsID, min(6, 3 + (index - 4) / 3))
         let steady = min(7, 4 + index / 4)

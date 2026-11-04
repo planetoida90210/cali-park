@@ -8,7 +8,7 @@ struct QuickWorkoutButton: View {
     var body: some View {
         Button("Szybki trening", systemImage: "bolt.fill", action: action)
             .buttonStyle(.accent)
-        .padding(.horizontal, 16)
-        .padding(.bottom, 8)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 8)
     }
 }

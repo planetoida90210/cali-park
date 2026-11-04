@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Rig
@@ -13,18 +14,23 @@ private struct OnboardingRig {
     let logStore = InMemoryWorkoutLogStore()
     let viewModel: OnboardingViewModel
 
-    init(planStore: WorkoutPlanStoring = InMemoryWorkoutPlanStore(),
-         goalStore: WeeklyGoalStoring = InMemoryWeeklyGoalStore()) {
+    init(
+        planStore: WorkoutPlanStoring = InMemoryWorkoutPlanStore(),
+        goalStore: WeeklyGoalStoring = InMemoryWeeklyGoalStore()
+    ) {
         self.planStore = planStore
         self.goalStore = goalStore
         let journal = TrainingJournal(store: logStore)
-        let progress = ProgressService(journal: journal, placementStore: placementStore,
-                                       calendar: ProgramFixtures.calendar, clock: { ProgramFixtures.today })
-        let starter = ProgramStarter(planService: .testing(planStore, logStore: logStore), progress: progress,
-                                     clock: { ProgramFixtures.today })
+        let progress = ProgressService(
+            journal: journal, placementStore: placementStore,
+            calendar: ProgramFixtures.calendar, clock: { ProgramFixtures.today })
+        let starter = ProgramStarter(
+            planService: .testing(planStore, logStore: logStore), progress: progress,
+            clock: { ProgramFixtures.today })
         viewModel = OnboardingViewModel(
-            calibration: PlacementCalibrationViewModel(store: placementStore, now: { ProgramFixtures.today },
-                                                       onSave: { progress.reloadPlacement() }),
+            calibration: PlacementCalibrationViewModel(
+                store: placementStore, now: { ProgramFixtures.today },
+                onSave: { progress.reloadPlacement() }),
             programChoice: ProgramChoiceViewModel(starter: starter),
             goalStore: goalStore,
             goals: nil,
@@ -72,12 +78,14 @@ struct OnboardingFlowTests {
         #expect(rig.viewModel.programChoice.choice == .program(.firstPullUp))
     }
 
-    @Test("The goal's days follow the chosen program, 3 without one", arguments: [
-        (ProgramChoiceViewModel.Choice.program(.fundamentals), 3),
-        (.program(.skills), 2),
-        (.program(.minimum), 3),
-        (.none, 3)
-    ])
+    @Test(
+        "The goal's days follow the chosen program, 3 without one",
+        arguments: [
+            (ProgramChoiceViewModel.Choice.program(.fundamentals), 3),
+            (.program(.skills), 2),
+            (.program(.minimum), 3),
+            (.none, 3)
+        ])
     func daysFollowProgram(choice: ProgramChoiceViewModel.Choice, days: Int) {
         let rig = OnboardingRig()
         rig.viewModel.programChoice.pick(choice)

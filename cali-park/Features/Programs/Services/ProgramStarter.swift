@@ -23,9 +23,11 @@ final class ProgramStarter {
     private let progress: ProgressService
     private let clock: () -> Date
 
-    init(planService: WorkoutPlanService,
-         progress: ProgressService,
-         clock: @escaping () -> Date = { .now }) {
+    init(
+        planService: WorkoutPlanService,
+        progress: ProgressService,
+        clock: @escaping () -> Date = { .now }
+    ) {
         self.planService = planService
         self.progress = progress
         self.clock = clock
@@ -90,8 +92,9 @@ final class ProgramStarter {
     /// were. Returns the new plans as saved.
     func replace(_ plan: WorkoutPlan, with program: TrainingProgram) async throws -> [WorkoutPlan] {
         await progress.settle()
-        let plans = ProgramPrescriber.replacementPlans(for: plan, program: program,
-                                                       pathStates: try pathStates(), today: clock())
+        let plans = ProgramPrescriber.replacementPlans(
+            for: plan, program: program,
+            pathStates: try pathStates(), today: clock())
         for created in plans {
             do {
                 try await planService.save(created)

@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Fixtures
@@ -69,8 +70,9 @@ struct OffMainProgressTests {
         _ = try await (first, second)
         await stack.settle()
 
-        let fresh = ProgressionEngine.snapshot(logs: stack.journal.entries, placement: nil,
-                                               calendar: TestCalendar.utc, today: TestDate.reference)
+        let fresh = ProgressionEngine.snapshot(
+            logs: stack.journal.entries, placement: nil,
+            calendar: TestCalendar.utc, today: TestDate.reference)
         #expect(stack.journal.entries.count == 2)
         #expect(stack.progress.snapshot.pathStates == fresh.pathStates)
         #expect(stack.progress.snapshot.level == fresh.level)
@@ -144,11 +146,13 @@ struct OffMainRewardTests {
         let now = F.day(3)
         let placementStore = InMemorySkillPlacementStore()
         let journal = TrainingJournal(store: InMemoryWorkoutLogStore(initial: F.trained(week: 0, days: [0, 1])))
-        let progress = ProgressService(journal: journal, placementStore: placementStore,
-                                       calendar: F.calendar, clock: { now })
-        let goals = WeeklyGoalService(journal: journal, store: InMemoryWeeklyGoalStore(),
-                                      planService: .testing(InMemoryWorkoutPlanStore()),
-                                      calendar: F.calendar, clock: { now })
+        let progress = ProgressService(
+            journal: journal, placementStore: placementStore,
+            calendar: F.calendar, clock: { now })
+        let goals = WeeklyGoalService(
+            journal: journal, store: InMemoryWeeklyGoalStore(),
+            planService: .testing(InMemoryWorkoutPlanStore()),
+            calendar: F.calendar, clock: { now })
         let rewards = RewardCenter(progress: progress, store: InMemorySkillProgressStore(), goals: goals)
 
         // The third training day meets the default goal.
@@ -175,15 +179,17 @@ struct OffMainHomeTests {
     private static let today = Date(timeIntervalSince1970: 1_793_779_200)
 
     private static func plan(_ name: String, _ schedule: WorkoutSchedule) -> WorkoutPlan {
-        WorkoutPlan(name: name, exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID)],
-                    schedule: schedule, createdAt: today - 7 * 86_400)
+        WorkoutPlan(
+            name: name, exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID)],
+            schedule: schedule, createdAt: today - 7 * 86_400)
     }
 
     @Test
     func homeShowsALogOnceItsSnapshotLands() async throws {
         let yesterday = Fixture.pullUps([8, 8, 8], date: Self.today - 86_400)
-        let home = HomeHarness(logStore: InMemoryWorkoutLogStore(initial: [yesterday]),
-                               calendar: Self.calendar, clock: { Self.today })
+        let home = HomeHarness(
+            logStore: InMemoryWorkoutLogStore(initial: [yesterday]),
+            calendar: Self.calendar, clock: { Self.today })
         let dashboard = home.dashboard
         // The first read is computed on the spot: Home never starts empty.
         #expect(dashboard.latestWorkout?.entries.map(\.id) == [yesterday.id])
@@ -222,7 +228,7 @@ struct OffMainHomeTests {
 
         await dashboard.settle()
 
-        guard case let .planToday(plan, _, _) = dashboard.heroState() else {
+        guard case .planToday(let plan, _, _) = dashboard.heroState() else {
             Issue.record("Expected today's plan, got \(dashboard.heroState())")
             return
         }
@@ -235,8 +241,9 @@ struct OffMainHomeTests {
     @Test
     func goingBackToTheShownInputsDropsTheComputationInFlight() async throws {
         let clock = ManualClock(Self.today)
-        let home = HomeHarness(logStore: InMemoryWorkoutLogStore(initial: [Fixture.pullUps([8], date: Self.today)]),
-                               calendar: Self.calendar, clock: { clock.now })
+        let home = HomeHarness(
+            logStore: InMemoryWorkoutLogStore(initial: [Fixture.pullUps([8], date: Self.today)]),
+            calendar: Self.calendar, clock: { clock.now })
         let dashboard = home.dashboard
         let shown = dashboard.snapshot
 

@@ -9,6 +9,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - ProgressionCatalog integrity
@@ -27,10 +28,11 @@ struct ProgressionCatalogTests {
     func thePullUpLadderNamesItsRungsInPolish() throws {
         let path = try #require(ProgressionCatalog.path(withID: .pullUp))
         let names = path.steps.map { ExerciseCatalog.exercise(withID: $0.exerciseID)?.name }
-        #expect(names == [
-            "Zwis na drążku", "Ściąganie łopatek w zwisie", "Zwis z wygięciem", "Negatywy podciągnięć",
-            "Podciągnięcia z gumą", "Podciągnięcia", "Podciągnięcia w L", "Podciągnięcia łucznicze"
-        ])
+        #expect(
+            names == [
+                "Zwis na drążku", "Ściąganie łopatek w zwisie", "Zwis z wygięciem", "Negatywy podciągnięć",
+                "Podciągnięcia z gumą", "Podciągnięcia", "Podciągnięcia w L", "Podciągnięcia łucznicze"
+            ])
     }
 
     @Test

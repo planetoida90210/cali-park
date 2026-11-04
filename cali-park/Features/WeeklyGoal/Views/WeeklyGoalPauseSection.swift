@@ -42,7 +42,8 @@ struct WeeklyGoalPauseSection: View {
         } header: {
             Text("Pauza")
         } footer: {
-            Text("""
+            Text(
+                """
                 Choroba albo wyjazd? Tygodnie pauzy nie liczą się do celu i nie przerywają serii, \
                 a cel wykonany mimo pauzy dalej się liczy. Pauza trwa najwyżej \
                 \(PolishPlural.days(WeeklyGoalPause.maximumDays)) i kończy się sama.

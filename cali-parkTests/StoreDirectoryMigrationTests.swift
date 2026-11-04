@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Helpers
@@ -50,9 +51,11 @@ private final class FailingMoveFileManager: FileManager {
 /// Cannot create directories, so the store directory never exists.
 private final class FailingCreateFileManager: FileManager {
     struct CreateError: Error {}
-    override func createDirectory(at url: URL,
-                                  withIntermediateDirectories createIntermediates: Bool,
-                                  attributes: [FileAttributeKey: Any]? = nil) throws {
+    override func createDirectory(
+        at url: URL,
+        withIntermediateDirectories createIntermediates: Bool,
+        attributes: [FileAttributeKey: Any]? = nil
+    ) throws {
         throw CreateError()
     }
 }
@@ -75,8 +78,10 @@ struct StoreDirectoryMigrationTests {
         }
         // A first write lands in the new directory.
         let log = FileWorkoutLogStore(directory: locations.directory(for: .workoutLog))
-        try await log.append(WorkoutLogEntry(exerciseID: StoreFixtures.pullUpsID, date: StoreFixtures.october1,
-                                       sets: [LoggedSet(reps: 5)]))
+        try await log.append(
+            WorkoutLogEntry(
+                exerciseID: StoreFixtures.pullUpsID, date: StoreFixtures.october1,
+                sets: [LoggedSet(reps: 5)]))
         #expect(rig.exists("workout-log.json", in: rig.destination))
         #expect(rig.exists("workout-log.json", in: rig.documents) == false)
     }
@@ -87,8 +92,10 @@ struct StoreDirectoryMigrationTests {
         for file in StoreFile.allCases {
             try rig.write("{\"from\": \"documents\"}", file.fileName, in: rig.documents)
         }
-        let fixture = try #require(Bundle(for: MigrationBundleToken.self).url(forResource: "workout-log-legacy",
-                                                                           withExtension: "json"))
+        let fixture = try #require(
+            Bundle(for: MigrationBundleToken.self).url(
+                forResource: "workout-log-legacy",
+                withExtension: "json"))
         try FileManager.default.removeItem(at: rig.documents.appending(path: "workout-log.json"))
         try FileManager.default.copyItem(at: fixture, to: rig.documents.appending(path: "workout-log.json"))
 
@@ -149,8 +156,10 @@ struct StoreDirectoryMigrationTests {
     @Test
     func aFailedMoveKeepsTheSourceAndReadsItThere() throws {
         let rig = try MigrationRig()
-        let fixture = try #require(Bundle(for: MigrationBundleToken.self).url(forResource: "workout-log-legacy",
-                                                                           withExtension: "json"))
+        let fixture = try #require(
+            Bundle(for: MigrationBundleToken.self).url(
+                forResource: "workout-log-legacy",
+                withExtension: "json"))
         try FileManager.default.copyItem(at: fixture, to: rig.documents.appending(path: "workout-log.json"))
         let original = try Data(contentsOf: rig.documents.appending(path: "workout-log.json"))
 
@@ -160,7 +169,8 @@ struct StoreDirectoryMigrationTests {
         #expect(try Data(contentsOf: rig.documents.appending(path: "workout-log.json")) == original)
         #expect(rig.exists("workout-log.json", in: rig.destination) == false)
         // No silent empty journal: the store still reads the old entries.
-        #expect(try FileWorkoutLogStore(directory: locations.directory(for: .workoutLog)).load()
+        #expect(
+            try FileWorkoutLogStore(directory: locations.directory(for: .workoutLog)).load()
                 == StoreFixtures.workoutLog)
         // Files that had nothing to move use the new directory.
         #expect(locations.directory(for: .weeklyGoal) == rig.destination)
@@ -195,17 +205,19 @@ struct StoreDirectoryMigrationTests {
     /// Changing a raw value would orphan the file every device already has.
     @Test
     func storeFileNamesArePinned() {
-        #expect(StoreFile.allCases.map(\.fileName) == [
-            "workout-log.json", "workout-plans.json", "skill-placement.json",
-            "skill-progress.json", "weekly-goal.json", "favorite-parks.json",
-            "favorite-exercises.json", "diagnostics.json"
-        ])
+        #expect(
+            StoreFile.allCases.map(\.fileName) == [
+                "workout-log.json", "workout-plans.json", "skill-placement.json",
+                "skill-progress.json", "weekly-goal.json", "favorite-parks.json",
+                "favorite-exercises.json", "diagnostics.json"
+            ])
         #expect(StoreFile.workoutPlans.quarantinePrefix == "workout-plans.corrupt-")
     }
 
     @Test
     func theLiveDirectoryIsApplicationSupportCaliPark() {
-        #expect(StoreDirectoryMigration.defaultDirectory
+        #expect(
+            StoreDirectoryMigration.defaultDirectory
                 == URL.applicationSupportDirectory.appending(path: "CaliPark", directoryHint: .isDirectory))
         #expect(StoreDirectoryMigration.live().legacyDirectory == URL.documentsDirectory)
     }

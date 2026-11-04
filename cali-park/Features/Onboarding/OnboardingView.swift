@@ -68,18 +68,18 @@ struct OnboardingView: View {
 }
 
 // MARK: - Page identity
-private extension View {
+extension View {
     /// Tags the page for the `TabView` and names it for the UI tests
     /// ("onboarding.page.program").
-    func onboardingPage(_ page: OnboardingPage) -> some View {
+    fileprivate func onboardingPage(_ page: OnboardingPage) -> some View {
         accessibilityElement(children: .contain)
             .accessibilityIdentifier("onboarding.page.\(page.identifier)")
             .tag(page)
     }
 }
 
-private extension OnboardingPage {
-    var identifier: String {
+extension OnboardingPage {
+    fileprivate var identifier: String {
         switch self {
         case .welcome: "welcome"
         case .placement: "placement"

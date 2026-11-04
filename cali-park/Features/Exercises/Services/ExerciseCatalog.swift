@@ -483,7 +483,8 @@ nonisolated enum ExerciseCatalog {
             name: "Zwis z wygięciem",
             category: .basic,
             muscleGroups: [.back, .shoulders],
-            description: "Ze zwisu ściągasz łopatki i wypychasz klatkę w stronę drążka, z prostymi łokciami. Uczy pozycji górnych pleców, z której ruszają mocne podciągnięcia.",
+            description:
+                "Ze zwisu ściągasz łopatki i wypychasz klatkę w stronę drążka, z prostymi łokciami. Uczy pozycji górnych pleców, z której ruszają mocne podciągnięcia.",
             instructions: [
                 "Zwiśnij na drążku nachwytem, ramiona proste.",
                 "Ściągnij łopatki w dół i do tyłu, wypchnij klatkę w stronę drążka.",
@@ -499,7 +500,8 @@ nonisolated enum ExerciseCatalog {
             name: "Negatywy podciągnięć",
             category: .basic,
             muscleGroups: [.back, .arms],
-            description: "Powolne opuszczanie z góry drążka. Buduje siłę do pierwszego pełnego podciągnięcia. Liczy się zjazd trwający 5–10 sekund.",
+            description:
+                "Powolne opuszczanie z góry drążka. Buduje siłę do pierwszego pełnego podciągnięcia. Liczy się zjazd trwający 5–10 sekund.",
             instructions: [
                 "Wejdź brodą nad drążek z podskoku lub podpórki.",
                 "Napnij plecy i ramiona.",
@@ -776,7 +778,8 @@ nonisolated enum ExerciseCatalog {
             name: "Przysiad wykroczny",
             category: .basic,
             muscleGroups: [.legs],
-            description: "Przysiad w stałym rozkroku: stopy się nie ruszają, ty schodzisz i wstajesz. Stabilniejszy niż wykroki, mocniej buduje przednią nogę.",
+            description:
+                "Przysiad w stałym rozkroku: stopy się nie ruszają, ty schodzisz i wstajesz. Stabilniejszy niż wykroki, mocniej buduje przednią nogę.",
             instructions: [
                 "Stań w długim rozkroku, jedna stopa z przodu, druga z tyłu na palcach.",
                 "Zejdź w dół, aż tylne kolano prawie dotknie ziemi.",
@@ -792,7 +795,8 @@ nonisolated enum ExerciseCatalog {
             name: "Przysiad bułgarski",
             category: .advanced,
             muscleGroups: [.legs, .core],
-            description: "Przysiad wykroczny z tylną stopą na ławce. Prawie cały ciężar idzie na przednią nogę, więc to dobry krok w stronę pistoletu.",
+            description:
+                "Przysiad wykroczny z tylną stopą na ławce. Prawie cały ciężar idzie na przednią nogę, więc to dobry krok w stronę pistoletu.",
             instructions: [
                 "Stań przodem od ławki i połóż na niej grzbiet tylnej stopy.",
                 "Przednia stopa daleko z przodu, tułów pionowo.",
@@ -927,7 +931,8 @@ nonisolated enum ExerciseCatalog {
             name: "L-sit z podporem jednej stopy",
             category: .basic,
             muscleGroups: [.core, .arms],
-            description: "L-sit, w którym jedna pięta zostaje na ziemi, a druga prosta noga wisi w powietrzu. Pierwszy krok do uniesienia obu nóg.",
+            description:
+                "L-sit, w którym jedna pięta zostaje na ziemi, a druga prosta noga wisi w powietrzu. Pierwszy krok do uniesienia obu nóg.",
             instructions: [
                 "Podpór na poręczach lub uchwytach, ramiona proste, barki w dół.",
                 "Jedną prostą nogę oprzyj piętą o ziemię.",
@@ -962,7 +967,8 @@ nonisolated enum ExerciseCatalog {
             name: "L-sit na jednej nodze",
             category: .advanced,
             muscleGroups: [.core, .arms],
-            description: "L-sit z jedną nogą prostą w poziomie i drugą podkurczoną. Trudniejszy niż tuck L-sit, ostatni krok przed pełnym L-sitem.",
+            description:
+                "L-sit z jedną nogą prostą w poziomie i drugą podkurczoną. Trudniejszy niż tuck L-sit, ostatni krok przed pełnym L-sitem.",
             instructions: [
                 "Podpór na poręczach, ramiona wyprostowane, barki w dół.",
                 "Unieś jedną prostą nogę do poziomu.",
@@ -1171,7 +1177,8 @@ nonisolated enum ExerciseCatalog {
             name: "Żabka na prostych rękach",
             category: .advanced,
             muscleGroups: [.shoulders, .arms, .core],
-            description: "Żabka z wyprostowanymi łokciami: kolana opierasz wysoko o ramiona, a ciężar trzymasz na prostych rękach. Uczy pochylenia barków przed dłonie, jak w planche.",
+            description:
+                "Żabka z wyprostowanymi łokciami: kolana opierasz wysoko o ramiona, a ciężar trzymasz na prostych rękach. Uczy pochylenia barków przed dłonie, jak w planche.",
             instructions: [
                 "Kucnij, dłonie na ziemi na szerokość barków, palce do przodu.",
                 "Oprzyj kolana wysoko o tył ramion, łokcie proste.",
@@ -1238,7 +1245,8 @@ nonisolated enum ExerciseCatalog {
             name: "Half-lay planche",
             category: .expert,
             muscleGroups: [.shoulders, .arms, .core],
-            description: "Planche ze złączonymi nogami zgiętymi w biodrach. Ostatni krok przed pełną planche, jak half-lay we front i back leverze.",
+            description:
+                "Planche ze złączonymi nogami zgiętymi w biodrach. Ostatni krok przed pełną planche, jak half-lay we front i back leverze.",
             instructions: [
                 "Wejdź w podpór z mocną protrakcją i ciężarem przed dłońmi.",
                 "Złącz nogi i zegnij biodra, skracając dźwignię.",
@@ -1291,7 +1299,8 @@ nonisolated enum ExerciseCatalog {
             name: "Advanced tuck flaga",
             category: .expert,
             muscleGroups: [.core, .shoulders, .back],
-            description: "Flaga z otwartymi biodrami i kolanami odsuniętymi od klatki. Cięższa dźwignia niż tuck, krok przed flagą w rozkroku.",
+            description:
+                "Flaga z otwartymi biodrami i kolanami odsuniętymi od klatki. Cięższa dźwignia niż tuck, krok przed flagą w rozkroku.",
             instructions: [
                 "Ustaw ręce na pionowym drążku jak do flagi.",
                 "Wejdź w tuck flagę z ciałem w poziomie.",
@@ -1359,7 +1368,8 @@ nonisolated enum ExerciseCatalog {
             name: "Pompki pike",
             category: .basic,
             muscleGroups: [.shoulders, .arms],
-            description: "Pompki z biodrami wysoko, ciało w kształcie odwróconego V. Przenoszą pchanie z klatki na barki i uczą ruchu pompki w staniu na rękach.",
+            description:
+                "Pompki z biodrami wysoko, ciało w kształcie odwróconego V. Przenoszą pchanie z klatki na barki i uczą ruchu pompki w staniu na rękach.",
             instructions: [
                 "Podpór przodem, przejdź stopami w stronę rąk, aż biodra będą wysoko.",
                 "Głowa między ramionami, ciężar nad dłońmi.",
@@ -1389,7 +1399,8 @@ nonisolated enum ExerciseCatalog {
             name: "Negatywy pompek w staniu przy ścianie",
             category: .advanced,
             muscleGroups: [.shoulders, .arms, .core],
-            description: "Powolne opuszczanie w staniu na rękach przy ścianie. Buduje siłę do pierwszej pełnej pompki w staniu. Liczy się zjazd trwający 5–10 sekund.",
+            description:
+                "Powolne opuszczanie w staniu na rękach przy ścianie. Buduje siłę do pierwszej pełnej pompki w staniu. Liczy się zjazd trwający 5–10 sekund.",
             instructions: [
                 "Wejdź w stanie na rękach przy ścianie.",
                 "Opuszczaj się równo i powoli — 5–10 sekund do lekkiego dotknięcia głową ziemi.",
@@ -1406,7 +1417,8 @@ nonisolated enum ExerciseCatalog {
             name: "Deska z dotknięciem barku",
             category: .basic,
             muscleGroups: [.core, .shoulders],
-            description: "Podpór na prostych rękach, w którym na zmianę dotykasz dłonią przeciwnego barku. Uczy trzymać biodra nieruchomo, gdy podpór robi się jednostronny.",
+            description:
+                "Podpór na prostych rękach, w którym na zmianę dotykasz dłonią przeciwnego barku. Uczy trzymać biodra nieruchomo, gdy podpór robi się jednostronny.",
             instructions: [
                 "Podpór na prostych rękach, dłonie pod barkami, stopy nieco szerzej niż biodra.",
                 "Napnij brzuch i pośladki, ciało w linii.",

@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - LoggedSet: measurement-aware construction
@@ -166,7 +167,7 @@ struct PolishPluralSecondsTests {
         (2, "2 sekundy"),
         (3, "3 sekundy"),
         (5, "5 sekund"),
-        (12, "12 sekund"),   // teens exception
+        (12, "12 sekund"), // teens exception
         (20, "20 sekund"),
         (22, "22 sekundy"),
         (0, "0 sekund")
@@ -189,9 +190,14 @@ struct TimedWorkoutLogViewModelTests {
         let viewModel = WorkoutLogViewModel(exercise: frontLever, store: store)
 
         // Log "3 × 15 s", a typical plank, via the pad.
-        viewModel.input.appendDigit(1); viewModel.input.appendDigit(5); viewModel.input.commitSet()
-        viewModel.input.appendDigit(1); viewModel.input.appendDigit(5); viewModel.input.commitSet()
-        viewModel.input.appendDigit(1); viewModel.input.appendDigit(5)
+        viewModel.input.appendDigit(1)
+        viewModel.input.appendDigit(5)
+        viewModel.input.commitSet()
+        viewModel.input.appendDigit(1)
+        viewModel.input.appendDigit(5)
+        viewModel.input.commitSet()
+        viewModel.input.appendDigit(1)
+        viewModel.input.appendDigit(5)
         await viewModel.save()
 
         let entry = try #require(store.load().first)

@@ -50,19 +50,22 @@ nonisolated enum HomeEngine {
     /// `entries` are newest first (`TrainingJournal.newestFirst`): that order
     /// lists a workout's exercises and breaks ties between workouts saved at
     /// the same instant.
-    static func snapshot(entries: [WorkoutLogEntry],
-                         plans: [WorkoutPlan],
-                         progress: ProgressSnapshot,
-                         calendar: Calendar = .current,
-                         today: Date = .now) -> HomeSnapshot {
+    static func snapshot(
+        entries: [WorkoutLogEntry],
+        plans: [WorkoutPlan],
+        progress: ProgressSnapshot,
+        calendar: Calendar = .current,
+        today: Date = .now
+    ) -> HomeSnapshot {
         let latest = latestWorkout(in: entries)
         let streak = streak(entries: entries, calendar: calendar, today: today)
         let suggestion = suggestedExercise(entries: entries)
         let agendaToday = PlanAgenda.day(today, plans: plans, entries: entries, calendar: calendar)
         let next = PlanAgenda.nextUndone(plans: plans, entries: entries, calendar: calendar, today: today)
         return HomeSnapshot(
-            hero: heroState(entries: entries, latestWorkout: latest, streak: streak, suggestion: suggestion,
-                            agendaToday: agendaToday, next: next, calendar: calendar, today: today),
+            hero: heroState(
+                entries: entries, latestWorkout: latest, streak: streak, suggestion: suggestion,
+                agendaToday: agendaToday, next: next, calendar: calendar, today: today),
             nextWorkout: nextWorkoutState(agendaToday: agendaToday, next: next, suggestion: suggestion),
             latestWorkout: latest,
             streak: streak,
@@ -120,10 +123,12 @@ nonisolated enum HomeEngine {
     }
 
     // MARK: Next workout module
-    static func nextWorkoutState(entries: [WorkoutLogEntry],
-                                 plans: [WorkoutPlan],
-                                 calendar: Calendar = .current,
-                                 today: Date = .now) -> NextWorkoutState {
+    static func nextWorkoutState(
+        entries: [WorkoutLogEntry],
+        plans: [WorkoutPlan],
+        calendar: Calendar = .current,
+        today: Date = .now
+    ) -> NextWorkoutState {
         nextWorkoutState(
             agendaToday: PlanAgenda.day(today, plans: plans, entries: entries, calendar: calendar),
             next: PlanAgenda.nextUndone(plans: plans, entries: entries, calendar: calendar, today: today),
@@ -131,9 +136,11 @@ nonisolated enum HomeEngine {
         )
     }
 
-    private static func nextWorkoutState(agendaToday: PlanAgenda.Day,
-                                         next: PlanAgenda.Occurrence?,
-                                         suggestion: Exercise?) -> NextWorkoutState {
+    private static func nextWorkoutState(
+        agendaToday: PlanAgenda.Day,
+        next: PlanAgenda.Occurrence?,
+        suggestion: Exercise?
+    ) -> NextWorkoutState {
         if agendaToday.isAllDone {
             return .doneToday(plans: agendaToday.due, next: next)
         }
@@ -150,28 +157,33 @@ nonisolated enum HomeEngine {
     /// The contextual hero state for `today`'s day, resolved from logs and
     /// plans. Decision tree: an undone plan today → trained today (every plan
     /// due today done, or a free workout)? → any plan ahead? → empty journal?
-    static func heroState(entries: [WorkoutLogEntry],
-                          plans: [WorkoutPlan],
-                          calendar: Calendar = .current,
-                          today: Date = .now) -> HomeHeroState {
-        heroState(entries: entries,
-                  latestWorkout: latestWorkout(in: entries),
-                  streak: streak(entries: entries, calendar: calendar, today: today),
-                  suggestion: suggestedExercise(entries: entries),
-                  agendaToday: PlanAgenda.day(today, plans: plans, entries: entries, calendar: calendar),
-                  next: PlanAgenda.nextUndone(plans: plans, entries: entries, calendar: calendar, today: today),
-                  calendar: calendar,
-                  today: today)
+    static func heroState(
+        entries: [WorkoutLogEntry],
+        plans: [WorkoutPlan],
+        calendar: Calendar = .current,
+        today: Date = .now
+    ) -> HomeHeroState {
+        heroState(
+            entries: entries,
+            latestWorkout: latestWorkout(in: entries),
+            streak: streak(entries: entries, calendar: calendar, today: today),
+            suggestion: suggestedExercise(entries: entries),
+            agendaToday: PlanAgenda.day(today, plans: plans, entries: entries, calendar: calendar),
+            next: PlanAgenda.nextUndone(plans: plans, entries: entries, calendar: calendar, today: today),
+            calendar: calendar,
+            today: today)
     }
 
-    private static func heroState(entries: [WorkoutLogEntry],
-                                  latestWorkout: WorkoutSession?,
-                                  streak: WorkoutStreak,
-                                  suggestion: Exercise?,
-                                  agendaToday: PlanAgenda.Day,
-                                  next: PlanAgenda.Occurrence?,
-                                  calendar: Calendar,
-                                  today: Date) -> HomeHeroState {
+    private static func heroState(
+        entries: [WorkoutLogEntry],
+        latestWorkout: WorkoutSession?,
+        streak: WorkoutStreak,
+        suggestion: Exercise?,
+        agendaToday: PlanAgenda.Day,
+        next: PlanAgenda.Occurrence?,
+        calendar: Calendar,
+        today: Date
+    ) -> HomeHeroState {
         // Q1 — is a plan due today and not done yet? Offer the first one.
         if let planToday = agendaToday.undone.first {
             let entriesToday = entries.filter { calendar.isDate($0.date, inSameDayAs: today) }
@@ -223,8 +235,8 @@ nonisolated enum HomeEngine {
     /// Resolves a rung reference into display names from the catalogs.
     private static func resolveAdvancement(_ reference: RungReference) -> HomeAchievementsSummary.Advancement? {
         guard let path = ProgressionCatalog.path(withID: reference.pathID),
-              let step = reference.step,
-              let exercise = ExerciseCatalog.exercise(withID: step.exerciseID)
+            let step = reference.step,
+            let exercise = ExerciseCatalog.exercise(withID: step.exerciseID)
         else { return nil }
         return HomeAchievementsSummary.Advancement(
             title: exercise.name,

@@ -11,13 +11,13 @@ nonisolated enum WeeklyGoalFormat {
     /// "L-sit: 180 s".
     static func title(_ metric: WeeklyGoal.Metric) -> String {
         switch metric {
-        case let .trainingDays(days):
+        case .trainingDays(let days):
             PolishPlural.trainingDays(days)
-        case let .plannedWorkouts(.count(workouts)):
+        case .plannedWorkouts(.count(let workouts)):
             String(localized: "\(PolishPlural.workouts(workouts)) z planu")
         case .plannedWorkouts(.allScheduled):
             String(localized: "Wszystkie zaplanowane treningi")
-        case let .exerciseVolume(exerciseID, measurement, amount):
+        case .exerciseVolume(let exerciseID, let measurement, let amount):
             "\(exerciseName(exerciseID)): \(amountText(amount, measurement))"
         }
     }
@@ -34,7 +34,7 @@ nonisolated enum WeeklyGoalFormat {
 
     /// `title` for VoiceOver, with seconds spelled out.
     static func spokenTitle(_ metric: WeeklyGoal.Metric) -> String {
-        guard case let .exerciseVolume(exerciseID, .seconds, amount) = metric else { return title(metric) }
+        guard case .exerciseVolume(let exerciseID, .seconds, let amount) = metric else { return title(metric) }
         return "\(exerciseName(exerciseID)): \(PolishPlural.seconds(amount))"
     }
 
@@ -51,7 +51,7 @@ nonisolated enum WeeklyGoalFormat {
             progress.target == 0
                 ? String(localized: "Brak zaplanowanych treningów")
                 : "\(progress.value) / \(PolishPlural.workouts(progress.target))"
-        case let .exerciseVolume(_, measurement, _):
+        case .exerciseVolume(_, let measurement, _):
             "\(progress.value) / \(amountText(progress.target, measurement))"
         }
     }
@@ -59,12 +59,13 @@ nonisolated enum WeeklyGoalFormat {
     /// `progress` for VoiceOver: "2 z 3", then the unit.
     static func spokenProgress(_ progress: WeeklyGoalProgress) -> String {
         guard progress.target > 0 else { return self.progress(progress) }
-        let target = switch progress.goal.metric {
-        case .trainingDays: PolishPlural.days(progress.target)
-        case .plannedWorkouts: PolishPlural.workouts(progress.target)
-        case .exerciseVolume(_, .seconds, _): PolishPlural.seconds(progress.target)
-        case let .exerciseVolume(_, measurement, _): amountText(progress.target, measurement)
-        }
+        let target =
+            switch progress.goal.metric {
+            case .trainingDays: PolishPlural.days(progress.target)
+            case .plannedWorkouts: PolishPlural.workouts(progress.target)
+            case .exerciseVolume(_, .seconds, _): PolishPlural.seconds(progress.target)
+            case .exerciseVolume(_, let measurement, _): amountText(progress.target, measurement)
+            }
         return String(localized: "\(progress.value) z \(target)")
     }
 

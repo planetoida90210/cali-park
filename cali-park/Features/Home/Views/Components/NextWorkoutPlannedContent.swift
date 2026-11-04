@@ -24,9 +24,11 @@ struct NextWorkoutPlannedContent: View {
                         .font(.bodyLarge)
                         .foregroundStyle(Color.textPrimary)
 
-                    Text("\(WorkoutScheduleFormatter.dayLabel(planned.date, asOf: today, calendar: calendar)) · \(PolishPlural.exercises(planned.plan.exerciseCount))")
-                        .font(.bodySmall)
-                        .foregroundStyle(Color.textSecondary)
+                    Text(
+                        "\(WorkoutScheduleFormatter.dayLabel(planned.date, asOf: today, calendar: calendar)) · \(PolishPlural.exercises(planned.plan.exerciseCount))"
+                    )
+                    .font(.bodySmall)
+                    .foregroundStyle(Color.textSecondary)
                 }
 
                 Spacer()

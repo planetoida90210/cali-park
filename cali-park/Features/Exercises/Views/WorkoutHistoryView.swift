@@ -75,7 +75,9 @@ private struct WorkoutSessionHeader: View {
         .font(.bodySmall)
         .foregroundStyle(Color.textSecondary)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Trening, \(PolishPlural.exercises(section.entries.count)), \(MeasureFormat.totals(reps: section.totalReps, seconds: section.totalSeconds))")
+        .accessibilityLabel(
+            "Trening, \(PolishPlural.exercises(section.entries.count)), \(MeasureFormat.totals(reps: section.totalReps, seconds: section.totalSeconds))"
+        )
     }
 }
 
@@ -149,12 +151,13 @@ private struct WorkoutHistoryEmptyState: View {
     NavigationStack {
         WorkoutHistoryView(
             viewModel: WorkoutHistoryViewModel(
-                journal: TrainingJournal(store: InMemoryWorkoutLogStore(initial: [
-                    WorkoutLogEntry(
-                        exerciseID: ExerciseCatalog.pullUpsID,
-                        sets: [LoggedSet(reps: 6), LoggedSet(reps: 6), LoggedSet(reps: 8)]
-                    )
-                ]))
+                journal: TrainingJournal(
+                    store: InMemoryWorkoutLogStore(initial: [
+                        WorkoutLogEntry(
+                            exerciseID: ExerciseCatalog.pullUpsID,
+                            sets: [LoggedSet(reps: 6), LoggedSet(reps: 6), LoggedSet(reps: 8)]
+                        )
+                    ]))
             )
         )
     }

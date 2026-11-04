@@ -46,9 +46,11 @@ final class PlacementCalibrationViewModel {
     private let onSave: @MainActor () -> Void
 
     // MARK: Init
-    init(store: SkillPlacementStoring,
-         now: @escaping () -> Date = { .now },
-         onSave: @escaping @MainActor () -> Void = {}) {
+    init(
+        store: SkillPlacementStoring,
+        now: @escaping () -> Date = { .now },
+        onSave: @escaping @MainActor () -> Void = {}
+    ) {
         self.store = store
         self.now = now
         self.onSave = onSave
@@ -90,9 +92,9 @@ final class PlacementCalibrationViewModel {
     func savedRungName(for question: RepCountQuestion) -> String? {
         let shownBySkill = skillQuestions.contains { $0.path == question.path && masteredSkills.contains($0.id) }
         guard repAnswers[question.id] == nil,
-              !shownBySkill,
-              !answeredPaths.contains(question.path),
-              let step = savedPlacement?.declaredReference(for: question.path)?.step
+            !shownBySkill,
+            !answeredPaths.contains(question.path),
+            let step = savedPlacement?.declaredReference(for: question.path)?.step
         else { return nil }
         return ExerciseCatalog.exercise(withID: step.exerciseID)?.name
     }

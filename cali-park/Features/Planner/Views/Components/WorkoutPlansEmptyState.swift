@@ -25,7 +25,7 @@ struct WorkoutPlansEmptyState: View {
 
             Button("Nowy plan", systemImage: "plus", action: onCreate)
                 .buttonStyle(.accent(.compact, fillsWidth: false))
-            .padding(.top, 8)
+                .padding(.top, 8)
 
             Button("Wybierz gotowy program", systemImage: "list.bullet.clipboard", action: onBrowsePrograms)
                 .accessibilityIdentifier("plans.browsePrograms")

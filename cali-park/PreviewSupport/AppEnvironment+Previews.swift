@@ -28,21 +28,24 @@ extension AppEnvironment {
     /// location is a fixed point (central Warsaw) so previews never prompt.
     /// Home module preferences live in a throwaway `UserDefaults` suite, so
     /// previews and tests never read or change the real ones.
-    static func seeded(logs: [WorkoutLogEntry] = [],
-                       plans: [WorkoutPlan] = [],
-                       placement: SkillPlacement? = nil,
-                       weeklyGoal: WeeklyGoalHistory? = nil,
-                       favoriteParks: [UUID] = [],
-                       favoriteExercises: [UUID] = [],
-                       diagnosticReports: [DiagnosticReport] = [],
-                       location: LocationProviding? = nil,
-                       defaults: UserDefaults = .throwaway()) -> AppEnvironment {
+    static func seeded(
+        logs: [WorkoutLogEntry] = [],
+        plans: [WorkoutPlan] = [],
+        placement: SkillPlacement? = nil,
+        weeklyGoal: WeeklyGoalHistory? = nil,
+        favoriteParks: [UUID] = [],
+        favoriteExercises: [UUID] = [],
+        diagnosticReports: [DiagnosticReport] = [],
+        location: LocationProviding? = nil,
+        defaults: UserDefaults = .throwaway()
+    ) -> AppEnvironment {
         AppEnvironment(
             parkDirectory: BundledParkDirectory(),
-            locationProvider: location ?? FixedLocationProvider(
-                authorization: .authorized,
-                location: CLLocationCoordinate2D(latitude: 52.2297, longitude: 21.0122)
-            ),
+            locationProvider: location
+                ?? FixedLocationProvider(
+                    authorization: .authorized,
+                    location: CLLocationCoordinate2D(latitude: 52.2297, longitude: 21.0122)
+                ),
             favoriteParkStore: InMemoryFavoriteParkStore(initial: favoriteParks),
             favoriteExerciseStore: InMemoryFavoriteExerciseStore(initial: favoriteExercises),
             workoutLogStore: InMemoryWorkoutLogStore(initial: logs),
@@ -109,8 +112,9 @@ extension AppEnvironment {
     /// The seasoned athlete's journal (see `skillsVeteran`), logged at `date`.
     static func veteranLogs(at date: Date = .now) -> [WorkoutLogEntry] {
         func timed(_ id: UUID, seconds: Int, holds: Int = 3) -> WorkoutLogEntry {
-            WorkoutLogEntry(exerciseID: id, date: date,
-                            sets: Array(repeating: LoggedSet(reps: 1, durationSeconds: seconds), count: holds))
+            WorkoutLogEntry(
+                exerciseID: id, date: date,
+                sets: Array(repeating: LoggedSet(reps: 1, durationSeconds: seconds), count: holds))
         }
         func reps(_ id: UUID, reps: Int, sets: Int = 3) -> WorkoutLogEntry {
             WorkoutLogEntry(exerciseID: id, date: date, sets: Array(repeating: LoggedSet(reps: reps), count: sets))

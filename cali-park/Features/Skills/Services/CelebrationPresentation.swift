@@ -23,13 +23,15 @@ nonisolated struct CelebrationPresentation: Equatable, Sendable {
     /// A single spoken sentence for VoiceOver.
     let accessibilityLabel: String
 
-    init(eyebrow: String,
-         title: String,
-         subtitle: String?,
-         list: [String] = [],
-         xpNote: String?,
-         symbolName: String,
-         accessibilityLabel: String) {
+    init(
+        eyebrow: String,
+        title: String,
+        subtitle: String?,
+        list: [String] = [],
+        xpNote: String?,
+        symbolName: String,
+        accessibilityLabel: String
+    ) {
         self.eyebrow = eyebrow
         self.title = title
         self.subtitle = subtitle
@@ -42,8 +44,8 @@ nonisolated struct CelebrationPresentation: Equatable, Sendable {
     /// The presentation for an event, resolved from the catalogs.
     static func resolving(_ event: CelebrationEvent) -> CelebrationPresentation {
         switch event {
-        case let .rungConquered(rung): rungPresentation(rung)
-        case let .levelReached(level): levelPresentation(level)
+        case .rungConquered(let rung): rungPresentation(rung)
+        case .levelReached(let level): levelPresentation(level)
         }
     }
 
@@ -51,8 +53,8 @@ nonisolated struct CelebrationPresentation: Equatable, Sendable {
     /// or the card for several rungs conquered together.
     static func resolving(_ celebration: QueuedCelebration) -> CelebrationPresentation {
         switch celebration {
-        case let .single(event): resolving(event)
-        case let .rungs(rungs): rungsPresentation(rungs)
+        case .single(let event): resolving(event)
+        case .rungs(let rungs): rungsPresentation(rungs)
         }
     }
 
@@ -80,11 +82,12 @@ nonisolated struct CelebrationPresentation: Equatable, Sendable {
         let pathName = path?.name
         let xpNote = String(localized: "+\(ProgressionEngine.xpPerConqueredRung) XP")
 
-        let accessibilityLabel = if let pathName {
-            String(localized: "Zaliczony szczebel: \(exerciseName) na ścieżce \(pathName). \(xpNote).")
-        } else {
-            String(localized: "Zaliczony szczebel: \(exerciseName). \(xpNote).")
-        }
+        let accessibilityLabel =
+            if let pathName {
+                String(localized: "Zaliczony szczebel: \(exerciseName) na ścieżce \(pathName). \(xpNote).")
+            } else {
+                String(localized: "Zaliczony szczebel: \(exerciseName). \(xpNote).")
+            }
         return CelebrationPresentation(
             eyebrow: String(localized: "ZALICZONY SZCZEBEL"),
             title: exerciseName,
@@ -114,11 +117,12 @@ nonisolated struct CelebrationPresentation: Equatable, Sendable {
         let list = names.joined(separator: ", ")
 
         let count = PolishPlural.newRungs(rungs.count)
-        let accessibilityLabel = switch paths.count {
-        case 0: String(localized: "\(count): \(list). \(xpNote).")
-        case 1: String(localized: "\(count) na ścieżce \(pathNames): \(list). \(xpNote).")
-        default: String(localized: "\(count) na ścieżkach \(pathNames): \(list). \(xpNote).")
-        }
+        let accessibilityLabel =
+            switch paths.count {
+            case 0: String(localized: "\(count): \(list). \(xpNote).")
+            case 1: String(localized: "\(count) na ścieżce \(pathNames): \(list). \(xpNote).")
+            default: String(localized: "\(count) na ścieżkach \(pathNames): \(list). \(xpNote).")
+            }
         return CelebrationPresentation(
             eyebrow: String(localized: "ZALICZONE SZCZEBLE"),
             title: count,

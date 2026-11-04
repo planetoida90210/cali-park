@@ -118,9 +118,11 @@ private struct NotAParkNotice: View {
                 Text("To jeszcze nie Park")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.textPrimary)
-                Text("Na mapie są tylko miejsca, gdzie zrobisz pełny trening: z drążkiem albo poręczami. Same kółka, drabinki czy maszyny nie wystarczą. Jeśli jest tu drążek albo poręcze, zaznacz je wyżej.")
-                    .font(.footnote)
-                    .foregroundStyle(Color.textSecondary)
+                Text(
+                    "Na mapie są tylko miejsca, gdzie zrobisz pełny trening: z drążkiem albo poręczami. Same kółka, drabinki czy maszyny nie wystarczą. Jeśli jest tu drążek albo poręcze, zaznacz je wyżej."
+                )
+                .font(.footnote)
+                .foregroundStyle(Color.textSecondary)
             }
         }
         .padding(14)

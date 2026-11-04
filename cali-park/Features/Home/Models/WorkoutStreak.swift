@@ -12,9 +12,11 @@ nonisolated struct WorkoutStreak: Equatable {
     /// Start-of-day dates with at least one workout — for calendar rendering.
     let trainedDays: Set<Date>
 
-    static func compute(from dates: [Date],
-                        calendar: Calendar = .current,
-                        today: Date = .now) -> WorkoutStreak {
+    static func compute(
+        from dates: [Date],
+        calendar: Calendar = .current,
+        today: Date = .now
+    ) -> WorkoutStreak {
         let days = Set(dates.map { calendar.startOfDay(for: $0) })
         return WorkoutStreak(
             current: currentRun(in: days, calendar: calendar, today: today),
@@ -47,12 +49,14 @@ nonisolated struct WorkoutStreak: Equatable {
         for day in days {
             // Only walk forward from the first day of each run.
             guard let previous = calendar.date(byAdding: .day, value: -1, to: day),
-                  !days.contains(previous) else { continue }
+                !days.contains(previous)
+            else { continue }
 
             var run = 1
             var cursor = day
             while let next = calendar.date(byAdding: .day, value: 1, to: cursor),
-                  days.contains(next) {
+                days.contains(next)
+            {
                 run += 1
                 cursor = next
             }

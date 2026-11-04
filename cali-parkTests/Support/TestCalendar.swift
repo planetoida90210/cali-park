@@ -33,11 +33,15 @@ enum TestDate {
     }
 
     /// A wall-clock time in `calendar` (UTC by default).
-    static func at(_ year: Int, _ month: Int, _ day: Int,
-                   _ hour: Int = 12, _ minute: Int = 0, _ second: Int = 0,
-                   in calendar: Calendar = TestCalendar.utc) -> Date {
-        calendar.date(from: DateComponents(year: year, month: month, day: day,
-                                           hour: hour, minute: minute, second: second))!
+    static func at(
+        _ year: Int, _ month: Int, _ day: Int,
+        _ hour: Int = 12, _ minute: Int = 0, _ second: Int = 0,
+        in calendar: Calendar = TestCalendar.utc
+    ) -> Date {
+        calendar.date(
+            from: DateComponents(
+                year: year, month: month, day: day,
+                hour: hour, minute: minute, second: second))!
     }
 
     /// 2026-11-04T12:00:00Z, a Wednesday: "today" for tests that only need

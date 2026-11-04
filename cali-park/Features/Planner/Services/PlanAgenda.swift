@@ -44,9 +44,10 @@ nonisolated enum PlanAgenda {
 
         init(entries: [WorkoutLogEntry], calendar: Calendar = .current) {
             self.calendar = calendar
-            keys = Set(entries.compactMap { entry in
-                entry.planID.map { Key(planID: $0, day: calendar.startOfDay(for: entry.date)) }
-            })
+            keys = Set(
+                entries.compactMap { entry in
+                    entry.planID.map { Key(planID: $0, day: calendar.startOfDay(for: entry.date)) }
+                })
         }
 
         /// Whether an entry on `day`'s calendar day carries `planID`.
@@ -58,20 +59,25 @@ nonisolated enum PlanAgenda {
     // MARK: Queries
 
     /// Whether any entry on `day`'s calendar day carries `plan.id`.
-    static func isDone(_ plan: WorkoutPlan,
-                       on day: Date,
-                       entries: [WorkoutLogEntry],
-                       calendar: Calendar = .current) -> Bool {
+    static func isDone(
+        _ plan: WorkoutPlan,
+        on day: Date,
+        entries: [WorkoutLogEntry],
+        calendar: Calendar = .current
+    ) -> Bool {
         entries.contains { $0.planID == plan.id && calendar.isDate($0.date, inSameDayAs: day) }
     }
 
     /// The plans due on `today`, split into done and not done.
-    static func day(_ today: Date = .now,
-                    plans: [WorkoutPlan],
-                    entries: [WorkoutLogEntry],
-                    calendar: Calendar = .current) -> Day {
+    static func day(
+        _ today: Date = .now,
+        plans: [WorkoutPlan],
+        entries: [WorkoutLogEntry],
+        calendar: Calendar = .current
+    ) -> Day {
         let startOfToday = calendar.startOfDay(for: today)
-        let due = plans
+        let due =
+            plans
             .filter { $0.nextOccurrence(onOrAfter: startOfToday, calendar: calendar) == startOfToday }
             .sorted(by: olderFirst)
         let entriesToday = entries.filter { calendar.isDate($0.date, inSameDayAs: today) }
@@ -82,10 +88,12 @@ nonisolated enum PlanAgenda {
     /// The soonest occurrence that still needs doing: a plan due today counts
     /// only while it is not done, otherwise its next scheduled day is used.
     /// Ties on the same day go to the older plan, for a stable result.
-    static func nextUndone(plans: [WorkoutPlan],
-                           entries: [WorkoutLogEntry],
-                           calendar: Calendar = .current,
-                           today: Date = .now) -> Occurrence? {
+    static func nextUndone(
+        plans: [WorkoutPlan],
+        entries: [WorkoutLogEntry],
+        calendar: Calendar = .current,
+        today: Date = .now
+    ) -> Occurrence? {
         plans
             .compactMap { plan in
                 nextUndoneDate(of: plan, entries: entries, calendar: calendar, today: today)
@@ -95,10 +103,12 @@ nonisolated enum PlanAgenda {
     }
 
     /// The plan's next scheduled day, skipping today when it is already done.
-    static func nextUndoneDate(of plan: WorkoutPlan,
-                               entries: [WorkoutLogEntry],
-                               calendar: Calendar = .current,
-                               today: Date = .now) -> Date? {
+    static func nextUndoneDate(
+        of plan: WorkoutPlan,
+        entries: [WorkoutLogEntry],
+        calendar: Calendar = .current,
+        today: Date = .now
+    ) -> Date? {
         let startOfToday = calendar.startOfDay(for: today)
         guard let next = plan.nextOccurrence(onOrAfter: startOfToday, calendar: calendar) else { return nil }
         guard next == startOfToday, isDone(plan, on: today, entries: entries, calendar: calendar) else { return next }

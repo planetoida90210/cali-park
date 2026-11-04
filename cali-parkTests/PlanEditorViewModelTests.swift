@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Shared stubs
@@ -274,8 +275,9 @@ struct ExpiredPlanListTests {
         let past = try #require(CalendarDay(year: 2026, month: 11, day: 3))
         let now = try #require(CalendarDay(year: 2026, month: 11, day: 4)).startDate(in: Fixtures.calendar)
         let plan = WorkoutPlan(name: "Raz", schedule: .once(past))
-        let viewModel = WorkoutPlansViewModel(service: .testing(InMemoryWorkoutPlanStore(initial: [plan])),
-                                              calendar: Fixtures.calendar, now: { now })
+        let viewModel = WorkoutPlansViewModel(
+            service: .testing(InMemoryWorkoutPlanStore(initial: [plan])),
+            calendar: Fixtures.calendar, now: { now })
 
         #expect(viewModel.scheduleSummary(for: plan).hasPrefix("Minął · 3 "))
     }
@@ -356,9 +358,10 @@ struct WorkoutScheduleFormatterTests {
     @Test
     func aDateNeverWrapsFromItsMonth() throws {
         let today = try #require(CalendarDay(year: 2026, month: 11, day: 4))
-        let line = try #require(WorkoutScheduleFormatter.upcomingDays(
-            .everyNDays(3, from: today), asOf: today.startDate(in: Fixtures.calendar),
-            calendar: Fixtures.calendar, locale: Self.polish))
+        let line = try #require(
+            WorkoutScheduleFormatter.upcomingDays(
+                .everyNDays(3, from: today), asOf: today.startDate(in: Fixtures.calendar),
+                calendar: Fixtures.calendar, locale: Self.polish))
         #expect(line.hasSuffix("7\u{00A0}lis, 10\u{00A0}lis"))
     }
 

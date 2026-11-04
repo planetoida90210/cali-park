@@ -51,10 +51,12 @@ extension XCUIApplication {
     /// Swipes the screen up until the element with `identifier` is on screen,
     /// for rows a list only builds once they scroll into view.
     @discardableResult
-    func scrolledTo(_ identifier: String,
-                    maxSwipes: Int = 8,
-                    file: StaticString = #filePath,
-                    line: UInt = #line) -> XCUIElement {
+    func scrolledTo(
+        _ identifier: String,
+        maxSwipes: Int = 8,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> XCUIElement {
         let target = element(identifier)
         var swipes = 0
         while !(target.exists && target.isHittable), swipes < maxSwipes {
@@ -90,9 +92,11 @@ extension XCUIElement {
     /// Fails the test unless the element appears within `timeout`, and
     /// returns it for chaining.
     @discardableResult
-    func waitToAppear(timeout: TimeInterval = 10,
-                      file: StaticString = #filePath,
-                      line: UInt = #line) -> XCUIElement {
+    func waitToAppear(
+        timeout: TimeInterval = 10,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> XCUIElement {
         XCTAssertTrue(waitForExistence(timeout: timeout), "\(self) did not appear", file: file, line: line)
         return self
     }
@@ -100,9 +104,11 @@ extension XCUIElement {
     /// Fails the test unless the element becomes tappable on screen within
     /// `timeout` (a paged onboarding step that has scrolled into view).
     @discardableResult
-    func waitToBeHittable(timeout: TimeInterval = 10,
-                          file: StaticString = #filePath,
-                          line: UInt = #line) -> XCUIElement {
+    func waitToBeHittable(
+        timeout: TimeInterval = 10,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> XCUIElement {
         let expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: "hittable == true"), object: self)
         let result = XCTWaiter().wait(for: [expectation], timeout: timeout)
         XCTAssertEqual(result, .completed, "\(self) did not become hittable", file: file, line: line)
@@ -141,7 +147,8 @@ extension XCUIElement {
     /// Fails the test unless the element is gone within `timeout`.
     func waitToDisappear(timeout: TimeInterval = 10, file: StaticString = #filePath, line: UInt = #line) {
         let expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: self)
-        XCTAssertEqual(XCTWaiter().wait(for: [expectation], timeout: timeout), .completed,
-                       "\(self) is still on screen", file: file, line: line)
+        XCTAssertEqual(
+            XCTWaiter().wait(for: [expectation], timeout: timeout), .completed,
+            "\(self) is still on screen", file: file, line: line)
     }
 }

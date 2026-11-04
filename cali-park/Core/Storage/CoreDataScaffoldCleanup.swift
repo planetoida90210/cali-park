@@ -21,9 +21,11 @@ nonisolated struct CoreDataScaffoldCleanup {
 
     private static let logger = AppLog.logger(category: "CoreDataScaffoldCleanup")
 
-    init(directory: URL = .applicationSupportDirectory,
-         defaults: UserDefaults = .standard,
-         fileManager: FileManager = .default) {
+    init(
+        directory: URL = .applicationSupportDirectory,
+        defaults: UserDefaults = .standard,
+        fileManager: FileManager = .default
+    ) {
         self.directory = directory
         self.defaults = defaults
         self.fileManager = fileManager

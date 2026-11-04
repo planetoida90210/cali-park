@@ -51,12 +51,14 @@ nonisolated enum ExerciseListSections {
     ///   - includesVariants: whether search also matches progression variants
     ///     (the pickers) or only main movements (the Exercises tab). The
     ///     catalog section without a search lists main movements only.
-    static func make(catalog: [Exercise],
-                     favoriteIDs: [UUID],
-                     recentExerciseIDs: some Sequence<UUID> = [UUID](),
-                     category: ExerciseCategory?,
-                     query: String,
-                     includesVariants: Bool) -> [ExerciseListSection] {
+    static func make(
+        catalog: [Exercise],
+        favoriteIDs: [UUID],
+        recentExerciseIDs: some Sequence<UUID> = [UUID](),
+        category: ExerciseCategory?,
+        query: String,
+        includesVariants: Bool
+    ) -> [ExerciseListSection] {
         let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
         let mainMovements = catalog.filter { $0.variantOf == nil }
 
@@ -67,8 +69,9 @@ nonisolated enum ExerciseListSections {
 
         let byID = Dictionary(catalog.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         let favorites = filtered(unique(favoriteIDs).compactMap { byID[$0] }, category: category, query: "")
-        let recent = recentExercises(recentExerciseIDs, byID: byID,
-                                     excluding: Set(favorites.map(\.id)), category: category)
+        let recent = recentExercises(
+            recentExerciseIDs, byID: byID,
+            excluding: Set(favorites.map(\.id)), category: category)
         let everything = filtered(mainMovements, category: category, query: "")
 
         var sections: [ExerciseListSection] = []
@@ -79,9 +82,11 @@ nonisolated enum ExerciseListSections {
             sections.append(ExerciseListSection(kind: .recent, title: recentTitle, exercises: recent))
         }
         if !everything.isEmpty {
-            sections.append(ExerciseListSection(kind: .catalog,
-                                                title: sections.isEmpty ? nil : catalogTitle,
-                                                exercises: everything))
+            sections.append(
+                ExerciseListSection(
+                    kind: .catalog,
+                    title: sections.isEmpty ? nil : catalogTitle,
+                    exercises: everything))
         }
         return sections
     }
@@ -99,10 +104,12 @@ nonisolated enum ExerciseListSections {
 
     /// Up to `recentLimit` distinct catalog exercises in the order of
     /// `ids`, skipping favorites and other categories.
-    private static func recentExercises(_ ids: some Sequence<UUID>,
-                                        byID: [UUID: Exercise],
-                                        excluding favorites: Set<UUID>,
-                                        category: ExerciseCategory?) -> [Exercise] {
+    private static func recentExercises(
+        _ ids: some Sequence<UUID>,
+        byID: [UUID: Exercise],
+        excluding favorites: Set<UUID>,
+        category: ExerciseCategory?
+    ) -> [Exercise] {
         var seen = favorites
         var result: [Exercise] = []
         for id in ids where seen.insert(id).inserted {

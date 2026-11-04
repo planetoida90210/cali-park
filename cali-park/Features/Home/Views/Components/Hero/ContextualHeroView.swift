@@ -84,11 +84,13 @@ struct ContextualHeroView: View {
 /// store. The real states come from `heroState(asOf:)` in the app.
 private enum HeroPreview {
     static let planToday = HomeHeroState.planToday(
-        plan: WorkoutPlan(name: "Push Day", exercises: [
-            PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID),
-            PlannedExercise(exerciseID: ExerciseCatalog.dipsID),
-            PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)
-        ]),
+        plan: WorkoutPlan(
+            name: "Push Day",
+            exercises: [
+                PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID),
+                PlannedExercise(exerciseID: ExerciseCatalog.dipsID),
+                PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)
+            ]),
         loggedTodayReps: 24
     )
 
@@ -97,7 +99,8 @@ private enum HeroPreview {
             id: sharedSession,
             date: .now,
             entries: [
-                WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, sets: [LoggedSet(reps: 8), LoggedSet(reps: 6)], sessionID: sharedSession),
+                WorkoutLogEntry(
+                    exerciseID: ExerciseCatalog.pullUpsID, sets: [LoggedSet(reps: 8), LoggedSet(reps: 6)], sessionID: sharedSession),
                 WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID, sets: [LoggedSet(reps: 12)], sessionID: sharedSession)
             ]
         ),
@@ -150,7 +153,6 @@ private enum HeroPreview {
     .dynamicTypeSize(.accessibility5)
     .preferredColorScheme(.dark)
 }
-
 
 #Preview("Zrobione dziś") {
     HeroPreview.card(HeroPreview.completedToday)

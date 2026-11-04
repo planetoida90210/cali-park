@@ -34,10 +34,12 @@ nonisolated enum ProgressionEngine {
     /// Every progress answer for the given logs and placement, from one
     /// scoring pass: path states with and without the placement, XP and level,
     /// badges, conquered rungs, the last advancement and the hint.
-    static func snapshot(logs: [WorkoutLogEntry],
-                         placement: SkillPlacement?,
-                         calendar: Calendar = .current,
-                         today: Date = .now) -> ProgressSnapshot {
+    static func snapshot(
+        logs: [WorkoutLogEntry],
+        placement: SkillPlacement?,
+        calendar: Calendar = .current,
+        today: Date = .now
+    ) -> ProgressSnapshot {
         let scoring = ScoringLog(logs)
         let logStates = pathStates(scoring, placement: nil)
         let states = placement == nil ? logStates : pathStates(scoring, placement: placement)
@@ -58,13 +60,17 @@ nonisolated enum ProgressionEngine {
 
     /// The state of every catalog path for the given logs and placement.
     /// Pass `nil` (or `.empty`) placement to score from logs alone.
-    static func pathStates(logs: [WorkoutLogEntry],
-                           placement: SkillPlacement?) -> [ProgressionPathID: PathState] {
+    static func pathStates(
+        logs: [WorkoutLogEntry],
+        placement: SkillPlacement?
+    ) -> [ProgressionPathID: PathState] {
         pathStates(ScoringLog(logs), placement: placement)
     }
 
-    static func pathStates(_ scoring: ScoringLog,
-                           placement: SkillPlacement?) -> [ProgressionPathID: PathState] {
+    static func pathStates(
+        _ scoring: ScoringLog,
+        placement: SkillPlacement?
+    ) -> [ProgressionPathID: PathState] {
         var states: [ProgressionPathID: PathState] = [:]
         states.reserveCapacity(ProgressionCatalog.all.count)
         for path in ProgressionCatalog.all {
@@ -81,15 +87,19 @@ nonisolated enum ProgressionEngine {
     /// are options, never the mandatory next step, so the current rung skips
     /// them (audit A-3). Logging one still counts like any other rung: it can
     /// conquer itself and the rungs below it, and earns XP and a celebration.
-    static func pathState(for path: ProgressionPath,
-                          logs: [WorkoutLogEntry],
-                          placement: SkillPlacement?) -> PathState {
+    static func pathState(
+        for path: ProgressionPath,
+        logs: [WorkoutLogEntry],
+        placement: SkillPlacement?
+    ) -> PathState {
         pathState(for: path, scoring: ScoringLog(logs), placement: placement)
     }
 
-    private static func pathState(for path: ProgressionPath,
-                                  scoring: ScoringLog,
-                                  placement: SkillPlacement?) -> PathState {
+    private static func pathState(
+        for path: ProgressionPath,
+        scoring: ScoringLog,
+        placement: SkillPlacement?
+    ) -> PathState {
         let rungCount = path.steps.count
 
         // Highest rung whose criterion the logs satisfy in a single session.
@@ -108,7 +118,8 @@ nonisolated enum ProgressionEngine {
         let conqueredRungCount = conqueredThrough + 1
         // Train the first unconquered main-line rung, or stay on the top once
         // complete.
-        let currentRungIndex = nextMainLineRung(in: path, from: conqueredThrough + 1)
+        let currentRungIndex =
+            nextMainLineRung(in: path, from: conqueredThrough + 1)
             ?? min(max(conqueredThrough + 1, 0), rungCount - 1)
 
         return PathState(
@@ -146,8 +157,10 @@ nonisolated enum ProgressionEngine {
         return experiencePoints(scoring, logStates: pathStates(scoring, placement: nil))
     }
 
-    private static func experiencePoints(_ scoring: ScoringLog,
-                                         logStates: [ProgressionPathID: PathState]) -> Int {
+    private static func experiencePoints(
+        _ scoring: ScoringLog,
+        logStates: [ProgressionPathID: PathState]
+    ) -> Int {
         let volumeXP = scoring.entries.reduce(0) { running, entry in
             running + entry.totalReps * xpPerRep + entry.totalSeconds * xpPerHoldSecond
         }
@@ -190,8 +203,10 @@ nonisolated enum ProgressionEngine {
         return lastAdvancement(scoring, logStates: pathStates(scoring, placement: nil))
     }
 
-    private static func lastAdvancement(_ scoring: ScoringLog,
-                                        logStates: [ProgressionPathID: PathState]) -> RungReference? {
+    private static func lastAdvancement(
+        _ scoring: ScoringLog,
+        logStates: [ProgressionPathID: PathState]
+    ) -> RungReference? {
         var best: (reference: RungReference, date: Date)?
         for path in ProgressionCatalog.all {
             // Scored without a placement, the conquered count ends at the
@@ -209,8 +224,10 @@ nonisolated enum ProgressionEngine {
     /// The single rung most worth nudging toward: the current rung (respecting
     /// the placement floor) with partial-but-unfinished progress, closest to its
     /// criterion. `nil` when no rung is partway done.
-    static func mostActionableHint(logs: [WorkoutLogEntry],
-                                   placement: SkillPlacement?) -> ProgressionHint? {
+    static func mostActionableHint(
+        logs: [WorkoutLogEntry],
+        placement: SkillPlacement?
+    ) -> ProgressionHint? {
         mostActionableHint(states: pathStates(logs: logs, placement: placement))
     }
 
@@ -239,20 +256,25 @@ nonisolated enum ProgressionEngine {
 
     /// Every badge the logs earn. Computed strictly from logs (skill completion
     /// is scored with an empty placement), so declarations never grant a badge.
-    static func earnedBadges(from logs: [WorkoutLogEntry],
-                             calendar: Calendar = .current,
-                             today: Date = .now) -> Set<Badge> {
+    static func earnedBadges(
+        from logs: [WorkoutLogEntry],
+        calendar: Calendar = .current,
+        today: Date = .now
+    ) -> Set<Badge> {
         let scoring = ScoringLog(logs)
-        return earnedBadges(scoring,
-                            logStates: pathStates(scoring, placement: nil),
-                            calendar: calendar,
-                            today: today)
+        return earnedBadges(
+            scoring,
+            logStates: pathStates(scoring, placement: nil),
+            calendar: calendar,
+            today: today)
     }
 
-    private static func earnedBadges(_ scoring: ScoringLog,
-                                     logStates: [ProgressionPathID: PathState],
-                                     calendar: Calendar,
-                                     today: Date) -> Set<Badge> {
+    private static func earnedBadges(
+        _ scoring: ScoringLog,
+        logStates: [ProgressionPathID: PathState],
+        calendar: Calendar,
+        today: Date
+    ) -> Set<Badge> {
         let logs = scoring.entries
         guard !logs.isEmpty else { return [] }
 
@@ -283,8 +305,10 @@ nonisolated enum ProgressionEngine {
     /// A session's value is the weakest set among its best `criterion.sets`
     /// sets; a session with fewer qualifying sets scores `0`, so volume split
     /// across sessions never adds up to "3 × 8 in one session".
-    private static func score(_ step: ProgressionStep,
-                              in scoring: ScoringLog) -> (best: Int, firstMet: Date?) {
+    private static func score(
+        _ step: ProgressionStep,
+        in scoring: ScoringLog
+    ) -> (best: Int, firstMet: Date?) {
         let criterion = step.criterion
         let requiredSets = criterion.sets
         guard requiredSets > 0 else { return (0, nil) }
@@ -306,8 +330,10 @@ nonisolated enum ProgressionEngine {
 
     /// The per-set values relevant to a measurement: reps from rep-based sets,
     /// or seconds from timed holds.
-    private static func qualifyingValues(in sets: [LoggedSet],
-                                         for measurement: ExerciseMeasurement) -> [Int] {
+    private static func qualifyingValues(
+        in sets: [LoggedSet],
+        for measurement: ExerciseMeasurement
+    ) -> [Int] {
         switch measurement {
         case .reps: sets.filter { !$0.isTimed }.map(\.reps)
         case .seconds: sets.compactMap(\.durationSeconds)

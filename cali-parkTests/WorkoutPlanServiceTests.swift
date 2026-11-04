@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 private enum Fixtures {
@@ -16,24 +17,30 @@ private enum Fixtures {
     /// Thursday 1970-01-01, 09:00 UTC.
     static let now = Date(timeIntervalSince1970: 9 * 3_600)
 
-    static func plan(_ name: String = "Push",
-                     days: Set<Weekday> = [.monday, .friday],
-                     reminder: DateComponents? = DateComponents(hour: 18, minute: 30)) -> WorkoutPlan {
-        WorkoutPlan(name: name,
-                    exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID)],
-                    schedule: .weekly(days),
-                    createdAt: Date(timeIntervalSince1970: 0),
-                    reminderTime: reminder)
+    static func plan(
+        _ name: String = "Push",
+        days: Set<Weekday> = [.monday, .friday],
+        reminder: DateComponents? = DateComponents(hour: 18, minute: 30)
+    ) -> WorkoutPlan {
+        WorkoutPlan(
+            name: name,
+            exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID)],
+            schedule: .weekly(days),
+            createdAt: Date(timeIntervalSince1970: 0),
+            reminderTime: reminder)
     }
 
-    static func scheduler(status: ReminderAuthorizationStatus = .authorized,
-                          grantOnRequest: Bool = true,
-                          failsToSchedule: Bool = false) -> InMemoryReminderScheduler {
-        InMemoryReminderScheduler(status: status,
-                                  grantOnRequest: grantOnRequest,
-                                  failsToSchedule: failsToSchedule,
-                                  calendar: calendar,
-                                  clock: { now })
+    static func scheduler(
+        status: ReminderAuthorizationStatus = .authorized,
+        grantOnRequest: Bool = true,
+        failsToSchedule: Bool = false
+    ) -> InMemoryReminderScheduler {
+        InMemoryReminderScheduler(
+            status: status,
+            grantOnRequest: grantOnRequest,
+            failsToSchedule: failsToSchedule,
+            calendar: calendar,
+            clock: { now })
     }
 }
 
@@ -124,13 +131,16 @@ struct WorkoutPlanServiceTests {
 @MainActor
 @Suite(.timeLimit(.minutes(1)))
 struct PlanEditorReminderTests {
-    private func editor(_ plan: WorkoutPlan? = nil,
-                        store: InMemoryWorkoutPlanStore = InMemoryWorkoutPlanStore(),
-                        scheduler: InMemoryReminderScheduler) -> PlanEditorViewModel {
-        PlanEditorViewModel(plan: plan,
-                            service: WorkoutPlanService.testing(store, scheduler: scheduler),
-                            calendar: Fixtures.calendar,
-                            now: Fixtures.now)
+    private func editor(
+        _ plan: WorkoutPlan? = nil,
+        store: InMemoryWorkoutPlanStore = InMemoryWorkoutPlanStore(),
+        scheduler: InMemoryReminderScheduler
+    ) -> PlanEditorViewModel {
+        PlanEditorViewModel(
+            plan: plan,
+            service: WorkoutPlanService.testing(store, scheduler: scheduler),
+            calendar: Fixtures.calendar,
+            now: Fixtures.now)
     }
 
     @Test

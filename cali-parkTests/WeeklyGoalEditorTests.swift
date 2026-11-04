@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 private typealias F = WeeklyGoalFixtures
@@ -16,11 +17,14 @@ private typealias F = WeeklyGoalFixtures
 
 @MainActor
 struct WeeklyGoalEditorViewModelTests {
-    private func editor(store: WeeklyGoalStoring = InMemoryWeeklyGoalStore(),
-                        logs: [WorkoutLogEntry] = [],
-                        now: Date = F.day(2)) -> WeeklyGoalEditorViewModel {
-        let viewModel = WeeklyGoalEditorViewModel(store: store, logStore: InMemoryWorkoutLogStore(initial: logs),
-                                                  calendar: F.calendar, clock: { now })
+    private func editor(
+        store: WeeklyGoalStoring = InMemoryWeeklyGoalStore(),
+        logs: [WorkoutLogEntry] = [],
+        now: Date = F.day(2)
+    ) -> WeeklyGoalEditorViewModel {
+        let viewModel = WeeklyGoalEditorViewModel(
+            store: store, logStore: InMemoryWorkoutLogStore(initial: logs),
+            calendar: F.calendar, clock: { now })
         // The editor sheet loads when it appears.
         viewModel.load()
         return viewModel
@@ -31,8 +35,9 @@ struct WeeklyGoalEditorViewModelTests {
     @Test
     func initReadsNothingUntilLoad() {
         let store = CountingWeeklyGoalStore(initial: WeeklyGoalHistory.empty)
-        let viewModel = WeeklyGoalEditorViewModel(store: store, logStore: InMemoryWorkoutLogStore(),
-                                                  calendar: F.calendar, clock: { F.day(2) })
+        let viewModel = WeeklyGoalEditorViewModel(
+            store: store, logStore: InMemoryWorkoutLogStore(),
+            calendar: F.calendar, clock: { F.day(2) })
         #expect(store.loadCount == 0)
         #expect(viewModel.hasLoaded == false)
 
@@ -120,10 +125,11 @@ struct WeeklyGoalEditorViewModelTests {
 
         #expect(viewModel.save())
         let saved = try #require(store.load())
-        #expect(saved.versions == [
-            F.version(WeeklyGoal.defaultGoals, from: firstWorkout),
-            F.version([F.days(4)], from: F.day(2))
-        ])
+        #expect(
+            saved.versions == [
+                F.version(WeeklyGoal.defaultGoals, from: firstWorkout),
+                F.version([F.days(4)], from: F.day(2))
+            ])
         #expect(viewModel.hasUnsavedChanges == false)
         #expect(viewModel.isDefault == false)
     }
@@ -199,9 +205,11 @@ struct WeeklyGoalEditorViewModelTests {
 
 @MainActor
 struct HomeWeeklyGoalTests {
-    private func dashboard(goalStore: WeeklyGoalStoring,
-                           entries: [WorkoutLogEntry],
-                           now: Date = F.day(3)) -> HomeDashboardViewModel {
+    private func dashboard(
+        goalStore: WeeklyGoalStoring,
+        entries: [WorkoutLogEntry],
+        now: Date = F.day(3)
+    ) -> HomeDashboardViewModel {
         HomeDashboardViewModel(
             store: InMemoryWorkoutLogStore(initial: entries),
             planService: .testing(InMemoryWorkoutPlanStore()),
@@ -212,9 +220,11 @@ struct HomeWeeklyGoalTests {
         )
     }
 
-    private func goals(goalStore: WeeklyGoalStoring,
-                       entries: [WorkoutLogEntry],
-                       now: Date = F.day(3)) -> WeeklyGoalService {
+    private func goals(
+        goalStore: WeeklyGoalStoring,
+        entries: [WorkoutLogEntry],
+        now: Date = F.day(3)
+    ) -> WeeklyGoalService {
         WeeklyGoalService(
             journal: TrainingJournal(store: InMemoryWorkoutLogStore(initial: entries)),
             store: goalStore,
@@ -227,9 +237,10 @@ struct HomeWeeklyGoalTests {
     @Test
     func homeShowsTheSavedPrimaryGoal() throws {
         let volume = F.goal(.exerciseVolume(exerciseID: ExerciseCatalog.pullUpsID, measurement: .reps, amount: 30))
-        let store = InMemoryWeeklyGoalStore(initial: WeeklyGoalHistory(versions: [
-            F.version([volume, F.days(2)], from: F.day(week: -2, hour: 0))
-        ]))
+        let store = InMemoryWeeklyGoalStore(
+            initial: WeeklyGoalHistory(versions: [
+                F.version([volume, F.days(2)], from: F.day(week: -2, hour: 0))
+            ]))
         let home = dashboard(goalStore: store, entries: F.trained(week: 0, days: [0, 1]))
         let goal = try #require(home.weeklyGoal)
         #expect(goal.week.primary.goal == volume)
@@ -275,8 +286,9 @@ struct HomeWeeklyGoalTests {
 
     @Test
     func celebrationPresentationHasNoXP() throws {
-        let service = goals(goalStore: InMemoryWeeklyGoalStore(),
-                            entries: F.trained(week: -1, days: [0, 1, 2]) + F.trained(week: 0, days: [0, 1, 2]))
+        let service = goals(
+            goalStore: InMemoryWeeklyGoalStore(),
+            entries: F.trained(week: -1, days: [0, 1, 2]) + F.trained(week: 0, days: [0, 1, 2]))
         let met = try #require(service.pendingCelebration)
         let presentation = CelebrationPresentation.weeklyGoalMet(met, isPrimary: true, streak: 2)
         #expect(presentation.xpNote == nil)
@@ -308,8 +320,11 @@ struct WeeklyGoalFormatTests {
         #expect(WeeklyGoalFormat.title(.plannedWorkouts(target: .count(workouts: 4))) == "4 treningi z planu")
         #expect(WeeklyGoalFormat.title(.plannedWorkouts(target: .allScheduled)) == "Wszystkie zaplanowane treningi")
         let pullUps = ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)?.name ?? ""
-        #expect(WeeklyGoalFormat.title(.exerciseVolume(exerciseID: ExerciseCatalog.pullUpsID, measurement: .reps,
-                                                       amount: 75)) == "\(pullUps): 75 powtórzeń")
+        #expect(
+            WeeklyGoalFormat.title(
+                .exerciseVolume(
+                    exerciseID: ExerciseCatalog.pullUpsID, measurement: .reps,
+                    amount: 75)) == "\(pullUps): 75 powtórzeń")
         let lSit = WeeklyGoal.Metric.exerciseVolume(exerciseID: ExerciseCatalog.lSitID, measurement: .seconds, amount: 180)
         #expect(WeeklyGoalFormat.title(lSit).hasSuffix(": 180 s".keptTogether))
         #expect(WeeklyGoalFormat.spokenTitle(lSit).hasSuffix(": 180 sekund"))

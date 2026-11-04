@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Fixtures
@@ -79,10 +80,15 @@ struct CalendarDayTests {
 
     @Test
     func daysOrderByDate() {
-        let days = [CalendarDay(year: 2027, month: 1, day: 1)!, Zones.november10,
-                    CalendarDay(year: 2026, month: 12, day: 9)!]
-        #expect(days.sorted() == [Zones.november10, CalendarDay(year: 2026, month: 12, day: 9)!,
-                                  CalendarDay(year: 2027, month: 1, day: 1)!])
+        let days = [
+            CalendarDay(year: 2027, month: 1, day: 1)!, Zones.november10,
+            CalendarDay(year: 2026, month: 12, day: 9)!
+        ]
+        #expect(
+            days.sorted() == [
+                Zones.november10, CalendarDay(year: 2026, month: 12, day: 9)!,
+                CalendarDay(year: 2027, month: 1, day: 1)!
+            ])
     }
 }
 
@@ -97,10 +103,12 @@ struct ScheduleTimeZoneTests {
 
         for calendar in [Zones.warsaw, Zones.london, Zones.newYork] {
             let morningOf9th = Zones.date(9, hour: 8, in: calendar)
-            #expect(schedule.nextOccurrence(onOrAfter: morningOf9th, calendar: calendar)
+            #expect(
+                schedule.nextOccurrence(onOrAfter: morningOf9th, calendar: calendar)
                     == Zones.date(10, in: calendar))
             let morningOf10th = Zones.date(10, hour: 8, in: calendar)
-            #expect(schedule.nextOccurrence(onOrAfter: morningOf10th, calendar: calendar)
+            #expect(
+                schedule.nextOccurrence(onOrAfter: morningOf10th, calendar: calendar)
                     == Zones.date(10, in: calendar))
         }
     }
@@ -111,7 +119,8 @@ struct ScheduleTimeZoneTests {
 
         for calendar in [Zones.warsaw, Zones.london, Zones.newYork] {
             // 2, 5, 8, 11 Nov.
-            #expect(schedule.nextOccurrence(onOrAfter: Zones.date(6, hour: 9, in: calendar), calendar: calendar)
+            #expect(
+                schedule.nextOccurrence(onOrAfter: Zones.date(6, hour: 9, in: calendar), calendar: calendar)
                     == Zones.date(8, in: calendar))
         }
     }
@@ -133,10 +142,11 @@ struct ScheduleTimeZoneTests {
         // The plans were saved in Warsaw and the app reads them there.
         let store = FileWorkoutPlanStore(directory: directory, calendar: Zones.warsaw)
         let plans = try store.load()
-        #expect(plans.map(\.schedule) == [
-            .once(Zones.november10),
-            .everyNDays(3, from: CalendarDay(year: 2026, month: 11, day: 2)!)
-        ])
+        #expect(
+            plans.map(\.schedule) == [
+                .once(Zones.november10),
+                .everyNDays(3, from: CalendarDay(year: 2026, month: 11, day: 2)!)
+            ])
 
         // Saving rewrites the file as version 2 with plain days.
         try store.save(plans[0])
@@ -147,8 +157,10 @@ struct ScheduleTimeZoneTests {
 
         // Read later in London, the day doesn't move.
         let afterTravel = try FileWorkoutPlanStore(directory: directory, calendar: Zones.london).load()
-        #expect(afterTravel[0].nextOccurrence(onOrAfter: Zones.date(9, hour: 8, in: Zones.london),
-                                              calendar: Zones.london) == Zones.date(10, in: Zones.london))
+        #expect(
+            afterTravel[0].nextOccurrence(
+                onOrAfter: Zones.date(9, hour: 8, in: Zones.london),
+                calendar: Zones.london) == Zones.date(10, in: Zones.london))
     }
 
     @Test
@@ -173,8 +185,9 @@ struct ScheduleTimeZoneTests {
     @Test
     func aBackupRoundTripKeepsDays() throws {
         let plan = WorkoutPlan(name: "Wyjazd", schedule: .once(Zones.november10), createdAt: Zones.date(1, in: Zones.warsaw))
-        let data = try TrainingBackupCodec.encode(TrainingBackup(workoutPlans: [plan]),
-                                                  exportedAt: Zones.date(4, in: Zones.warsaw), appVersion: "1.0 (1)")
+        let data = try TrainingBackupCodec.encode(
+            TrainingBackup(workoutPlans: [plan]),
+            exportedAt: Zones.date(4, in: Zones.warsaw), appVersion: "1.0 (1)")
         #expect(String(decoding: data, as: UTF8.self).contains(#""2026-11-10""#))
         #expect(try TrainingBackupCodec.decode(data).workoutPlans == [plan])
     }
@@ -190,8 +203,9 @@ struct PastOneOffPlanTests {
     private var now: Date { Zones.date(4, hour: 15, in: calendar) }
 
     private func editor(_ plan: WorkoutPlan? = nil) -> PlanEditorViewModel {
-        let editor = PlanEditorViewModel(plan: plan, service: .testing(InMemoryWorkoutPlanStore()),
-                                         calendar: calendar, now: now)
+        let editor = PlanEditorViewModel(
+            plan: plan, service: .testing(InMemoryWorkoutPlanStore()),
+            calendar: calendar, now: now)
         if plan == nil {
             editor.name = "Wyjazd"
             editor.addExercise(ExerciseCatalog.all[0])
@@ -250,9 +264,10 @@ struct PastOneOffPlanTests {
 
     @Test
     func anExpiredPlanOpensOnItsOwnDateAndAsksForANewOne() {
-        let expired = WorkoutPlan(name: "Stary", exercises: [PlannedExercise(exerciseID: ExerciseCatalog.all[0].id)],
-                                  schedule: .once(CalendarDay(year: 2026, month: 10, day: 20)!),
-                                  createdAt: Zones.date(1, in: calendar))
+        let expired = WorkoutPlan(
+            name: "Stary", exercises: [PlannedExercise(exerciseID: ExerciseCatalog.all[0].id)],
+            schedule: .once(CalendarDay(year: 2026, month: 10, day: 20)!),
+            createdAt: Zones.date(1, in: calendar))
         let editor = editor(expired)
 
         #expect(editor.onceDate == CalendarDay(year: 2026, month: 10, day: 20)!.startDate(in: calendar))
@@ -267,8 +282,9 @@ struct PastOneOffPlanTests {
     @Test
     func anExpiredPlanStillLoadsAndNeverOccurs() throws {
         let directory = try Zones.directory()
-        let expired = WorkoutPlan(name: "Stary", schedule: .once(CalendarDay(year: 2026, month: 10, day: 20)!),
-                                  createdAt: Zones.date(1, in: calendar))
+        let expired = WorkoutPlan(
+            name: "Stary", schedule: .once(CalendarDay(year: 2026, month: 10, day: 20)!),
+            createdAt: Zones.date(1, in: calendar))
         try FileWorkoutPlanStore(directory: directory, calendar: calendar).save(expired)
 
         let plans = try FileWorkoutPlanStore(directory: directory, calendar: calendar).load()

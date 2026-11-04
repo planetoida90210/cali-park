@@ -13,9 +13,11 @@ final class FixedLocationProvider: LocationProviding {
     var answer: LocationAuthorization
     private(set) var requestCount = 0
 
-    init(authorization: LocationAuthorization,
-         location: CLLocationCoordinate2D? = nil,
-         answer: LocationAuthorization = .authorized) {
+    init(
+        authorization: LocationAuthorization,
+        location: CLLocationCoordinate2D? = nil,
+        answer: LocationAuthorization = .authorized
+    ) {
         self.authorization = authorization
         self.location = location
         self.answer = answer

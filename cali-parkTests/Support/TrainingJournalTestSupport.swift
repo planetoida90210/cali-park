@@ -1,4 +1,5 @@
 import Foundation
+
 @testable import cali_park
 
 // MARK: - TrainingStack
@@ -12,11 +13,13 @@ struct TrainingStack {
     let progress: ProgressService
     let rewards: RewardCenter
 
-    init(logStore: WorkoutLogStoring = InMemoryWorkoutLogStore(),
-         placementStore: SkillPlacementStoring = InMemorySkillPlacementStore(),
-         progressStore: SkillProgressStoring = InMemorySkillProgressStore(),
-         calendar: Calendar = TestCalendar.utc,
-         clock: @escaping () -> Date = { TestDate.reference }) {
+    init(
+        logStore: WorkoutLogStoring = InMemoryWorkoutLogStore(),
+        placementStore: SkillPlacementStoring = InMemorySkillPlacementStore(),
+        progressStore: SkillProgressStoring = InMemorySkillProgressStore(),
+        calendar: Calendar = TestCalendar.utc,
+        clock: @escaping () -> Date = { TestDate.reference }
+    ) {
         journal = TrainingJournal(store: logStore)
         progress = ProgressService(journal: journal, placementStore: placementStore, calendar: calendar, clock: clock)
         rewards = RewardCenter(progress: progress, store: progressStore, goals: nil)
@@ -66,11 +69,13 @@ extension QuickWorkoutViewModel {
         self.init(journal: TrainingJournal(store: store), clock: clock)
     }
 
-    convenience init(store: WorkoutLogStoring,
-                     plan: WorkoutPlan,
-                     pathStates: [ProgressionPathID: PathState]? = nil,
-                     logs: [WorkoutLogEntry] = [],
-                     clock: @escaping () -> Date = { TestDate.reference }) {
+    convenience init(
+        store: WorkoutLogStoring,
+        plan: WorkoutPlan,
+        pathStates: [ProgressionPathID: PathState]? = nil,
+        logs: [WorkoutLogEntry] = [],
+        clock: @escaping () -> Date = { TestDate.reference }
+    ) {
         self.init(journal: TrainingJournal(store: store), plan: plan, pathStates: pathStates, logs: logs, clock: clock)
     }
 }
@@ -91,22 +96,26 @@ extension WorkoutSessionDetailViewModel {
 
 @MainActor
 extension HomeDashboardViewModel {
-    convenience init(store: WorkoutLogStoring,
-                     planService: WorkoutPlanService,
-                     placementStore: SkillPlacementStoring = InMemorySkillPlacementStore(),
-                     goalStore: WeeklyGoalStoring = InMemoryWeeklyGoalStore(),
-                     defaults: UserDefaults = .throwaway(),
-                     calendar: Calendar,
-                     clock: @escaping () -> Date) {
+    convenience init(
+        store: WorkoutLogStoring,
+        planService: WorkoutPlanService,
+        placementStore: SkillPlacementStoring = InMemorySkillPlacementStore(),
+        goalStore: WeeklyGoalStoring = InMemoryWeeklyGoalStore(),
+        defaults: UserDefaults = .throwaway(),
+        calendar: Calendar,
+        clock: @escaping () -> Date
+    ) {
         let journal = TrainingJournal(store: store)
-        self.init(journal: journal,
-                  planService: planService,
-                  progress: ProgressService(journal: journal, placementStore: placementStore, calendar: calendar, clock: clock),
-                  goals: WeeklyGoalService(journal: journal, store: goalStore, planService: planService,
-                                           calendar: calendar, clock: clock),
-                  defaults: defaults,
-                  calendar: calendar,
-                  clock: clock)
+        self.init(
+            journal: journal,
+            planService: planService,
+            progress: ProgressService(journal: journal, placementStore: placementStore, calendar: calendar, clock: clock),
+            goals: WeeklyGoalService(
+                journal: journal, store: goalStore, planService: planService,
+                calendar: calendar, clock: clock),
+            defaults: defaults,
+            calendar: calendar,
+            clock: clock)
         // The init reads nothing; `HomeView` reloads on appear.
         reload()
     }
@@ -114,25 +123,31 @@ extension HomeDashboardViewModel {
 
 @MainActor
 extension WeeklyGoalEditorViewModel {
-    convenience init(store: WeeklyGoalStoring,
-                     logStore: WorkoutLogStoring,
-                     calendar: Calendar,
-                     clock: @escaping () -> Date) {
+    convenience init(
+        store: WeeklyGoalStoring,
+        logStore: WorkoutLogStoring,
+        calendar: Calendar,
+        clock: @escaping () -> Date
+    ) {
         self.init(store: store, journal: TrainingJournal(store: logStore), calendar: calendar, clock: clock)
     }
 }
 
 @MainActor
 extension ProgramStarter {
-    convenience init(planService: WorkoutPlanService,
-                     logStore: WorkoutLogStoring,
-                     placementStore: SkillPlacementStoring,
-                     calendar: Calendar,
-                     clock: @escaping () -> Date) {
+    convenience init(
+        planService: WorkoutPlanService,
+        logStore: WorkoutLogStoring,
+        placementStore: SkillPlacementStoring,
+        calendar: Calendar,
+        clock: @escaping () -> Date
+    ) {
         let journal = TrainingJournal(store: logStore)
-        self.init(planService: planService,
-                  progress: ProgressService(journal: journal, placementStore: placementStore,
-                                            calendar: calendar, clock: clock),
-                  clock: clock)
+        self.init(
+            planService: planService,
+            progress: ProgressService(
+                journal: journal, placementStore: placementStore,
+                calendar: calendar, clock: clock),
+            clock: clock)
     }
 }

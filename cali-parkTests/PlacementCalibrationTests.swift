@@ -11,6 +11,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Rep bucket mapping
@@ -90,8 +91,9 @@ struct PlacementRepMappingTests {
             for bucket in RepCountBucket.allCases {
                 let placement = PlacementCalibration.placement(repAnswers: [question.path: bucket], masteredSkills: [], ownsBand: false)
                 let state = ProgressionEngine.pathState(for: path, logs: [], placement: placement)
-                #expect(state.conqueredRungCount <= movementRung + 1,
-                        "\(question.path) \(bucket.label) conquers a variant harder than the counted movement")
+                #expect(
+                    state.conqueredRungCount <= movementRung + 1,
+                    "\(question.path) \(bucket.label) conquers a variant harder than the counted movement")
             }
         }
     }
@@ -152,8 +154,8 @@ struct PlacementSkillMappingTests {
     /// rung wins regardless of which is larger.
     @Test func highestRungWinsWhenAnswersSharePath() {
         let pistolBeatsSquats = PlacementCalibration.placement(
-            repAnswers: [.legs: .many],          // lunges
-            masteredSkills: ["pistolSquat"],      // pistol
+            repAnswers: [.legs: .many], // lunges
+            masteredSkills: ["pistolSquat"], // pistol
             ownsBand: false
         )
         #expect(pistolBeatsSquats.declaredStepByPath[.legs] == ExerciseCatalog.pistolSquatsID)
@@ -166,7 +168,7 @@ struct PlacementSkillMappingTests {
         #expect(squatsBeatNothing.declaredStepByPath[.legs] == ExerciseCatalog.lungesID)
 
         let pistolWithoutSquats = PlacementCalibration.placement(
-            repAnswers: [.legs: .none],          // bottom rung, dropped
+            repAnswers: [.legs: .none], // bottom rung, dropped
             masteredSkills: ["pistolSquat"],
             ownsBand: false
         )

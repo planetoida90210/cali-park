@@ -2,6 +2,7 @@ import CoreLocation
 import Foundation
 import MapKit
 import Testing
+
 @testable import cali_park
 
 // MARK: - ParkMapViewModel
@@ -15,11 +16,13 @@ struct ParkMapViewModelTests {
         parks: [Park] = ParkFixtures.all,
         error: ParkDirectoryError? = nil
     ) -> (ParkMapViewModel, FixedLocationProvider) {
-        let location = FixedLocationProvider(authorization: authorization,
-                                             location: ParkFixtures.warsawCentre,
-                                             answer: answer)
-        let directory = InMemoryParkDirectory(parks: parks, dataTimestamp: Date(timeIntervalSince1970: 1_793_749_662),
-                                              error: error)
+        let location = FixedLocationProvider(
+            authorization: authorization,
+            location: ParkFixtures.warsawCentre,
+            answer: answer)
+        let directory = InMemoryParkDirectory(
+            parks: parks, dataTimestamp: Date(timeIntervalSince1970: 1_793_749_662),
+            error: error)
         let favorites = ParkFavorites(store: InMemoryFavoriteParkStore())
         return (ParkMapViewModel(directory: directory, location: location, favorites: favorites), location)
     }
@@ -77,8 +80,9 @@ struct ParkMapViewModelTests {
 
     @Test func aLateFixDoesNotMoveACameraTheUserAlreadyMoved() async throws {
         let location = FixedLocationProvider(authorization: .authorized, location: ParkFixtures.warsawCentre)
-        let second = ParkMapViewModel(directory: InMemoryParkDirectory(parks: ParkFixtures.all), location: location,
-                                      favorites: ParkFavorites(store: InMemoryFavoriteParkStore()))
+        let second = ParkMapViewModel(
+            directory: InMemoryParkDirectory(parks: ParkFixtures.all), location: location,
+            favorites: ParkFavorites(store: InMemoryFavoriteParkStore()))
         await second.load()
         second.select(ParkFixtures.krakow)
         await second.refreshLocation()
@@ -112,8 +116,10 @@ struct ParkMapViewModelTests {
         #expect(viewModel.selectedPark == ParkFixtures.praga)
         #expect(try #require(viewModel.position.region).span.latitudeDelta == ParkMapViewModel.selectionSpan)
 
-        viewModel.cameraDidChange(to: MKCoordinateRegion(center: ParkFixtures.praga.coordinate,
-                                                         span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)))
+        viewModel.cameraDidChange(
+            to: MKCoordinateRegion(
+                center: ParkFixtures.praga.coordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)))
         viewModel.select(ParkFixtures.mokotow)
         #expect(try #require(viewModel.position.region).span.latitudeDelta == 0.005)
 
@@ -123,8 +129,9 @@ struct ParkMapViewModelTests {
 
     @Test func searchFiltersMapAndListAndSuggestsAtMostFive() async {
         let many = (0..<8).map { index in
-            ParkFixtures.park(latitude: 52 + Double(index) * 0.01, longitude: 21,
-                              generatedName: "Drążki · ul. Testowa \(index)", city: "Warszawa")
+            ParkFixtures.park(
+                latitude: 52 + Double(index) * 0.01, longitude: 21,
+                generatedName: "Drążki · ul. Testowa \(index)", city: "Warszawa")
         }
         let (viewModel, _) = makeViewModel(authorization: .denied, parks: ParkFixtures.all + many)
         await viewModel.load()
@@ -178,8 +185,9 @@ struct ParkMapViewModelTests {
     @Test func zoomingIntoAClusterAlwaysZoomsIn() async throws {
         let (viewModel, _) = makeViewModel(authorization: .denied)
         await viewModel.load()
-        let wide = MKCoordinateRegion(center: ParkFixtures.warsawCentre,
-                                      span: MKCoordinateSpan(latitudeDelta: 0.004, longitudeDelta: 0.004))
+        let wide = MKCoordinateRegion(
+            center: ParkFixtures.warsawCentre,
+            span: MKCoordinateSpan(latitudeDelta: 0.004, longitudeDelta: 0.004))
         viewModel.cameraDidChange(to: wide)
 
         viewModel.zoom(into: ParkCluster(parks: [ParkFixtures.mokotow, ParkFixtures.praga]))

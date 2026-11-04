@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Helpers
@@ -81,9 +82,10 @@ struct GoldenFixtureTests {
         let directory = try StoreTestSupport.makeDirectory()
         let url = try StoreTestSupport.installFixture("workout-log-legacy", as: "workout-log.json", in: directory)
         let store = FileWorkoutLogStore(directory: directory)
-        let added = WorkoutLogEntry(exerciseID: StoreFixtures.pullUpsID,
-                                    date: StoreFixtures.october2,
-                                    sets: [LoggedSet(reps: 10)])
+        let added = WorkoutLogEntry(
+            exerciseID: StoreFixtures.pullUpsID,
+            date: StoreFixtures.october2,
+            sets: [LoggedSet(reps: 10)])
 
         try await store.append(added)
 
@@ -221,9 +223,10 @@ struct CorruptFileTests {
         let directory = try StoreTestSupport.makeDirectory()
         let url = try StoreTestSupport.write(Self.garbage, to: "workout-log.json", in: directory)
         let store = FileWorkoutLogStore(directory: directory)
-        let entry = WorkoutLogEntry(exerciseID: StoreFixtures.pullUpsID,
-                                    date: StoreFixtures.october1,
-                                    sets: [LoggedSet(reps: 5)])
+        let entry = WorkoutLogEntry(
+            exerciseID: StoreFixtures.pullUpsID,
+            date: StoreFixtures.october1,
+            sets: [LoggedSet(reps: 5)])
 
         await #expect(throws: JSONFileStoreError.self) { try await store.append(entry) }
         await #expect(throws: JSONFileStoreError.self) { try await store.append(contentsOf: [entry]) }
@@ -419,9 +422,10 @@ struct StoreLoadFailureViewModelTests {
 
     @Test
     func homeShowsWhatLoadedAndReportsWhatDidNot() throws {
-        let entry = WorkoutLogEntry(exerciseID: StoreFixtures.pullUpsID,
-                                    date: StoreFixtures.october1,
-                                    sets: [LoggedSet(reps: 5)])
+        let entry = WorkoutLogEntry(
+            exerciseID: StoreFixtures.pullUpsID,
+            date: StoreFixtures.october1,
+            sets: [LoggedSet(reps: 5)])
         let viewModel = HomeDashboardViewModel(
             store: InMemoryWorkoutLogStore(initial: [entry]),
             planService: .testing(BrokenPlanStore()),
@@ -457,9 +461,11 @@ struct StoreLoadFailureViewModelTests {
     func unreadableProgressSkipsRewardsInsteadOfRebaselining() throws {
         let progressStore = BrokenProgressStore()
         let logStore = InMemoryWorkoutLogStore()
-        try logStore.append(WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                                            date: StoreFixtures.october1,
-                                            sets: [LoggedSet(reps: 8), LoggedSet(reps: 8), LoggedSet(reps: 8)]))
+        try logStore.append(
+            WorkoutLogEntry(
+                exerciseID: ExerciseCatalog.pullUpsID,
+                date: StoreFixtures.october1,
+                sets: [LoggedSet(reps: 8), LoggedSet(reps: 8), LoggedSet(reps: 8)]))
 
         let stack = TrainingStack(logStore: logStore, progressStore: progressStore)
 

@@ -9,6 +9,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 @Suite("Parallel-track rungs are never the mandatory next step (A-3)")
@@ -22,9 +23,11 @@ struct ParallelTrackTests {
         WorkoutLogEntry(exerciseID: exerciseID, date: day, sets: counts.map { LoggedSet(reps: $0) })
     }
 
-    private static func state(_ pathID: ProgressionPathID,
-                              logs: [WorkoutLogEntry],
-                              placement: SkillPlacement? = nil) throws -> (ProgressionPath, PathState) {
+    private static func state(
+        _ pathID: ProgressionPathID,
+        logs: [WorkoutLogEntry],
+        placement: SkillPlacement? = nil
+    ) throws -> (ProgressionPath, PathState) {
         let path = try #require(ProgressionCatalog.path(withID: pathID))
         return (path, ProgressionEngine.pathState(for: path, logs: logs, placement: placement))
     }
@@ -90,10 +93,11 @@ struct ParallelTrackTests {
     @Test func theHintNamesTheNextMainLineRungNotTheBand() throws {
         // On negatives with 3 × 3 of the 3 × 5 logged.
         let placement = SkillPlacement(declaredStepByPath: [.pullUp: E.negativePullUpsID])
-        let hint = try #require(ProgressionEngine.mostActionableHint(
-            logs: [Self.reps(E.negativePullUpsID, 3, 3, 3)],
-            placement: placement
-        ))
+        let hint = try #require(
+            ProgressionEngine.mostActionableHint(
+                logs: [Self.reps(E.negativePullUpsID, 3, 3, 3)],
+                placement: placement
+            ))
         let line = try #require(ProgressionFormat.hintLine(hint))
         let pullUps = try #require(E.exercise(withID: E.pullUpsID)?.name)
         #expect(line.hasSuffix("następny szczebel: \(pullUps)"))

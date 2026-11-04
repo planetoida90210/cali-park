@@ -20,7 +20,8 @@ struct PathLadder: View {
             } else {
                 displayState = .future
             }
-            let progress = displayState == .current
+            let progress =
+                displayState == .current
                 ? summary.currentProgress
                 : viewModel.rungProgress(for: step)
             return LadderRung(

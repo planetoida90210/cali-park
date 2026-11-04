@@ -19,7 +19,10 @@ nonisolated enum TrainingBackupRestoreError: Error, Equatable {
         case .failedAndRolledBack:
             String(localized: "Nie udało się zaimportować kopii. Przywróciliśmy dane sprzed importu.")
         case .failedRollbackIncomplete:
-            String(localized: "Nie udało się zaimportować kopii ani w pełni przywrócić danych sprzed importu. Nie usuwaj apki i spróbuj zaimportować kopię jeszcze raz.")
+            String(
+                localized:
+                    "Nie udało się zaimportować kopii ani w pełni przywrócić danych sprzed importu. Nie usuwaj apki i spróbuj zaimportować kopię jeszcze raz."
+            )
         }
     }
 }
@@ -55,17 +58,19 @@ final class TrainingBackupService {
     /// The stores must be the ones behind the services: `planStore` behind
     /// `planService`, `placementStore` behind `progress`, `goalStore` behind
     /// `goals` and `progressStore` behind `rewards`.
-    init(journal: TrainingJournal,
-         planStore: WorkoutPlanStoring,
-         placementStore: SkillPlacementStoring,
-         progressStore: SkillProgressStoring,
-         goalStore: WeeklyGoalStoring,
-         favorites: ParkFavorites,
-         exerciseFavorites: ExerciseFavorites,
-         planService: WorkoutPlanService,
-         progress: ProgressService,
-         goals: WeeklyGoalService,
-         rewards: RewardCenter) {
+    init(
+        journal: TrainingJournal,
+        planStore: WorkoutPlanStoring,
+        placementStore: SkillPlacementStoring,
+        progressStore: SkillProgressStoring,
+        goalStore: WeeklyGoalStoring,
+        favorites: ParkFavorites,
+        exerciseFavorites: ExerciseFavorites,
+        planService: WorkoutPlanService,
+        progress: ProgressService,
+        goals: WeeklyGoalService,
+        rewards: RewardCenter
+    ) {
         self.journal = journal
         self.planStore = planStore
         self.placementStore = placementStore
@@ -139,31 +144,38 @@ final class TrainingBackupService {
     /// queued.
     private var steps: [Step] {
         [
-            Step(write: { [placementStore] in try placementStore.replace(with: $0.placement) },
-                 holds: { [placementStore] backup in (try? placementStore.load() == backup.placement) ?? false }),
-            Step(write: { [progressStore] in try progressStore.replace(with: $0.skillProgress) },
-                 holds: { [progressStore] backup in (try? progressStore.load() == backup.skillProgress) ?? false }),
-            Step(write: { [goalStore] in try goalStore.replace(with: $0.weeklyGoal) },
-                 holds: { [goalStore] backup in (try? goalStore.load() == backup.weeklyGoal) ?? false }),
-            Step(write: { [planStore] in try planStore.replaceAll(with: $0.workoutPlans) },
-                 holds: { [planStore] backup in (try? planStore.load() == backup.workoutPlans) ?? false }),
+            Step(
+                write: { [placementStore] in try placementStore.replace(with: $0.placement) },
+                holds: { [placementStore] backup in (try? placementStore.load() == backup.placement) ?? false }),
+            Step(
+                write: { [progressStore] in try progressStore.replace(with: $0.skillProgress) },
+                holds: { [progressStore] backup in (try? progressStore.load() == backup.skillProgress) ?? false }),
+            Step(
+                write: { [goalStore] in try goalStore.replace(with: $0.weeklyGoal) },
+                holds: { [goalStore] backup in (try? goalStore.load() == backup.weeklyGoal) ?? false }),
+            Step(
+                write: { [planStore] in try planStore.replaceAll(with: $0.workoutPlans) },
+                holds: { [planStore] backup in (try? planStore.load() == backup.workoutPlans) ?? false }),
             // A file from before favorites existed leaves them as they are.
-            Step(write: { [favorites] backup in
-                     if let ids = backup.favoriteParkIDs { try favorites.replaceAll(with: ids) }
-                 },
-                 holds: { [favorites] backup in
-                     backup.favoriteParkIDs.map { (try? favorites.currentIDs()) == $0 } ?? true
-                 }),
-            Step(write: { [exerciseFavorites] backup in
-                     if let ids = backup.favoriteExerciseIDs { try exerciseFavorites.replaceAll(with: ids) }
-                 },
-                 holds: { [exerciseFavorites] backup in
-                     backup.favoriteExerciseIDs.map { (try? exerciseFavorites.currentIDs()) == $0 } ?? true
-                 }),
-            Step(write: { [journal, weak self] backup in
-                     try await journal.replaceAll(backup.workoutLog, afterWrite: { [weak self] in self?.settleServices() })
-                 },
-                 holds: { [journal] backup in journal.loadFailure == nil && journal.entries == backup.workoutLog.map(\.inCatalogUnits) })
+            Step(
+                write: { [favorites] backup in
+                    if let ids = backup.favoriteParkIDs { try favorites.replaceAll(with: ids) }
+                },
+                holds: { [favorites] backup in
+                    backup.favoriteParkIDs.map { (try? favorites.currentIDs()) == $0 } ?? true
+                }),
+            Step(
+                write: { [exerciseFavorites] backup in
+                    if let ids = backup.favoriteExerciseIDs { try exerciseFavorites.replaceAll(with: ids) }
+                },
+                holds: { [exerciseFavorites] backup in
+                    backup.favoriteExerciseIDs.map { (try? exerciseFavorites.currentIDs()) == $0 } ?? true
+                }),
+            Step(
+                write: { [journal, weak self] backup in
+                    try await journal.replaceAll(backup.workoutLog, afterWrite: { [weak self] in self?.settleServices() })
+                },
+                holds: { [journal] backup in journal.loadFailure == nil && journal.entries == backup.workoutLog.map(\.inCatalogUnits) })
         ]
     }
 

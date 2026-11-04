@@ -48,7 +48,9 @@ private struct ProgramListView: View {
                     .listRowSeparatorTint(Color.divider)
                 }
             } footer: {
-                Text("Program tworzy zwykły plan, który możesz potem dowolnie zmieniać. Ćwiczenia dopasowują się do Twojego szczebla na drabinach.")
+                Text(
+                    "Program tworzy zwykły plan, który możesz potem dowolnie zmieniać. Ćwiczenia dopasowują się do Twojego szczebla na drabinach."
+                )
             }
         }
         .listStyle(.insetGrouped)

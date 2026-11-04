@@ -78,8 +78,9 @@ nonisolated enum ProgramFormat {
     static func roundLabel(for tracker: RoundTracker) -> String {
         let rounds = tracker.rounds
         if tracker.isFinished {
-            let noun = PolishPlural.form(for: tracker.completed, one: "runda zrobiona",
-                                         few: "rundy zrobione", many: "rund zrobionych")
+            let noun = PolishPlural.form(
+                for: tracker.completed, one: "runda zrobiona",
+                few: "rundy zrobione", many: "rund zrobionych")
             return rounds.lowerBound == rounds.upperBound
                 ? "\(tracker.completed)/\(rounds.upperBound) \(noun)"
                 : "\(tracker.completed) \(noun)"

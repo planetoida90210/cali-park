@@ -91,11 +91,13 @@ struct SkillPathsView: View {
 }
 
 #Preview("Placement średni") {
-    SkillPathsView(environment: .seeded(
-        placement: SkillPlacement(declaredRungByPath: [
-            .pullUp: 4, .pushUp: 3, .dip: 2, .legs: 2
-        ])
-    ))
+    SkillPathsView(
+        environment: .seeded(
+            placement: SkillPlacement(declaredRungByPath: [
+                .pullUp: 4, .pushUp: 3, .dip: 2, .legs: 2
+            ])
+        )
+    )
     .preferredColorScheme(.dark)
 }
 

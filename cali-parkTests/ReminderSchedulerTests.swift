@@ -9,6 +9,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Fixtures
@@ -23,14 +24,17 @@ private enum Fixtures {
 
     static let now = day(0, hour: 9) // Thursday 09:00
 
-    static func plan(_ name: String,
-                     schedule: WorkoutSchedule,
-                     hour: Int = 18) -> WorkoutPlan {
-        WorkoutPlan(name: name,
-                    exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)],
-                    schedule: schedule,
-                    createdAt: day(-10),
-                    reminderTime: DateComponents(hour: hour, minute: 0))
+    static func plan(
+        _ name: String,
+        schedule: WorkoutSchedule,
+        hour: Int = 18
+    ) -> WorkoutPlan {
+        WorkoutPlan(
+            name: name,
+            exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)],
+            schedule: schedule,
+            createdAt: day(-10),
+            reminderTime: DateComponents(hour: hour, minute: 0))
     }
 
     static func scheduler(center: FakeNotificationCenter) -> NotificationCenterReminderScheduler {
@@ -51,9 +55,11 @@ private actor FakeNotificationCenter: UserNotificationCentering {
     private let failingIDs: Set<String>
     private let authorizationFails: Bool
 
-    init(status: ReminderAuthorizationStatus = .authorized,
-         failingIDs: Set<String> = [],
-         authorizationFails: Bool = false) {
+    init(
+        status: ReminderAuthorizationStatus = .authorized,
+        failingIDs: Set<String> = [],
+        authorizationFails: Bool = false
+    ) {
         self.status = status
         self.failingIDs = failingIDs
         self.authorizationFails = authorizationFails
@@ -108,10 +114,11 @@ struct ReminderPlannerCapTests {
         let friday = Fixtures.plan("Fri", schedule: .weekly([.friday]))
         let saturday = Fixtures.plan("Sat", schedule: .once(Fixtures.day(2), in: Fixtures.calendar))
 
-        let requests = WorkoutReminderPlanner.requests(for: [monday, friday, saturday],
-                                                       calendar: Fixtures.calendar,
-                                                       asOf: Fixtures.now,
-                                                       limit: 2)
+        let requests = WorkoutReminderPlanner.requests(
+            for: [monday, friday, saturday],
+            calendar: Fixtures.calendar,
+            asOf: Fixtures.now,
+            limit: 2)
 
         #expect(requests.map(\.planID) == [friday.id, saturday.id])
     }
@@ -189,8 +196,9 @@ struct NotificationCenterReminderSchedulerTests {
         let center = FakeNotificationCenter()
         let kept = Fixtures.plan("Kept", schedule: .weekly([.friday]))
         let deleted = Fixtures.plan("Deleted", schedule: .weekly([.monday]))
-        await center.seed(WorkoutReminderPlanner.requests(for: [kept, deleted], calendar: Fixtures.calendar, asOf: Fixtures.now),
-                          foreign: ["other-feature"])
+        await center.seed(
+            WorkoutReminderPlanner.requests(for: [kept, deleted], calendar: Fixtures.calendar, asOf: Fixtures.now),
+            foreign: ["other-feature"])
 
         try await Fixtures.scheduler(center: center).reschedule(for: [kept])
 
@@ -230,7 +238,8 @@ struct NotificationCenterReminderSchedulerTests {
     func failedAddsAreReportedAndTheRestStillScheduled() async throws {
         let failing = Fixtures.plan("Failing", schedule: .weekly([.friday]))
         let fine = Fixtures.plan("Fine", schedule: .weekly([.monday]))
-        let failingID = try #require(WorkoutReminderPlanner.requests(for: failing, calendar: Fixtures.calendar, asOf: Fixtures.now).first?.id)
+        let failingID = try #require(
+            WorkoutReminderPlanner.requests(for: failing, calendar: Fixtures.calendar, asOf: Fixtures.now).first?.id)
         let center = FakeNotificationCenter(failingIDs: [failingID])
 
         await #expect(throws: ReminderSchedulingError(failedRequestIDs: [failingID])) {
@@ -270,11 +279,12 @@ struct NotificationCenterReminderSchedulerTests {
     func firstSyncRemovesLegacyRepeatingRequests(status: ReminderAuthorizationStatus) async throws {
         let plan = Fixtures.plan("Push", schedule: .weekly([.monday, .thursday]))
         let legacy = [Weekday.monday, .thursday].map { weekday in
-            WorkoutReminderRequest(id: "plan-\(plan.id.uuidString)-wd\(weekday.rawValue)",
-                                   planID: plan.id,
-                                   title: plan.name,
-                                   body: "",
-                                   dateComponents: DateComponents(hour: 18, minute: 0, weekday: weekday.rawValue))
+            WorkoutReminderRequest(
+                id: "plan-\(plan.id.uuidString)-wd\(weekday.rawValue)",
+                planID: plan.id,
+                title: plan.name,
+                body: "",
+                dateComponents: DateComponents(hour: 18, minute: 0, weekday: weekday.rawValue))
         }
         let center = FakeNotificationCenter(status: status)
         await center.seed(legacy, foreign: ["other-feature"])
@@ -298,10 +308,11 @@ struct NotificationCenterReminderSchedulerTests {
         let todayID = "plan-\(plan.id.uuidString)-on-1970-01-01"
         #expect(await center.pending[todayID] != nil)
 
-        let done = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                                   date: Fixtures.day(0, hour: 8),
-                                   sets: [LoggedSet(reps: 5)],
-                                   planID: plan.id)
+        let done = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.pullUpsID,
+            date: Fixtures.day(0, hour: 8),
+            sets: [LoggedSet(reps: 5)],
+            planID: plan.id)
         try await scheduler.reschedule(for: [plan], entries: [done])
 
         let pending = await center.pending

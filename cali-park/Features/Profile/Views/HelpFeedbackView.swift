@@ -30,9 +30,11 @@ struct HelpFeedbackView: View {
             .listRowBackground(Color.componentBackground)
 
             Section("Testujesz w TestFlight?") {
-                Text("Zrób zrzut ekranu w apce, stuknij miniaturkę i wybierz „Udostępnij do wersji beta”. Opinia trafi do nas razem ze zrzutem. Możesz też otworzyć TestFlight i wybrać „Wyślij opinię o wersji beta”.")
-                    .font(.bodyMedium)
-                    .foregroundStyle(Color.textPrimary)
+                Text(
+                    "Zrób zrzut ekranu w apce, stuknij miniaturkę i wybierz „Udostępnij do wersji beta”. Opinia trafi do nas razem ze zrzutem. Możesz też otworzyć TestFlight i wybrać „Wyślij opinię o wersji beta”."
+                )
+                .font(.bodyMedium)
+                .foregroundStyle(Color.textPrimary)
             }
             .listRowBackground(Color.componentBackground)
         }

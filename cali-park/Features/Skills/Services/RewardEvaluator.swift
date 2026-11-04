@@ -32,29 +32,37 @@ nonisolated enum RewardEvaluator {
     ///   level-ups), plus the record to save now. That record holds the
     ///   baseline and the rungs recorded silently below the floor, but not the
     ///   pending events: mark each one as it is shown.
-    static func evaluate(logs: [WorkoutLogEntry],
-                         placement: SkillPlacement?,
-                         celebrated: SkillProgress?) -> RewardEvaluation {
-        evaluate(conqueredRungs: ProgressionEngine.conqueredRungs(logs: logs),
-                 currentLevel: ProgressionEngine.playerLevel(for: logs).level,
-                 placement: placement,
-                 celebrated: celebrated)
+    static func evaluate(
+        logs: [WorkoutLogEntry],
+        placement: SkillPlacement?,
+        celebrated: SkillProgress?
+    ) -> RewardEvaluation {
+        evaluate(
+            conqueredRungs: ProgressionEngine.conqueredRungs(logs: logs),
+            currentLevel: ProgressionEngine.playerLevel(for: logs).level,
+            placement: placement,
+            celebrated: celebrated)
     }
 
     /// The same evaluation from an already computed progress snapshot, so the
     /// reward loop never re-scores the log.
-    static func evaluate(snapshot: ProgressSnapshot,
-                         celebrated: SkillProgress?) -> RewardEvaluation {
-        evaluate(conqueredRungs: snapshot.conqueredRungs,
-                 currentLevel: snapshot.level.level,
-                 placement: snapshot.placement,
-                 celebrated: celebrated)
+    static func evaluate(
+        snapshot: ProgressSnapshot,
+        celebrated: SkillProgress?
+    ) -> RewardEvaluation {
+        evaluate(
+            conqueredRungs: snapshot.conqueredRungs,
+            currentLevel: snapshot.level.level,
+            placement: snapshot.placement,
+            celebrated: celebrated)
     }
 
-    private static func evaluate(conqueredRungs: Set<RungReference>,
-                                 currentLevel: Int,
-                                 placement: SkillPlacement?,
-                                 celebrated: SkillProgress?) -> RewardEvaluation {
+    private static func evaluate(
+        conqueredRungs: Set<RungReference>,
+        currentLevel: Int,
+        placement: SkillPlacement?,
+        celebrated: SkillProgress?
+    ) -> RewardEvaluation {
         // First run: adopt the current standing as the baseline, celebrate
         // nothing. A returning athlete's history is not a stream of surprises.
         guard let celebrated else {
@@ -71,7 +79,8 @@ nonisolated enum RewardEvaluator {
         let celebratable = freshRungs.filter { isAtOrAboveFloor($0, placement: placement) }
         let belowFloor = freshRungs.subtracting(celebratable)
 
-        let levelEvents = currentLevel > celebrated.celebratedLevel
+        let levelEvents =
+            currentLevel > celebrated.celebratedLevel
             ? ((celebrated.celebratedLevel + 1)...currentLevel).map(CelebrationEvent.levelReached)
             : []
 
@@ -104,7 +113,8 @@ nonisolated enum RewardEvaluator {
         let pathOrder = Dictionary(
             uniqueKeysWithValues: ProgressionCatalog.all.enumerated().map { ($0.element.id, $0.offset) }
         )
-        return rungs
+        return
+            rungs
             .sorted { lhs, rhs in
                 let lhsPath = pathOrder[lhs.pathID] ?? Int.max
                 let rhsPath = pathOrder[rhs.pathID] ?? Int.max

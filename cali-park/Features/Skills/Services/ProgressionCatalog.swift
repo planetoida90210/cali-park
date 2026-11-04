@@ -73,10 +73,16 @@ nonisolated enum ProgressionCatalog {
         symbolName: "figure.climbing",
         steps: [
             ProgressionStep(exerciseID: ExerciseCatalog.deadHangID, criterion: hold3x30, source: .rr, equipment: ["Pull-up bar"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.scapularPullsID, criterion: reps3x8, source: .rr, note: "pauza 3–5 s na górze", equipment: ["Pull-up bar"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.scapularPullsID, criterion: reps3x8, source: .rr, note: "pauza 3–5 s na górze",
+                equipment: ["Pull-up bar"]),
             ProgressionStep(exerciseID: ExerciseCatalog.archHangID, criterion: reps3x8, source: .rr, equipment: ["Pull-up bar"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.negativePullUpsID, criterion: reps3x5, source: .caliPark, note: slowDescent, equipment: ["Pull-up bar"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.bandPullUpsID, criterion: reps3x8, source: .rr, equipment: ["Pull-up bar", "Resistance bands"], isParallelTrack: true),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.negativePullUpsID, criterion: reps3x5, source: .caliPark, note: slowDescent,
+                equipment: ["Pull-up bar"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.bandPullUpsID, criterion: reps3x8, source: .rr, equipment: ["Pull-up bar", "Resistance bands"],
+                isParallelTrack: true),
             ProgressionStep(exerciseID: ExerciseCatalog.pullUpsID, criterion: reps3x8, source: .rr, equipment: ["Pull-up bar"]),
             ProgressionStep(exerciseID: ExerciseCatalog.lPullUpsID, criterion: reps3x5, source: .caliPark, equipment: ["Pull-up bar"]),
             ProgressionStep(exerciseID: ExerciseCatalog.archerPullUpsID, criterion: reps3x5, source: .sbw, equipment: ["Pull-up bar"])
@@ -88,12 +94,19 @@ nonisolated enum ProgressionCatalog {
         name: "Wiosłowanie",
         symbolName: "figure.play",
         steps: [
-            ProgressionStep(exerciseID: ExerciseCatalog.inclineRowsID, criterion: reps3x8, source: .rr, equipment: ["Pull-up bar", "Parallel bars"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.australianPullUpsID, criterion: reps3x8, source: .rr, equipment: ["Pull-up bar", "Parallel bars"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.wideRowsID, criterion: reps3x8, source: .rr, equipment: ["Pull-up bar", "Parallel bars"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.archerRowsID, criterion: reps3x5, source: .caliPark, equipment: ["Pull-up bar", "Parallel bars"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.tuckFrontLeverRowsID, criterion: reps3x8, source: .rr,
-                            tip: "RR najpierw chce 20–30 s tuck front levera.", equipment: ["Pull-up bar", "Rings"])
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.inclineRowsID, criterion: reps3x8, source: .rr, equipment: ["Pull-up bar", "Parallel bars"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.australianPullUpsID, criterion: reps3x8, source: .rr,
+                equipment: ["Pull-up bar", "Parallel bars"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.wideRowsID, criterion: reps3x8, source: .rr, equipment: ["Pull-up bar", "Parallel bars"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.archerRowsID, criterion: reps3x5, source: .caliPark, equipment: ["Pull-up bar", "Parallel bars"]
+            ),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.tuckFrontLeverRowsID, criterion: reps3x8, source: .rr,
+                tip: "RR najpierw chce 20–30 s tuck front levera.", equipment: ["Pull-up bar", "Rings"])
         ],
         recommendedBase: "Wiosłowanie i podciąganie budują się razem — to dwie strony siły pleców."
     )
@@ -117,11 +130,15 @@ nonisolated enum ProgressionCatalog {
         name: "Dipy",
         symbolName: "figure.strengthtraining.traditional",
         steps: [
-            ProgressionStep(exerciseID: ExerciseCatalog.parallelBarSupportID, criterion: hold3x30, source: .rr, equipment: ["Dip bar", "Parallel bars"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.negativeDipsID, criterion: reps3x5, source: .caliPark, note: slowDescent, equipment: ["Dip bar", "Parallel bars"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.parallelBarSupportID, criterion: hold3x30, source: .rr, equipment: ["Dip bar", "Parallel bars"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.negativeDipsID, criterion: reps3x5, source: .caliPark, note: slowDescent,
+                equipment: ["Dip bar", "Parallel bars"]),
             ProgressionStep(exerciseID: ExerciseCatalog.dipsID, criterion: reps3x8, source: .rr, equipment: ["Dip bar", "Parallel bars"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.ringSupportHoldID, criterion: hold1x60, source: .rr,
-                            note: "docelowo z kółkami obróconymi na zewnątrz", equipment: ["Rings"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.ringSupportHoldID, criterion: hold1x60, source: .rr,
+                note: "docelowo z kółkami obróconymi na zewnątrz", equipment: ["Rings"]),
             ProgressionStep(exerciseID: ExerciseCatalog.ringDipsID, criterion: reps3x8, source: .rr, equipment: ["Rings"])
         ]
     )
@@ -159,10 +176,14 @@ nonisolated enum ProgressionCatalog {
         name: "Muscle-up",
         symbolName: "figure.gymnastics",
         steps: [
-            ProgressionStep(exerciseID: ExerciseCatalog.chestToBarPullUpsID, criterion: reps3x5, source: .caliPark, equipment: ["Pull-up bar"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.negativeMuscleUpsID, criterion: reps3x3, source: .caliPark, equipment: ["Pull-up bar", "Rings"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.kippingMuscleUpsID, criterion: reps3x3, source: .caliPark, equipment: ["Pull-up bar", "Rings"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.muscleUpID, criterion: firstCleanRep, source: .caliPark, equipment: ["Pull-up bar", "Rings"])
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.chestToBarPullUpsID, criterion: reps3x5, source: .caliPark, equipment: ["Pull-up bar"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.negativeMuscleUpsID, criterion: reps3x3, source: .caliPark, equipment: ["Pull-up bar", "Rings"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.kippingMuscleUpsID, criterion: reps3x3, source: .caliPark, equipment: ["Pull-up bar", "Rings"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.muscleUpID, criterion: firstCleanRep, source: .caliPark, equipment: ["Pull-up bar", "Rings"])
         ],
         recommendedBase: "Większość osób buduje muscle-upa na bazie pewnych podciągnięć i dipów."
     )
@@ -173,11 +194,20 @@ nonisolated enum ProgressionCatalog {
         name: "L-sit",
         symbolName: "figure.core.training",
         steps: [
-            ProgressionStep(exerciseID: ExerciseCatalog.footSupportedLSitID, criterion: hold3x20, source: .og2Table, equipment: ["Parallel bars", "Push-up handles"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.oneFootSupportedLSitID, criterion: hold3x20, source: .og2Table, equipment: ["Parallel bars", "Push-up handles"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.tuckLSitID, criterion: hold3x20, source: .og2Table, equipment: ["Parallel bars", "Push-up handles"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.oneLegLSitID, criterion: hold3x20, source: .og2Table, equipment: ["Parallel bars", "Push-up handles"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.lSitID, criterion: hold3x20, source: .og2Table, equipment: ["Parallel bars", "Push-up handles"])
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.footSupportedLSitID, criterion: hold3x20, source: .og2Table,
+                equipment: ["Parallel bars", "Push-up handles"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.oneFootSupportedLSitID, criterion: hold3x20, source: .og2Table,
+                equipment: ["Parallel bars", "Push-up handles"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.tuckLSitID, criterion: hold3x20, source: .og2Table,
+                equipment: ["Parallel bars", "Push-up handles"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.oneLegLSitID, criterion: hold3x20, source: .og2Table,
+                equipment: ["Parallel bars", "Push-up handles"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.lSitID, criterion: hold3x20, source: .og2Table, equipment: ["Parallel bars", "Push-up handles"])
         ]
     )
 
@@ -186,12 +216,21 @@ nonisolated enum ProgressionCatalog {
         name: "Front lever",
         symbolName: "figure.gymnastics",
         steps: [
-            ProgressionStep(exerciseID: ExerciseCatalog.tuckFrontLeverID, criterion: hold3x20, source: .og2Table,
-                            tip: "RR przed tuckiem: skin the cat 5 × 2 i zwis z wygięciem 3 × 8.", equipment: ["Pull-up bar", "Rings"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.advancedTuckFrontLeverID, criterion: hold3x20, source: .og2Table, equipment: ["Pull-up bar", "Rings"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.straddleFrontLeverID, criterion: hold3x20, source: .og2Table, equipment: ["Pull-up bar", "Rings"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.halfLayFrontLeverID, criterion: hold3x20, source: .og2Table, equipment: ["Pull-up bar", "Rings"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.frontLeverID, criterion: firstFiveSecondHold, source: .caliPark, equipment: ["Pull-up bar", "Rings"])
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.tuckFrontLeverID, criterion: hold3x20, source: .og2Table,
+                tip: "RR przed tuckiem: skin the cat 5 × 2 i zwis z wygięciem 3 × 8.", equipment: ["Pull-up bar", "Rings"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.advancedTuckFrontLeverID, criterion: hold3x20, source: .og2Table,
+                equipment: ["Pull-up bar", "Rings"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.straddleFrontLeverID, criterion: hold3x20, source: .og2Table,
+                equipment: ["Pull-up bar", "Rings"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.halfLayFrontLeverID, criterion: hold3x20, source: .og2Table, equipment: ["Pull-up bar", "Rings"]
+            ),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.frontLeverID, criterion: firstFiveSecondHold, source: .caliPark,
+                equipment: ["Pull-up bar", "Rings"])
         ],
         recommendedBase: "Zwykle buduje się na bazie mocnych podciągnięć i wiosłowania."
     )
@@ -201,13 +240,23 @@ nonisolated enum ProgressionCatalog {
         name: "Back lever",
         symbolName: "figure.gymnastics",
         steps: [
-            ProgressionStep(exerciseID: ExerciseCatalog.germanHangID, criterion: hold3x30, source: .rr, equipment: ["Pull-up bar", "Rings"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.skinTheCatID, criterion: reps3x5, source: .caliPark, equipment: ["Pull-up bar", "Rings"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.tuckBackLeverID, criterion: hold3x20, source: .og2Table, equipment: ["Pull-up bar", "Rings"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.advancedTuckBackLeverID, criterion: hold3x20, source: .og2Table, equipment: ["Pull-up bar", "Rings"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.straddleBackLeverID, criterion: hold3x20, source: .og2Table, equipment: ["Pull-up bar", "Rings"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.halfLayBackLeverID, criterion: hold3x20, source: .og2Table, equipment: ["Pull-up bar", "Rings"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.backLeverID, criterion: firstFiveSecondHold, source: .caliPark, equipment: ["Pull-up bar", "Rings"])
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.germanHangID, criterion: hold3x30, source: .rr, equipment: ["Pull-up bar", "Rings"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.skinTheCatID, criterion: reps3x5, source: .caliPark, equipment: ["Pull-up bar", "Rings"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.tuckBackLeverID, criterion: hold3x20, source: .og2Table, equipment: ["Pull-up bar", "Rings"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.advancedTuckBackLeverID, criterion: hold3x20, source: .og2Table,
+                equipment: ["Pull-up bar", "Rings"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.straddleBackLeverID, criterion: hold3x20, source: .og2Table, equipment: ["Pull-up bar", "Rings"]
+            ),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.halfLayBackLeverID, criterion: hold3x20, source: .og2Table, equipment: ["Pull-up bar", "Rings"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.backLeverID, criterion: firstFiveSecondHold, source: .caliPark,
+                equipment: ["Pull-up bar", "Rings"])
         ]
     )
 
@@ -218,11 +267,21 @@ nonisolated enum ProgressionCatalog {
         steps: [
             ProgressionStep(exerciseID: ExerciseCatalog.frogStandID, criterion: hold3x30, source: .rr),
             ProgressionStep(exerciseID: ExerciseCatalog.straightArmFrogStandID, criterion: hold3x20, source: .og2Table),
-            ProgressionStep(exerciseID: ExerciseCatalog.tuckPlancheID, criterion: hold3x20, source: .og2Table, equipment: ["Push-up handles", "Parallel bars"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.advancedTuckPlancheID, criterion: hold3x20, source: .og2Table, equipment: ["Push-up handles", "Parallel bars"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.straddlePlancheID, criterion: hold3x20, source: .og2Table, equipment: ["Push-up handles", "Parallel bars"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.halfLayPlancheID, criterion: hold3x20, source: .og2Table, equipment: ["Push-up handles", "Parallel bars"]),
-            ProgressionStep(exerciseID: ExerciseCatalog.plancheID, criterion: firstFiveSecondHold, source: .caliPark, equipment: ["Push-up handles", "Parallel bars"])
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.tuckPlancheID, criterion: hold3x20, source: .og2Table,
+                equipment: ["Push-up handles", "Parallel bars"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.advancedTuckPlancheID, criterion: hold3x20, source: .og2Table,
+                equipment: ["Push-up handles", "Parallel bars"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.straddlePlancheID, criterion: hold3x20, source: .og2Table,
+                equipment: ["Push-up handles", "Parallel bars"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.halfLayPlancheID, criterion: hold3x20, source: .og2Table,
+                equipment: ["Push-up handles", "Parallel bars"]),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.plancheID, criterion: firstFiveSecondHold, source: .caliPark,
+                equipment: ["Push-up handles", "Parallel bars"])
         ],
         recommendedBase: "Zwykle buduje się na bazie pompek pseudo-planche i mocnych barków."
     )
@@ -232,11 +291,20 @@ nonisolated enum ProgressionCatalog {
         name: "Flaga",
         symbolName: "figure.climbing",
         steps: [
-            ProgressionStep(exerciseID: ExerciseCatalog.verticalFlagSupportID, criterion: hold3x20, source: .caliPark, equipment: ExerciseCatalog.flagEquipment),
-            ProgressionStep(exerciseID: ExerciseCatalog.tuckFlagID, criterion: hold3x20, source: .og2Table, equipment: ExerciseCatalog.flagEquipment),
-            ProgressionStep(exerciseID: ExerciseCatalog.advancedTuckFlagID, criterion: hold3x20, source: .og2Table, equipment: ExerciseCatalog.flagEquipment),
-            ProgressionStep(exerciseID: ExerciseCatalog.straddleFlagID, criterion: hold3x20, source: .og2Table, equipment: ExerciseCatalog.flagEquipment),
-            ProgressionStep(exerciseID: ExerciseCatalog.humanFlagID, criterion: firstFiveSecondHold, source: .caliPark, equipment: ExerciseCatalog.flagEquipment)
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.verticalFlagSupportID, criterion: hold3x20, source: .caliPark,
+                equipment: ExerciseCatalog.flagEquipment),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.tuckFlagID, criterion: hold3x20, source: .og2Table, equipment: ExerciseCatalog.flagEquipment),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.advancedTuckFlagID, criterion: hold3x20, source: .og2Table,
+                equipment: ExerciseCatalog.flagEquipment),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.straddleFlagID, criterion: hold3x20, source: .og2Table, equipment: ExerciseCatalog.flagEquipment
+            ),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.humanFlagID, criterion: firstFiveSecondHold, source: .caliPark,
+                equipment: ExerciseCatalog.flagEquipment)
         ]
     )
 
@@ -249,7 +317,8 @@ nonisolated enum ProgressionCatalog {
             ProgressionStep(exerciseID: ExerciseCatalog.wallHandstandHoldID, criterion: hold3x30, source: .rr),
             ProgressionStep(exerciseID: ExerciseCatalog.pikePushUpsID, criterion: reps3x8, source: .rr),
             ProgressionStep(exerciseID: ExerciseCatalog.elevatedPikePushUpsID, criterion: reps3x8, source: .rr),
-            ProgressionStep(exerciseID: ExerciseCatalog.wallHandstandPushUpNegativesID, criterion: reps3x5, source: .caliPark, note: slowDescent),
+            ProgressionStep(
+                exerciseID: ExerciseCatalog.wallHandstandPushUpNegativesID, criterion: reps3x5, source: .caliPark, note: slowDescent),
             ProgressionStep(exerciseID: ExerciseCatalog.wallHandstandPushUpsID, criterion: reps3x5, source: .caliPark)
         ]
     )

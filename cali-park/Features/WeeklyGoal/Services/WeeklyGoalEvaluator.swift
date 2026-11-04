@@ -42,24 +42,26 @@ nonisolated enum WeeklyGoalEvaluator {
 
     /// One goal's target and progress in `week`. Only entries inside the week
     /// count; `plans` matter only for "all scheduled".
-    static func progress(of goal: WeeklyGoal,
-                         in week: DateInterval,
-                         entries: [WorkoutLogEntry],
-                         plans: [WorkoutPlan],
-                         calendar: Calendar = .current) -> WeeklyGoalProgress {
+    static func progress(
+        of goal: WeeklyGoal,
+        in week: DateInterval,
+        entries: [WorkoutLogEntry],
+        plans: [WorkoutPlan],
+        calendar: Calendar = .current
+    ) -> WeeklyGoalProgress {
         let inWeek = entries.filter { contains(week, $0.date) }
         switch goal.metric {
-        case let .trainingDays(days):
+        case .trainingDays(let days):
             let trained = Set(inWeek.map { calendar.startOfDay(for: $0.date) })
             return WeeklyGoalProgress(goal: goal, target: days, value: trained.count)
 
-        case let .plannedWorkouts(.count(workouts)):
+        case .plannedWorkouts(.count(let workouts)):
             return WeeklyGoalProgress(goal: goal, target: workouts, value: planWorkouts(in: inWeek, calendar: calendar).count)
 
         case .plannedWorkouts(.allScheduled):
             return allScheduledProgress(goal: goal, week: week, entries: inWeek, plans: plans, calendar: calendar)
 
-        case let .exerciseVolume(exerciseID, measurement, amount):
+        case .exerciseVolume(let exerciseID, let measurement, let amount):
             let matching = inWeek.filter { $0.exerciseID == exerciseID }
             let value = matching.reduce(0) { total, entry in
                 total + (measurement == .seconds ? entry.totalSeconds : entry.totalReps)
@@ -73,21 +75,24 @@ nonisolated enum WeeklyGoalEvaluator {
     /// `week` judged against the goals in force for it, or `nil` when the week
     /// ends before the first goal version took effect. The current week uses
     /// the latest version that has taken effect.
-    static func evaluate(week: DateInterval,
-                         versions: [WeeklyGoalVersion],
-                         pauses: [WeeklyGoalPause],
-                         entries: [WorkoutLogEntry],
-                         plans: [WorkoutPlan],
-                         planSchedules: [PlanScheduleRecord] = [],
-                         calendar: Calendar = .current,
-                         asOf: Date = .now) -> WeeklyGoalWeek? {
+    static func evaluate(
+        week: DateInterval,
+        versions: [WeeklyGoalVersion],
+        pauses: [WeeklyGoalPause],
+        entries: [WorkoutLogEntry],
+        plans: [WorkoutPlan],
+        planSchedules: [PlanScheduleRecord] = [],
+        calendar: Calendar = .current,
+        asOf: Date = .now
+    ) -> WeeklyGoalWeek? {
         guard let first = versions.first,
-              let version = versions.last(where: { $0.effectiveFrom < week.end && $0.effectiveFrom <= asOf })
+            let version = versions.last(where: { $0.effectiveFrom < week.end && $0.effectiveFrom <= asOf })
         else { return nil }
-        return judge(week: week, version: version, firstSetAt: first.effectiveFrom, pauses: pauses,
-                     entries: entries,
-                     plans: Self.plans(for: week, records: planSchedules, currentPlans: plans, asOf: asOf),
-                     calendar: calendar, asOf: asOf)
+        return judge(
+            week: week, version: version, firstSetAt: first.effectiveFrom, pauses: pauses,
+            entries: entries,
+            plans: Self.plans(for: week, records: planSchedules, currentPlans: plans, asOf: asOf),
+            calendar: calendar, asOf: asOf)
     }
 
     /// The plans to count `week`'s "all scheduled" target with: `currentPlans`
@@ -95,24 +100,28 @@ nonisolated enum WeeklyGoalEvaluator {
     /// when it ended, or the earliest record for a week before every record;
     /// `currentPlans` when nothing was recorded yet (files from before
     /// records existed).
-    static func plans(for week: DateInterval,
-                      records: [PlanScheduleRecord],
-                      currentPlans: [WorkoutPlan],
-                      asOf: Date) -> [WorkoutPlan] {
+    static func plans(
+        for week: DateInterval,
+        records: [PlanScheduleRecord],
+        currentPlans: [WorkoutPlan],
+        asOf: Date
+    ) -> [WorkoutPlan] {
         guard asOf >= week.end, let first = records.first else { return currentPlans }
         let record = records.last { $0.effectiveFrom < week.end } ?? first
         return record.plans.map(\.plan)
     }
 
     /// The verdict for `week` under `version`.
-    private static func judge(week: DateInterval,
-                              version: WeeklyGoalVersion,
-                              firstSetAt: Date,
-                              pauses: [WeeklyGoalPause],
-                              entries: [WorkoutLogEntry],
-                              plans: [WorkoutPlan],
-                              calendar: Calendar,
-                              asOf: Date) -> WeeklyGoalWeek {
+    private static func judge(
+        week: DateInterval,
+        version: WeeklyGoalVersion,
+        firstSetAt: Date,
+        pauses: [WeeklyGoalPause],
+        entries: [WorkoutLogEntry],
+        plans: [WorkoutPlan],
+        calendar: Calendar,
+        asOf: Date
+    ) -> WeeklyGoalWeek {
         let goals = version.goals.map {
             progress(of: $0, in: week, entries: entries, plans: plans, calendar: calendar)
         }
@@ -121,12 +130,9 @@ nonisolated enum WeeklyGoalEvaluator {
 
         let primary = goals[0]
         let status: WeeklyGoalWeekStatus =
-            if primary.isMet { .met }
-            else if primary.target == 0 { .nothingScheduled }
-            else if isPaused { .paused }
-            else if isWarmUp { .warmUp }
-            else if asOf < week.end { .inProgress }
-            else { .missed }
+            if primary.isMet { .met } else if primary.target == 0 { .nothingScheduled } else if isPaused { .paused } else if isWarmUp {
+                .warmUp
+            } else if asOf < week.end { .inProgress } else { .missed }
 
         return WeeklyGoalWeek(interval: week, goals: goals, status: status, isPaused: isPaused, isWarmUp: isWarmUp)
     }
@@ -136,24 +142,28 @@ nonisolated enum WeeklyGoalEvaluator {
     /// Weeks in a row with the primary goal met, counted back from the week of
     /// `asOf`. Neutral weeks (running, paused, warm-up, nothing scheduled) are
     /// skipped; a missed week or the start of the history ends the count.
-    static func streak(versions: [WeeklyGoalVersion],
-                       pauses: [WeeklyGoalPause],
-                       entries: [WorkoutLogEntry],
-                       plans: [WorkoutPlan],
-                       planSchedules: [PlanScheduleRecord] = [],
-                       calendar: Calendar = .current,
-                       asOf: Date = .now) -> Int {
+    static func streak(
+        versions: [WeeklyGoalVersion],
+        pauses: [WeeklyGoalPause],
+        entries: [WorkoutLogEntry],
+        plans: [WorkoutPlan],
+        planSchedules: [PlanScheduleRecord] = [],
+        calendar: Calendar = .current,
+        asOf: Date = .now
+    ) -> Int {
         guard let first = versions.first else { return 0 }
         let byWeek = Dictionary(grouping: entries) { week(containing: $0.date, calendar: calendar).start }
 
         var count = 0
         var current = week(containing: asOf, calendar: calendar)
         while current.end > first.effectiveFrom {
-            guard let judged = evaluate(
-                week: current, versions: versions, pauses: pauses,
-                entries: byWeek[current.start] ?? [], plans: plans, planSchedules: planSchedules,
-                calendar: calendar, asOf: asOf
-            ) else { break }
+            guard
+                let judged = evaluate(
+                    week: current, versions: versions, pauses: pauses,
+                    entries: byWeek[current.start] ?? [], plans: plans, planSchedules: planSchedules,
+                    calendar: calendar, asOf: asOf
+                )
+            else { break }
             switch judged.status {
             case .met: count += 1
             case .missed: return count
@@ -174,11 +184,13 @@ nonisolated enum WeeklyGoalEvaluator {
 
     /// The current week, the streak, the active pause and the celebrations
     /// still to show, for Home.
-    static func snapshot(history: WeeklyGoalHistory,
-                         entries: [WorkoutLogEntry],
-                         plans: [WorkoutPlan],
-                         calendar: Calendar = .current,
-                         asOf: Date = .now) -> WeeklyGoalSnapshot {
+    static func snapshot(
+        history: WeeklyGoalHistory,
+        entries: [WorkoutLogEntry],
+        plans: [WorkoutPlan],
+        calendar: Calendar = .current,
+        asOf: Date = .now
+    ) -> WeeklyGoalSnapshot {
         let versions = history.effectiveVersions(implicitStart: implicitStart(entries: entries, asOf: asOf))
         let currentWeek = week(containing: asOf, calendar: calendar)
         // The latest version that has taken effect; the first one if the clock
@@ -193,8 +205,9 @@ nonisolated enum WeeklyGoalEvaluator {
         }
         return WeeklyGoalSnapshot(
             week: judged,
-            streak: streak(versions: versions, pauses: history.pauses, entries: entries,
-                           plans: plans, planSchedules: history.planSchedules, calendar: calendar, asOf: asOf),
+            streak: streak(
+                versions: versions, pauses: history.pauses, entries: entries,
+                plans: plans, planSchedules: history.planSchedules, calendar: calendar, asOf: asOf),
             activePause: history.activePause(at: asOf),
             pendingCelebrations: pending,
             isDefault: history.versions.isEmpty
@@ -211,19 +224,22 @@ nonisolated enum WeeklyGoalEvaluator {
     /// Distinct (plan, day) pairs among entries logged from a plan: one plan
     /// workout per plan per day, however many exercises it logged.
     private static func planWorkouts(in entries: [WorkoutLogEntry], calendar: Calendar) -> Set<PlanDay> {
-        Set(entries.compactMap { entry in
-            entry.planID.map { PlanDay(planID: $0, day: calendar.startOfDay(for: entry.date)) }
-        })
+        Set(
+            entries.compactMap { entry in
+                entry.planID.map { PlanDay(planID: $0, day: calendar.startOfDay(for: entry.date)) }
+            })
     }
 
     /// "All scheduled": the target is every plan occurrence in the week. A plan
     /// done on another day of the same week still counts, up to the number of
     /// times it was scheduled, so moving a session within the week is fine.
-    private static func allScheduledProgress(goal: WeeklyGoal,
-                                             week: DateInterval,
-                                             entries: [WorkoutLogEntry],
-                                             plans: [WorkoutPlan],
-                                             calendar: Calendar) -> WeeklyGoalProgress {
+    private static func allScheduledProgress(
+        goal: WeeklyGoal,
+        week: DateInterval,
+        entries: [WorkoutLogEntry],
+        plans: [WorkoutPlan],
+        calendar: Calendar
+    ) -> WeeklyGoalProgress {
         let scheduled = Dictionary(
             grouping: PlanAgenda.occurrences(of: plans, in: week, calendar: calendar),
             by: \.plan.id

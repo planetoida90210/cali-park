@@ -12,6 +12,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 private enum Fixtures {
@@ -166,8 +167,9 @@ struct PlanEditorDiscardTests {
     /// `.once(nil)` opens as today's date in the picker; that is not an edit.
     @Test
     func undatedOncePlanOpensClean() {
-        let plan = WorkoutPlan(name: "Kiedyś", exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)],
-                               schedule: .once(nil))
+        let plan = WorkoutPlan(
+            name: "Kiedyś", exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)],
+            schedule: .once(nil))
         #expect(editor(plan).hasUnsavedChanges == false)
     }
 
@@ -228,8 +230,9 @@ struct PlanEditorPreservesFieldsTests {
     @Test
     func savingAnEditKeepsFieldsTheEditorDoesNotShow() async throws {
         let store = InMemoryWorkoutPlanStore(initial: [Fixtures.plan])
-        let editor = PlanEditorViewModel(plan: Fixtures.plan, service: .testing(store),
-                                         calendar: Fixtures.calendar, now: Fixtures.reference)
+        let editor = PlanEditorViewModel(
+            plan: Fixtures.plan, service: .testing(store),
+            calendar: Fixtures.calendar, now: Fixtures.reference)
         editor.name = "Push v2"
         editor.toggle(.friday)
         await editor.save()
@@ -249,16 +252,18 @@ struct PlanEditorPreservesFieldsTests {
     @Test
     func unchangedSaveRoundTripsThePlanExactly() async throws {
         let store = InMemoryWorkoutPlanStore(initial: [Fixtures.plan])
-        let editor = PlanEditorViewModel(plan: Fixtures.plan, service: .testing(store),
-                                         calendar: Fixtures.calendar, now: Fixtures.reference)
+        let editor = PlanEditorViewModel(
+            plan: Fixtures.plan, service: .testing(store),
+            calendar: Fixtures.calendar, now: Fixtures.reference)
         await editor.save()
         #expect(try #require(store.load().first) == Fixtures.plan)
     }
 
     @Test
     func newPlanKeepsOneIdentityAcrossRetries() {
-        let editor = PlanEditorViewModel(plan: nil, service: .testing(InMemoryWorkoutPlanStore()),
-                                         calendar: Fixtures.calendar, now: Fixtures.reference)
+        let editor = PlanEditorViewModel(
+            plan: nil, service: .testing(InMemoryWorkoutPlanStore()),
+            calendar: Fixtures.calendar, now: Fixtures.reference)
         editor.name = "Nowy"
         editor.addExercise(Fixtures.pushUps)
         editor.toggle(.monday)

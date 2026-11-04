@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 private typealias F = WeeklyGoalFixtures
@@ -34,8 +35,9 @@ struct WeeklyGoalWeekBoundaryTests {
 
         let goal = F.days(3)
         let entries = [F.entry(at: lastSecond), F.entry(at: nextMonday)]
-        let progress = WeeklyGoalEvaluator.progress(of: goal, in: F.week(0), entries: entries, plans: [],
-                                                    calendar: F.calendar)
+        let progress = WeeklyGoalEvaluator.progress(
+            of: goal, in: F.week(0), entries: entries, plans: [],
+            calendar: F.calendar)
         #expect(progress.value == 1)
     }
 
@@ -51,8 +53,9 @@ struct WeeklyGoalWeekBoundaryTests {
         #expect(iso.component(.weekOfYear, from: week.start) == 53)
 
         let entries = [F.entry(at: F.date(2026, 12, 29)), F.entry(at: F.date(2027, 1, 2))]
-        let progress = WeeklyGoalEvaluator.progress(of: F.days(2), in: week, entries: entries, plans: [],
-                                                    calendar: F.calendar)
+        let progress = WeeklyGoalEvaluator.progress(
+            of: F.days(2), in: week, entries: entries, plans: [],
+            calendar: F.calendar)
         #expect(progress.value == 2)
         #expect(progress.isMet)
     }
@@ -71,11 +74,12 @@ struct WeeklyGoalWeekBoundaryTests {
         let versions = [F.version([F.days(2)], from: F.date(2026, 12, 21, 0))]
         let entries = [
             F.date(2026, 12, 22), F.date(2026, 12, 23), // week of 21 Dec
-            F.date(2026, 12, 31), F.date(2027, 1, 1),   // week 53
-            F.date(2027, 1, 5), F.date(2027, 1, 6)      // first week of 2027
+            F.date(2026, 12, 31), F.date(2027, 1, 1), // week 53
+            F.date(2027, 1, 5), F.date(2027, 1, 6) // first week of 2027
         ].map { F.entry(at: $0) }
-        let streak = WeeklyGoalEvaluator.streak(versions: versions, pauses: [], entries: entries, plans: [],
-                                                calendar: F.calendar, asOf: F.date(2027, 1, 7))
+        let streak = WeeklyGoalEvaluator.streak(
+            versions: versions, pauses: [], entries: entries, plans: [],
+            calendar: F.calendar, asOf: F.date(2027, 1, 7))
         #expect(streak == 3)
     }
 }
@@ -90,8 +94,9 @@ struct WeeklyGoalProgressTests {
             F.entry(at: F.day(3)),
             F.entry(at: F.day(week: -1, 6)) // previous Sunday
         ]
-        let progress = WeeklyGoalEvaluator.progress(of: F.days(3), in: F.week(0), entries: entries, plans: [],
-                                                    calendar: F.calendar)
+        let progress = WeeklyGoalEvaluator.progress(
+            of: F.days(3), in: F.week(0), entries: entries, plans: [],
+            calendar: F.calendar)
         #expect(progress.target == 3)
         #expect(progress.value == 2)
         #expect(progress.isMet == false)
@@ -106,8 +111,9 @@ struct WeeklyGoalProgressTests {
             F.entry(at: F.day(4), sets: [LoggedSet(reps: 7)]),
             F.entry(at: F.day(4), exercise: ExerciseCatalog.pushUpsID, sets: [LoggedSet(reps: 30)])
         ]
-        let progress = WeeklyGoalEvaluator.progress(of: goal, in: F.week(0), entries: entries, plans: [],
-                                                    calendar: F.calendar)
+        let progress = WeeklyGoalEvaluator.progress(
+            of: goal, in: F.week(0), entries: entries, plans: [],
+            calendar: F.calendar)
         #expect(progress.value == 21)
         #expect(progress.isMet)
         #expect(progress.fraction == 1)
@@ -121,8 +127,9 @@ struct WeeklyGoalProgressTests {
             F.entry(at: F.day(0), exercise: ExerciseCatalog.lSitID, sets: [hold(20), hold(15)]),
             F.entry(at: F.day(2), exercise: ExerciseCatalog.lSitID, sets: [hold(25)])
         ]
-        let progress = WeeklyGoalEvaluator.progress(of: goal, in: F.week(0), entries: entries, plans: [],
-                                                    calendar: F.calendar)
+        let progress = WeeklyGoalEvaluator.progress(
+            of: goal, in: F.week(0), entries: entries, plans: [],
+            calendar: F.calendar)
         #expect(progress.value == 60)
         #expect(progress.isMet == false)
     }
@@ -140,8 +147,9 @@ struct WeeklyGoalProgressTests {
             F.entry(at: F.day(2)), // free workout
             F.entry(at: F.day(3), plan: push)
         ]
-        let progress = WeeklyGoalEvaluator.progress(of: goal, in: F.week(0), entries: entries, plans: [],
-                                                    calendar: F.calendar)
+        let progress = WeeklyGoalEvaluator.progress(
+            of: goal, in: F.week(0), entries: entries, plans: [],
+            calendar: F.calendar)
         #expect(progress.value == 3)
         #expect(progress.isMet)
     }
@@ -154,15 +162,17 @@ struct WeeklyGoalProgressTests {
         let goal = F.goal(.plannedWorkouts(target: .allScheduled))
 
         let moved = [F.entry(at: F.day(0), plan: plan), F.entry(at: F.day(4), plan: plan)] // Mon + Fri
-        let movedProgress = WeeklyGoalEvaluator.progress(of: goal, in: F.week(0), entries: moved, plans: [plan],
-                                                         calendar: F.calendar)
+        let movedProgress = WeeklyGoalEvaluator.progress(
+            of: goal, in: F.week(0), entries: moved, plans: [plan],
+            calendar: F.calendar)
         #expect(movedProgress.target == 2)
         #expect(movedProgress.value == 2)
         #expect(movedProgress.isMet)
 
         let extra = moved + [F.entry(at: F.day(1), plan: plan)]
-        let extraProgress = WeeklyGoalEvaluator.progress(of: goal, in: F.week(0), entries: extra, plans: [plan],
-                                                         calendar: F.calendar)
+        let extraProgress = WeeklyGoalEvaluator.progress(
+            of: goal, in: F.week(0), entries: extra, plans: [plan],
+            calendar: F.calendar)
         #expect(extraProgress.value == 2)
     }
 
@@ -176,8 +186,9 @@ struct WeeklyGoalProgressTests {
         let once = WorkoutPlan(name: "D", schedule: .once(F.day(6), in: F.calendar), createdAt: F.day(week: -1))
         let goal = F.goal(.plannedWorkouts(target: .allScheduled))
 
-        let progress = WeeklyGoalEvaluator.progress(of: goal, in: F.week(0), entries: [],
-                                                    plans: [old, inactive, fresh, once], calendar: F.calendar)
+        let progress = WeeklyGoalEvaluator.progress(
+            of: goal, in: F.week(0), entries: [],
+            plans: [old, inactive, fresh, once], calendar: F.calendar)
         // A: Mon + Thu; C: Wed, Fri, Sun; D: Sun.
         #expect(progress.target == 6)
         #expect(progress.value == 0)
@@ -188,41 +199,49 @@ struct WeeklyGoalProgressTests {
         let older = WorkoutPlan(name: "Older", schedule: .weekly([.monday]), createdAt: F.day(week: -3))
         let newer = WorkoutPlan(name: "Newer", schedule: .weekly([.monday, .sunday]), createdAt: F.day(week: -2))
         let occurrences = PlanAgenda.occurrences(of: [newer, older], in: F.week(0), calendar: F.calendar)
-        #expect(occurrences == [
-            PlanAgenda.Occurrence(plan: older, date: F.monday),
-            PlanAgenda.Occurrence(plan: newer, date: F.monday),
-            PlanAgenda.Occurrence(plan: newer, date: F.day(6, hour: 0))
-        ])
+        #expect(
+            occurrences == [
+                PlanAgenda.Occurrence(plan: older, date: F.monday),
+                PlanAgenda.Occurrence(plan: newer, date: F.monday),
+                PlanAgenda.Occurrence(plan: newer, date: F.day(6, hour: 0))
+            ])
     }
 }
 
 // MARK: - Week verdicts and the streak
 
 struct WeeklyGoalStreakTests {
-    private func streak(_ versions: [WeeklyGoalVersion],
-                        pauses: [WeeklyGoalPause] = [],
-                        entries: [WorkoutLogEntry],
-                        plans: [WorkoutPlan] = [],
-                        asOf: Date) -> Int {
-        WeeklyGoalEvaluator.streak(versions: versions, pauses: pauses, entries: entries, plans: plans,
-                                   calendar: F.calendar, asOf: asOf)
+    private func streak(
+        _ versions: [WeeklyGoalVersion],
+        pauses: [WeeklyGoalPause] = [],
+        entries: [WorkoutLogEntry],
+        plans: [WorkoutPlan] = [],
+        asOf: Date
+    ) -> Int {
+        WeeklyGoalEvaluator.streak(
+            versions: versions, pauses: pauses, entries: entries, plans: plans,
+            calendar: F.calendar, asOf: asOf)
     }
 
-    private func verdict(_ week: Int,
-                         _ versions: [WeeklyGoalVersion],
-                         pauses: [WeeklyGoalPause] = [],
-                         entries: [WorkoutLogEntry],
-                         plans: [WorkoutPlan] = [],
-                         asOf: Date) -> WeeklyGoalWeek? {
-        WeeklyGoalEvaluator.evaluate(week: F.week(week), versions: versions, pauses: pauses, entries: entries,
-                                     plans: plans, calendar: F.calendar, asOf: asOf)
+    private func verdict(
+        _ week: Int,
+        _ versions: [WeeklyGoalVersion],
+        pauses: [WeeklyGoalPause] = [],
+        entries: [WorkoutLogEntry],
+        plans: [WorkoutPlan] = [],
+        asOf: Date
+    ) -> WeeklyGoalWeek? {
+        WeeklyGoalEvaluator.evaluate(
+            week: F.week(week), versions: versions, pauses: pauses, entries: entries,
+            plans: plans, calendar: F.calendar, asOf: asOf)
     }
 
     private let threeDays = [F.version([F.days(3)], from: F.day(week: -10, hour: 0))]
 
     @Test
     func runningWeekDoesNotBreakTheStreak() {
-        let entries = F.trained(week: -2, days: [0, 2, 4]) + F.trained(week: -1, days: [1, 3, 5])
+        let entries =
+            F.trained(week: -2, days: [0, 2, 4]) + F.trained(week: -1, days: [1, 3, 5])
             + F.trained(week: 0, days: [0])
         let now = F.day(2)
         #expect(verdict(0, threeDays, entries: entries, asOf: now)?.status == .inProgress)
@@ -237,7 +256,8 @@ struct WeeklyGoalStreakTests {
 
     @Test
     func missedWeekBreaksTheStreak() {
-        let entries = F.trained(week: -3, days: [0, 1, 2]) + F.trained(week: -2, days: [0])
+        let entries =
+            F.trained(week: -3, days: [0, 1, 2]) + F.trained(week: -2, days: [0])
             + F.trained(week: -1, days: [0, 1, 2])
         #expect(verdict(-2, threeDays, entries: entries, asOf: F.day(1))?.status == .missed)
         #expect(streak(threeDays, entries: entries, asOf: F.day(1)) == 1)
@@ -355,8 +375,9 @@ struct WeeklyGoalStreakTests {
     /// Ended early, a pause stops covering the weeks after it.
     @Test
     func pauseEndedEarlyFreesTheFollowingWeeks() {
-        let pause = WeeklyGoalPause(start: F.day(week: -2, hour: 0), plannedEnd: F.day(week: 2, hour: 0),
-                                    endedAt: F.day(week: -2, 2))
+        let pause = WeeklyGoalPause(
+            start: F.day(week: -2, hour: 0), plannedEnd: F.day(week: 2, hour: 0),
+            endedAt: F.day(week: -2, 2))
         let entries = F.trained(week: -3, days: [0, 1, 2])
         #expect(verdict(-2, threeDays, pauses: [pause], entries: entries, asOf: F.day(1))?.status == .paused)
         #expect(verdict(-1, threeDays, pauses: [pause], entries: entries, asOf: F.day(1))?.status == .missed)
@@ -387,10 +408,12 @@ struct WeeklyGoalSnapshotTests {
     /// first logged workout, so history earns a streak right away.
     @Test
     func implicitDefaultStartsAtTheFirstWorkout() throws {
-        let entries = F.trained(week: -2, days: [0, 2, 4]) + F.trained(week: -1, days: [1, 3, 5])
+        let entries =
+            F.trained(week: -2, days: [0, 2, 4]) + F.trained(week: -1, days: [1, 3, 5])
             + F.trained(week: 0, days: [0])
-        let snapshot = WeeklyGoalEvaluator.snapshot(history: .empty, entries: entries, plans: [],
-                                                    calendar: F.calendar, asOf: F.day(1))
+        let snapshot = WeeklyGoalEvaluator.snapshot(
+            history: .empty, entries: entries, plans: [],
+            calendar: F.calendar, asOf: F.day(1))
         #expect(snapshot.isDefault)
         #expect(snapshot.week.primary.goal == WeeklyGoal.defaultGoals[0])
         #expect(snapshot.week.primary.value == 1)
@@ -402,16 +425,18 @@ struct WeeklyGoalSnapshotTests {
     @Test
     func implicitDefaultFirstWeekFromThursdayIsAWarmUp() {
         let entries = F.trained(week: 0, days: [3])
-        let snapshot = WeeklyGoalEvaluator.snapshot(history: .empty, entries: entries, plans: [],
-                                                    calendar: F.calendar, asOf: F.day(4))
+        let snapshot = WeeklyGoalEvaluator.snapshot(
+            history: .empty, entries: entries, plans: [],
+            calendar: F.calendar, asOf: F.day(4))
         #expect(snapshot.week.isWarmUp)
         #expect(snapshot.week.status == .warmUp)
     }
 
     @Test
     func emptyJournalShowsTheDefaultAtZero() {
-        let snapshot = WeeklyGoalEvaluator.snapshot(history: .empty, entries: [], plans: [],
-                                                    calendar: F.calendar, asOf: F.day(2))
+        let snapshot = WeeklyGoalEvaluator.snapshot(
+            history: .empty, entries: [], plans: [],
+            calendar: F.calendar, asOf: F.day(2))
         #expect(snapshot.week.primary.value == 0)
         #expect(snapshot.week.primary.target == WeeklyGoal.defaultTrainingDays)
         #expect(snapshot.streak == 0)
@@ -423,17 +448,20 @@ struct WeeklyGoalSnapshotTests {
         let history = WeeklyGoalHistory(versions: [F.version([F.days(3), volume], from: F.day(week: -3, hour: 0))])
         let entries = F.trained(week: 0, days: [0])
 
-        let before = WeeklyGoalEvaluator.snapshot(history: history, entries: entries, plans: [],
-                                                  calendar: F.calendar, asOf: F.day(1))
+        let before = WeeklyGoalEvaluator.snapshot(
+            history: history, entries: entries, plans: [],
+            calendar: F.calendar, asOf: F.day(1))
         #expect(before.pendingCelebrations.map(\.goal) == [volume])
 
         let marked = history.markingCelebrated(goalID: volume.id, weekStart: F.monday, calendar: F.calendar)
-        let after = WeeklyGoalEvaluator.snapshot(history: marked, entries: entries, plans: [],
-                                                 calendar: F.calendar, asOf: F.day(1))
+        let after = WeeklyGoalEvaluator.snapshot(
+            history: marked, entries: entries, plans: [],
+            calendar: F.calendar, asOf: F.day(1))
         #expect(after.pendingCelebrations.isEmpty)
 
-        let nextWeek = WeeklyGoalEvaluator.snapshot(history: marked, entries: entries + F.trained(week: 1, days: [0]),
-                                                    plans: [], calendar: F.calendar, asOf: F.day(week: 1, 1))
+        let nextWeek = WeeklyGoalEvaluator.snapshot(
+            history: marked, entries: entries + F.trained(week: 1, days: [0]),
+            plans: [], calendar: F.calendar, asOf: F.day(week: 1, 1))
         #expect(nextWeek.pendingCelebrations.map(\.goal) == [volume])
     }
 
@@ -441,8 +469,9 @@ struct WeeklyGoalSnapshotTests {
     func activePauseIsReported() {
         let pause = WeeklyGoalPause(start: F.day(0, hour: 0), plannedEnd: F.day(7, hour: 0))
         let history = WeeklyGoalHistory(pauses: [pause])
-        let snapshot = WeeklyGoalEvaluator.snapshot(history: history, entries: [], plans: [],
-                                                    calendar: F.calendar, asOf: F.day(2))
+        let snapshot = WeeklyGoalEvaluator.snapshot(
+            history: history, entries: [], plans: [],
+            calendar: F.calendar, asOf: F.day(2))
         #expect(snapshot.activePause == pause)
         #expect(snapshot.week.status == .paused)
     }

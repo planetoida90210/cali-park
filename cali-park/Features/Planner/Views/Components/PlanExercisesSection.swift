@@ -8,16 +8,18 @@ struct PlanExercisesSection: View {
     var body: some View {
         Section {
             ForEach(viewModel.exercises) { planned in
-                PlanExerciseRow(exercise: viewModel.exercise(for: planned),
-                                target: viewModel.targetSummary(for: planned),
-                                ladder: viewModel.ladderName(for: planned))
-                    .listRowBackground(Color.componentBackground)
+                PlanExerciseRow(
+                    exercise: viewModel.exercise(for: planned),
+                    target: viewModel.targetSummary(for: planned),
+                    ladder: viewModel.ladderName(for: planned)
+                )
+                .listRowBackground(Color.componentBackground)
             }
             .onDelete { viewModel.remove(atOffsets: $0) }
 
             Button("Dodaj ćwiczenie", systemImage: "plus", action: onAdd)
                 .foregroundStyle(Color.accent)
-            .listRowBackground(Color.componentBackground)
+                .listRowBackground(Color.componentBackground)
         } header: {
             Text("Ćwiczenia")
         } footer: {

@@ -1,4 +1,5 @@
 import Foundation
+
 @testable import cali_park
 
 // MARK: - StoreFixtures
@@ -55,10 +56,12 @@ enum StoreFixtures {
             id: planID,
             name: "Pull day",
             exercises: [
-                PlannedExercise(id: UUID(uuidString: "B0000000-0000-4000-8000-000000000001")!,
-                                exerciseID: pullUpsID, targetSets: 3, targetReps: 8),
-                PlannedExercise(id: UUID(uuidString: "B0000000-0000-4000-8000-000000000002")!,
-                                exerciseID: plankID)
+                PlannedExercise(
+                    id: UUID(uuidString: "B0000000-0000-4000-8000-000000000001")!,
+                    exerciseID: pullUpsID, targetSets: 3, targetReps: 8),
+                PlannedExercise(
+                    id: UUID(uuidString: "B0000000-0000-4000-8000-000000000002")!,
+                    exerciseID: plankID)
             ],
             schedule: .weekly([.monday, .thursday]),
             createdAt: october1,

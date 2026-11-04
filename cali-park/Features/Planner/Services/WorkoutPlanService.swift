@@ -37,10 +37,12 @@ final class WorkoutPlanService {
     private var changeHandlers: [@MainActor () -> Void] = []
 
     /// `logEntries` is only read, to skip reminders on days a plan is done.
-    init(store: WorkoutPlanStoring,
-         logEntries: @escaping @MainActor () throws -> [WorkoutLogEntry],
-         scheduler: WorkoutReminderScheduling,
-         refreshScheduler: ReminderRefreshScheduling) {
+    init(
+        store: WorkoutPlanStoring,
+        logEntries: @escaping @MainActor () throws -> [WorkoutLogEntry],
+        scheduler: WorkoutReminderScheduling,
+        refreshScheduler: ReminderRefreshScheduling
+    ) {
         self.store = store
         self.logEntries = logEntries
         self.scheduler = scheduler
@@ -48,12 +50,15 @@ final class WorkoutPlanService {
     }
 
     /// Reads the entries from the log store itself on every sync.
-    convenience init(store: WorkoutPlanStoring,
-                     logStore: WorkoutLogStoring,
-                     scheduler: WorkoutReminderScheduling,
-                     refreshScheduler: ReminderRefreshScheduling) {
-        self.init(store: store, logEntries: { try logStore.load() },
-                  scheduler: scheduler, refreshScheduler: refreshScheduler)
+    convenience init(
+        store: WorkoutPlanStoring,
+        logStore: WorkoutLogStoring,
+        scheduler: WorkoutReminderScheduling,
+        refreshScheduler: ReminderRefreshScheduling
+    ) {
+        self.init(
+            store: store, logEntries: { try logStore.load() },
+            scheduler: scheduler, refreshScheduler: refreshScheduler)
     }
 
     // MARK: Plans
@@ -134,7 +139,8 @@ final class WorkoutPlanService {
         do {
             entries = try logEntries()
         } catch {
-            logger.error("Workout log unreadable, reminders scheduled as if nothing were done: \(error.localizedDescription, privacy: .public)")
+            logger.error(
+                "Workout log unreadable, reminders scheduled as if nothing were done: \(error.localizedDescription, privacy: .public)")
             entries = []
         }
         do {

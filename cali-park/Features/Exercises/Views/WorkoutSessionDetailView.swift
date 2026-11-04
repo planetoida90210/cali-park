@@ -21,9 +21,10 @@ struct WorkoutSessionDetailView: View {
     var body: some View {
         Group {
             if let session = viewModel.session {
-                WorkoutSessionContentList(session: session,
-                                          exercise: { viewModel.exercise(for: $0) },
-                                          onDelete: { isConfirmingDelete = true })
+                WorkoutSessionContentList(
+                    session: session,
+                    exercise: { viewModel.exercise(for: $0) },
+                    onDelete: { isConfirmingDelete = true })
             } else {
                 ContentUnavailableView(
                     "Trening usunięty",
@@ -41,8 +42,8 @@ struct WorkoutSessionDetailView: View {
                 Button("Gotowe", action: onDone)
                     .buttonStyle(.accent)
                     .accessibilityIdentifier("workoutSummary.done")
-                .padding(.horizontal, 16)
-                .padding(.bottom, 8)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 8)
             }
         }
         .confirmationDialog("Usunąć ten trening?", isPresented: $isConfirmingDelete, titleVisibility: .visible) {
@@ -72,10 +73,13 @@ struct WorkoutSessionDetailView: View {
         WorkoutSessionDetailView(
             viewModel: WorkoutSessionDetailViewModel(
                 sessionID: session,
-                journal: TrainingJournal(store: InMemoryWorkoutLogStore(initial: [
-                    WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, sets: [LoggedSet(reps: 8), LoggedSet(reps: 6)], sessionID: session),
-                    WorkoutLogEntry(exerciseID: ExerciseCatalog.plankID, sets: [LoggedSet(reps: 1, durationSeconds: 45)], sessionID: session)
-                ]))
+                journal: TrainingJournal(
+                    store: InMemoryWorkoutLogStore(initial: [
+                        WorkoutLogEntry(
+                            exerciseID: ExerciseCatalog.pullUpsID, sets: [LoggedSet(reps: 8), LoggedSet(reps: 6)], sessionID: session),
+                        WorkoutLogEntry(
+                            exerciseID: ExerciseCatalog.plankID, sets: [LoggedSet(reps: 1, durationSeconds: 45)], sessionID: session)
+                    ]))
             )
         )
     }
@@ -88,9 +92,11 @@ struct WorkoutSessionDetailView: View {
         WorkoutSessionDetailView(
             viewModel: WorkoutSessionDetailViewModel(
                 sessionID: session,
-                journal: TrainingJournal(store: InMemoryWorkoutLogStore(initial: [
-                    WorkoutLogEntry(exerciseID: ExerciseCatalog.pushUpsID, sets: [LoggedSet(reps: 15), LoggedSet(reps: 12)], sessionID: session)
-                ]))
+                journal: TrainingJournal(
+                    store: InMemoryWorkoutLogStore(initial: [
+                        WorkoutLogEntry(
+                            exerciseID: ExerciseCatalog.pushUpsID, sets: [LoggedSet(reps: 15), LoggedSet(reps: 12)], sessionID: session)
+                    ]))
             ),
             onDone: {}
         )

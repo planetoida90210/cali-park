@@ -35,13 +35,15 @@ nonisolated struct ProgressionStep: Identifiable, Codable, Equatable, Hashable, 
 
     var id: UUID { exerciseID }
 
-    init(exerciseID: UUID,
-         criterion: AdvancementCriterion,
-         source criterionSource: CriterionSource,
-         note criterionNote: String? = nil,
-         tip: String? = nil,
-         equipment: [String] = [],
-         isParallelTrack: Bool = false) {
+    init(
+        exerciseID: UUID,
+        criterion: AdvancementCriterion,
+        source criterionSource: CriterionSource,
+        note criterionNote: String? = nil,
+        tip: String? = nil,
+        equipment: [String] = [],
+        isParallelTrack: Bool = false
+    ) {
         self.exerciseID = exerciseID
         self.criterion = criterion
         self.criterionSource = criterionSource

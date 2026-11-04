@@ -18,8 +18,9 @@ final class StoreScreenshotTour: CaliParkUITestCase {
     private static let switchKey = "CALIPARK_STORE_SHOTS"
 
     override func setUp() async throws {
-        try XCTSkipUnless(ProcessInfo.processInfo.environment[Self.switchKey] == "1",
-                          "App Store screenshots run only through scripts/store-screenshots.sh")
+        try XCTSkipUnless(
+            ProcessInfo.processInfo.environment[Self.switchKey] == "1",
+            "App Store screenshots run only through scripts/store-screenshots.sh")
         try await super.setUp()
     }
 
@@ -70,7 +71,7 @@ final class StoreScreenshotTour: CaliParkUITestCase {
         app.scrolledTo("home.module.nearestPark").tap()
         app.scrolledTo("home.nearestPark.showOnMap").tap()
         app.element("parks.card").waitToAppear()
-        settle(seconds: 4)  // map tiles load from Apple's servers
+        settle(seconds: 4) // map tiles load from Apple's servers
         capture("06-parks")
     }
 

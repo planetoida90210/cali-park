@@ -70,19 +70,21 @@ final class AppEnvironment {
     /// Every dependency is passed explicitly, with no defaults, so nothing
     /// silently falls back to a real service: the app's come from `live()`,
     /// tests and previews pass in-memory ones (`seeded(...)`).
-    init(parkDirectory: ParkDirectory,
-         locationProvider: LocationProviding,
-         favoriteParkStore: FavoriteParkStoring,
-         favoriteExerciseStore: FavoriteExerciseStoring,
-         workoutLogStore: WorkoutLogStoring,
-         workoutPlanStore: WorkoutPlanStoring,
-         reminderScheduler: WorkoutReminderScheduling,
-         reminderRefreshScheduler: ReminderRefreshScheduling,
-         placementStore: SkillPlacementStoring,
-         skillProgressStore: SkillProgressStoring,
-         weeklyGoalStore: WeeklyGoalStoring,
-         diagnostics: DiagnosticsService,
-         defaults: UserDefaults) {
+    init(
+        parkDirectory: ParkDirectory,
+        locationProvider: LocationProviding,
+        favoriteParkStore: FavoriteParkStoring,
+        favoriteExerciseStore: FavoriteExerciseStoring,
+        workoutLogStore: WorkoutLogStoring,
+        workoutPlanStore: WorkoutPlanStoring,
+        reminderScheduler: WorkoutReminderScheduling,
+        reminderRefreshScheduler: ReminderRefreshScheduling,
+        placementStore: SkillPlacementStoring,
+        skillProgressStore: SkillProgressStoring,
+        weeklyGoalStore: WeeklyGoalStoring,
+        diagnostics: DiagnosticsService,
+        defaults: UserDefaults
+    ) {
         self.parkDirectory = parkDirectory
         self.locationProvider = locationProvider
         self.favoriteParkStore = favoriteParkStore
@@ -95,13 +97,14 @@ final class AppEnvironment {
         // The plan service only reads the log, to skip days already done. It
         // reads the journal's entries in memory rather than the file; a journal
         // that failed to load throws, and the sync logs it.
-        let planService = WorkoutPlanService(store: workoutPlanStore,
-                                             logEntries: { [journal] in
-                                                 if let failure = journal.loadFailure { throw failure }
-                                                 return journal.entries
-                                             },
-                                             scheduler: reminderScheduler,
-                                             refreshScheduler: reminderRefreshScheduler)
+        let planService = WorkoutPlanService(
+            store: workoutPlanStore,
+            logEntries: { [journal] in
+                if let failure = journal.loadFailure { throw failure }
+                return journal.entries
+            },
+            scheduler: reminderScheduler,
+            refreshScheduler: reminderRefreshScheduler)
         self.workoutPlanService = planService
         journal.onChange { [weak planService] in
             Task { await planService?.syncReminders() }
@@ -139,9 +142,11 @@ final class AppEnvironment {
     /// Placement questionnaire for onboarding and in-app re-calibration.
     /// Saving re-reads the placement into shared progress.
     func makePlacementCalibrationViewModel() -> PlacementCalibrationViewModel {
-        PlacementCalibrationViewModel(store: placementStore, onSave: { [progressService] in
-            progressService.reloadPlacement()
-        })
+        PlacementCalibrationViewModel(
+            store: placementStore,
+            onSave: { [progressService] in
+                progressService.reloadPlacement()
+            })
     }
 
     /// Skills tab: per-path progress from the shared snapshot. Rewards live

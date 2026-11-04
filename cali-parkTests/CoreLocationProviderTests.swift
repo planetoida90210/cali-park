@@ -1,6 +1,7 @@
 import CoreLocation
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Fake manager
@@ -43,8 +44,8 @@ private func waitUntil(_ condition: () -> Bool) async throws {
     try #require(condition())
 }
 
-private extension Optional where Wrapped == CLLocationCoordinate2D {
-    var latitudeAndLongitude: [Double]? { map { [$0.latitude, $0.longitude] } }
+extension Optional where Wrapped == CLLocationCoordinate2D {
+    fileprivate var latitudeAndLongitude: [Double]? { map { [$0.latitude, $0.longitude] } }
 }
 
 // MARK: - Tests
@@ -52,9 +53,11 @@ private extension Optional where Wrapped == CLLocationCoordinate2D {
 @MainActor
 @Suite("CoreLocationProvider over a location manager", .timeLimit(.minutes(1)))
 struct CoreLocationProviderTests {
-    private func provider(_ manager: FakeLocationManager,
-                          clock: @escaping () -> Date = { TestDate.reference },
-                          timeout: Duration = .seconds(60)) -> CoreLocationProvider {
+    private func provider(
+        _ manager: FakeLocationManager,
+        clock: @escaping () -> Date = { TestDate.reference },
+        timeout: Duration = .seconds(60)
+    ) -> CoreLocationProvider {
         CoreLocationProvider(manager: manager, clock: clock, requestTimeout: timeout)
     }
 

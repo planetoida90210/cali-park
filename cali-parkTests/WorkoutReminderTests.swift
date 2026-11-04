@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Fixtures
@@ -27,18 +28,21 @@ private enum ReminderFixtures {
 
     static let reminderAt1830 = DateComponents(hour: 18, minute: 30)
 
-    static func plan(schedule: WorkoutSchedule,
-                     reminderTime: DateComponents? = reminderAt1830,
-                     isActive: Bool = true,
-                     exercises: Int = 2,
-                     name: String = "Pull") -> WorkoutPlan {
+    static func plan(
+        schedule: WorkoutSchedule,
+        reminderTime: DateComponents? = reminderAt1830,
+        isActive: Bool = true,
+        exercises: Int = 2,
+        name: String = "Pull"
+    ) -> WorkoutPlan {
         let planned = (0..<exercises).map { _ in PlannedExercise(exerciseID: UUID()) }
-        return WorkoutPlan(name: name,
-                           exercises: planned,
-                           schedule: schedule,
-                           isActive: isActive,
-                           createdAt: day(0),
-                           reminderTime: reminderTime)
+        return WorkoutPlan(
+            name: name,
+            exercises: planned,
+            schedule: schedule,
+            isActive: isActive,
+            createdAt: day(0),
+            reminderTime: reminderTime)
     }
 }
 
@@ -51,10 +55,11 @@ struct WorkoutReminderWeeklyTests {
         let requests = WorkoutReminderPlanner.requests(for: plan, calendar: ReminderFixtures.calendar, asOf: ReminderFixtures.day(0))
 
         #expect(requests.count == WorkoutReminderPlanner.pendingLimit)
-        let weekdays = try Set(requests.map { request in
-            let date = try #require(ReminderFixtures.calendar.date(from: request.dateComponents))
-            return ReminderFixtures.calendar.component(.weekday, from: date)
-        })
+        let weekdays = try Set(
+            requests.map { request in
+                let date = try #require(ReminderFixtures.calendar.date(from: request.dateComponents))
+                return ReminderFixtures.calendar.component(.weekday, from: date)
+            })
         #expect(weekdays == [Weekday.monday.rawValue, Weekday.wednesday.rawValue])
         #expect(requests.allSatisfy { $0.dateComponents.hour == 18 && $0.dateComponents.minute == 30 })
         #expect(requests.allSatisfy { $0.id.hasPrefix("plan-\(plan.id.uuidString)-on-") })
@@ -90,9 +95,10 @@ struct WorkoutReminderOneOffTests {
     @Test
     func futureOnceBuildsSingleDatedRequest() throws {
         let plan = ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(10), in: ReminderFixtures.calendar))
-        let requests = WorkoutReminderPlanner.requests(for: plan,
-                                                       calendar: ReminderFixtures.calendar,
-                                                       asOf: ReminderFixtures.day(5))
+        let requests = WorkoutReminderPlanner.requests(
+            for: plan,
+            calendar: ReminderFixtures.calendar,
+            asOf: ReminderFixtures.day(5))
         #expect(requests.count == 1)
         let request = try #require(requests.first)
         #expect(request.id.hasSuffix("-on-1970-01-11"))
@@ -104,9 +110,10 @@ struct WorkoutReminderOneOffTests {
     @Test
     func pastOnceProducesNothing() {
         let plan = ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(2), in: ReminderFixtures.calendar))
-        let requests = WorkoutReminderPlanner.requests(for: plan,
-                                                       calendar: ReminderFixtures.calendar,
-                                                       asOf: ReminderFixtures.day(5))
+        let requests = WorkoutReminderPlanner.requests(
+            for: plan,
+            calendar: ReminderFixtures.calendar,
+            asOf: ReminderFixtures.day(5))
         #expect(requests.isEmpty)
     }
 
@@ -116,9 +123,10 @@ struct WorkoutReminderOneOffTests {
     func everyNDaysBuildsDatedRequestsForUpcomingOccurrences() throws {
         // Anchor day 0, interval 3 → occurrences on days 3, 6, 9… after day 1.
         let plan = ReminderFixtures.plan(schedule: .everyNDays(3, from: ReminderFixtures.day(0), in: ReminderFixtures.calendar))
-        let requests = WorkoutReminderPlanner.requests(for: plan,
-                                                       calendar: ReminderFixtures.calendar,
-                                                       asOf: ReminderFixtures.day(1))
+        let requests = WorkoutReminderPlanner.requests(
+            for: plan,
+            calendar: ReminderFixtures.calendar,
+            asOf: ReminderFixtures.day(1))
         #expect(requests.count == WorkoutReminderPlanner.pendingLimit)
         #expect(requests.allSatisfy { $0.id.contains("-on-") })
         #expect(Set(requests.map(\.id)).count == requests.count)
@@ -134,9 +142,10 @@ struct WorkoutReminderOneOffTests {
         // Anchor day 0, interval 3 → occurrences on days 0, 3, 6, 9…
         // Reference: day 6 at 20:00, reminder 18:30 → today's slot passed.
         let plan = ReminderFixtures.plan(schedule: .everyNDays(3, from: ReminderFixtures.day(0), in: ReminderFixtures.calendar))
-        let requests = WorkoutReminderPlanner.requests(for: plan,
-                                                       calendar: ReminderFixtures.calendar,
-                                                       asOf: ReminderFixtures.day(6, hour: 20))
+        let requests = WorkoutReminderPlanner.requests(
+            for: plan,
+            calendar: ReminderFixtures.calendar,
+            asOf: ReminderFixtures.day(6, hour: 20))
         let request = try #require(requests.first)
         let fireDate = try #require(ReminderFixtures.calendar.date(from: request.dateComponents))
         #expect(fireDate > ReminderFixtures.day(6, hour: 20))
@@ -169,10 +178,11 @@ struct WorkoutReminderContentTests {
             ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(4), in: ReminderFixtures.calendar)),
             ReminderFixtures.plan(schedule: .weekly([.tuesday]))
         ]
-        let requests = WorkoutReminderPlanner.requests(for: plans,
-                                                       calendar: ReminderFixtures.calendar,
-                                                       asOf: ReminderFixtures.day(0),
-                                                       limit: 4)
+        let requests = WorkoutReminderPlanner.requests(
+            for: plans,
+            calendar: ReminderFixtures.calendar,
+            asOf: ReminderFixtures.day(0),
+            limit: 4)
         // Day 3 (once), day 4 (once), day 5 (Tuesday), day 12 (Tuesday).
         #expect(requests.map(\.planID) == [plans[0].id, plans[1].id, plans[2].id, plans[2].id])
     }
@@ -188,8 +198,10 @@ struct InMemoryReminderSchedulerTests {
     @Test
     func rescheduleRecordsBuiltRequests() async throws {
         let scheduler = InMemoryReminderScheduler(calendar: ReminderFixtures.calendar, clock: { ReminderFixtures.day(0) })
-        let plans = [ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(3), in: ReminderFixtures.calendar)),
-                     ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(5), in: ReminderFixtures.calendar))]
+        let plans = [
+            ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(3), in: ReminderFixtures.calendar)),
+            ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(5), in: ReminderFixtures.calendar))
+        ]
 
         try await scheduler.reschedule(for: plans)
 
@@ -211,7 +223,8 @@ struct InMemoryReminderSchedulerTests {
     @Test
     func failingRescheduleThrowsAndKeepsThePreviousRequests() async throws {
         let scheduler = InMemoryReminderScheduler(calendar: ReminderFixtures.calendar, clock: { ReminderFixtures.day(0) })
-        try await scheduler.reschedule(for: [ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(3), in: ReminderFixtures.calendar))])
+        try await scheduler.reschedule(for: [ReminderFixtures.plan(schedule: .once(ReminderFixtures.day(3), in: ReminderFixtures.calendar))]
+        )
         await scheduler.setFailsToSchedule(true)
 
         await #expect(throws: ReminderSchedulingError.self) {

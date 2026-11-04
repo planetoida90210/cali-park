@@ -18,11 +18,13 @@ struct ParkMapContent: View {
                         Button {
                             withAnimation(.smooth) { viewModel.select(park) }
                         } label: {
-                            ParkPin(equipment: park.headlineEquipment,
-                                    isSelected: park.id == viewModel.selectedParkID,
-                                    isFavorite: viewModel.isFavorite(park))
-                                // Markers past XXXL would cover each other and the map.
-                                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+                            ParkPin(
+                                equipment: park.headlineEquipment,
+                                isSelected: park.id == viewModel.selectedParkID,
+                                isFavorite: viewModel.isFavorite(park)
+                            )
+                            // Markers past XXXL would cover each other and the map.
+                            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(park.displayName)

@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Shared stubs
@@ -32,14 +33,16 @@ struct WorkoutSessionGroupingTests {
     @Test
     func sessionEntriesShareTheSessionIdentifier() throws {
         let sessionID = UUID()
-        let a = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                                date: Date(timeIntervalSince1970: 3_000),
-                                sets: [LoggedSet(reps: 6), LoggedSet(reps: 8)],
-                                sessionID: sessionID)
-        let b = WorkoutLogEntry(exerciseID: ExerciseCatalog.plankID,
-                                date: Date(timeIntervalSince1970: 3_000),
-                                sets: [LoggedSet(reps: 1, durationSeconds: 30)],
-                                sessionID: sessionID)
+        let a = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.pullUpsID,
+            date: Date(timeIntervalSince1970: 3_000),
+            sets: [LoggedSet(reps: 6), LoggedSet(reps: 8)],
+            sessionID: sessionID)
+        let b = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.plankID,
+            date: Date(timeIntervalSince1970: 3_000),
+            sets: [LoggedSet(reps: 1, durationSeconds: 30)],
+            sessionID: sessionID)
 
         let sessions = WorkoutSession.grouped(from: [a, b])
 
@@ -67,9 +70,10 @@ struct WorkoutSessionGroupingTests {
     @Test
     func singleExerciseQuickWorkoutIsAddressableBySessionID() {
         let sessionID = UUID()
-        let entry = WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID,
-                                    sets: [LoggedSet(reps: 8)],
-                                    sessionID: sessionID)
+        let entry = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.dipsID,
+            sets: [LoggedSet(reps: 8)],
+            sessionID: sessionID)
 
         let session = WorkoutSession.session(withID: sessionID, in: [entry])
 
@@ -80,14 +84,16 @@ struct WorkoutSessionGroupingTests {
     @Test
     func sessionIsDatedByItsLatestEntry() {
         let sessionID = UUID()
-        let early = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                                    date: Date(timeIntervalSince1970: 1_000),
-                                    sets: [LoggedSet(reps: 6)],
-                                    sessionID: sessionID)
-        let late = WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID,
-                                   date: Date(timeIntervalSince1970: 2_000),
-                                   sets: [LoggedSet(reps: 8)],
-                                   sessionID: sessionID)
+        let early = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.pullUpsID,
+            date: Date(timeIntervalSince1970: 1_000),
+            sets: [LoggedSet(reps: 6)],
+            sessionID: sessionID)
+        let late = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.dipsID,
+            date: Date(timeIntervalSince1970: 2_000),
+            sets: [LoggedSet(reps: 8)],
+            sessionID: sessionID)
 
         let session = WorkoutSession.grouped(from: [early, late]).first
 
@@ -97,17 +103,20 @@ struct WorkoutSessionGroupingTests {
     @Test
     func latestPicksTheWorkoutHoldingTheNewestEntry() {
         let sessionID = UUID()
-        let old = WorkoutLogEntry(exerciseID: ExerciseCatalog.squatsID,
-                                  date: Date(timeIntervalSince1970: 1_000),
-                                  sets: [LoggedSet(reps: 20)])
-        let sessionA = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                                       date: Date(timeIntervalSince1970: 4_000),
-                                       sets: [LoggedSet(reps: 6)],
-                                       sessionID: sessionID)
-        let sessionB = WorkoutLogEntry(exerciseID: ExerciseCatalog.pushUpsID,
-                                       date: Date(timeIntervalSince1970: 4_000),
-                                       sets: [LoggedSet(reps: 12)],
-                                       sessionID: sessionID)
+        let old = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.squatsID,
+            date: Date(timeIntervalSince1970: 1_000),
+            sets: [LoggedSet(reps: 20)])
+        let sessionA = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.pullUpsID,
+            date: Date(timeIntervalSince1970: 4_000),
+            sets: [LoggedSet(reps: 6)],
+            sessionID: sessionID)
+        let sessionB = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.pushUpsID,
+            date: Date(timeIntervalSince1970: 4_000),
+            sets: [LoggedSet(reps: 12)],
+            sessionID: sessionID)
 
         let latest = WorkoutSession.latest(in: [old, sessionA, sessionB])
 
@@ -136,17 +145,20 @@ struct WorkoutSessionSharingTests {
     func homeLatestWorkoutMatchesTheHistoryTopSection() {
         let sessionID = UUID()
         let entries = [
-            WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                            date: Date(timeIntervalSince1970: 3_000),
-                            sets: [LoggedSet(reps: 6)],
-                            sessionID: sessionID),
-            WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID,
-                            date: Date(timeIntervalSince1970: 3_000),
-                            sets: [LoggedSet(reps: 8)],
-                            sessionID: sessionID),
-            WorkoutLogEntry(exerciseID: ExerciseCatalog.squatsID,
-                            date: Date(timeIntervalSince1970: 1_000),
-                            sets: [LoggedSet(reps: 20)])
+            WorkoutLogEntry(
+                exerciseID: ExerciseCatalog.pullUpsID,
+                date: Date(timeIntervalSince1970: 3_000),
+                sets: [LoggedSet(reps: 6)],
+                sessionID: sessionID),
+            WorkoutLogEntry(
+                exerciseID: ExerciseCatalog.dipsID,
+                date: Date(timeIntervalSince1970: 3_000),
+                sets: [LoggedSet(reps: 8)],
+                sessionID: sessionID),
+            WorkoutLogEntry(
+                exerciseID: ExerciseCatalog.squatsID,
+                date: Date(timeIntervalSince1970: 1_000),
+                sets: [LoggedSet(reps: 20)])
         ]
         let store = InMemoryWorkoutLogStore(initial: entries)
         let dashboard = HomeDashboardViewModel(

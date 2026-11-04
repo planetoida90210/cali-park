@@ -102,11 +102,12 @@ private struct WeeklyGoalListSection: View {
     }
 
     private var footer: String {
-        let text = String(localized: """
-            Cel z gwiazdką jest główny: wypełnia pierścień na starcie i liczy serię tygodni. \
-            Zmiana działa od razu na bieżący tydzień, zamknięte tygodnie zostają bez zmian. \
-            Tydzień trwa od poniedziałku do niedzieli.
-            """)
+        let text = String(
+            localized: """
+                Cel z gwiazdką jest główny: wypełnia pierścień na starcie i liczy serię tygodni. \
+                Zmiana działa od razu na bieżący tydzień, zamknięte tygodnie zostają bez zmian. \
+                Tydzień trwa od poniedziałku do niedzieli.
+                """)
         guard viewModel.isDefault else { return text }
         return text + " " + String(localized: "Na razie obowiązuje cel domyślny.")
     }

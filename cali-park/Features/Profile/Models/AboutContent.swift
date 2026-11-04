@@ -39,36 +39,45 @@ nonisolated struct AboutSource: Identifiable, Hashable, Sendable {
 /// lists in step with those documents.
 nonisolated enum AboutContent {
     static let ladderSources: [AboutSource] = [
-        AboutSource(name: "Recommended Routine (r/bodyweightfitness)",
-                    usage: String(localized: "Drabiny dynamiczne i zasada 3 × 8"),
-                    url: url("https://www.reddit.com/r/bodyweightfitness/wiki/kb/recommended_routine/")),
-        AboutSource(name: String(localized: "Overcoming Gravity, 2. wydanie (Steven Low)"),
-                    usage: String(localized: "Kolejność szczebli statyk, chart poziomów"),
-                    url: url("https://docs.google.com/spreadsheets/d/19l4tVfdTJLheLMwZBYqcw1oeEBPRh8mxngqrCz2YnVg/")),
-        AboutSource(name: String(localized: "Tabela izometrii Overcoming Gravity"),
-                    usage: String(localized: "Podstawa kryterium 3 × 20 s"),
-                    url: url("https://stevenlow.org/prilepin-tables-for-bodyweight-strength-isometric-and-eccentric-exercises/")),
-        AboutSource(name: "GMB: L-sit",
-                    usage: String(localized: "Kroki L-situ"),
-                    url: url("https://web.archive.org/web/20260718150020/https://gmb.io/l-sit/")),
-        AboutSource(name: "StartBodyweight",
-                    usage: String(localized: "Progresja podciągnięć"),
-                    url: url("http://www.startbodyweight.com/p/start-bodyweight-basic-routine.html")),
-        AboutSource(name: String(localized: "Cali Move: 8 tygodni podciągnięć"),
-                    usage: String(localized: "Guma i negatywy"),
-                    url: url("https://blog.calimove.com/2023/05/11/8-weeks-pull-up-challenge/"))
+        AboutSource(
+            name: "Recommended Routine (r/bodyweightfitness)",
+            usage: String(localized: "Drabiny dynamiczne i zasada 3 × 8"),
+            url: url("https://www.reddit.com/r/bodyweightfitness/wiki/kb/recommended_routine/")),
+        AboutSource(
+            name: String(localized: "Overcoming Gravity, 2. wydanie (Steven Low)"),
+            usage: String(localized: "Kolejność szczebli statyk, chart poziomów"),
+            url: url("https://docs.google.com/spreadsheets/d/19l4tVfdTJLheLMwZBYqcw1oeEBPRh8mxngqrCz2YnVg/")),
+        AboutSource(
+            name: String(localized: "Tabela izometrii Overcoming Gravity"),
+            usage: String(localized: "Podstawa kryterium 3 × 20 s"),
+            url: url("https://stevenlow.org/prilepin-tables-for-bodyweight-strength-isometric-and-eccentric-exercises/")),
+        AboutSource(
+            name: "GMB: L-sit",
+            usage: String(localized: "Kroki L-situ"),
+            url: url("https://web.archive.org/web/20260718150020/https://gmb.io/l-sit/")),
+        AboutSource(
+            name: "StartBodyweight",
+            usage: String(localized: "Progresja podciągnięć"),
+            url: url("http://www.startbodyweight.com/p/start-bodyweight-basic-routine.html")),
+        AboutSource(
+            name: String(localized: "Cali Move: 8 tygodni podciągnięć"),
+            usage: String(localized: "Guma i negatywy"),
+            url: url("https://blog.calimove.com/2023/05/11/8-weeks-pull-up-challenge/"))
     ]
 
     static let programSources: [AboutSource] = [
-        AboutSource(name: "Recommended Routine (r/bodyweightfitness)",
-                    usage: String(localized: "Fundamenty, Pierwsze podciągnięcie"),
-                    url: url("https://www.reddit.com/r/bodyweightfitness/wiki/kb/recommended_routine/")),
-        AboutSource(name: "Minimalist Routine (r/bodyweightfitness)",
-                    usage: String(localized: "Minimum"),
-                    url: url("https://www.reddit.com/r/bodyweightfitness/wiki/minroutine")),
-        AboutSource(name: "Skill Day (r/bodyweightfitness)",
-                    usage: String(localized: "Skille"),
-                    url: url("https://www.reddit.com/r/bodyweightfitness/wiki/kb/skillday"))
+        AboutSource(
+            name: "Recommended Routine (r/bodyweightfitness)",
+            usage: String(localized: "Fundamenty, Pierwsze podciągnięcie"),
+            url: url("https://www.reddit.com/r/bodyweightfitness/wiki/kb/recommended_routine/")),
+        AboutSource(
+            name: "Minimalist Routine (r/bodyweightfitness)",
+            usage: String(localized: "Minimum"),
+            url: url("https://www.reddit.com/r/bodyweightfitness/wiki/minroutine")),
+        AboutSource(
+            name: "Skill Day (r/bodyweightfitness)",
+            usage: String(localized: "Skille"),
+            url: url("https://www.reddit.com/r/bodyweightfitness/wiki/kb/skillday"))
     ]
 
     /// OpenStreetMap data (Parks on the map) is under the ODbL, which

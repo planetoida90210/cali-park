@@ -100,7 +100,8 @@ nonisolated enum TrainingBackupCodec {
     static func decode(_ data: Data) throws(TrainingBackupError) -> TrainingBackup {
         guard data.count <= maximumFileSize else { throw .tooLarge }
         guard let header = try? JSONFileFormat.decoder.decode(Header.self, from: data),
-              header.format == formatIdentifier else {
+            header.format == formatIdentifier
+        else {
             throw .notABackup
         }
         guard let version = header.schemaVersion, version >= 1 else { throw .damaged }

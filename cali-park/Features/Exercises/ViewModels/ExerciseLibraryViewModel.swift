@@ -67,17 +67,21 @@ final class ExerciseLibraryViewModel {
     /// The Exercises tab: "Ulubione" first, then every main movement. Search
     /// matches main movements only, like `displayedExercises`.
     func librarySections(favoriteIDs: [UUID]) -> [ExerciseListSection] {
-        ExerciseListSections.make(catalog: exercises, favoriteIDs: favoriteIDs,
-                                  category: selectedCategory, query: searchText, includesVariants: false)
+        ExerciseListSections.make(
+            catalog: exercises, favoriteIDs: favoriteIDs,
+            category: selectedCategory, query: searchText, includesVariants: false)
     }
 
     /// The exercise pickers: "Ulubione" first, then "Ostatnio" (from
     /// `recentExerciseIDs`, newest first), then every main movement. Search
     /// also matches progression variants, like `pickerExercises`.
-    func pickerSections(favoriteIDs: [UUID],
-                        recentExerciseIDs: some Sequence<UUID> = [UUID]()) -> [ExerciseListSection] {
-        ExerciseListSections.make(catalog: exercises, favoriteIDs: favoriteIDs, recentExerciseIDs: recentExerciseIDs,
-                                  category: selectedCategory, query: searchText, includesVariants: true)
+    func pickerSections(
+        favoriteIDs: [UUID],
+        recentExerciseIDs: some Sequence<UUID> = [UUID]()
+    ) -> [ExerciseListSection] {
+        ExerciseListSections.make(
+            catalog: exercises, favoriteIDs: favoriteIDs, recentExerciseIDs: recentExerciseIDs,
+            category: selectedCategory, query: searchText, includesVariants: true)
     }
 
     /// Whether a search query is entered (the lists then show only matches).

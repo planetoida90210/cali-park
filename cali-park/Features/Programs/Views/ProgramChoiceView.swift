@@ -15,9 +15,11 @@ struct ProgramChoiceView: View {
                         .foregroundStyle(Color.textPrimary)
                         .accessibilityAddTraits(.isHeader)
 
-                    Text("Na podstawie Twoich odpowiedzi polecamy jeden program. Możesz wybrać inny albo żaden. Utworzymy z niego zwykły plan, który zmienisz w każdej chwili.")
-                        .font(.bodyMedium)
-                        .foregroundStyle(Color.textSecondary)
+                    Text(
+                        "Na podstawie Twoich odpowiedzi polecamy jeden program. Możesz wybrać inny albo żaden. Utworzymy z niego zwykły plan, który zmienisz w każdej chwili."
+                    )
+                    .font(.bodyMedium)
+                    .foregroundStyle(Color.textSecondary)
                 }
 
                 VStack(spacing: 12) {

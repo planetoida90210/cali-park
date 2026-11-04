@@ -111,9 +111,10 @@ nonisolated enum ParkOpeningHours {
     private static func time(_ value: String) -> String? {
         let parts = value.split(separator: ":", omittingEmptySubsequences: false)
         guard parts.count == 2, parts[0].count == 2, parts[1].count == 2,
-              parts.allSatisfy({ $0.allSatisfy(\.isASCII) && $0.allSatisfy(\.isNumber) }),
-              let hour = Int(parts[0]), let minute = Int(parts[1]),
-              minute < 60, hour < 24 || (hour == 24 && minute == 0) else {
+            parts.allSatisfy({ $0.allSatisfy(\.isASCII) && $0.allSatisfy(\.isNumber) }),
+            let hour = Int(parts[0]), let minute = Int(parts[1]),
+            minute < 60, hour < 24 || (hour == 24 && minute == 0)
+        else {
             return nil
         }
         return "\(hour):\(parts[1])"

@@ -63,7 +63,8 @@ final class ProgramChoiceViewModel {
             _ = try await starter.start(program)
             return true
         } catch {
-            errorMessage = String(localized: "Nie udało się utworzyć planu z programu \(program.name). Możesz to zrobić później w Planach treningowych.")
+            errorMessage = String(
+                localized: "Nie udało się utworzyć planu z programu \(program.name). Możesz to zrobić później w Planach treningowych.")
             return false
         }
     }

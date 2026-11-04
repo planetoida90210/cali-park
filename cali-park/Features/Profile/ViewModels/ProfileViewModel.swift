@@ -23,11 +23,13 @@ final class ProfileViewModel {
     private let clock: () -> Date
 
     // MARK: Init
-    init(journal: TrainingJournal,
-         progress: ProgressService,
-         goals: WeeklyGoalService,
-         calendar: Calendar = .current,
-         clock: @escaping () -> Date = { .now }) {
+    init(
+        journal: TrainingJournal,
+        progress: ProgressService,
+        goals: WeeklyGoalService,
+        calendar: Calendar = .current,
+        clock: @escaping () -> Date = { .now }
+    ) {
         self.journal = journal
         self.progress = progress
         self.goals = goals

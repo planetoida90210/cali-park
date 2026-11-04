@@ -1,44 +1,49 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Opening hours
 
 @Suite("OSM opening hours on the Park card", .timeLimit(.minutes(1)))
 struct ParkOpeningHoursTests {
-    @Test("Simple forms read as Polish text", arguments: [
-        ("24/7", "Całą dobę"),
-        ("Mo-Su 06:00-22:00", "Codziennie 6:00–22:00"),
-        ("Mo-Fr 10:00-22:00", "Pon.–pt. 10:00–22:00"),
-        ("06:00-22:00", "Codziennie 6:00–22:00"),
-        ("Mo-Su 00:00-24:00", "Całą dobę"),
-        ("00:00-24:00", "Całą dobę"),
-        ("Mo-Fr 06:00-22:00; Sa,Su 08:00-20:00", "Pon.–pt. 6:00–22:00; sob., niedz. 8:00–20:00"),
-        ("Sa 09:30-14:00", "Sob. 9:30–14:00"),
-        ("Mo-Fr 06:00-12:00,14:00-20:00", "Pon.–pt. 6:00–12:00, 14:00–20:00"),
-        ("Mo-Fr 06:00-22:00; Su off", "Pon.–pt. 6:00–22:00; niedz. nieczynne"),
-        ("Mo-We,Fr 07:00-21:00", "Pon.–śr., pt. 7:00–21:00"),
-        ("Mo-Fr 00:00-24:00", "Pon.–pt. całą dobę"),
-        ("  24/7 ", "Całą dobę")
-    ])
+    @Test(
+        "Simple forms read as Polish text",
+        arguments: [
+            ("24/7", "Całą dobę"),
+            ("Mo-Su 06:00-22:00", "Codziennie 6:00–22:00"),
+            ("Mo-Fr 10:00-22:00", "Pon.–pt. 10:00–22:00"),
+            ("06:00-22:00", "Codziennie 6:00–22:00"),
+            ("Mo-Su 00:00-24:00", "Całą dobę"),
+            ("00:00-24:00", "Całą dobę"),
+            ("Mo-Fr 06:00-22:00; Sa,Su 08:00-20:00", "Pon.–pt. 6:00–22:00; sob., niedz. 8:00–20:00"),
+            ("Sa 09:30-14:00", "Sob. 9:30–14:00"),
+            ("Mo-Fr 06:00-12:00,14:00-20:00", "Pon.–pt. 6:00–12:00, 14:00–20:00"),
+            ("Mo-Fr 06:00-22:00; Su off", "Pon.–pt. 6:00–22:00; niedz. nieczynne"),
+            ("Mo-We,Fr 07:00-21:00", "Pon.–śr., pt. 7:00–21:00"),
+            ("Mo-Fr 00:00-24:00", "Pon.–pt. całą dobę"),
+            ("  24/7 ", "Całą dobę")
+        ])
     func simpleForms(raw: String, expected: String) {
         #expect(ParkOpeningHours.text(for: raw) == expected)
         #expect(ParkOpeningHours.translate(raw) == expected)
     }
 
-    @Test("Anything else is shown unchanged, never guessed", arguments: [
-        "sunrise-sunset",
-        "Mo-Fr 08:00-20:00; PH off",
-        "Apr-Oct Mo-Su 06:00-22:00",
-        "Mo-Su 6:00-22:00",
-        "Mo-Su 06:00-25:00",
-        "Su-Mo 06:00-22:00",
-        "Mo-Fr 08:00+",
-        "dawn-dusk",
-        "Mo-Fr 10:00-22:00;",
-        "Xx 10:00-12:00",
-        "Mo-Su 06:00-22:00 \"wiosną\""
-    ])
+    @Test(
+        "Anything else is shown unchanged, never guessed",
+        arguments: [
+            "sunrise-sunset",
+            "Mo-Fr 08:00-20:00; PH off",
+            "Apr-Oct Mo-Su 06:00-22:00",
+            "Mo-Su 6:00-22:00",
+            "Mo-Su 06:00-25:00",
+            "Su-Mo 06:00-22:00",
+            "Mo-Fr 08:00+",
+            "dawn-dusk",
+            "Mo-Fr 10:00-22:00;",
+            "Xx 10:00-12:00",
+            "Mo-Su 06:00-22:00 \"wiosną\""
+        ])
     func rawFallback(raw: String) {
         #expect(ParkOpeningHours.translate(raw) == nil)
         #expect(ParkOpeningHours.text(for: raw) == raw)
@@ -65,11 +70,13 @@ struct ParkCardFormatTests {
         osmRefs: ["n13608564606", "w1297344591"],
         generatedName: "Street workout · Skwer Młodego Strażaka",
         locality: Locality(city: "Gliwice", district: "Ostropa"),
-        equipment: [ParkEquipment(type: .horizontalBar, count: 7, heights: [.high, .low]),
-                    ParkEquipment(type: .parallelBars, count: 2),
-                    ParkEquipment(type: .rings),
-                    ParkEquipment(type: .wallBars, count: 1),
-                    ParkEquipment(type: .sitUp)],
+        equipment: [
+            ParkEquipment(type: .horizontalBar, count: 7, heights: [.high, .low]),
+            ParkEquipment(type: .parallelBars, count: 2),
+            ParkEquipment(type: .rings),
+            ParkEquipment(type: .wallBars, count: 1),
+            ParkEquipment(type: .sitUp)
+        ],
         hasMachines: true,
         surface: .artificialTurf,
         lit: false,
@@ -128,8 +135,11 @@ struct ParkCardFormatTests {
         let details = ParkFormat.details(for: Self.richPark)
         #expect(details.map(\.id) == [.surface, .lighting, .roof, .access, .openingHours, .machines])
         #expect(details.map(\.label) == ["Nawierzchnia", "Oświetlenie", "Zadaszenie", "Dostęp", "Godziny", "Maszyny siłowni"])
-        #expect(details.map(\.value) == ["Sztuczna trawa", "Nie", "Tak", "Tylko dla klientów",
-                                         "Codziennie 6:00–22:00", "Tak, obok Parku"])
+        #expect(
+            details.map(\.value) == [
+                "Sztuczna trawa", "Nie", "Tak", "Tylko dla klientów",
+                "Codziennie 6:00–22:00", "Tak, obok Parku"
+            ])
     }
 
     @Test("Unknown details stay unknown: no guessed hours or machines")
@@ -154,11 +164,13 @@ struct ParkCardFormatTests {
         #expect(ParkSurface.pavingStones.title == "Kostka brukowa")
     }
 
-    @Test("The OSM link points at the first element", arguments: [
-        ("n13608564606", "https://www.openstreetmap.org/node/13608564606"),
-        ("w123456", "https://www.openstreetmap.org/way/123456"),
-        ("r42", "https://www.openstreetmap.org/relation/42")
-    ])
+    @Test(
+        "The OSM link points at the first element",
+        arguments: [
+            ("n13608564606", "https://www.openstreetmap.org/node/13608564606"),
+            ("w123456", "https://www.openstreetmap.org/way/123456"),
+            ("r42", "https://www.openstreetmap.org/relation/42")
+        ])
     func osmLink(ref: String, expected: String) {
         var park = Self.sparsePark
         park.osmRefs = [ref, "n1"]

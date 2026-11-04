@@ -10,6 +10,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Fixtures
@@ -18,13 +19,15 @@ private enum JournalFixture {
     static let day = Date(timeIntervalSince1970: 1_790_000_000)
 
     static func pullUps(_ reps: [Int], session: UUID? = nil, date: Date = day) -> WorkoutLogEntry {
-        WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, date: date,
-                        sets: reps.map { LoggedSet(reps: $0) }, sessionID: session)
+        WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.pullUpsID, date: date,
+            sets: reps.map { LoggedSet(reps: $0) }, sessionID: session)
     }
 
     static func dips(_ reps: [Int], session: UUID? = nil, date: Date = day) -> WorkoutLogEntry {
-        WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID, date: date,
-                        sets: reps.map { LoggedSet(reps: $0) }, sessionID: session)
+        WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.dipsID, date: date,
+            sets: reps.map { LoggedSet(reps: $0) }, sessionID: session)
     }
 
     static var pullUpStep: ProgressionStep {
@@ -81,8 +84,10 @@ struct TrainingJournalTests {
         let start = journal.revision
         let session = UUID()
 
-        try await journal.logSession([JournalFixture.pullUps([8], session: session),
-                                JournalFixture.dips([10], session: session)])
+        try await journal.logSession([
+            JournalFixture.pullUps([8], session: session),
+            JournalFixture.dips([10], session: session)
+        ])
 
         #expect(journal.entries.count == 2)
         #expect(journal.revision == start + 1)
@@ -163,8 +168,9 @@ struct TrainingJournalTests {
     func screensSeeEachOthersWritesWithoutReloading() async throws {
         let journal = TrainingJournal(store: InMemoryWorkoutLogStore())
         let history = WorkoutHistoryViewModel(journal: journal)
-        let setPad = WorkoutLogViewModel(exercise: try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
-                                         journal: journal)
+        let setPad = WorkoutLogViewModel(
+            exercise: try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
+            journal: journal)
 
         setPad.input.appendDigit(7)
         await setPad.save()
@@ -200,19 +206,22 @@ struct ProgressServiceTests {
         let logStore = InMemoryWorkoutLogStore()
         let journal = TrainingJournal(store: logStore)
         let clock = { TestDate.reference }
-        let progress = ProgressService(journal: journal, placementStore: InMemorySkillPlacementStore(),
-                                       calendar: TestCalendar.utc, clock: clock)
+        let progress = ProgressService(
+            journal: journal, placementStore: InMemorySkillPlacementStore(),
+            calendar: TestCalendar.utc, clock: clock)
         let rewards = RewardCenter(progress: progress, store: InMemorySkillProgressStore(), goals: nil)
         let planService = WorkoutPlanService.testing(InMemoryWorkoutPlanStore())
-        let home = HomeDashboardViewModel(journal: journal,
-                                          planService: planService,
-                                          progress: progress,
-                                          goals: WeeklyGoalService(journal: journal, store: InMemoryWeeklyGoalStore(),
-                                                                   planService: planService,
-                                                                   calendar: TestCalendar.utc, clock: clock),
-                                          defaults: .throwaway(),
-                                          calendar: TestCalendar.utc,
-                                          clock: clock)
+        let home = HomeDashboardViewModel(
+            journal: journal,
+            planService: planService,
+            progress: progress,
+            goals: WeeklyGoalService(
+                journal: journal, store: InMemoryWeeklyGoalStore(),
+                planService: planService,
+                calendar: TestCalendar.utc, clock: clock),
+            defaults: .throwaway(),
+            calendar: TestCalendar.utc,
+            clock: clock)
         let skills = SkillPathsViewModel(progress: progress)
         let before = progress.computationCount
 
@@ -298,8 +307,9 @@ struct RewardCenterTests {
         let ladder = stack.skillPaths()
 
         // Logged from the rung sheet's SetPad.
-        let setPad = WorkoutLogViewModel(exercise: try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
-                                         journal: stack.journal)
+        let setPad = WorkoutLogViewModel(
+            exercise: try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
+            journal: stack.journal)
         setPad.input.appendDigit(5)
         await setPad.save()
         await stack.settle()
@@ -367,8 +377,9 @@ struct RewardCenterTests {
         _ = environment.makeHomeDashboardViewModel()
 
         let session = environment.makeQuickWorkoutViewModel()
-        session.addExercise(try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
-                            sets: [LoggedSet(reps: 8), LoggedSet(reps: 8), LoggedSet(reps: 8)])
+        session.addExercise(
+            try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
+            sets: [LoggedSet(reps: 8), LoggedSet(reps: 8), LoggedSet(reps: 8)])
         await session.finish()
         await environment.progressService.settle()
 
@@ -409,7 +420,8 @@ struct RewardCenterTests {
 
     @Test
     func theCombinedCardReadsAsOneSentence() throws {
-        let rungs = (0...1).compactMap { RungReference(pathID: .pullUp, rungIndex: $0) }
+        let rungs =
+            (0...1).compactMap { RungReference(pathID: .pullUp, rungIndex: $0) }
             + (0...2).compactMap { RungReference(pathID: .dip, rungIndex: $0) }
         let presentation = CelebrationPresentation.resolving(QueuedCelebration.rungs(rungs))
 
@@ -418,7 +430,9 @@ struct RewardCenterTests {
         #expect(presentation.xpNote == "+500 XP")
         #expect(presentation.symbolName == "checkmark.seal.fill") // two paths
         let pathNames = try #require(presentation.subtitle)
-        #expect(presentation.accessibilityLabel == "5 nowych szczebli na ścieżkach \(pathNames): \(presentation.list.joined(separator: ", ")). +500 XP.")
+        #expect(
+            presentation.accessibilityLabel
+                == "5 nowych szczebli na ścieżkach \(pathNames): \(presentation.list.joined(separator: ", ")). +500 XP.")
     }
 
     @Test
@@ -426,8 +440,10 @@ struct RewardCenterTests {
         // A 3 × 8 seeds the baseline; L-pull-ups then clear one more rung.
         let stack = TrainingStack(logStore: InMemoryWorkoutLogStore(initial: [JournalFixture.pullUps([8, 8, 8])]))
 
-        try await stack.journal.log(WorkoutLogEntry(exerciseID: ExerciseCatalog.lPullUpsID, date: JournalFixture.day,
-                                                    sets: [LoggedSet(reps: 5), LoggedSet(reps: 5), LoggedSet(reps: 5)]))
+        try await stack.journal.log(
+            WorkoutLogEntry(
+                exerciseID: ExerciseCatalog.lPullUpsID, date: JournalFixture.day,
+                sets: [LoggedSet(reps: 5), LoggedSet(reps: 5), LoggedSet(reps: 5)]))
         await stack.settle()
 
         let card = try #require(stack.rewards.current)
@@ -454,7 +470,7 @@ struct RewardCenterTests {
             stack.rewards.dismissCurrentCelebration()
         }
         #expect(cards.first == first)
-        let dipCards = cards.filter { $0.events.contains { if case let .rungConquered(rung) = $0 { rung.pathID == .dip } else { false } } }
+        let dipCards = cards.filter { $0.events.contains { if case .rungConquered(let rung) = $0 { rung.pathID == .dip } else { false } } }
         #expect(dipCards.count == 1)
         #expect((dipCards.first?.events.count ?? 0) >= 2)
     }
@@ -654,12 +670,15 @@ struct HoldSecondsTests {
 
     @Test
     func aSecondsVolumeGoalCountsLegacyHolds() {
-        let goal = WeeklyGoal(metric: .exerciseVolume(exerciseID: ExerciseCatalog.plankID,
-                                                      measurement: .seconds, amount: 180))
+        let goal = WeeklyGoal(
+            metric: .exerciseVolume(
+                exerciseID: ExerciseCatalog.plankID,
+                measurement: .seconds, amount: 180))
         let week = WeeklyGoalEvaluator.week(containing: JournalFixture.day, calendar: TestCalendar.utc)
-        let progress = WeeklyGoalEvaluator.progress(of: goal, in: week,
-                                                    entries: [Self.legacyPlank.inCatalogUnits], plans: [],
-                                                    calendar: TestCalendar.utc)
+        let progress = WeeklyGoalEvaluator.progress(
+            of: goal, in: week,
+            entries: [Self.legacyPlank.inCatalogUnits], plans: [],
+            calendar: TestCalendar.utc)
         #expect(progress.value == 180)
         #expect(progress.isMet)
     }
@@ -711,8 +730,9 @@ struct MeasureFormatTests {
         let session = UUID()
         let workout = WorkoutSession.grouped(from: [
             JournalFixture.pullUps([8, 8], session: session),
-            WorkoutLogEntry(exerciseID: ExerciseCatalog.plankID, date: JournalFixture.day,
-                            sets: [LoggedSet(reps: 1, durationSeconds: 30)], sessionID: session)
+            WorkoutLogEntry(
+                exerciseID: ExerciseCatalog.plankID, date: JournalFixture.day,
+                sets: [LoggedSet(reps: 1, durationSeconds: 30)], sessionID: session)
         ]).first!
 
         #expect(MeasureFormat.summary(of: workout) == "2 ćwiczenia · 16 powtórzeń · 30 s".keptTogether)
@@ -737,11 +757,13 @@ struct RewardQueueTests {
 
         init(entries: [WorkoutLogEntry], now: Date = F.day(3)) {
             journal = TrainingJournal(store: InMemoryWorkoutLogStore(initial: entries))
-            progress = ProgressService(journal: journal, placementStore: InMemorySkillPlacementStore(),
-                                       calendar: F.calendar, clock: { now })
-            goals = WeeklyGoalService(journal: journal, store: InMemoryWeeklyGoalStore(),
-                                      planService: .testing(InMemoryWorkoutPlanStore()),
-                                      calendar: F.calendar, clock: { now })
+            progress = ProgressService(
+                journal: journal, placementStore: InMemorySkillPlacementStore(),
+                calendar: F.calendar, clock: { now })
+            goals = WeeklyGoalService(
+                journal: journal, store: InMemoryWeeklyGoalStore(),
+                planService: .testing(InMemoryWorkoutPlanStore()),
+                calendar: F.calendar, clock: { now })
             rewards = RewardCenter(progress: progress, store: InMemorySkillProgressStore(), goals: goals)
         }
 

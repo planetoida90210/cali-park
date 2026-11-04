@@ -20,7 +20,9 @@ struct TrainingBackupView: View {
             } header: {
                 Text("Eksport")
             } footer: {
-                Text("Jeden plik JSON z dziennikiem treningów, planami, testem poziomu, nagrodami, celem tygodniowym oraz ulubionymi Parkami i ćwiczeniami. Zapisz go w Plikach albo wyślij sobie.")
+                Text(
+                    "Jeden plik JSON z dziennikiem treningów, planami, testem poziomu, nagrodami, celem tygodniowym oraz ulubionymi Parkami i ćwiczeniami. Zapisz go w Plikach albo wyślij sobie."
+                )
             }
             .listRowBackground(Color.componentBackground)
 
@@ -33,7 +35,9 @@ struct TrainingBackupView: View {
             } header: {
                 Text("Import")
             } footer: {
-                Text("Import zastępuje wszystkie dane w apce danymi z pliku. Przed importem zobaczysz, co jest w pliku, i możesz zrezygnować.")
+                Text(
+                    "Import zastępuje wszystkie dane w apce danymi z pliku. Przed importem zobaczysz, co jest w pliku, i możesz zrezygnować."
+                )
             }
             .listRowBackground(Color.componentBackground)
         }
@@ -80,7 +84,10 @@ struct TrainingBackupView: View {
 
     private func confirmationMessage(_ pending: TrainingBackupViewModel.PendingImport) -> String {
         let current = pending.current.isEmpty ? String(localized: "brak danych") : pending.current.text
-        return String(localized: "W pliku: \(pending.incoming.text).\nTeraz w apce: \(current).\n\nDane w apce zostaną zastąpione. Jeśli chcesz je zachować, najpierw je wyeksportuj.")
+        return String(
+            localized:
+                "W pliku: \(pending.incoming.text).\nTeraz w apce: \(current).\n\nDane w apce zostaną zastąpione. Jeśli chcesz je zachować, najpierw je wyeksportuj."
+        )
     }
 
     // MARK: Bindings

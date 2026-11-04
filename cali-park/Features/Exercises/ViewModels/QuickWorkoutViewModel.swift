@@ -81,11 +81,13 @@ final class QuickWorkoutViewModel {
     /// program) train the athlete's current rung instead of the one they were
     /// created on, and `logs` drive the "+1 rep" prefill. Without them, every
     /// item trains its stored exercise.
-    init(journal: TrainingJournal,
-         plan: WorkoutPlan,
-         pathStates: [ProgressionPathID: PathState]? = nil,
-         logs: [WorkoutLogEntry] = [],
-         clock: @escaping () -> Date) {
+    init(
+        journal: TrainingJournal,
+        plan: WorkoutPlan,
+        pathStates: [ProgressionPathID: PathState]? = nil,
+        logs: [WorkoutLogEntry] = [],
+        clock: @escaping () -> Date
+    ) {
         self.journal = journal
         self.clock = clock
         self.planID = plan.id
@@ -119,28 +121,34 @@ final class QuickWorkoutViewModel {
     /// progress, with the journal's logs for the "+1 rep" prefill. When the
     /// journal or the placement can't be read, the ladder state is unknown,
     /// so items keep their stored exercise.
-    convenience init(journal: TrainingJournal,
-                     plan: WorkoutPlan,
-                     progress: ProgressService,
-                     clock: @escaping () -> Date) {
-        self.init(journal: journal,
-                  plan: plan,
-                  pathStates: progress.hasLoadError ? nil : progress.snapshot.pathStates,
-                  logs: journal.newestFirst,
-                  clock: clock)
+    convenience init(
+        journal: TrainingJournal,
+        plan: WorkoutPlan,
+        progress: ProgressService,
+        clock: @escaping () -> Date
+    ) {
+        self.init(
+            journal: journal,
+            plan: plan,
+            pathStates: progress.hasLoadError ? nil : progress.snapshot.pathStates,
+            logs: journal.newestFirst,
+            clock: clock)
     }
 
     /// Maps a planned exercise to a session item, moving a ladder item to the
     /// current rung when `pathStates` are known. Returns `nil` when the
     /// exercise is no longer in the catalog.
-    static func draftItem(from planned: PlannedExercise,
-                          pathStates: [ProgressionPathID: PathState]? = nil,
-                          logs: [WorkoutLogEntry] = []) -> DraftItem? {
+    static func draftItem(
+        from planned: PlannedExercise,
+        pathStates: [ProgressionPathID: PathState]? = nil,
+        logs: [WorkoutLogEntry] = []
+    ) -> DraftItem? {
         let resolved = pathStates.map { ProgramPrescriber.resolved(planned, pathStates: $0) } ?? planned
         guard let exercise = ExerciseCatalog.exercise(withID: resolved.exerciseID) else { return nil }
-        return DraftItem(exercise: exercise,
-                         sets: prefilledSets(from: resolved, measurement: exercise.measurement, logs: logs),
-                         group: resolved.group)
+        return DraftItem(
+            exercise: exercise,
+            sets: prefilledSets(from: resolved, measurement: exercise.measurement, logs: logs),
+            group: resolved.group)
     }
 
     /// Target sets become concrete sets to confirm, in the exercise's unit:
@@ -148,9 +156,11 @@ final class QuickWorkoutViewModel {
     /// prefills its bottom, or one rep more than the last session (see
     /// `ProgramPrescriber.suggestedValue`). Without a set count and a value
     /// the item stays pending so the user logs it on the SetPad.
-    static func prefilledSets(from planned: PlannedExercise,
-                              measurement: ExerciseMeasurement = .reps,
-                              logs: [WorkoutLogEntry] = []) -> [LoggedSet] {
+    static func prefilledSets(
+        from planned: PlannedExercise,
+        measurement: ExerciseMeasurement = .reps,
+        logs: [WorkoutLogEntry] = []
+    ) -> [LoggedSet] {
         guard let targetSets = planned.targetSets, targetSets > 0 else { return [] }
         var target = planned
         // A hold planned before hold targets existed carries its seconds in
@@ -159,7 +169,7 @@ final class QuickWorkoutViewModel {
             target.targetSeconds = target.targetReps
         }
         guard let value = ProgramPrescriber.suggestedValue(for: target, measurement: measurement, logs: logs),
-              value > 0
+            value > 0
         else { return [] }
         return Array(repeating: LoggedSet(value: value, measurement: measurement), count: targetSets)
     }

@@ -22,10 +22,12 @@ nonisolated struct WeeklyGoalHistory: Codable, Equatable, Sendable {
     /// the earliest record, or today's plans while there is none.
     var planSchedules: [PlanScheduleRecord]
 
-    init(versions: [WeeklyGoalVersion] = [],
-         pauses: [WeeklyGoalPause] = [],
-         celebrated: Set<WeeklyGoalCelebration> = [],
-         planSchedules: [PlanScheduleRecord] = []) {
+    init(
+        versions: [WeeklyGoalVersion] = [],
+        pauses: [WeeklyGoalPause] = [],
+        celebrated: Set<WeeklyGoalCelebration> = [],
+        planSchedules: [PlanScheduleRecord] = []
+    ) {
         self.versions = versions
         self.pauses = pauses
         self.celebrated = celebrated
@@ -96,10 +98,12 @@ nonisolated struct WeeklyGoalHistory: Codable, Equatable, Sendable {
     ///   the first week's warm-up anchor where it was.
     ///
     /// Returns `nil` when `goals` is not a valid set.
-    func settingGoals(_ goals: [WeeklyGoal],
-                      at date: Date,
-                      implicitStart: Date,
-                      calendar: Calendar = .current) -> WeeklyGoalHistory? {
+    func settingGoals(
+        _ goals: [WeeklyGoal],
+        at date: Date,
+        implicitStart: Date,
+        calendar: Calendar = .current
+    ) -> WeeklyGoalHistory? {
         guard WeeklyGoal.isValidSet(goals) else { return nil }
         var history = self
         if history.versions.isEmpty {
@@ -134,9 +138,11 @@ nonisolated struct WeeklyGoalHistory: Codable, Equatable, Sendable {
     /// and no record yet). A record from earlier in the same week is
     /// replaced, not stacked, since no closed week can depend on it; like goal
     /// versions, there is at most one record per week.
-    func recordingPlans(_ plans: [WorkoutPlan],
-                        at date: Date,
-                        calendar: Calendar = .current) -> WeeklyGoalHistory? {
+    func recordingPlans(
+        _ plans: [WorkoutPlan],
+        at date: Date,
+        calendar: Calendar = .current
+    ) -> WeeklyGoalHistory? {
         let scheduled = PlanScheduleRecord.scheduled(plans)
         guard let last = planSchedules.last else {
             // No plans and nothing recorded: there is nothing to keep.
@@ -166,15 +172,17 @@ nonisolated struct WeeklyGoalHistory: Codable, Equatable, Sendable {
 
     /// The history with a pause from the start of `date`'s day until the start
     /// of `end`'s day, clamped to 1–90 days. `nil` while a pause is active.
-    func startingPause(at date: Date,
-                       until end: Date,
-                       calendar: Calendar = .current,
-                       id: UUID = UUID()) -> WeeklyGoalHistory? {
+    func startingPause(
+        at date: Date,
+        until end: Date,
+        calendar: Calendar = .current,
+        id: UUID = UUID()
+    ) -> WeeklyGoalHistory? {
         guard activePause(at: date) == nil else { return nil }
         let start = calendar.startOfDay(for: date)
         let requested = calendar.startOfDay(for: end)
         guard let earliest = calendar.date(byAdding: .day, value: 1, to: start),
-              let latest = calendar.date(byAdding: .day, value: WeeklyGoalPause.maximumDays, to: start)
+            let latest = calendar.date(byAdding: .day, value: WeeklyGoalPause.maximumDays, to: start)
         else { return nil }
         var history = self
         history.pauses.append(WeeklyGoalPause(id: id, start: start, plannedEnd: min(max(requested, earliest), latest)))

@@ -16,7 +16,7 @@ nonisolated enum AdvancementCriterion: Codable, Equatable, Hashable, Sendable {
     /// The number of sets the criterion asks for, regardless of kind.
     var sets: Int {
         switch self {
-        case let .setsOfReps(sets, _), let .setsOfHold(sets, _): sets
+        case .setsOfReps(let sets, _), .setsOfHold(let sets, _): sets
         }
     }
 
@@ -25,8 +25,8 @@ nonisolated enum AdvancementCriterion: Codable, Equatable, Hashable, Sendable {
     /// set's reps or `durationSeconds` against this.
     var targetValue: Int {
         switch self {
-        case let .setsOfReps(_, reps): reps
-        case let .setsOfHold(_, seconds): seconds
+        case .setsOfReps(_, let reps): reps
+        case .setsOfHold(_, let seconds): seconds
         }
     }
 

@@ -51,7 +51,7 @@ final class SkillPathsViewModel {
     /// The summary for one path, or `nil` if the catalog has no such path.
     func summary(for id: ProgressionPathID) -> SkillPathSummary? {
         guard let path = ProgressionCatalog.path(withID: id),
-              let state = snapshot.pathStates[id]
+            let state = snapshot.pathStates[id]
         else { return nil }
         return SkillPathSummary(path: path, state: state)
     }

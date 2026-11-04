@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // Ticket 016: the optional program fields on `WorkoutPlan` and
@@ -24,25 +25,30 @@ private enum PlanFileSupport {
         id: UUID(uuidString: "D0000000-0000-4000-8000-000000000001")!,
         name: "Fundamenty",
         exercises: [
-            PlannedExercise(id: UUID(uuidString: "D0000000-0000-4000-8000-000000000002")!,
-                            exerciseID: ExerciseCatalog.negativePullUpsID,
-                            targetSets: 3, targetReps: 5,
-                            pathID: .pullUp, targetRepsMin: 3,
-                            restSeconds: 90, group: 1),
-            PlannedExercise(id: UUID(uuidString: "D0000000-0000-4000-8000-000000000003")!,
-                            exerciseID: ExerciseCatalog.plankID,
-                            targetSets: 3,
-                            pathID: .core, targetSeconds: 30, targetSecondsMin: 10,
-                            restSeconds: 90, group: 1),
-            PlannedExercise(id: UUID(uuidString: "D0000000-0000-4000-8000-000000000004")!,
-                            exerciseID: ExerciseCatalog.plankShoulderTapsID,
-                            group: 2, rounds: 2...6, repsInReserve: 2),
-            PlannedExercise(id: UUID(uuidString: "D0000000-0000-4000-8000-000000000005")!,
-                            exerciseID: ExerciseCatalog.wallHandstandHoldID,
-                            pathID: .handstand, holdRungsOnly: true, timeBoxMinutes: 10),
-            PlannedExercise(id: UUID(uuidString: "D0000000-0000-4000-8000-000000000006")!,
-                            exerciseID: ExerciseCatalog.lSitID,
-                            pathID: .lSit, targetSeconds: 30, targetSecondsMin: 10, totalSeconds: 180)
+            PlannedExercise(
+                id: UUID(uuidString: "D0000000-0000-4000-8000-000000000002")!,
+                exerciseID: ExerciseCatalog.negativePullUpsID,
+                targetSets: 3, targetReps: 5,
+                pathID: .pullUp, targetRepsMin: 3,
+                restSeconds: 90, group: 1),
+            PlannedExercise(
+                id: UUID(uuidString: "D0000000-0000-4000-8000-000000000003")!,
+                exerciseID: ExerciseCatalog.plankID,
+                targetSets: 3,
+                pathID: .core, targetSeconds: 30, targetSecondsMin: 10,
+                restSeconds: 90, group: 1),
+            PlannedExercise(
+                id: UUID(uuidString: "D0000000-0000-4000-8000-000000000004")!,
+                exerciseID: ExerciseCatalog.plankShoulderTapsID,
+                group: 2, rounds: 2...6, repsInReserve: 2),
+            PlannedExercise(
+                id: UUID(uuidString: "D0000000-0000-4000-8000-000000000005")!,
+                exerciseID: ExerciseCatalog.wallHandstandHoldID,
+                pathID: .handstand, holdRungsOnly: true, timeBoxMinutes: 10),
+            PlannedExercise(
+                id: UUID(uuidString: "D0000000-0000-4000-8000-000000000006")!,
+                exerciseID: ExerciseCatalog.lSitID,
+                pathID: .lSit, targetSeconds: 30, targetSecondsMin: 10, totalSeconds: 180)
         ],
         schedule: .weekly([.monday, .wednesday, .friday]),
         createdAt: ProgramFixtures.today,
@@ -57,8 +63,9 @@ struct ProgramPlanModelTests {
     @Test
     func legacyFixtureLoadsWithoutProgramFields() throws {
         let directory = try PlanFileSupport.makeDirectory()
-        let source = try #require(Bundle(for: ProgramBundleToken.self)
-            .url(forResource: "workout-plans-legacy", withExtension: "json"))
+        let source = try #require(
+            Bundle(for: ProgramBundleToken.self)
+                .url(forResource: "workout-plans-legacy", withExtension: "json"))
         try FileManager.default.copyItem(at: source, to: directory.appending(path: "workout-plans.json"))
 
         let plans = try FileWorkoutPlanStore(directory: directory).load()
@@ -75,10 +82,10 @@ struct ProgramPlanModelTests {
     func envelopeV1PlanFromBeforeProgramsLoads() throws {
         let directory = try PlanFileSupport.makeDirectory()
         let text = #"""
-        {"schemaVersion":1,"payload":[{"id":"D0000000-0000-4000-8000-000000000010","name":"Stary plan","isActive":true,
-        "createdAt":"2026-10-01T07:30:00Z","schedule":{"weekly":{"_0":[2]}},
-        "exercises":[{"id":"D0000000-0000-4000-8000-000000000011","exerciseID":"E0000000-0000-4000-8000-000000000001","targetSets":3,"targetReps":8}]}]}
-        """#
+            {"schemaVersion":1,"payload":[{"id":"D0000000-0000-4000-8000-000000000010","name":"Stary plan","isActive":true,
+            "createdAt":"2026-10-01T07:30:00Z","schedule":{"weekly":{"_0":[2]}},
+            "exercises":[{"id":"D0000000-0000-4000-8000-000000000011","exerciseID":"E0000000-0000-4000-8000-000000000001","targetSets":3,"targetReps":8}]}]}
+            """#
         try Data(text.utf8).write(to: directory.appending(path: "workout-plans.json"))
 
         let plans = try FileWorkoutPlanStore(directory: directory).load()
@@ -86,9 +93,13 @@ struct ProgramPlanModelTests {
         let plan = try #require(plans.first)
         #expect(plan.name == "Stary plan")
         #expect(plan.programID == nil)
-        #expect(plan.exercises == [PlannedExercise(id: UUID(uuidString: "D0000000-0000-4000-8000-000000000011")!,
-                                                   exerciseID: ExerciseCatalog.pullUpsID,
-                                                   targetSets: 3, targetReps: 8)])
+        #expect(
+            plan.exercises == [
+                PlannedExercise(
+                    id: UUID(uuidString: "D0000000-0000-4000-8000-000000000011")!,
+                    exerciseID: ExerciseCatalog.pullUpsID,
+                    targetSets: 3, targetReps: 8)
+            ])
     }
 
     @Test
@@ -106,10 +117,11 @@ struct ProgramPlanModelTests {
 
     @Test
     func planWithoutProgramDataWritesNoNewKeys() throws {
-        let plan = WorkoutPlan(name: "Ręczny",
-                               exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID, targetSets: 3, targetReps: 10)],
-                               schedule: .weekly([.monday]),
-                               createdAt: ProgramFixtures.today)
+        let plan = WorkoutPlan(
+            name: "Ręczny",
+            exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID, targetSets: 3, targetReps: 10)],
+            schedule: .weekly([.monday]),
+            createdAt: ProgramFixtures.today)
 
         let data = try JSONEncoder().encode(plan)
         let object = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
@@ -123,9 +135,9 @@ struct ProgramPlanModelTests {
     @Test
     func unknownLadderOrBrokenRangeDropsOnlyThatField() throws {
         let text = #"""
-        {"id":"D0000000-0000-4000-8000-000000000020","exerciseID":"E0000000-0000-4000-8000-000000000001",
-         "pathID":"ladderFromTheFuture","rounds":[6,2],"restSeconds":90}
-        """#
+            {"id":"D0000000-0000-4000-8000-000000000020","exerciseID":"E0000000-0000-4000-8000-000000000001",
+             "pathID":"ladderFromTheFuture","rounds":[6,2],"restSeconds":90}
+            """#
 
         let item = try JSONDecoder().decode(PlannedExercise.self, from: Data(text.utf8))
 

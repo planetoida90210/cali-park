@@ -24,13 +24,15 @@ nonisolated struct TrainingBackup: Equatable, Sendable {
     /// then leaves them on the phone as they are.
     var favoriteExerciseIDs: [UUID]?
 
-    init(workoutLog: [WorkoutLogEntry] = [],
-         workoutPlans: [WorkoutPlan] = [],
-         placement: SkillPlacement? = nil,
-         skillProgress: SkillProgress? = nil,
-         weeklyGoal: WeeklyGoalHistory? = nil,
-         favoriteParkIDs: [UUID]? = [],
-         favoriteExerciseIDs: [UUID]? = []) {
+    init(
+        workoutLog: [WorkoutLogEntry] = [],
+        workoutPlans: [WorkoutPlan] = [],
+        placement: SkillPlacement? = nil,
+        skillProgress: SkillProgress? = nil,
+        weeklyGoal: WeeklyGoalHistory? = nil,
+        favoriteParkIDs: [UUID]? = [],
+        favoriteExerciseIDs: [UUID]? = []
+    ) {
         self.workoutLog = workoutLog
         self.workoutPlans = workoutPlans
         self.placement = placement
@@ -63,12 +65,14 @@ nonisolated struct TrainingBackupSummary: Equatable, Sendable {
     let favoriteParks: Int
     let favoriteExercises: Int
 
-    init(workouts: Int,
-         plans: Int,
-         hasPlacement: Bool,
-         hasWeeklyGoal: Bool,
-         favoriteParks: Int = 0,
-         favoriteExercises: Int = 0) {
+    init(
+        workouts: Int,
+        plans: Int,
+        hasPlacement: Bool,
+        hasWeeklyGoal: Bool,
+        favoriteParks: Int = 0,
+        favoriteExercises: Int = 0
+    ) {
         self.workouts = workouts
         self.plans = plans
         self.hasPlacement = hasPlacement
@@ -92,8 +96,9 @@ nonisolated struct TrainingBackupSummary: Equatable, Sendable {
             parts.append("\(favoriteParks) \(noun)")
         }
         if favoriteExercises > 0 {
-            let noun = PolishPlural.form(for: favoriteExercises,
-                                         one: "ulubione ćwiczenie", few: "ulubione ćwiczenia", many: "ulubionych ćwiczeń")
+            let noun = PolishPlural.form(
+                for: favoriteExercises,
+                one: "ulubione ćwiczenie", few: "ulubione ćwiczenia", many: "ulubionych ćwiczeń")
             parts.append("\(favoriteExercises) \(noun)")
         }
         return parts.joined(separator: ", ")

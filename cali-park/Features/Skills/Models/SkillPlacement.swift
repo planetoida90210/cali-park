@@ -30,9 +30,11 @@ nonisolated struct SkillPlacement: Codable, Equatable, Sendable {
     /// it deliberately does not influence XP.
     var declaredAt: Date
 
-    init(declaredStepByPath: [ProgressionPathID: UUID] = [:],
-         ownedEquipment: Set<String> = [],
-         declaredAt: Date = .now) {
+    init(
+        declaredStepByPath: [ProgressionPathID: UUID] = [:],
+        ownedEquipment: Set<String> = [],
+        declaredAt: Date = .now
+    ) {
         self.declaredStepByPath = declaredStepByPath
         self.ownedEquipment = ownedEquipment
         self.declaredAt = declaredAt
@@ -41,9 +43,11 @@ nonisolated struct SkillPlacement: Codable, Equatable, Sendable {
     /// A placement declared as rung positions in the current catalog, which is
     /// how calibration answers are expressed. A position the path does not have
     /// is dropped.
-    init(declaredRungByPath: [ProgressionPathID: Int],
-         ownedEquipment: Set<String> = [],
-         declaredAt: Date = .now) {
+    init(
+        declaredRungByPath: [ProgressionPathID: Int],
+        ownedEquipment: Set<String> = [],
+        declaredAt: Date = .now
+    ) {
         var steps: [ProgressionPathID: UUID] = [:]
         for (path, index) in declaredRungByPath {
             if let reference = RungReference(pathID: path, rungIndex: index) {

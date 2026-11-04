@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Fixtures
@@ -13,25 +14,30 @@ private enum F {
         Date(timeIntervalSince1970: Double(n) * 86_400 + Double(hour) * 3_600 + Double(minute) * 60)
     }
 
-    static func entry(_ exerciseID: UUID = ExerciseCatalog.pullUpsID,
-                      at date: Date,
-                      reps: [Int] = [8, 8, 8],
-                      session: UUID? = nil,
-                      plan: UUID? = nil) -> WorkoutLogEntry {
-        WorkoutLogEntry(exerciseID: exerciseID, date: date, sets: reps.map { LoggedSet(reps: $0) },
-                        sessionID: session, planID: plan)
+    static func entry(
+        _ exerciseID: UUID = ExerciseCatalog.pullUpsID,
+        at date: Date,
+        reps: [Int] = [8, 8, 8],
+        session: UUID? = nil,
+        plan: UUID? = nil
+    ) -> WorkoutLogEntry {
+        WorkoutLogEntry(
+            exerciseID: exerciseID, date: date, sets: reps.map { LoggedSet(reps: $0) },
+            sessionID: session, planID: plan)
     }
 
     static func hold(at date: Date, seconds: Int) -> WorkoutLogEntry {
-        WorkoutLogEntry(exerciseID: ExerciseCatalog.plankID, date: date,
-                        sets: [LoggedSet(reps: 1, durationSeconds: seconds)])
+        WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.plankID, date: date,
+            sets: [LoggedSet(reps: 1, durationSeconds: seconds)])
     }
 
     static func plan(_ name: String, _ schedule: WorkoutSchedule, createdDay: Int = 0) -> WorkoutPlan {
-        WorkoutPlan(name: name,
-                    exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID, targetSets: 3, targetReps: 10)],
-                    schedule: schedule,
-                    createdAt: day(createdDay))
+        WorkoutPlan(
+            name: name,
+            exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID, targetSets: 3, targetReps: 10)],
+            schedule: schedule,
+            createdAt: day(createdDay))
     }
 
     static func newestFirst(_ entries: [WorkoutLogEntry]) -> [WorkoutLogEntry] {
@@ -65,29 +71,39 @@ private struct Scenario: CustomTestStringConvertible {
         return [
             Scenario(name: "empty", entries: [], plans: []),
             Scenario(name: "history, no plans", entries: history, plans: []),
-            Scenario(name: "free workout today", entries: history + [
-                F.entry(at: F.day(F.today, hour: 7), session: morningSession),
-                F.entry(ExerciseCatalog.pushUpsID, at: F.day(F.today, hour: 7, minute: 20), session: morningSession),
-                F.hold(at: F.day(F.today, hour: 6), seconds: 40)
-            ], plans: []),
-            Scenario(name: "plan due, a free log today", entries: history + [
-                F.entry(at: F.day(F.today, hour: 7), reps: [5, 5]),
-                F.hold(at: F.day(F.today, hour: 8), seconds: 30)
-            ], plans: [sunday, wednesday]),
+            Scenario(
+                name: "free workout today",
+                entries: history + [
+                    F.entry(at: F.day(F.today, hour: 7), session: morningSession),
+                    F.entry(ExerciseCatalog.pushUpsID, at: F.day(F.today, hour: 7, minute: 20), session: morningSession),
+                    F.hold(at: F.day(F.today, hour: 6), seconds: 40)
+                ], plans: []),
+            Scenario(
+                name: "plan due, a free log today",
+                entries: history + [
+                    F.entry(at: F.day(F.today, hour: 7), reps: [5, 5]),
+                    F.hold(at: F.day(F.today, hour: 8), seconds: 30)
+                ], plans: [sunday, wednesday]),
             Scenario(name: "plan due, nothing yet", entries: history, plans: [sunday]),
-            Scenario(name: "plan done today", entries: history + [
-                F.entry(ExerciseCatalog.pushUpsID, at: F.day(F.today, hour: 7), plan: sunday.id)
-            ], plans: [sunday, wednesday]),
-            Scenario(name: "two plans due, one done", entries: history + [
-                F.entry(ExerciseCatalog.pushUpsID, at: F.day(F.today, hour: 7), plan: sunday.id)
-            ], plans: [sunday, alsoSunday]),
+            Scenario(
+                name: "plan done today",
+                entries: history + [
+                    F.entry(ExerciseCatalog.pushUpsID, at: F.day(F.today, hour: 7), plan: sunday.id)
+                ], plans: [sunday, wednesday]),
+            Scenario(
+                name: "two plans due, one done",
+                entries: history + [
+                    F.entry(ExerciseCatalog.pushUpsID, at: F.day(F.today, hour: 7), plan: sunday.id)
+                ], plans: [sunday, alsoSunday]),
             Scenario(name: "rest day", entries: history, plans: [wednesday]),
             Scenario(name: "rest day, empty journal", entries: [], plans: [wednesday]),
             Scenario(name: "only a past one-off plan", entries: history, plans: [pastOnce]),
-            Scenario(name: "two workouts at the same instant", entries: [
-                F.entry(at: sameInstant),
-                F.entry(ExerciseCatalog.dipsID, at: sameInstant)
-            ], plans: [])
+            Scenario(
+                name: "two workouts at the same instant",
+                entries: [
+                    F.entry(at: sameInstant),
+                    F.entry(ExerciseCatalog.dipsID, at: sameInstant)
+                ], plans: [])
         ]
     }()
 
@@ -145,9 +161,10 @@ private enum LegacyHome {
         let calendar = F.calendar
         let entriesToday = entries.filter { calendar.isDate($0.date, inSameDayAs: reference) }
         if let planToday = PlanAgenda.day(reference, plans: plans, entries: entries, calendar: calendar).undone.first {
-            return .planToday(plan: planToday,
-                              loggedTodayReps: entriesToday.reduce(0) { $0 + $1.totalReps },
-                              loggedTodaySeconds: entriesToday.reduce(0) { $0 + $1.totalSeconds })
+            return .planToday(
+                plan: planToday,
+                loggedTodayReps: entriesToday.reduce(0) { $0 + $1.totalReps },
+                loggedTodaySeconds: entriesToday.reduce(0) { $0 + $1.totalSeconds })
         }
         if !entriesToday.isEmpty {
             guard let lastWorkout = latestWorkout(entries) else { return .firstRun }
@@ -165,17 +182,18 @@ private enum LegacyHome {
     static func achievements(_ snapshot: ProgressSnapshot) -> HomeAchievementsSummary {
         let advancement = snapshot.lastAdvancement.flatMap { reference -> HomeAchievementsSummary.Advancement? in
             guard let path = ProgressionCatalog.path(withID: reference.pathID),
-                  let step = reference.step,
-                  let exercise = ExerciseCatalog.exercise(withID: step.exerciseID)
+                let step = reference.step,
+                let exercise = ExerciseCatalog.exercise(withID: step.exerciseID)
             else { return nil }
             return HomeAchievementsSummary.Advancement(title: exercise.name, pathName: path.name, symbolName: path.symbolName)
         }
-        return HomeAchievementsSummary(level: snapshot.level.level,
-                                       xpToNextLevel: snapshot.level.xpToNextLevel,
-                                       progressToNextLevel: snapshot.level.progressToNextLevel,
-                                       earnedBadgeCount: snapshot.badges.count,
-                                       totalBadgeCount: Badge.allCases.count,
-                                       lastAdvancement: advancement)
+        return HomeAchievementsSummary(
+            level: snapshot.level.level,
+            xpToNextLevel: snapshot.level.xpToNextLevel,
+            progressToNextLevel: snapshot.level.progressToNextLevel,
+            earnedBadgeCount: snapshot.badges.count,
+            totalBadgeCount: Badge.allCases.count,
+            lastAdvancement: advancement)
     }
 }
 
@@ -183,16 +201,19 @@ private enum LegacyHome {
 @Suite("HomeSnapshot equals Home's per-render derivations")
 struct HomeSnapshotEquivalenceTests {
     /// Start, middle and last second of the day: only the day matters.
-    static let instants = [F.day(F.today, hour: 0), F.day(F.today, hour: 12, minute: 30),
-                           Date(timeIntervalSince1970: Double(F.today + 1) * 86_400 - 1)]
+    static let instants = [
+        F.day(F.today, hour: 0), F.day(F.today, hour: 12, minute: 30),
+        Date(timeIntervalSince1970: Double(F.today + 1) * 86_400 - 1)
+    ]
 
     @Test(arguments: Scenario.all)
     fileprivate func snapshotMatchesTheLegacyDerivations(_ scenario: Scenario) {
         let entries = F.newestFirst(scenario.entries)
         let progress = scenario.progress
         for instant in Self.instants {
-            let snapshot = HomeEngine.snapshot(entries: entries, plans: scenario.plans, progress: progress,
-                                               calendar: F.calendar, today: instant)
+            let snapshot = HomeEngine.snapshot(
+                entries: entries, plans: scenario.plans, progress: progress,
+                calendar: F.calendar, today: instant)
 
             #expect(snapshot.hero == LegacyHome.heroState(entries, scenario.plans, instant))
             #expect(snapshot.nextWorkout == LegacyHome.nextWorkoutState(entries, scenario.plans, instant))
@@ -207,8 +228,9 @@ struct HomeSnapshotEquivalenceTests {
     fileprivate func anyInstantOfTheDayGivesTheSameSnapshot(_ scenario: Scenario) {
         let entries = F.newestFirst(scenario.entries)
         let snapshots = Self.instants.map {
-            HomeEngine.snapshot(entries: entries, plans: scenario.plans, progress: scenario.progress,
-                                calendar: F.calendar, today: $0)
+            HomeEngine.snapshot(
+                entries: entries, plans: scenario.plans, progress: scenario.progress,
+                calendar: F.calendar, today: $0)
         }
         #expect(snapshots.allSatisfy { $0 == snapshots[0] })
     }
@@ -216,8 +238,10 @@ struct HomeSnapshotEquivalenceTests {
     @Test
     func theScenariosReachEveryHeroState() {
         let heroes = Scenario.all.map {
-            HomeEngine.snapshot(entries: F.newestFirst($0.entries), plans: $0.plans, progress: $0.progress,
-                                calendar: F.calendar, today: F.day(F.today)).hero
+            HomeEngine.snapshot(
+                entries: F.newestFirst($0.entries), plans: $0.plans, progress: $0.progress,
+                calendar: F.calendar, today: F.day(F.today)
+            ).hero
         }
         #expect(heroes.contains(.firstRun))
         #expect(heroes.contains { if case .planToday = $0 { true } else { false } })
@@ -250,11 +274,12 @@ struct HomeSnapshotCachingTests {
         let clock = Clock()
         let planStore = InMemoryWorkoutPlanStore(initial: plans)
         let placementStore = InMemorySkillPlacementStore()
-        let harness = HomeHarness(logStore: InMemoryWorkoutLogStore(initial: entries),
-                                  planStore: planStore,
-                                  placementStore: placementStore,
-                                  calendar: F.calendar,
-                                  clock: { clock.now })
+        let harness = HomeHarness(
+            logStore: InMemoryWorkoutLogStore(initial: entries),
+            planStore: planStore,
+            placementStore: placementStore,
+            calendar: F.calendar,
+            clock: { clock.now })
         return Home(harness: harness, planStore: planStore, placementStore: placementStore, clock: clock)
     }
 
@@ -321,16 +346,18 @@ struct HomeSnapshotCachingTests {
     @Test
     func theCachedSnapshotIsTheFreshOne() async throws {
         let wednesday = F.plan("Środa", .weekly([.wednesday]))
-        let home = home(entries: [F.entry(at: F.day(8)), F.entry(ExerciseCatalog.dipsID, at: F.day(9))],
-                        plans: [wednesday])
+        let home = home(
+            entries: [F.entry(at: F.day(8)), F.entry(ExerciseCatalog.dipsID, at: F.day(9))],
+            plans: [wednesday])
         let dashboard = home.dashboard
         _ = dashboard.heroState()
         try await home.journal.log(F.entry(at: F.day(F.today, hour: 7)))
         await dashboard.settle()
 
-        let fresh = HomeEngine.snapshot(entries: home.journal.newestFirst, plans: [wednesday],
-                                        progress: home.progress.snapshot, calendar: F.calendar,
-                                        today: home.clock.now)
+        let fresh = HomeEngine.snapshot(
+            entries: home.journal.newestFirst, plans: [wednesday],
+            progress: home.progress.snapshot, calendar: F.calendar,
+            today: home.clock.now)
         #expect(dashboard.snapshot == fresh)
         #expect(dashboard.heroState() == dashboard.heroState(asOf: home.clock.now))
         #expect(dashboard.nextWorkoutState == dashboard.nextWorkoutState(asOf: home.clock.now))

@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 private enum Fixtures {
@@ -94,8 +95,9 @@ struct WorkoutScheduleDayLabelTests {
     @Test
     func daysWithinTheWeekReadAsWeekday() {
         // Reference day 0 is Thursday; +2 days is a Saturday.
-        let label = WorkoutScheduleFormatter.dayLabel(Fixtures.day(2), asOf: Fixtures.day(0),
-                                                      calendar: Fixtures.calendar, locale: Locale(identifier: "pl_PL"))
+        let label = WorkoutScheduleFormatter.dayLabel(
+            Fixtures.day(2), asOf: Fixtures.day(0),
+            calendar: Fixtures.calendar, locale: Locale(identifier: "pl_PL"))
         #expect(label == "sobota")
     }
 }
@@ -125,13 +127,14 @@ struct QuickWorkoutPrefillTests {
         #expect(item?.isPending == true)
     }
 
-    @Test(arguments: [
-        (nil, nil),
-        (3, nil),
-        (nil, 8),
-        (0, 8),
-        (3, 0)
-    ] as [(Int?, Int?)])
+    @Test(
+        arguments: [
+            (nil, nil),
+            (3, nil),
+            (nil, 8),
+            (0, 8),
+            (3, 0)
+        ] as [(Int?, Int?)])
     func incompleteOrZeroTargetsProduceNoSets(targetSets: Int?, targetReps: Int?) {
         let planned = PlannedExercise(
             exerciseID: ExerciseCatalog.dipsID,
@@ -162,8 +165,8 @@ struct QuickWorkoutPrefillTests {
         let vm = QuickWorkoutViewModel(store: InMemoryWorkoutLogStore(), plan: plan)
 
         #expect(vm.exerciseCount == 2)
-        #expect(vm.totalSets == 3)          // only the prefilled exercise has sets
-        #expect(vm.canFinish)               // one non-pending item is enough
+        #expect(vm.totalSets == 3) // only the prefilled exercise has sets
+        #expect(vm.canFinish) // one non-pending item is enough
     }
 
     @Test

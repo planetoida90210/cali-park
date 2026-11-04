@@ -73,10 +73,12 @@ nonisolated struct StoreDirectoryMigration {
 
     private static let logger = AppLog.logger(category: "StoreDirectoryMigration")
 
-    init(legacyDirectory: URL,
-         directory: URL,
-         files: [StoreFile] = StoreFile.allCases,
-         fileManager: FileManager = .default) {
+    init(
+        legacyDirectory: URL,
+        directory: URL,
+        files: [StoreFile] = StoreFile.allCases,
+        fileManager: FileManager = .default
+    ) {
         self.legacyDirectory = legacyDirectory
         self.directory = directory
         self.files = files
@@ -124,7 +126,8 @@ nonisolated struct StoreDirectoryMigration {
         switch (hasSource, hasDestination) {
         case (_, true):
             if hasSource {
-                Self.logger.error("""
+                Self.logger.error(
+                    """
                     \(file.fileName, privacy: .public) exists in Documents and in the store directory; \
                     keeping the store directory copy, Documents left untouched
                     """)
@@ -138,7 +141,8 @@ nonisolated struct StoreDirectoryMigration {
                 Self.logger.info("Moved \(file.fileName, privacy: .public) to the store directory")
                 return directory
             } catch {
-                Self.logger.error("""
+                Self.logger.error(
+                    """
                     Cannot move \(file.fileName, privacy: .public); reading it from Documents: \
                     \(String(describing: error), privacy: .public)
                     """)

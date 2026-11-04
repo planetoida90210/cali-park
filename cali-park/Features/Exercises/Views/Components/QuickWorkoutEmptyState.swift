@@ -24,7 +24,7 @@ struct QuickWorkoutEmptyState: View {
             Button("Dodaj ćwiczenie", systemImage: "plus", action: onAdd)
                 .buttonStyle(.accent(.compact, fillsWidth: false))
                 .accessibilityIdentifier("quickWorkout.addExercise")
-            .padding(.top, 8)
+                .padding(.top, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

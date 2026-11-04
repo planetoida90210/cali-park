@@ -121,8 +121,11 @@ struct HomeView: View {
             }
             // Also re-runs when the user answers the location prompt on the
             // Parks map or changes it in Settings.
-            .task(id: NearestParkRefreshKey(tick: nearestParkRefresh,
-                                            authorization: environment.locationProvider.authorization)) {
+            .task(
+                id: NearestParkRefreshKey(
+                    tick: nearestParkRefresh,
+                    authorization: environment.locationProvider.authorization)
+            ) {
                 await nearestPark.refresh()
             }
             // onAppear does not fire when the app returns from background, and
@@ -170,7 +173,6 @@ struct HomeView: View {
         .dynamicTypeSize(.accessibility5)
         .preferredColorScheme(.dark)
 }
-
 
 #Preview("Trening zrobiony dziś") {
     HomeView(environment: .previewCompletedToday)

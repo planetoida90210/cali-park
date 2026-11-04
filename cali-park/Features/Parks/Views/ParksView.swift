@@ -39,15 +39,17 @@ struct ParksView: View {
         // compact detent, so another pin can be tapped right away.
         .sheet(isPresented: sheetBinding) {
             if let park = viewModel.selectedPark {
-                ParkSheetView(park: park,
-                              distance: viewModel.distance(to: park),
-                              dataTimestamp: viewModel.dataTimestamp,
-                              isFavorite: viewModel.isFavorite(park),
-                              isExpanded: sheetDetent == .large,
-                              onHeaderHeightChange: updateCompactHeight,
-                              onToggleFavorite: { viewModel.toggleFavorite(park) },
-                              onExpand: { withAnimation(.smooth) { sheetDetent = .large } },
-                              onClose: { viewModel.clearSelection() })
+                ParkSheetView(
+                    park: park,
+                    distance: viewModel.distance(to: park),
+                    dataTimestamp: viewModel.dataTimestamp,
+                    isFavorite: viewModel.isFavorite(park),
+                    isExpanded: sheetDetent == .large,
+                    onHeaderHeightChange: updateCompactHeight,
+                    onToggleFavorite: { viewModel.toggleFavorite(park) },
+                    onExpand: { withAnimation(.smooth) { sheetDetent = .large } },
+                    onClose: { viewModel.clearSelection() }
+                )
                 .presentationDetents([compactDetent, .large], selection: $sheetDetent)
                 .presentationBackgroundInteraction(.enabled(upThrough: compactDetent))
                 .presentationContentInteraction(.resizes)

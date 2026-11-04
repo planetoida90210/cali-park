@@ -28,8 +28,10 @@ struct ProfileView: View {
                 }
 
                 Section("Cel tygodniowy") {
-                    ProfileWeeklyGoalRow(title: viewModel.weeklyGoalTitle,
-                                         progressText: viewModel.weeklyGoalProgressText) {
+                    ProfileWeeklyGoalRow(
+                        title: viewModel.weeklyGoalTitle,
+                        progressText: viewModel.weeklyGoalProgressText
+                    ) {
                         goalEditor = environment.makeWeeklyGoalEditorViewModel()
                     }
                 }

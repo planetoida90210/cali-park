@@ -88,8 +88,9 @@ final class TrainingJournal {
     /// Saves a whole workout in one write, so it is all-or-nothing.
     func logSession(_ sessionEntries: [WorkoutLogEntry]) async throws {
         guard !sessionEntries.isEmpty else { return }
-        try await enqueueWrite({ try await $0.append(contentsOf: sessionEntries) },
-                               change: .appended(sessionEntries))
+        try await enqueueWrite(
+            { try await $0.append(contentsOf: sessionEntries) },
+            change: .appended(sessionEntries))
     }
 
     /// Deletes every entry in `ids` in one write (a whole workout, or the
@@ -106,11 +107,14 @@ final class TrainingJournal {
     /// change handlers ran, before any other main-actor work, so a caller can
     /// settle other services before a screen renders the change (the backup
     /// rebaselines rewards there).
-    func replaceAll(_ newEntries: [WorkoutLogEntry],
-                    afterWrite: @escaping @MainActor () -> Void = {}) async throws {
-        try await enqueueWrite({ try await $0.replaceAll(with: newEntries) },
-                               change: .replaced(newEntries),
-                               afterWrite: afterWrite)
+    func replaceAll(
+        _ newEntries: [WorkoutLogEntry],
+        afterWrite: @escaping @MainActor () -> Void = {}
+    ) async throws {
+        try await enqueueWrite(
+            { try await $0.replaceAll(with: newEntries) },
+            change: .replaced(newEntries),
+            afterWrite: afterWrite)
     }
 
     /// Waits until every write issued so far has finished, failed or not.
@@ -129,9 +133,11 @@ final class TrainingJournal {
     /// Runs `write` once every earlier write finished, then applies `change`
     /// in memory. The work runs in its own task, so cancelling the caller
     /// never stops a write halfway; the caller still gets its error.
-    private func enqueueWrite(_ write: @escaping @MainActor (WorkoutLogStoring) async throws -> Void,
-                              change: Change,
-                              afterWrite: @escaping @MainActor () -> Void = {}) async throws {
+    private func enqueueWrite(
+        _ write: @escaping @MainActor (WorkoutLogStoring) async throws -> Void,
+        change: Change,
+        afterWrite: @escaping @MainActor () -> Void = {}
+    ) async throws {
         let previous = lastWrite
         let task = Task {
             _ = await previous?.result
@@ -192,10 +198,10 @@ final class TrainingJournal {
 }
 
 // MARK: - Binary search
-private extension Array {
+extension Array {
     /// The first index whose element satisfies `belongsInSecondPart`, for an
     /// array already partitioned by it (every `false` before every `true`).
-    nonisolated func partitioningIndex(where belongsInSecondPart: (Element) -> Bool) -> Int {
+    fileprivate nonisolated func partitioningIndex(where belongsInSecondPart: (Element) -> Bool) -> Int {
         var low = startIndex
         var high = endIndex
         while low < high {

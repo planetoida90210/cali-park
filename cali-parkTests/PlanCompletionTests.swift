@@ -9,6 +9,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 private enum Fixtures {
@@ -23,20 +24,23 @@ private enum Fixtures {
     static let today = day(0) + 12 * 3_600 // Thursday noon
 
     /// Two plans due every Thursday; "Mobilność" is the older one.
-    static let mobility = WorkoutPlan(name: "Mobilność",
-                                      exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)],
-                                      schedule: .weekly([.thursday]),
-                                      createdAt: day(-30))
-    static let push = WorkoutPlan(name: "Push",
-                                  exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID)],
-                                  schedule: .weekly([.monday, .thursday]),
-                                  createdAt: day(-20))
+    static let mobility = WorkoutPlan(
+        name: "Mobilność",
+        exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)],
+        schedule: .weekly([.thursday]),
+        createdAt: day(-30))
+    static let push = WorkoutPlan(
+        name: "Push",
+        exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID)],
+        schedule: .weekly([.monday, .thursday]),
+        createdAt: day(-20))
 
     static func entry(at date: Date, plan: WorkoutPlan? = nil) -> WorkoutLogEntry {
-        WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                        date: date,
-                        sets: [LoggedSet(reps: 8)],
-                        planID: plan?.id)
+        WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.pullUpsID,
+            date: date,
+            sets: [LoggedSet(reps: 8)],
+            planID: plan?.id)
     }
 }
 
@@ -140,7 +144,8 @@ struct HomePlanCompletionTests {
         let vm = dashboard(entries: [Fixtures.entry(at: Fixtures.day(0) + 8 * 3_600, plan: Fixtures.mobility)])
 
         #expect(vm.heroState(asOf: Fixtures.today) == .planToday(plan: Fixtures.push, loggedTodayReps: 8))
-        #expect(vm.nextWorkoutState(asOf: Fixtures.today)
+        #expect(
+            vm.nextWorkoutState(asOf: Fixtures.today)
                 == .planned(PlanAgenda.Occurrence(plan: Fixtures.push, date: Fixtures.day(0))))
     }
 
@@ -155,10 +160,12 @@ struct HomePlanCompletionTests {
             Issue.record("expected .completedToday")
             return
         }
-        #expect(vm.nextWorkoutState(asOf: Fixtures.today) == .doneToday(
-            plans: [Fixtures.mobility, Fixtures.push],
-            next: PlanAgenda.Occurrence(plan: Fixtures.push, date: Fixtures.day(4))
-        ))
+        #expect(
+            vm.nextWorkoutState(asOf: Fixtures.today)
+                == .doneToday(
+                    plans: [Fixtures.mobility, Fixtures.push],
+                    next: PlanAgenda.Occurrence(plan: Fixtures.push, date: Fixtures.day(4))
+                ))
     }
 
     @Test
@@ -166,7 +173,8 @@ struct HomePlanCompletionTests {
         let vm = dashboard(entries: [Fixtures.entry(at: Fixtures.day(0) + 8 * 3_600)])
 
         #expect(vm.heroState(asOf: Fixtures.today) == .planToday(plan: Fixtures.mobility, loggedTodayReps: 8))
-        #expect(vm.nextWorkoutState(asOf: Fixtures.today)
+        #expect(
+            vm.nextWorkoutState(asOf: Fixtures.today)
                 == .planned(PlanAgenda.Occurrence(plan: Fixtures.mobility, date: Fixtures.day(0))))
     }
 

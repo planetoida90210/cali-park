@@ -48,21 +48,23 @@ nonisolated struct PlannedExercise: Identifiable, Codable, Equatable, Hashable {
     /// Accumulate up to this many seconds of holds in total.
     var totalSeconds: Int?
 
-    init(id: UUID = UUID(),
-         exerciseID: UUID,
-         targetSets: Int? = nil,
-         targetReps: Int? = nil,
-         pathID: ProgressionPathID? = nil,
-         holdRungsOnly: Bool = false,
-         targetRepsMin: Int? = nil,
-         targetSeconds: Int? = nil,
-         targetSecondsMin: Int? = nil,
-         restSeconds: Int? = nil,
-         group: Int? = nil,
-         rounds: ClosedRange<Int>? = nil,
-         repsInReserve: Int? = nil,
-         timeBoxMinutes: Int? = nil,
-         totalSeconds: Int? = nil) {
+    init(
+        id: UUID = UUID(),
+        exerciseID: UUID,
+        targetSets: Int? = nil,
+        targetReps: Int? = nil,
+        pathID: ProgressionPathID? = nil,
+        holdRungsOnly: Bool = false,
+        targetRepsMin: Int? = nil,
+        targetSeconds: Int? = nil,
+        targetSecondsMin: Int? = nil,
+        restSeconds: Int? = nil,
+        group: Int? = nil,
+        rounds: ClosedRange<Int>? = nil,
+        repsInReserve: Int? = nil,
+        timeBoxMinutes: Int? = nil,
+        totalSeconds: Int? = nil
+    ) {
         self.id = id
         self.exerciseID = exerciseID
         self.targetSets = targetSets

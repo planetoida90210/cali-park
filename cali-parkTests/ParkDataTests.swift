@@ -2,43 +2,44 @@ import CoreLocation
 import Foundation
 import MapKit
 import Testing
+
 @testable import cali_park
 
 // MARK: - Snapshot decoding
 
 struct ParkSnapshotTests {
     private let json = """
-    {
-      "schemaVersion": 1,
-      "osmDataTimestamp": "2026-11-03T23:47:42Z",
-      "parks": [
         {
-          "id": "D0000000-0000-4000-8000-0000000000A1",
-          "status": "published", "verification": "osm", "source": "osm",
-          "latitude": 52.2, "longitude": 21.0,
-          "osmRefs": ["w1", "n2"],
-          "name": null,
-          "generatedName": "Street workout · Park Dreszera",
-          "locality": {"city": "Warszawa", "district": "Mokotów"},
-          "equipment": [
-            {"type": "horizontal_bar", "count": 3},
-            {"type": "jetpack", "count": null},
-            {"type": "parallel_bars"}
-          ],
-          "isCalisthenicsTagged": true, "hasMachines": true,
-          "surface": "moon_dust", "lit": true, "covered": null,
-          "access": "public", "openingHours": "06:00-22:00"
-        },
-        {
-          "id": "D0000000-0000-4000-8000-0000000000A2",
-          "status": "removed", "verification": "osm", "source": "osm",
-          "latitude": 50.0, "longitude": 19.9,
-          "generatedName": "Drążki · Kraków",
-          "equipment": [{"type": "horizontal_bar"}]
+          "schemaVersion": 1,
+          "osmDataTimestamp": "2026-11-03T23:47:42Z",
+          "parks": [
+            {
+              "id": "D0000000-0000-4000-8000-0000000000A1",
+              "status": "published", "verification": "osm", "source": "osm",
+              "latitude": 52.2, "longitude": 21.0,
+              "osmRefs": ["w1", "n2"],
+              "name": null,
+              "generatedName": "Street workout · Park Dreszera",
+              "locality": {"city": "Warszawa", "district": "Mokotów"},
+              "equipment": [
+                {"type": "horizontal_bar", "count": 3},
+                {"type": "jetpack", "count": null},
+                {"type": "parallel_bars"}
+              ],
+              "isCalisthenicsTagged": true, "hasMachines": true,
+              "surface": "moon_dust", "lit": true, "covered": null,
+              "access": "public", "openingHours": "06:00-22:00"
+            },
+            {
+              "id": "D0000000-0000-4000-8000-0000000000A2",
+              "status": "removed", "verification": "osm", "source": "osm",
+              "latitude": 50.0, "longitude": 19.9,
+              "generatedName": "Drążki · Kraków",
+              "equipment": [{"type": "horizontal_bar"}]
+            }
+          ]
         }
-      ]
-    }
-    """
+        """
 
     @Test func decodesParksAndKeepsOnlyPublished() throws {
         let catalog = try ParkSnapshot.decode(Data(json.utf8)).catalog
@@ -151,8 +152,9 @@ struct ParkDirectoryTests {
     /// alone can't catch a snapshot built with a looser rule. The pipeline
     /// must write only Parks: every entry in the file survives decoding.
     @Test func bundledSnapshotHasNoEntryTheAppDrops() throws {
-        let url = try #require(Bundle(for: AppEnvironment.self)
-            .url(forResource: BundledParkDirectory.resourceName, withExtension: "json"))
+        let url = try #require(
+            Bundle(for: AppEnvironment.self)
+                .url(forResource: BundledParkDirectory.resourceName, withExtension: "json"))
         let data = try Data(contentsOf: url)
         let raw = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
         let entries = try #require(raw["parks"] as? [Any])
@@ -186,8 +188,11 @@ struct ParkDirectoryTests {
 struct ParkModelTests {
     @Test func equipmentKeysAreOSMValues() {
         let keys = Set(EquipmentType.allCases.map(\.rawValue))
-        #expect(keys.isSuperset(of: ["horizontal_bar", "parallel_bars", "dip_bench", "rings", "horizontal_ladder",
-                                     "wall_bars", "fitness_pole", "climbing_pole", "push-up", "sit-up"]))
+        #expect(
+            keys.isSuperset(of: [
+                "horizontal_bar", "parallel_bars", "dip_bench", "rings", "horizontal_ladder",
+                "wall_bars", "fitness_pole", "climbing_pole", "push-up", "sit-up"
+            ]))
         #expect(Set(EquipmentType.allCases.filter(\.isCore)) == [.horizontalBar, .parallelBars, .dipBench])
     }
 
@@ -299,14 +304,17 @@ struct ParkFormatTests {
 
 struct ParkClusteringTests {
     /// Two Parks 300 m apart in central Warsaw, one in Kraków.
-    private let near1 = ParkFixtures.park(id: UUID(uuidString: "E0000000-0000-4000-8000-000000000001")!,
-                                          latitude: 52.2300, longitude: 21.0100)
-    private let near2 = ParkFixtures.park(id: UUID(uuidString: "E0000000-0000-4000-8000-000000000002")!,
-                                          latitude: 52.2300, longitude: 21.0144)
+    private let near1 = ParkFixtures.park(
+        id: UUID(uuidString: "E0000000-0000-4000-8000-000000000001")!,
+        latitude: 52.2300, longitude: 21.0100)
+    private let near2 = ParkFixtures.park(
+        id: UUID(uuidString: "E0000000-0000-4000-8000-000000000002")!,
+        latitude: 52.2300, longitude: 21.0144)
 
     private func region(span: Double) -> MKCoordinateRegion {
-        MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 52.23, longitude: 21.012),
-                           span: MKCoordinateSpan(latitudeDelta: span, longitudeDelta: span))
+        MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 52.23, longitude: 21.012),
+            span: MKCoordinateSpan(latitudeDelta: span, longitudeDelta: span))
     }
 
     @Test func zoomedOutCloseParksShareABubble() {

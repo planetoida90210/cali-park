@@ -44,7 +44,8 @@ nonisolated extension String {
 
         let afterNumber = previous?.isNumber == true
         let beforeUnit = rest.starts(with: "min") || startsWithSecondsUnit(rest)
-        let aroundTimes = (afterNumber && next == "×")
+        let aroundTimes =
+            (afterNumber && next == "×")
             || (previous == "×" && next?.isNumber == true)
         let afterAbbreviation = index >= 3 && characters[(index - 3)..<index].elementsEqual("ok.")
         return (afterNumber && beforeUnit) || aroundTimes || afterAbbreviation

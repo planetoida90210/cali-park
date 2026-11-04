@@ -33,17 +33,19 @@ nonisolated struct Exercise: Identifiable, Codable, Equatable, Hashable {
     /// per side.
     var isUnilateral: Bool { unilateralSide != nil }
 
-    init(id: UUID,
-         name: String,
-         category: ExerciseCategory,
-         muscleGroups: [MuscleGroup],
-         description: String,
-         instructions: [String],
-         symbolName: String,
-         equipment: [String] = [],
-         measurement: ExerciseMeasurement = .reps,
-         variantOf: UUID? = nil,
-         unilateralSide: UnilateralSide? = nil) {
+    init(
+        id: UUID,
+        name: String,
+        category: ExerciseCategory,
+        muscleGroups: [MuscleGroup],
+        description: String,
+        instructions: [String],
+        symbolName: String,
+        equipment: [String] = [],
+        measurement: ExerciseMeasurement = .reps,
+        variantOf: UUID? = nil,
+        unilateralSide: UnilateralSide? = nil
+    ) {
         self.id = id
         self.name = name
         self.category = category

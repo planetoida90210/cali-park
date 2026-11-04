@@ -109,9 +109,11 @@ final class CoreLocationProvider: LocationProviding {
     /// Bumped per `requestLocation()`, so a stale timeout can't end a newer request.
     @ObservationIgnored private var requestGeneration = 0
 
-    init(manager: LocationManaging,
-         clock: @escaping () -> Date,
-         requestTimeout: Duration = .seconds(10)) {
+    init(
+        manager: LocationManaging,
+        clock: @escaping () -> Date,
+        requestTimeout: Duration = .seconds(10)
+    ) {
         self.manager = manager
         self.clock = clock
         self.requestTimeout = requestTimeout

@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 private typealias F = WeeklyGoalFixtures
@@ -41,8 +42,13 @@ struct WeeklyGoalSetTests {
         #expect(WeeklyGoal.isValidSet([F.goal(.trainingDays(days: 0))]) == false)
         #expect(WeeklyGoal.isValidSet([F.goal(.trainingDays(days: 8))]) == false)
         #expect(WeeklyGoal.isValidSet([F.goal(.plannedWorkouts(target: .count(workouts: 0)))]) == false)
-        #expect(WeeklyGoal.isValidSet([F.goal(.exerciseVolume(exerciseID: ExerciseCatalog.pullUpsID,
-                                                                measurement: .reps, amount: 0))]) == false)
+        #expect(
+            WeeklyGoal.isValidSet([
+                F.goal(
+                    .exerciseVolume(
+                        exerciseID: ExerciseCatalog.pullUpsID,
+                        measurement: .reps, amount: 0))
+            ]) == false)
     }
 
     @Test
@@ -64,41 +70,50 @@ struct WeeklyGoalVersionHistoryTests {
     @Test
     func firstSaveKeepsTheDefaultHistory() throws {
         let firstWorkout = F.day(week: -4, 3)
-        let history = try #require(WeeklyGoalHistory.empty.settingGoals(
-            five, at: F.day(2), implicitStart: firstWorkout, calendar: F.calendar
-        ))
-        #expect(history.versions == [
-            F.version(WeeklyGoal.defaultGoals, from: firstWorkout),
-            F.version(five, from: F.day(2))
-        ])
+        let history = try #require(
+            WeeklyGoalHistory.empty.settingGoals(
+                five, at: F.day(2), implicitStart: firstWorkout, calendar: F.calendar
+            ))
+        #expect(
+            history.versions == [
+                F.version(WeeklyGoal.defaultGoals, from: firstWorkout),
+                F.version(five, from: F.day(2))
+            ])
     }
 
     /// Saved in the same week the journal started, the new goals replace the
     /// default but keep its start, so the warm-up week stays where it was.
     @Test
     func firstSaveInTheFirstWeekKeepsTheWarmUpAnchor() throws {
-        let history = try #require(WeeklyGoalHistory.empty.settingGoals(
-            five, at: F.day(5), implicitStart: F.day(3), calendar: F.calendar
-        ))
+        let history = try #require(
+            WeeklyGoalHistory.empty.settingGoals(
+                five, at: F.day(5), implicitStart: F.day(3), calendar: F.calendar
+            ))
         #expect(history.versions == [F.version(five, from: F.day(3))])
     }
 
     @Test
     func editsInOneWeekReplaceEachOther() throws {
-        let start = try #require(WeeklyGoalHistory.empty.settingGoals(
-            [F.days(3)], at: F.day(week: -3), implicitStart: F.day(week: -3), calendar: F.calendar
-        ))
+        let start = try #require(
+            WeeklyGoalHistory.empty.settingGoals(
+                [F.days(3)], at: F.day(week: -3), implicitStart: F.day(week: -3), calendar: F.calendar
+            ))
         let first = try #require(start.settingGoals(five, at: F.day(1), implicitStart: .distantPast, calendar: F.calendar))
-        let second = try #require(first.settingGoals([F.days(6)], at: F.day(4), implicitStart: .distantPast,
-                                                     calendar: F.calendar))
-        #expect(second.versions == [
-            F.version([F.days(3)], from: F.day(week: -3)),
-            F.version([F.days(6)], from: F.day(1))
-        ])
+        let second = try #require(
+            first.settingGoals(
+                [F.days(6)], at: F.day(4), implicitStart: .distantPast,
+                calendar: F.calendar))
+        #expect(
+            second.versions == [
+                F.version([F.days(3)], from: F.day(week: -3)),
+                F.version([F.days(6)], from: F.day(1))
+            ])
 
         // Changing back to last week's goals leaves nothing to keep.
-        let reverted = try #require(second.settingGoals([F.days(3)], at: F.day(5), implicitStart: .distantPast,
-                                                        calendar: F.calendar))
+        let reverted = try #require(
+            second.settingGoals(
+                [F.days(3)], at: F.day(5), implicitStart: .distantPast,
+                calendar: F.calendar))
         #expect(reverted.versions == [F.version([F.days(3)], from: F.day(week: -3))])
     }
 
@@ -134,9 +149,10 @@ struct WeeklyGoalPauseTests {
 
     @Test
     func pauseStartsAtTheStartOfTodayAndEndsOnTheChosenDay() throws {
-        let history = try #require(WeeklyGoalHistory.empty.startingPause(
-            at: F.day(2, hour: 15), until: F.day(9, hour: 8), calendar: F.calendar, id: id
-        ))
+        let history = try #require(
+            WeeklyGoalHistory.empty.startingPause(
+                at: F.day(2, hour: 15), until: F.day(9, hour: 8), calendar: F.calendar, id: id
+            ))
         #expect(history.pauses == [WeeklyGoalPause(id: id, start: F.day(2, hour: 0), plannedEnd: F.day(9, hour: 0))])
         #expect(history.activePause(at: F.day(8, hour: 23)) != nil)
         #expect(history.activePause(at: F.day(9, hour: 0)) == nil)
@@ -153,8 +169,10 @@ struct WeeklyGoalPauseTests {
 
     @Test
     func onlyOnePauseAtATime() throws {
-        let paused = try #require(WeeklyGoalHistory.empty.startingPause(at: F.day(0), until: F.day(14),
-                                                                         calendar: F.calendar))
+        let paused = try #require(
+            WeeklyGoalHistory.empty.startingPause(
+                at: F.day(0), until: F.day(14),
+                calendar: F.calendar))
         #expect(paused.startingPause(at: F.day(3), until: F.day(20), calendar: F.calendar) == nil)
 
         let ended = try #require(paused.endingPause(at: F.day(4)))
@@ -166,8 +184,10 @@ struct WeeklyGoalPauseTests {
 
     @Test
     func endingEarlyKeepsThePausedDays() throws {
-        let paused = try #require(WeeklyGoalHistory.empty.startingPause(at: F.day(0), until: F.day(30),
-                                                                         calendar: F.calendar, id: id))
+        let paused = try #require(
+            WeeklyGoalHistory.empty.startingPause(
+                at: F.day(0), until: F.day(30),
+                calendar: F.calendar, id: id))
         let ended = try #require(paused.endingPause(at: F.day(3)))
         let pause = try #require(ended.pauses.first)
         #expect(pause.endedAt == F.day(3))
@@ -178,8 +198,10 @@ struct WeeklyGoalPauseTests {
 
     @Test
     func endingAtTheVeryStartRemovesThePause() throws {
-        let paused = try #require(WeeklyGoalHistory.empty.startingPause(at: F.day(0, hour: 0), until: F.day(7),
-                                                                         calendar: F.calendar))
+        let paused = try #require(
+            WeeklyGoalHistory.empty.startingPause(
+                at: F.day(0, hour: 0), until: F.day(7),
+                calendar: F.calendar))
         #expect(paused.endingPause(at: F.day(0, hour: 0))?.pauses.isEmpty == true)
     }
 
@@ -220,19 +242,24 @@ struct WeeklyGoalStoreTests {
         WeeklyGoalHistory(
             versions: [
                 F.version(WeeklyGoal.defaultGoals, from: F.date(2026, 10, 1, 7, 30, 5)),
-                F.version([
-                    F.goal(.plannedWorkouts(target: .allScheduled),
-                           id: UUID(uuidString: "A1A1A1A1-0000-4000-8000-000000000001")!),
-                    F.goal(.plannedWorkouts(target: .count(workouts: 4)),
-                           id: UUID(uuidString: "A1A1A1A1-0000-4000-8000-000000000002")!),
-                    F.goal(.exerciseVolume(exerciseID: ExerciseCatalog.lSitID, measurement: .seconds, amount: 180),
-                           id: UUID(uuidString: "A1A1A1A1-0000-4000-8000-000000000003")!)
-                ], from: F.date(2026, 11, 4, 18, 2, 41))
+                F.version(
+                    [
+                        F.goal(
+                            .plannedWorkouts(target: .allScheduled),
+                            id: UUID(uuidString: "A1A1A1A1-0000-4000-8000-000000000001")!),
+                        F.goal(
+                            .plannedWorkouts(target: .count(workouts: 4)),
+                            id: UUID(uuidString: "A1A1A1A1-0000-4000-8000-000000000002")!),
+                        F.goal(
+                            .exerciseVolume(exerciseID: ExerciseCatalog.lSitID, measurement: .seconds, amount: 180),
+                            id: UUID(uuidString: "A1A1A1A1-0000-4000-8000-000000000003")!)
+                    ], from: F.date(2026, 11, 4, 18, 2, 41))
             ],
             pauses: [
-                WeeklyGoalPause(id: UUID(uuidString: "B2B2B2B2-0000-4000-8000-000000000001")!,
-                                start: F.date(2026, 10, 12, 0), plannedEnd: F.date(2026, 10, 19, 0),
-                                endedAt: F.date(2026, 10, 15, 9, 12, 33))
+                WeeklyGoalPause(
+                    id: UUID(uuidString: "B2B2B2B2-0000-4000-8000-000000000001")!,
+                    start: F.date(2026, 10, 12, 0), plannedEnd: F.date(2026, 10, 19, 0),
+                    endedAt: F.date(2026, 10, 15, 9, 12, 33))
             ],
             celebrated: [WeeklyGoalCelebration(weekStart: F.date(2026, 10, 26, 0), goalID: WeeklyGoal.defaultGoalID)]
         )

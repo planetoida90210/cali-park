@@ -49,13 +49,16 @@ nonisolated enum ProgramCatalog {
         symbolName: "timer",
         weekdays: mondayWednesdayFriday,
         sessions: [
-            ProgramSession(name: "Minimum", items: [
-                ProgramItem(.ladder(.legs), dose: .circuit(rounds: 2...6, repsInReserve: 2), group: 1),
-                ProgramItem(.ladder(.pushUp), dose: .circuit(rounds: 2...6, repsInReserve: 2), group: 1),
-                ProgramItem(.ladder(.row), dose: .circuit(rounds: 2...6, repsInReserve: 2), group: 1),
-                ProgramItem(.exercise(ExerciseCatalog.plankShoulderTapsID),
-                            dose: .circuit(rounds: 2...6, repsInReserve: 2), group: 1)
-            ])
+            ProgramSession(
+                name: "Minimum",
+                items: [
+                    ProgramItem(.ladder(.legs), dose: .circuit(rounds: 2...6, repsInReserve: 2), group: 1),
+                    ProgramItem(.ladder(.pushUp), dose: .circuit(rounds: 2...6, repsInReserve: 2), group: 1),
+                    ProgramItem(.ladder(.row), dose: .circuit(rounds: 2...6, repsInReserve: 2), group: 1),
+                    ProgramItem(
+                        .exercise(ExerciseCatalog.plankShoulderTapsID),
+                        dose: .circuit(rounds: 2...6, repsInReserve: 2), group: 1)
+                ])
         ]
     )
 
@@ -75,18 +78,21 @@ nonisolated enum ProgramCatalog {
         ],
         frequency: "3 × w tygodniu, z dniem przerwy",
         sessionLength: "ok. 45–60 min",
-        creditLine: "Inspirowane Recommended Routine społeczności r/bodyweightfitness. Program nie jest oficjalny ani zatwierdzony przez jej autorów.",
+        creditLine:
+            "Inspirowane Recommended Routine społeczności r/bodyweightfitness. Program nie jest oficjalny ani zatwierdzony przez jej autorów.",
         symbolName: "figure.strengthtraining.traditional",
         weekdays: mondayWednesdayFriday,
         sessions: [
-            ProgramSession(name: "Fundamenty", items: [
-                ProgramItem(.ladder(.pullUp), group: 1, restSeconds: pairRest),
-                ProgramItem(.ladder(.legs), group: 1, restSeconds: pairRest),
-                ProgramItem(.ladder(.dip), group: 2, restSeconds: pairRest),
-                ProgramItem(.ladder(.core), group: 2, restSeconds: pairRest),
-                ProgramItem(.ladder(.row), group: 3, restSeconds: pairRest),
-                ProgramItem(.ladder(.pushUp), group: 3, restSeconds: pairRest)
-            ])
+            ProgramSession(
+                name: "Fundamenty",
+                items: [
+                    ProgramItem(.ladder(.pullUp), group: 1, restSeconds: pairRest),
+                    ProgramItem(.ladder(.legs), group: 1, restSeconds: pairRest),
+                    ProgramItem(.ladder(.dip), group: 2, restSeconds: pairRest),
+                    ProgramItem(.ladder(.core), group: 2, restSeconds: pairRest),
+                    ProgramItem(.ladder(.row), group: 3, restSeconds: pairRest),
+                    ProgramItem(.ladder(.pushUp), group: 3, restSeconds: pairRest)
+                ])
         ]
     )
 
@@ -110,12 +116,14 @@ nonisolated enum ProgramCatalog {
         symbolName: "figure.climbing",
         weekdays: mondayWednesdayFriday,
         sessions: [
-            ProgramSession(name: "Pierwsze podciągnięcie", items: [
-                ProgramItem(.ladder(.pullUp)),
-                ProgramItem(.ladder(.row)),
-                ProgramItem(.ladder(.pushUp), group: 1, restSeconds: pairRest),
-                ProgramItem(.ladder(.legs), group: 1, restSeconds: pairRest)
-            ])
+            ProgramSession(
+                name: "Pierwsze podciągnięcie",
+                items: [
+                    ProgramItem(.ladder(.pullUp)),
+                    ProgramItem(.ladder(.row)),
+                    ProgramItem(.ladder(.pushUp), group: 1, restSeconds: pairRest),
+                    ProgramItem(.ladder(.legs), group: 1, restSeconds: pairRest)
+                ])
         ]
     )
 
@@ -139,10 +147,12 @@ nonisolated enum ProgramCatalog {
         symbolName: "figure.gymnastics",
         weekdays: [.tuesday, .thursday],
         sessions: [
-            ProgramSession(name: "Skille", items: [
-                ProgramItem(.ladder(.handstand, holdRungsOnly: true), dose: .timeBox(minutes: 10)),
-                ProgramItem(.ladder(.lSit), dose: .totalHold(seconds: 180, perHold: 10...30))
-            ])
+            ProgramSession(
+                name: "Skille",
+                items: [
+                    ProgramItem(.ladder(.handstand, holdRungsOnly: true), dose: .timeBox(minutes: 10)),
+                    ProgramItem(.ladder(.lSit), dose: .totalHold(seconds: 180, perHold: 10...30))
+                ])
         ]
     )
 }

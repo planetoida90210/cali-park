@@ -9,6 +9,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Ladder order snapshot
@@ -24,24 +25,34 @@ struct LadderOrderSnapshotTests {
     private typealias E = ExerciseCatalog
 
     static let ladderOrderV2: [ProgressionPathID: [UUID]] = [
-        .pullUp: [E.deadHangID, E.scapularPullsID, E.archHangID, E.negativePullUpsID, E.bandPullUpsID,
-                  E.pullUpsID, E.lPullUpsID, E.archerPullUpsID],
+        .pullUp: [
+            E.deadHangID, E.scapularPullsID, E.archHangID, E.negativePullUpsID, E.bandPullUpsID,
+            E.pullUpsID, E.lPullUpsID, E.archerPullUpsID
+        ],
         .row: [E.inclineRowsID, E.australianPullUpsID, E.wideRowsID, E.archerRowsID, E.tuckFrontLeverRowsID],
         .pushUp: [E.wallPushUpsID, E.inclinePushUpsID, E.kneePushUpsID, E.pushUpsID, E.diamondPushUpsID, E.pseudoPlanchePushUpsID],
         .dip: [E.parallelBarSupportID, E.negativeDipsID, E.dipsID, E.ringSupportHoldID, E.ringDipsID],
-        .legs: [E.assistedSquatsID, E.squatsID, E.lungesID, E.splitSquatID, E.bulgarianSplitSquatID,
-                E.stepUpsID, E.assistedPistolSquatsID, E.pistolSquatsID],
+        .legs: [
+            E.assistedSquatsID, E.squatsID, E.lungesID, E.splitSquatID, E.bulgarianSplitSquatID,
+            E.stepUpsID, E.assistedPistolSquatsID, E.pistolSquatsID
+        ],
         .core: [E.plankID, E.hangingKneeRaisesID, E.hangingLegRaisesID, E.toesToBarID],
         .muscleUp: [E.chestToBarPullUpsID, E.negativeMuscleUpsID, E.kippingMuscleUpsID, E.muscleUpID],
         .lSit: [E.footSupportedLSitID, E.oneFootSupportedLSitID, E.tuckLSitID, E.oneLegLSitID, E.lSitID],
         .frontLever: [E.tuckFrontLeverID, E.advancedTuckFrontLeverID, E.straddleFrontLeverID, E.halfLayFrontLeverID, E.frontLeverID],
-        .backLever: [E.germanHangID, E.skinTheCatID, E.tuckBackLeverID, E.advancedTuckBackLeverID,
-                     E.straddleBackLeverID, E.halfLayBackLeverID, E.backLeverID],
-        .planche: [E.frogStandID, E.straightArmFrogStandID, E.tuckPlancheID, E.advancedTuckPlancheID,
-                   E.straddlePlancheID, E.halfLayPlancheID, E.plancheID],
+        .backLever: [
+            E.germanHangID, E.skinTheCatID, E.tuckBackLeverID, E.advancedTuckBackLeverID,
+            E.straddleBackLeverID, E.halfLayBackLeverID, E.backLeverID
+        ],
+        .planche: [
+            E.frogStandID, E.straightArmFrogStandID, E.tuckPlancheID, E.advancedTuckPlancheID,
+            E.straddlePlancheID, E.halfLayPlancheID, E.plancheID
+        ],
         .humanFlag: [E.verticalFlagSupportID, E.tuckFlagID, E.advancedTuckFlagID, E.straddleFlagID, E.humanFlagID],
-        .handstand: [E.wallPlankID, E.wallHandstandHoldID, E.pikePushUpsID, E.elevatedPikePushUpsID,
-                     E.wallHandstandPushUpNegativesID, E.wallHandstandPushUpsID]
+        .handstand: [
+            E.wallPlankID, E.wallHandstandHoldID, E.pikePushUpsID, E.elevatedPikePushUpsID,
+            E.wallHandstandPushUpNegativesID, E.wallHandstandPushUpsID
+        ]
     ]
 
     @Test func everyLadderMatchesTheSnapshot() {
@@ -82,7 +93,8 @@ struct PreRevisionDataTests {
         let decoder = JSONFileFormat.decoder(forSchemaVersion: 1)
         for (path, stepIDs) in LadderOrderV1.stepIDs {
             for (index, stepID) in stepIDs.enumerated() {
-                let placementJSON = #"{"declaredRungByPath":["\#(path.rawValue)",\#(index)],"ownedEquipment":[],"declaredAt":"2026-10-01T07:30:00Z"}"#
+                let placementJSON =
+                    #"{"declaredRungByPath":["\#(path.rawValue)",\#(index)],"ownedEquipment":[],"declaredAt":"2026-10-01T07:30:00Z"}"#
                 let placement = try decoder.decode(SkillPlacement.self, from: Data(placementJSON.utf8))
                 #expect(placement.declaredReference(for: path)?.step?.exerciseID == stepID, "\(path) rung \(index)")
 
@@ -97,7 +109,8 @@ struct PreRevisionDataTests {
     /// A version 2 file written before the revision (step IDs) needs nothing:
     /// the IDs are still on their ladders.
     @Test func aVersion2PlacementFromBeforeTheRevisionStillPlaces() throws {
-        let json = #"{"declaredStepByPath":{"pullUp":"\#(E.pullUpsID.uuidString)","lSit":"\#(E.oneLegLSitID.uuidString)","dip":"\#(E.ringDipsID.uuidString)"},"ownedEquipment":[],"declaredAt":"2026-10-01T07:30:00Z"}"#
+        let json =
+            #"{"declaredStepByPath":{"pullUp":"\#(E.pullUpsID.uuidString)","lSit":"\#(E.oneLegLSitID.uuidString)","dip":"\#(E.ringDipsID.uuidString)"},"ownedEquipment":[],"declaredAt":"2026-10-01T07:30:00Z"}"#
         let placement = try JSONFileFormat.decoder(forSchemaVersion: 2).decode(SkillPlacement.self, from: Data(json.utf8))
 
         let states = ProgressionEngine.pathStates(logs: [], placement: placement)
@@ -150,7 +163,7 @@ struct PreRevisionDataTests {
 
         let evaluation = RewardEvaluator.evaluate(logs: logs, placement: nil, celebrated: oldRecord)
         let rungEvents = evaluation.pendingEvents.compactMap { event -> RungReference? in
-            if case let .rungConquered(rung) = event { return rung }
+            if case .rungConquered(let rung) = event { return rung }
             return nil
         }
         #expect(rungEvents == [RungReference(pathID: .pullUp, stepID: E.archHangID)])
@@ -191,9 +204,10 @@ struct LadderRevisionContentTests {
             // Off the ladders, added for the "Minimum" program (ticket 016).
             E.plankShoulderTapsID: .side
         ]
-        let actual = Dictionary(uniqueKeysWithValues: E.all.compactMap { exercise in
-            exercise.unilateralSide.map { (exercise.id, $0) }
-        })
+        let actual = Dictionary(
+            uniqueKeysWithValues: E.all.compactMap { exercise in
+                exercise.unilateralSide.map { (exercise.id, $0) }
+            })
         #expect(actual == expected)
     }
 

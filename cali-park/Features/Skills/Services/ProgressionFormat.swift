@@ -12,7 +12,8 @@ nonisolated enum ProgressionFormat {
     /// the catalog can't resolve the hint.
     static func hintLine(_ hint: ProgressionHint) -> String? {
         guard let path = ProgressionCatalog.path(withID: hint.pathID),
-              hint.currentRungIndex < path.steps.count else { return nil }
+            hint.currentRungIndex < path.steps.count
+        else { return nil }
 
         let remaining = max(0, hint.progress.targetValue - hint.progress.bestValue)
         let remainingText = MeasureFormat.amount(remaining, hint.progress.criterion.measurement)
@@ -21,7 +22,8 @@ nonisolated enum ProgressionFormat {
         // The next rung to name skips parallel tracks: they are options, not
         // the next step (audit A-3).
         if let nextIndex = ProgressionEngine.nextMainLineRung(in: path, from: hint.currentRungIndex + 1),
-           let next = ExerciseCatalog.exercise(withID: path.steps[nextIndex].exerciseID) {
+            let next = ExerciseCatalog.exercise(withID: path.steps[nextIndex].exerciseID)
+        {
             return String(localized: "Jeszcze \(remainingText) do \(goal) — następny szczebel: \(next.name)")
         }
 

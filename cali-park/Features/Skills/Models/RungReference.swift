@@ -23,7 +23,7 @@ nonisolated struct RungReference: Codable, Equatable, Hashable, Sendable {
     /// catalog, or `nil` when the path has no such rung.
     init?(pathID: ProgressionPathID, rungIndex: Int) {
         guard let steps = ProgressionCatalog.path(withID: pathID)?.steps,
-              steps.indices.contains(rungIndex)
+            steps.indices.contains(rungIndex)
         else { return nil }
         self.init(pathID: pathID, stepID: steps[rungIndex].id)
     }

@@ -1,4 +1,5 @@
 import Foundation
+
 @testable import cali_park
 
 // MARK: - WeeklyGoalFixtures
@@ -9,8 +10,10 @@ enum WeeklyGoalFixtures {
     static let calendar = TestCalendar.utc
 
     /// A UTC date at whole seconds.
-    static func date(_ year: Int, _ month: Int, _ day: Int,
-                     _ hour: Int = 12, _ minute: Int = 0, _ second: Int = 0) -> Date {
+    static func date(
+        _ year: Int, _ month: Int, _ day: Int,
+        _ hour: Int = 12, _ minute: Int = 0, _ second: Int = 0
+    ) -> Date {
         TestDate.at(year, month, day, hour, minute, second, in: calendar)
     }
 
@@ -28,10 +31,12 @@ enum WeeklyGoalFixtures {
     }
 
     /// One pull-up set logged at `date`.
-    static func entry(at date: Date,
-                      exercise: UUID = ExerciseCatalog.pullUpsID,
-                      sets: [LoggedSet] = [LoggedSet(reps: 8)],
-                      plan: WorkoutPlan? = nil) -> WorkoutLogEntry {
+    static func entry(
+        at date: Date,
+        exercise: UUID = ExerciseCatalog.pullUpsID,
+        sets: [LoggedSet] = [LoggedSet(reps: 8)],
+        plan: WorkoutPlan? = nil
+    ) -> WorkoutLogEntry {
         WorkoutLogEntry(exerciseID: exercise, date: date, sets: sets, planID: plan?.id)
     }
 

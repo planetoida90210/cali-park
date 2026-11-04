@@ -10,6 +10,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Fixtures
@@ -36,7 +37,7 @@ private enum IntegrityFixture {
 
     static func rungEvents(_ events: [CelebrationEvent]) -> [RungReference] {
         events.compactMap {
-            if case let .rungConquered(rung) = $0 { return rung }
+            if case .rungConquered(let rung) = $0 { return rung }
             return nil
         }
     }
@@ -82,8 +83,10 @@ struct StableRungIdentityTests {
             .muscleUp: [E.chestToBarPullUpsID, E.negativeMuscleUpsID, E.kippingMuscleUpsID, E.muscleUpID],
             .lSit: [E.footSupportedLSitID, E.oneLegLSitID, E.tuckLSitID, E.lSitID],
             .frontLever: [E.tuckFrontLeverID, E.advancedTuckFrontLeverID, E.straddleFrontLeverID, E.halfLayFrontLeverID, E.frontLeverID],
-            .backLever: [E.germanHangID, E.skinTheCatID, E.tuckBackLeverID, E.advancedTuckBackLeverID,
-                         E.straddleBackLeverID, E.halfLayBackLeverID, E.backLeverID],
+            .backLever: [
+                E.germanHangID, E.skinTheCatID, E.tuckBackLeverID, E.advancedTuckBackLeverID,
+                E.straddleBackLeverID, E.halfLayBackLeverID, E.backLeverID
+            ],
             .planche: [E.frogStandID, E.tuckPlancheID, E.advancedTuckPlancheID, E.straddlePlancheID, E.plancheID],
             .humanFlag: [E.verticalFlagSupportID, E.tuckFlagID, E.straddleFlagID, E.humanFlagID],
             .handstand: [E.wallPlankID, E.wallHandstandHoldID, E.wallHandstandPushUpsID]
@@ -96,7 +99,8 @@ struct StableRungIdentityTests {
         let decoder = JSONFileFormat.decoder(forSchemaVersion: 1)
         for (path, stepIDs) in LadderOrderV1.stepIDs {
             for (index, stepID) in stepIDs.enumerated() {
-                let json = #"{"declaredRungByPath":["\#(path.rawValue)",\#(index)],"ownedEquipment":[],"declaredAt":"2026-10-01T07:30:00Z"}"#
+                let json =
+                    #"{"declaredRungByPath":["\#(path.rawValue)",\#(index)],"ownedEquipment":[],"declaredAt":"2026-10-01T07:30:00Z"}"#
                 let placement = try decoder.decode(SkillPlacement.self, from: Data(json.utf8))
                 #expect(placement.declaredStepByPath == [path: stepID], "\(path) rung \(index)")
             }
@@ -131,8 +135,10 @@ struct StableRungIdentityTests {
     @Test func goldenLegacyFilesLoadAsTheSameRungs() throws {
         let directory = try IntegrityFixture.makeDirectory()
         let bundle = Bundle(for: CountingProgressStore.self)
-        for (fixture, name) in [("skill-placement-legacy", "skill-placement.json"),
-                                ("skill-progress-legacy", "skill-progress.json")] {
+        for (fixture, name) in [
+            ("skill-placement-legacy", "skill-placement.json"),
+            ("skill-progress-legacy", "skill-progress.json")
+        ] {
             let source = try #require(bundle.url(forResource: fixture, withExtension: "json"))
             try FileManager.default.copyItem(at: source, to: directory.appending(path: name))
         }
@@ -151,7 +157,8 @@ struct StableRungIdentityTests {
     @Test func savingAMigratedPlacementWritesStepIDsUnderVersion2() throws {
         let directory = try IntegrityFixture.makeDirectory()
         let url = directory.appending(path: "skill-placement.json")
-        let v1 = #"{"schemaVersion":1,"payload":{"declaredRungByPath":["pullUp",4],"ownedEquipment":[],"declaredAt":"2026-10-01T07:30:00Z"}}"#
+        let v1 =
+            #"{"schemaVersion":1,"payload":{"declaredRungByPath":["pullUp",4],"ownedEquipment":[],"declaredAt":"2026-10-01T07:30:00Z"}}"#
         try Data(v1.utf8).write(to: url)
         let store = FileSkillPlacementStore(directory: directory)
 
@@ -327,8 +334,9 @@ struct CelebratedWhenShownTests {
 
     @Test func evaluationsDoNotRewriteAnUnchangedRecord() async throws {
         let progressStore = CountingProgressStore()
-        let stack = TrainingStack(logStore: InMemoryWorkoutLogStore(initial: [IntegrityFixture.pullUps3x8()]),
-                                  progressStore: progressStore)
+        let stack = TrainingStack(
+            logStore: InMemoryWorkoutLogStore(initial: [IntegrityFixture.pullUps3x8()]),
+            progressStore: progressStore)
         #expect(progressStore.saveCount == 1) // the first-run baseline
 
         stack.rewards.refresh()
@@ -336,11 +344,14 @@ struct CelebratedWhenShownTests {
         #expect(progressStore.saveCount == 1)
 
         // A fresh advance is queued without a write, and written on dismissal.
-        try await stack.journal.log(WorkoutLogEntry(exerciseID: ExerciseCatalog.lPullUpsID,
-                                              date: IntegrityFixture.day,
-                                              sets: [LoggedSet(reps: 5), LoggedSet(reps: 5), LoggedSet(reps: 5)]))
+        try await stack.journal.log(
+            WorkoutLogEntry(
+                exerciseID: ExerciseCatalog.lPullUpsID,
+                date: IntegrityFixture.day,
+                sets: [LoggedSet(reps: 5), LoggedSet(reps: 5), LoggedSet(reps: 5)]))
         await stack.settle()
-        #expect(stack.rewards.currentCelebration == .single(.rungConquered(RungReference(pathID: .pullUp, stepID: ExerciseCatalog.lPullUpsID))))
+        #expect(
+            stack.rewards.currentCelebration == .single(.rungConquered(RungReference(pathID: .pullUp, stepID: ExerciseCatalog.lPullUpsID))))
         #expect(progressStore.saveCount == 1)
 
         stack.rewards.dismissCurrentCelebration()
@@ -393,9 +404,10 @@ struct RecalibrationTests {
     /// Including a declaration no answer can produce (an older mapping, or a
     /// preview seed): opening the sheet and tapping Zapisz changes nothing.
     @Test func savingWithoutAnsweringKeepsEveryDeclaration() throws {
-        let saved = SkillPlacement(declaredRungByPath: [.pullUp: 6, .core: 2, .pushUp: 3],
-                                   ownedEquipment: ["Resistance bands", "Rings"],
-                                   declaredAt: Self.onboardedAt)
+        let saved = SkillPlacement(
+            declaredRungByPath: [.pullUp: 6, .core: 2, .pushUp: 3],
+            ownedEquipment: ["Resistance bands", "Rings"],
+            declaredAt: Self.onboardedAt)
         let store = InMemorySkillPlacementStore(initial: saved)
         let viewModel = PlacementCalibrationViewModel(store: store, now: { Self.recalibratedAt })
         viewModel.load()
@@ -495,9 +507,10 @@ struct RecalibrationTests {
     func prefilledAnswersReproduceTheDeclaration(path: ProgressionPathID, bucket: RepCountBucket) {
         let saved = PlacementCalibration.placement(repAnswers: [path: bucket], masteredSkills: [], ownsBand: false)
         let answers = PlacementCalibration.answers(from: saved)
-        let rebuilt = PlacementCalibration.placement(repAnswers: answers.repAnswers,
-                                                     masteredSkills: answers.masteredSkills,
-                                                     ownsBand: false)
+        let rebuilt = PlacementCalibration.placement(
+            repAnswers: answers.repAnswers,
+            masteredSkills: answers.masteredSkills,
+            ownsBand: false)
         let isAmbiguous = bucket == .few || bucket == .several
         if isAmbiguous {
             #expect(answers.repAnswers[path] == nil)

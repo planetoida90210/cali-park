@@ -7,6 +7,7 @@
 //
 
 import Testing
+
 @testable import cali_park
 
 struct KeptTogetherTests {
@@ -30,7 +31,8 @@ struct KeptTogetherTests {
     func measuresNeverWrapFromTheirUnits() {
         #expect(MeasureFormat.seconds(90) == "90\(noBreakSpace)s")
         #expect(MeasureFormat.sets(3, of: 20, .seconds) == "3\(noBreakSpace)×\(noBreakSpace)20\(noBreakSpace)s")
-        #expect(ProgramFormat.restSummary(for: PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID, restSeconds: 90))
+        #expect(
+            ProgramFormat.restSummary(for: PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID, restSeconds: 90))
                 == "przerwa 90\(noBreakSpace)s")
     }
 

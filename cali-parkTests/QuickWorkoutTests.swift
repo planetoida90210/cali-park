@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - WorkoutLogEntry Codable (backward compatibility)
@@ -48,13 +49,13 @@ struct WorkoutLogEntryCodableTests {
     @Test
     func legacyJSONWithoutSessionIDDecodesToNil() throws {
         let json = """
-        {
-            "id": "11111111-1111-4111-8111-111111111111",
-            "exerciseID": "E0000000-0000-4000-8000-000000000001",
-            "date": "2026-01-01T10:00:00Z",
-            "sets": [{ "reps": 6 }, { "reps": 8 }]
-        }
-        """
+            {
+                "id": "11111111-1111-4111-8111-111111111111",
+                "exerciseID": "E0000000-0000-4000-8000-000000000001",
+                "date": "2026-01-01T10:00:00Z",
+                "sets": [{ "reps": 6 }, { "reps": 8 }]
+            }
+            """
         let data = Data(json.utf8)
 
         let decoded = try Self.decoder.decode(WorkoutLogEntry.self, from: data)
@@ -167,9 +168,10 @@ struct QuickWorkoutViewModelTests {
 
     @Test
     func finishFailureSurfacesErrorAndSavesNothing() async {
-        let earlier = WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID,
-                                      date: TestDate.epochDay(1),
-                                      sets: [LoggedSet(reps: 8)])
+        let earlier = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.dipsID,
+            date: TestDate.epochDay(1),
+            sets: [LoggedSet(reps: 8)])
         let journal = TrainingJournal(store: ReadOnlyWorkoutLogStore(entries: [earlier]))
         journal.reload()
         let viewModel = QuickWorkoutViewModel(journal: journal, clock: { TestDate.reference })
@@ -211,10 +213,12 @@ struct WorkoutLogStoreBatchTests {
         let store = FileWorkoutLogStore(directory: directory)
         let sessionID = UUID()
         let entries = [
-            WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, date: StoreFixtures.october1,
-                            sets: [LoggedSet(reps: 6)], sessionID: sessionID),
-            WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID, date: StoreFixtures.october1,
-                            sets: [LoggedSet(reps: 8)], sessionID: sessionID)
+            WorkoutLogEntry(
+                exerciseID: ExerciseCatalog.pullUpsID, date: StoreFixtures.october1,
+                sets: [LoggedSet(reps: 6)], sessionID: sessionID),
+            WorkoutLogEntry(
+                exerciseID: ExerciseCatalog.dipsID, date: StoreFixtures.october1,
+                sets: [LoggedSet(reps: 8)], sessionID: sessionID)
         ]
 
         try await store.append(contentsOf: entries)
@@ -230,14 +234,16 @@ struct WorkoutHistorySectionTests {
     @Test
     func sessionEntriesCollapseIntoOneSection() throws {
         let sessionID = UUID()
-        let a = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                                date: Date(timeIntervalSince1970: 3_000),
-                                sets: [LoggedSet(reps: 6)],
-                                sessionID: sessionID)
-        let b = WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID,
-                                date: Date(timeIntervalSince1970: 3_000),
-                                sets: [LoggedSet(reps: 8)],
-                                sessionID: sessionID)
+        let a = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.pullUpsID,
+            date: Date(timeIntervalSince1970: 3_000),
+            sets: [LoggedSet(reps: 6)],
+            sessionID: sessionID)
+        let b = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.dipsID,
+            date: Date(timeIntervalSince1970: 3_000),
+            sets: [LoggedSet(reps: 8)],
+            sessionID: sessionID)
         let viewModel = WorkoutHistoryViewModel(store: InMemoryWorkoutLogStore(initial: [a, b]))
 
         let sections = viewModel.sections
@@ -262,28 +268,32 @@ struct WorkoutHistorySectionTests {
     @Test
     func sectionsAreSortedNewestFirst() throws {
         let sessionID = UUID()
-        let sessionA = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                                       date: Date(timeIntervalSince1970: 3_000),
-                                       sets: [LoggedSet(reps: 6)],
-                                       sessionID: sessionID)
-        let sessionB = WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID,
-                                       date: Date(timeIntervalSince1970: 3_000),
-                                       sets: [LoggedSet(reps: 8)],
-                                       sessionID: sessionID)
-        let newest = WorkoutLogEntry(exerciseID: ExerciseCatalog.squatsID,
-                                     date: Date(timeIntervalSince1970: 5_000),
-                                     sets: [LoggedSet(reps: 20)])
-        let oldest = WorkoutLogEntry(exerciseID: ExerciseCatalog.plankID,
-                                     date: Date(timeIntervalSince1970: 1_000),
-                                     sets: [LoggedSet(value: 30, measurement: .seconds)])
+        let sessionA = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.pullUpsID,
+            date: Date(timeIntervalSince1970: 3_000),
+            sets: [LoggedSet(reps: 6)],
+            sessionID: sessionID)
+        let sessionB = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.dipsID,
+            date: Date(timeIntervalSince1970: 3_000),
+            sets: [LoggedSet(reps: 8)],
+            sessionID: sessionID)
+        let newest = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.squatsID,
+            date: Date(timeIntervalSince1970: 5_000),
+            sets: [LoggedSet(reps: 20)])
+        let oldest = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.plankID,
+            date: Date(timeIntervalSince1970: 1_000),
+            sets: [LoggedSet(value: 30, measurement: .seconds)])
         let viewModel = WorkoutHistoryViewModel(
             store: InMemoryWorkoutLogStore(initial: [sessionA, sessionB, newest, oldest])
         )
 
         let sections = viewModel.sections
         try #require(sections.count == 3)
-        #expect(sections[0].entries == [newest])   // 5000
-        #expect(sections[1].isSession)             // 3000 session
-        #expect(sections[2].entries == [oldest])   // 1000
+        #expect(sections[0].entries == [newest]) // 5000
+        #expect(sections[1].isSession) // 3000 session
+        #expect(sections[2].entries == [oldest]) // 1000
     }
 }

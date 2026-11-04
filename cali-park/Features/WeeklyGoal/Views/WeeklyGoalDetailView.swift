@@ -66,7 +66,7 @@ struct WeeklyGoalDetailView: View {
 
     /// A volume goal for `exercise`, keeping the amount when the unit stays.
     static func volume(for exercise: Exercise, keeping metric: WeeklyGoal.Metric) -> WeeklyGoal.Metric {
-        if case let .exerciseVolume(_, measurement, amount) = metric, measurement == exercise.measurement {
+        if case .exerciseVolume(_, let measurement, let amount) = metric, measurement == exercise.measurement {
             return .exerciseVolume(exerciseID: exercise.id, measurement: measurement, amount: amount)
         }
         let amount = exercise.measurement == .seconds ? 120 : 50
@@ -83,35 +83,42 @@ private struct WeeklyGoalTargetSection: View {
 
     var body: some View {
         switch metric {
-        case let .trainingDays(days):
+        case .trainingDays(let days):
             Section {
-                Stepper(value: Binding(get: { days }, set: { onChange(.trainingDays(days: $0)) }),
-                        in: WeeklyGoal.trainingDaysRange) {
+                Stepper(
+                    value: Binding(get: { days }, set: { onChange(.trainingDays(days: $0)) }),
+                    in: WeeklyGoal.trainingDaysRange
+                ) {
                     Text("\(PolishPlural.days(days)) w tygodniu")
                 }
             } footer: {
                 Text("Liczy się każdy dzień z przynajmniej jednym zapisanym treningiem. Dni odpoczynku wybierasz sam.")
             }
 
-        case let .plannedWorkouts(target):
+        case .plannedWorkouts(let target):
             Section {
-                Toggle("Wszystkie zaplanowane", isOn: Binding(
-                    get: { target == .allScheduled },
-                    set: { onChange(.plannedWorkouts(target: $0 ? .allScheduled : .count(workouts: 3))) }
-                ))
-                if case let .count(workouts) = target {
-                    Stepper(value: Binding(get: { workouts }, set: { onChange(.plannedWorkouts(target: .count(workouts: $0))) }),
-                            in: WeeklyGoal.plannedWorkoutsRange) {
+                Toggle(
+                    "Wszystkie zaplanowane",
+                    isOn: Binding(
+                        get: { target == .allScheduled },
+                        set: { onChange(.plannedWorkouts(target: $0 ? .allScheduled : .count(workouts: 3))) }
+                    ))
+                if case .count(let workouts) = target {
+                    Stepper(
+                        value: Binding(get: { workouts }, set: { onChange(.plannedWorkouts(target: .count(workouts: $0))) }),
+                        in: WeeklyGoal.plannedWorkoutsRange
+                    ) {
                         Text("\(PolishPlural.workouts(workouts)) w tygodniu")
                     }
                 }
             } footer: {
-                Text(target == .allScheduled
-                     ? "Cel to wszystkie treningi zaplanowane na dany tydzień. Trening przesunięty na inny dzień tego tygodnia też się liczy."
-                     : "Liczą się treningi rozpoczęte z planu, w dowolne dni.")
+                Text(
+                    target == .allScheduled
+                        ? "Cel to wszystkie treningi zaplanowane na dany tydzień. Trening przesunięty na inny dzień tego tygodnia też się liczy."
+                        : "Liczą się treningi rozpoczęte z planu, w dowolne dni.")
             }
 
-        case let .exerciseVolume(exerciseID, measurement, amount):
+        case .exerciseVolume(let exerciseID, let measurement, let amount):
             Section {
                 Button(action: onPickExercise) {
                     // The chevron shows the row opens the exercise picker.
@@ -131,9 +138,10 @@ private struct WeeklyGoalTargetSection: View {
                     onChange: { onChange(.exerciseVolume(exerciseID: exerciseID, measurement: measurement, amount: $0)) }
                 )
             } footer: {
-                Text(measurement == .seconds
-                     ? "Suma sekund w tygodniu, np. 3 minuty L-situ."
-                     : "Suma powtórzeń w tygodniu, np. 75 podciągnięć.")
+                Text(
+                    measurement == .seconds
+                        ? "Suma sekund w tygodniu, np. 3 minuty L-situ."
+                        : "Suma powtórzeń w tygodniu, np. 75 podciągnięć.")
             }
         }
     }

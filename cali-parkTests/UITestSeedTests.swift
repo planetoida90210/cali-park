@@ -52,8 +52,9 @@ struct UITestSeedTests {
     func thePlanTodaySeedHasAPlanDueToday() throws {
         let environment = AppEnvironment.uiTest(.planToday, defaults: .throwaway(), calendar: calendar, now: now)
         let plans = try environment.workoutPlanService.loadPlans()
-        let hero = HomeEngine.heroState(entries: environment.journal.newestFirst, plans: plans,
-                                        calendar: calendar, today: now)
+        let hero = HomeEngine.heroState(
+            entries: environment.journal.newestFirst, plans: plans,
+            calendar: calendar, today: now)
         guard case .planToday(let plan, 0, 0) = hero else {
             Issue.record("Hero is \(hero)")
             return
@@ -65,9 +66,10 @@ struct UITestSeedTests {
     func theVeteranSeedRestsTodayAndIsReadyForFundamentals() throws {
         let environment = AppEnvironment.uiTest(.veteran, defaults: .throwaway(), calendar: calendar, now: now)
         let plans = try environment.workoutPlanService.loadPlans()
-        let snapshot = HomeEngine.snapshot(entries: environment.journal.newestFirst, plans: plans,
-                                           progress: environment.progressService.snapshot,
-                                           calendar: calendar, today: now)
+        let snapshot = HomeEngine.snapshot(
+            entries: environment.journal.newestFirst, plans: plans,
+            progress: environment.progressService.snapshot,
+            calendar: calendar, today: now)
         guard case .restDay = snapshot.hero else {
             Issue.record("Hero is \(snapshot.hero)")
             return
@@ -96,8 +98,9 @@ struct UITestSeedTests {
         #expect(plan.name == "Fundamenty")
         #expect(plan.exercises.contains { $0.group != nil }, "The workout screen shows its pairs")
 
-        let goal = WeeklyGoalEvaluator.snapshot(history: .empty, entries: entries, plans: plans,
-                                                calendar: calendar, asOf: today)
+        let goal = WeeklyGoalEvaluator.snapshot(
+            history: .empty, entries: entries, plans: plans,
+            calendar: calendar, asOf: today)
         #expect(goal.streak == StoreTour.fullWeeks)
         #expect(goal.week.primary.target == 3)
         #expect(goal.week.primary.value == doneThisWeek)

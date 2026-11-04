@@ -46,11 +46,13 @@ final class WeeklyGoalService {
     }
 
     // MARK: Init
-    init(journal: TrainingJournal,
-         store: WeeklyGoalStoring,
-         planService: WorkoutPlanService,
-         calendar: Calendar = .current,
-         clock: @escaping () -> Date = { .now }) {
+    init(
+        journal: TrainingJournal,
+        store: WeeklyGoalStoring,
+        planService: WorkoutPlanService,
+        calendar: Calendar = .current,
+        clock: @escaping () -> Date = { .now }
+    ) {
         self.journal = journal
         self.store = store
         self.planService = planService

@@ -17,8 +17,8 @@ nonisolated enum QueuedCelebration: Equatable, Hashable, Identifiable, Sendable 
     /// The advances this overlay celebrates, in display order.
     var events: [CelebrationEvent] {
         switch self {
-        case let .single(event): [event]
-        case let .rungs(rungs): rungs.map(CelebrationEvent.rungConquered)
+        case .single(let event): [event]
+        case .rungs(let rungs): rungs.map(CelebrationEvent.rungConquered)
         }
     }
 
@@ -26,7 +26,7 @@ nonisolated enum QueuedCelebration: Equatable, Hashable, Identifiable, Sendable 
     /// when the overlay shows something else.
     var id: String {
         switch self {
-        case let .single(event): event.id
+        case .single(let event): event.id
         case .rungs: "rungs-" + events.map(\.id).joined(separator: "+")
         }
     }
@@ -48,7 +48,7 @@ nonisolated enum QueuedCelebration: Equatable, Hashable, Identifiable, Sendable 
         }
 
         for event in events {
-            if case let .rungConquered(rung) = event {
+            if case .rungConquered(let rung) = event {
                 rungs.append(rung)
             } else {
                 flushRungs()

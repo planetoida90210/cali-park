@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Helpers
@@ -136,8 +137,9 @@ struct ParkMapFavoritesTests {
     ) async -> (ParkMapViewModel, ParkFavorites) {
         let favorites = ParkFavorites(store: store ?? InMemoryFavoriteParkStore(initial: initial))
         let location = FixedLocationProvider(authorization: authorization, location: ParkFixtures.warsawCentre)
-        let viewModel = ParkMapViewModel(directory: InMemoryParkDirectory(parks: ParkFixtures.all),
-                                         location: location, favorites: favorites)
+        let viewModel = ParkMapViewModel(
+            directory: InMemoryParkDirectory(parks: ParkFixtures.all),
+            location: location, favorites: favorites)
         await viewModel.start()
         return (viewModel, favorites)
     }

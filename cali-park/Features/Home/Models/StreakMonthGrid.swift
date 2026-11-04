@@ -23,7 +23,7 @@ nonisolated struct StreakMonthGrid: Equatable {
     /// The grid of the month that contains `today`.
     init(month today: Date, calendar: Calendar) {
         guard let interval = calendar.dateInterval(of: .month, for: today),
-              let dayCount = calendar.range(of: .day, in: .month, for: today)?.count
+            let dayCount = calendar.range(of: .day, in: .month, for: today)?.count
         else {
             cells = []
             return

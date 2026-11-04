@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Fixtures
@@ -64,12 +65,12 @@ struct WorkoutScheduleTests {
 
     @Test(arguments: [
         // (referenceOffset, weekdays, expectedOffset) — reference day 0 is Thursday.
-        (0, [Weekday.thursday], 0),          // matches today
-        (0, [.friday], 1),                   // tomorrow
-        (0, [.monday], 4),                   // next Monday
-        (0, [.monday, .wednesday], 4),       // earliest of the two
-        (1, [.thursday], 7),                 // from Friday, next Thursday is a week out
-        (3, [.sunday], 3)                    // Sunday matches the reference day
+        (0, [Weekday.thursday], 0), // matches today
+        (0, [.friday], 1), // tomorrow
+        (0, [.monday], 4), // next Monday
+        (0, [.monday, .wednesday], 4), // earliest of the two
+        (1, [.thursday], 7), // from Friday, next Thursday is a week out
+        (3, [.sunday], 3) // Sunday matches the reference day
     ])
     func weeklyPicksEarliestMatchingDay(referenceOffset: Int, weekdays: [Weekday], expectedOffset: Int) {
         let schedule = WorkoutSchedule.weekly(Set(weekdays))
@@ -91,13 +92,13 @@ struct WorkoutScheduleTests {
 
     @Test(arguments: [
         // (interval, anchorOffset, referenceOffset, expectedOffset)
-        (7, 0, 0, 0),    // on the anchor day
-        (7, 0, 1, 7),    // one day past → next multiple
-        (7, 0, 7, 7),    // exactly one interval later
-        (7, 0, 8, 14),   // just past → two intervals
-        (3, 0, 2, 3),    // rounds up to the next multiple
-        (3, 0, 3, 3),    // lands on a multiple
-        (5, 10, 0, 10)   // anchor in the future → the anchor itself
+        (7, 0, 0, 0), // on the anchor day
+        (7, 0, 1, 7), // one day past → next multiple
+        (7, 0, 7, 7), // exactly one interval later
+        (7, 0, 8, 14), // just past → two intervals
+        (3, 0, 2, 3), // rounds up to the next multiple
+        (3, 0, 3, 3), // lands on a multiple
+        (5, 10, 0, 10) // anchor in the future → the anchor itself
     ])
     func everyNDaysAdvancesFromAnchor(interval: Int, anchorOffset: Int, referenceOffset: Int, expectedOffset: Int) {
         let schedule = WorkoutSchedule.everyNDays(interval, from: day(anchorOffset), in: PlannerFixtures.calendar)
@@ -107,7 +108,9 @@ struct WorkoutScheduleTests {
 
     @Test
     func everyNDaysRejectsNonPositiveInterval() {
-        #expect(WorkoutSchedule.everyNDays(0, from: day(0), in: PlannerFixtures.calendar).nextOccurrence(onOrAfter: day(0), calendar: calendar) == nil)
+        #expect(
+            WorkoutSchedule.everyNDays(0, from: day(0), in: PlannerFixtures.calendar).nextOccurrence(onOrAfter: day(0), calendar: calendar)
+                == nil)
     }
 
     @Test
@@ -121,7 +124,8 @@ struct WorkoutScheduleTests {
     func onceCountsTheSameDay() {
         let evening = calendar.date(byAdding: .hour, value: 20, to: day(3))!
         let morning = calendar.date(byAdding: .hour, value: 6, to: day(3))!
-        #expect(WorkoutSchedule.once(evening, in: PlannerFixtures.calendar).nextOccurrence(onOrAfter: morning, calendar: calendar) == day(3))
+        #expect(
+            WorkoutSchedule.once(evening, in: PlannerFixtures.calendar).nextOccurrence(onOrAfter: morning, calendar: calendar) == day(3))
     }
 
     @Test
@@ -155,11 +159,13 @@ struct WorkoutPlanTests {
 
     @Test
     func exerciseCountCountsEveryPlannedExercise() {
-        let plan = WorkoutPlan(name: "Push", exercises: [
-            PlannedExercise(exerciseID: UUID(), targetSets: 3),
-            PlannedExercise(exerciseID: UUID()),
-            PlannedExercise(exerciseID: UUID(), targetSets: 4)
-        ])
+        let plan = WorkoutPlan(
+            name: "Push",
+            exercises: [
+                PlannedExercise(exerciseID: UUID(), targetSets: 3),
+                PlannedExercise(exerciseID: UUID()),
+                PlannedExercise(exerciseID: UUID(), targetSets: 4)
+            ])
         #expect(plan.exerciseCount == 3)
     }
 }

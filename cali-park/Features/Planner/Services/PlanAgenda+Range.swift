@@ -6,9 +6,11 @@ nonisolated extension PlanAgenda {
     /// plans' own schedules, ordered by day and then by plan age. A plan
     /// counts only from the day it was created, so a new weekly plan does not
     /// appear in the days before it existed.
-    static func occurrences(of plans: [WorkoutPlan],
-                            in interval: DateInterval,
-                            calendar: Calendar = .current) -> [Occurrence] {
+    static func occurrences(
+        of plans: [WorkoutPlan],
+        in interval: DateInterval,
+        calendar: Calendar = .current
+    ) -> [Occurrence] {
         var result: [Occurrence] = []
         var day = calendar.startOfDay(for: interval.start)
         let ordered = plans.sorted {

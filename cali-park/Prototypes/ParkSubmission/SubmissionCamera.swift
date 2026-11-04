@@ -133,7 +133,8 @@ struct SamplePhotoView: View {
 
     var body: some View {
         Canvas { context, size in
-            let w = size.width, h = size.height
+            let w = size.width
+            let h = size.height
             let horizon = h * 0.62
             context.fill(
                 Path(CGRect(x: 0, y: 0, width: w, height: horizon)),
@@ -162,11 +163,14 @@ struct SamplePhotoView: View {
             }
             for i in 0..<(posts.count - 1) {
                 let y = barTop + Double((i + 1) % 2) * h * 0.06 + post
-                context.fill(Path(CGRect(x: w * posts[i], y: y, width: w * (posts[i + 1] - posts[i]) + post, height: post * 0.8)), with: steel)
+                context.fill(
+                    Path(CGRect(x: w * posts[i], y: y, width: w * (posts[i + 1] - posts[i]) + post, height: post * 0.8)), with: steel)
             }
             // Parallel bars in front.
             if scene != 2 {
-                let left = w * 0.55, right = w * 0.92, y = h * 0.66
+                let left = w * 0.55
+                let right = w * 0.92
+                let y = h * 0.66
                 for offset in [0.0, h * 0.05] {
                     context.fill(Path(CGRect(x: left, y: y + offset, width: right - left, height: post * 0.8)), with: steel)
                     context.fill(Path(CGRect(x: left + 4, y: y + offset, width: post * 0.8, height: h * 0.14)), with: steel)

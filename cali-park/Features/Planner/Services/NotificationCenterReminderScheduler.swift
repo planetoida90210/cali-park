@@ -1,6 +1,6 @@
 import Foundation
-import os
 import UserNotifications
+import os
 
 // MARK: - UserNotificationCentering
 /// The slice of `UNUserNotificationCenter` the reminder scheduler needs, in
@@ -84,9 +84,11 @@ actor NotificationCenterReminderScheduler: WorkoutReminderScheduling {
     /// The latest queued reschedule; the next one waits for it.
     private var lastRun: Task<Void, Error>?
 
-    init(center: UserNotificationCentering,
-         calendar: Calendar = .current,
-         clock: @escaping @Sendable () -> Date = { .now }) {
+    init(
+        center: UserNotificationCentering,
+        calendar: Calendar = .current,
+        clock: @escaping @Sendable () -> Date = { .now }
+    ) {
         self.center = center
         self.calendar = calendar
         self.clock = clock

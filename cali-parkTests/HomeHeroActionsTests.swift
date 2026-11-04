@@ -11,14 +11,18 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 @MainActor
 struct HomeHeroActionsTests {
-    private func makeHome(logStore: WorkoutLogStoring,
-                          planStore: WorkoutPlanStoring) -> HomeHarness {
-        HomeHarness(logStore: logStore, planStore: planStore,
-                    calendar: TestCalendar.utc, clock: { TestDate.reference })
+    private func makeHome(
+        logStore: WorkoutLogStoring,
+        planStore: WorkoutPlanStoring
+    ) -> HomeHarness {
+        HomeHarness(
+            logStore: logStore, planStore: planStore,
+            calendar: TestCalendar.utc, clock: { TestDate.reference })
     }
 
     /// planToday → tapping "Rozpocznij" (a plan-seeded quick workout) and
@@ -103,7 +107,7 @@ struct HomeHeroActionsTests {
         dashboard.reload()
         await home.settle()
 
-        guard case let .planToday(resolvedPlan, loggedTodayReps, _) = dashboard.heroState() else {
+        guard case .planToday(let resolvedPlan, let loggedTodayReps, _) = dashboard.heroState() else {
             Issue.record("expected .planToday after a free log")
             return
         }

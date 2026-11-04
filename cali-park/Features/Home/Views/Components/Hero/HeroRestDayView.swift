@@ -49,9 +49,11 @@ struct HeroRestDayView: View {
 // MARK: - Preview
 #Preview("Dzień przerwy") {
     HeroRestDayView(
-        nextPlan: WorkoutPlan(name: "Pull Day", exercises: [
-            PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)
-        ]),
+        nextPlan: WorkoutPlan(
+            name: "Pull Day",
+            exercises: [
+                PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)
+            ]),
         date: Calendar.current.date(byAdding: .day, value: 1, to: .now)!,
         weeklyGoal: WeeklyGoalPreview.running,
         progressionHint: "Jeszcze 5 s do 3 × 20 s — następny szczebel: Advanced tuck front lever"

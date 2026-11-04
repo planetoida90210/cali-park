@@ -39,10 +39,12 @@ final class WeeklyGoalEditorViewModel: Identifiable {
     private let logger = AppLog.logger(category: "WeeklyGoalEditor")
 
     // MARK: Init
-    init(store: WeeklyGoalStoring,
-         journal: TrainingJournal,
-         calendar: Calendar = .current,
-         clock: @escaping () -> Date = { .now }) {
+    init(
+        store: WeeklyGoalStoring,
+        journal: TrainingJournal,
+        calendar: Calendar = .current,
+        clock: @escaping () -> Date = { .now }
+    ) {
         self.store = store
         self.journal = journal
         self.calendar = calendar
@@ -138,12 +140,14 @@ final class WeeklyGoalEditorViewModel: Identifiable {
         }
         let logs = journal.entries
         let now = clock()
-        guard let updated = history.settingGoals(
-            goals,
-            at: now,
-            implicitStart: WeeklyGoalEvaluator.implicitStart(entries: logs, asOf: now),
-            calendar: calendar
-        ) else { return false }
+        guard
+            let updated = history.settingGoals(
+                goals,
+                at: now,
+                implicitStart: WeeklyGoalEvaluator.implicitStart(entries: logs, asOf: now),
+                calendar: calendar
+            )
+        else { return false }
         do {
             if updated != history { try store.save(updated) }
         } catch {
@@ -182,11 +186,12 @@ final class WeeklyGoalEditorViewModel: Identifiable {
         guard canEdit else { return }
         let now = clock()
         let today = calendar.startOfDay(for: now)
-        let end: Date? = switch length {
-        case .week: calendar.date(byAdding: .day, value: 7, to: today)
-        case .month: calendar.date(byAdding: .month, value: 1, to: today)
-        case let .through(lastDay): calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: lastDay))
-        }
+        let end: Date? =
+            switch length {
+            case .week: calendar.date(byAdding: .day, value: 7, to: today)
+            case .month: calendar.date(byAdding: .month, value: 1, to: today)
+            case .through(let lastDay): calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: lastDay))
+            }
         guard let end else { return }
         updateHistory { $0.startingPause(at: now, until: end, calendar: calendar) }
     }

@@ -8,11 +8,13 @@ struct ParkListEmptyState: View {
 
     var body: some View {
         if viewModel.listFilter == .favorites && viewModel.favoritesUnreadable {
-            ContentUnavailableView("Ulubione niedostępne", systemImage: "exclamationmark.triangle",
-                                   description: Text(ParkFavorites.loadFailureMessage))
+            ContentUnavailableView(
+                "Ulubione niedostępne", systemImage: "exclamationmark.triangle",
+                description: Text(ParkFavorites.loadFailureMessage))
         } else if viewModel.listFilter == .favorites && !viewModel.isSearching {
-            ContentUnavailableView("Brak ulubionych Parków", systemImage: "heart",
-                                   description: Text("Stuknij serce na karcie Parku, a zapiszesz go tutaj."))
+            ContentUnavailableView(
+                "Brak ulubionych Parków", systemImage: "heart",
+                description: Text("Stuknij serce na karcie Parku, a zapiszesz go tutaj."))
         } else {
             ContentUnavailableView.search(text: viewModel.searchText)
         }

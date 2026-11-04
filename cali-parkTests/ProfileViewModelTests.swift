@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 @MainActor
@@ -24,16 +25,21 @@ struct ProfileViewModelTests {
     }()
 
     /// A profile over the shared services, plus the journal to log through.
-    private func profile(log: WorkoutLogStoring = InMemoryWorkoutLogStore(initial: entries),
-                         goal: WeeklyGoalStoring = InMemoryWeeklyGoalStore()) -> (ProfileViewModel, TrainingJournal) {
+    private func profile(
+        log: WorkoutLogStoring = InMemoryWorkoutLogStore(initial: entries),
+        goal: WeeklyGoalStoring = InMemoryWeeklyGoalStore()
+    ) -> (ProfileViewModel, TrainingJournal) {
         let journal = TrainingJournal(store: log)
-        let progress = ProgressService(journal: journal, placementStore: InMemorySkillPlacementStore(),
-                                       calendar: F.calendar, clock: { Self.now })
-        let goals = WeeklyGoalService(journal: journal, store: goal,
-                                      planService: .testing(InMemoryWorkoutPlanStore(), logStore: log),
-                                      calendar: F.calendar, clock: { Self.now })
-        let model = ProfileViewModel(journal: journal, progress: progress, goals: goals,
-                                     calendar: F.calendar, clock: { Self.now })
+        let progress = ProgressService(
+            journal: journal, placementStore: InMemorySkillPlacementStore(),
+            calendar: F.calendar, clock: { Self.now })
+        let goals = WeeklyGoalService(
+            journal: journal, store: goal,
+            planService: .testing(InMemoryWorkoutPlanStore(), logStore: log),
+            calendar: F.calendar, clock: { Self.now })
+        let model = ProfileViewModel(
+            journal: journal, progress: progress, goals: goals,
+            calendar: F.calendar, clock: { Self.now })
         return (model, journal)
     }
 
@@ -60,9 +66,11 @@ struct ProfileViewModelTests {
 
     @Test("The weekly goal row shows the primary goal and this week's progress")
     func weeklyGoalCopy() {
-        let (model, _) = profile(goal: InMemoryWeeklyGoalStore(initial: WeeklyGoalHistory(versions: [
-            F.version([F.days(4)], from: F.day(week: -3))
-        ])))
+        let (model, _) = profile(
+            goal: InMemoryWeeklyGoalStore(
+                initial: WeeklyGoalHistory(versions: [
+                    F.version([F.days(4)], from: F.day(week: -3))
+                ])))
 
         #expect(model.weeklyGoalTitle == "4 dni treningowe")
         #expect(model.weeklyGoalProgressText == "Ten tydzień: 3 / 4 dni")
@@ -71,10 +79,12 @@ struct ProfileViewModelTests {
     @Test("A paused week shows only the pause, not \"Ten tydzień: Pauza…\"")
     func pausedWeekCopy() throws {
         let pause = WeeklyGoalPause(start: F.day(week: 0, hour: 0), plannedEnd: F.day(week: 1, hour: 0))
-        let (model, _) = profile(goal: InMemoryWeeklyGoalStore(initial: WeeklyGoalHistory(
-            versions: [F.version([F.days(4)], from: F.day(week: -3))],
-            pauses: [pause]
-        )))
+        let (model, _) = profile(
+            goal: InMemoryWeeklyGoalStore(
+                initial: WeeklyGoalHistory(
+                    versions: [F.version([F.days(4)], from: F.day(week: -3))],
+                    pauses: [pause]
+                )))
 
         let text = try #require(model.weeklyGoalProgressText)
         #expect(text == WeeklyGoalFormat.pauseLine(pause, calendar: F.calendar))

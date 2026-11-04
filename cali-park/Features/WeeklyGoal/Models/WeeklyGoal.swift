@@ -36,14 +36,14 @@ nonisolated struct WeeklyGoal: Identifiable, Codable, Hashable, Sendable {
         /// Whether the target is inside the range the editor offers.
         var isValid: Bool {
             switch self {
-            case let .trainingDays(days):
+            case .trainingDays(let days):
                 WeeklyGoal.trainingDaysRange.contains(days)
-            case let .plannedWorkouts(target):
+            case .plannedWorkouts(let target):
                 switch target {
                 case .allScheduled: true
-                case let .count(workouts): WeeklyGoal.plannedWorkoutsRange.contains(workouts)
+                case .count(let workouts): WeeklyGoal.plannedWorkoutsRange.contains(workouts)
                 }
-            case let .exerciseVolume(_, _, amount):
+            case .exerciseVolume(_, _, let amount):
                 WeeklyGoal.volumeRange.contains(amount)
             }
         }

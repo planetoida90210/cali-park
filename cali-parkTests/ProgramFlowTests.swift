@@ -1,18 +1,22 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 private typealias E = ExerciseCatalog
 
 @MainActor
-private func makeStarter(plans: WorkoutPlanStoring = InMemoryWorkoutPlanStore(),
-                         logs: WorkoutLogStoring = InMemoryWorkoutLogStore(),
-                         placement: SkillPlacement? = nil) -> ProgramStarter {
-    ProgramStarter(planService: .testing(plans),
-                   logStore: logs,
-                   placementStore: InMemorySkillPlacementStore(initial: placement),
-                   calendar: ProgramFixtures.calendar,
-                   clock: { ProgramFixtures.today })
+private func makeStarter(
+    plans: WorkoutPlanStoring = InMemoryWorkoutPlanStore(),
+    logs: WorkoutLogStoring = InMemoryWorkoutLogStore(),
+    placement: SkillPlacement? = nil
+) -> ProgramStarter {
+    ProgramStarter(
+        planService: .testing(plans),
+        logStore: logs,
+        placementStore: InMemorySkillPlacementStore(initial: placement),
+        calendar: ProgramFixtures.calendar,
+        clock: { ProgramFixtures.today })
 }
 
 // MARK: - Starter
@@ -76,8 +80,9 @@ struct ProgramDetailViewModelTests {
     @Test
     func noHintOnceFullPullUpsAreReached() {
         let placement = SkillPlacement(declaredStepByPath: [.pullUp: E.pullUpsID], declaredAt: ProgramFixtures.today)
-        let viewModel = ProgramDetailViewModel(program: ProgramCatalog.fundamentals,
-                                               starter: makeStarter(placement: placement))
+        let viewModel = ProgramDetailViewModel(
+            program: ProgramCatalog.fundamentals,
+            starter: makeStarter(placement: placement))
         viewModel.reload()
         #expect(viewModel.showsFirstPullUpHint == false)
     }
@@ -106,8 +111,9 @@ struct ProgramDetailViewModelTests {
         #expect(viewModel.errorMessage == nil)
 
         // The created plan opens in the normal editor, which keeps the origin.
-        let editor = PlanEditorViewModel(plan: created.first, service: .testing(store),
-                                         calendar: ProgramFixtures.calendar, now: ProgramFixtures.today)
+        let editor = PlanEditorViewModel(
+            plan: created.first, service: .testing(store),
+            calendar: ProgramFixtures.calendar, now: ProgramFixtures.today)
         #expect(editor.programOrigin?.line == "Program Skille · wersja 1")
         #expect(editor.editedPlan.programID == "skills")
         #expect(editor.editedPlan.exercises == created.first?.exercises)
@@ -116,8 +122,9 @@ struct ProgramDetailViewModelTests {
     @Test
     func unreadableJournalShowsAnErrorAndBlocksCreating() async {
         let store = InMemoryWorkoutPlanStore()
-        let viewModel = ProgramDetailViewModel(program: ProgramCatalog.fundamentals,
-                                               starter: makeStarter(plans: store, logs: UnreadableWorkoutLogStore()))
+        let viewModel = ProgramDetailViewModel(
+            program: ProgramCatalog.fundamentals,
+            starter: makeStarter(plans: store, logs: UnreadableWorkoutLogStore()))
         #expect(viewModel.hasLoadError == false, "The init reads nothing")
         #expect(viewModel.errorMessage == nil)
         viewModel.reload()
@@ -132,8 +139,9 @@ struct ProgramDetailViewModelTests {
 
     @Test
     func failedSaveShowsAnError() async {
-        let viewModel = ProgramDetailViewModel(program: ProgramCatalog.minimum,
-                                               starter: makeStarter(plans: ReadOnlyPlanStore()))
+        let viewModel = ProgramDetailViewModel(
+            program: ProgramCatalog.minimum,
+            starter: makeStarter(plans: ReadOnlyPlanStore()))
 
         await viewModel.create()
 
@@ -163,11 +171,13 @@ struct ProgramFormatTests {
         let practice = PlannedExercise(exerciseID: E.wallPlankID, timeBoxMinutes: 10)
         let lSit = PlannedExercise(exerciseID: E.oneLegLSitID, targetSeconds: 30, targetSecondsMin: 10, totalSeconds: 180)
 
-        #expect(ProgramFormat.doseSummary(for: taps, exercise: E.exercise(withID: E.plankShoulderTapsID))
+        #expect(
+            ProgramFormat.doseSummary(for: taps, exercise: E.exercise(withID: E.plankShoulderTapsID))
                 == "2–6 rund · 1–2 powtórzenia w zapasie na stronę".keptTogether)
         #expect(ProgramFormat.groupLabel(for: taps, in: [taps]) == "Obwód")
         #expect(ProgramFormat.doseSummary(for: practice, exercise: nil) == "do 10 min praktyki".keptTogether)
-        #expect(ProgramFormat.doseSummary(for: lSit, exercise: E.exercise(withID: E.oneLegLSitID))
+        #expect(
+            ProgramFormat.doseSummary(for: lSit, exercise: E.exercise(withID: E.oneLegLSitID))
                 == "łącznie do 3 min, holdy 10–30 s na stronę".keptTogether)
     }
 
@@ -250,15 +260,19 @@ struct ProgramChoiceViewModelTests {
 @Suite("A session from a program plan trains the current rung")
 struct ProgramSessionTests {
     private static func firstPullUpPlan() throws -> WorkoutPlan {
-        try #require(ProgramPrescriber.plans(for: ProgramCatalog.firstPullUp,
-                                             pathStates: ProgramFixtures.newcomer,
-                                             today: ProgramFixtures.today).first)
+        try #require(
+            ProgramPrescriber.plans(
+                for: ProgramCatalog.firstPullUp,
+                pathStates: ProgramFixtures.newcomer,
+                today: ProgramFixtures.today
+            ).first)
     }
 
     @Test
     func holdsPrefillAsSeconds() throws {
-        let session = QuickWorkoutViewModel(store: InMemoryWorkoutLogStore(), plan: try Self.firstPullUpPlan(),
-                                            pathStates: ProgramFixtures.newcomer, logs: [])
+        let session = QuickWorkoutViewModel(
+            store: InMemoryWorkoutLogStore(), plan: try Self.firstPullUpPlan(),
+            pathStates: ProgramFixtures.newcomer, logs: [])
 
         let deadHang = try #require(session.items.first)
         #expect(deadHang.exercise.id == E.deadHangID)
@@ -271,12 +285,13 @@ struct ProgramSessionTests {
             ProgramFixtures.hold(E.deadHangID, 30),
             ProgramFixtures.reps(E.inclineRowsID, 6)
         ]
-        let session = QuickWorkoutViewModel(store: InMemoryWorkoutLogStore(), plan: try Self.firstPullUpPlan(),
-                                            pathStates: ProgramFixtures.states(logs: logs), logs: logs)
+        let session = QuickWorkoutViewModel(
+            store: InMemoryWorkoutLogStore(), plan: try Self.firstPullUpPlan(),
+            pathStates: ProgramFixtures.states(logs: logs), logs: logs)
 
         #expect(session.items.map(\.exercise.id) == [E.scapularPullsID, E.inclineRowsID, E.wallPushUpsID, E.assistedSquatsID])
-        #expect(session.items[0].sets.map(\.reps) == [5, 5, 5])   // new rung: bottom of 3 × 5–8
-        #expect(session.items[1].sets.map(\.reps) == [7, 7, 7])   // last session 6 → +1
+        #expect(session.items[0].sets.map(\.reps) == [5, 5, 5]) // new rung: bottom of 3 × 5–8
+        #expect(session.items[1].sets.map(\.reps) == [7, 7, 7]) // last session 6 → +1
     }
 
     @Test
@@ -299,11 +314,12 @@ struct ProgramSessionTests {
     func homeStartsProgramPlansOnTheCurrentRung() throws {
         let plan = try Self.firstPullUpPlan()
         let placement = SkillPlacement(declaredStepByPath: [.pullUp: E.archHangID], declaredAt: ProgramFixtures.today)
-        let home = HomeHarness(logStore: InMemoryWorkoutLogStore(),
-                               planStore: InMemoryWorkoutPlanStore(initial: [plan]),
-                               placementStore: InMemorySkillPlacementStore(initial: placement),
-                               calendar: ProgramFixtures.calendar,
-                               clock: { ProgramFixtures.today })
+        let home = HomeHarness(
+            logStore: InMemoryWorkoutLogStore(),
+            planStore: InMemoryWorkoutPlanStore(initial: [plan]),
+            placementStore: InMemorySkillPlacementStore(initial: placement),
+            calendar: ProgramFixtures.calendar,
+            clock: { ProgramFixtures.today })
 
         let session = home.makeQuickWorkoutViewModel(plan: plan)
 
@@ -314,11 +330,12 @@ struct ProgramSessionTests {
     func homeKeepsStoredExercisesWhenTheJournalIsUnreadable() throws {
         let plan = try Self.firstPullUpPlan()
         let placement = SkillPlacement(declaredStepByPath: [.pullUp: E.archHangID], declaredAt: ProgramFixtures.today)
-        let home = HomeHarness(logStore: UnreadableWorkoutLogStore(),
-                               planStore: InMemoryWorkoutPlanStore(initial: [plan]),
-                               placementStore: InMemorySkillPlacementStore(initial: placement),
-                               calendar: ProgramFixtures.calendar,
-                               clock: { ProgramFixtures.today })
+        let home = HomeHarness(
+            logStore: UnreadableWorkoutLogStore(),
+            planStore: InMemoryWorkoutPlanStore(initial: [plan]),
+            placementStore: InMemorySkillPlacementStore(initial: placement),
+            calendar: ProgramFixtures.calendar,
+            clock: { ProgramFixtures.today })
 
         let session = home.makeQuickWorkoutViewModel(plan: plan)
 
@@ -332,8 +349,9 @@ struct ProgramSessionTests {
 @Suite("Utwórz plan: Anuluj deletes the new plan, a second copy asks first", .timeLimit(.minutes(1)))
 struct ProgramCreateCancelTests {
     private func editor(for plan: WorkoutPlan?, service: WorkoutPlanService, isJustCreated: Bool) -> PlanEditorViewModel {
-        PlanEditorViewModel(plan: plan, service: service, isJustCreated: isJustCreated,
-                            calendar: ProgramFixtures.calendar, now: ProgramFixtures.today)
+        PlanEditorViewModel(
+            plan: plan, service: service, isJustCreated: isJustCreated,
+            calendar: ProgramFixtures.calendar, now: ProgramFixtures.today)
     }
 
     @Test

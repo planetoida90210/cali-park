@@ -23,9 +23,11 @@ final class WorkoutPlansViewModel {
     // MARK: Init
     /// Reads nothing: the view builds this in its `init`, which SwiftUI may
     /// run many times, and calls `reload()` on appear instead (D-6).
-    init(service: WorkoutPlanService,
-         calendar: Calendar = .current,
-         now: @escaping () -> Date = { .now }) {
+    init(
+        service: WorkoutPlanService,
+        calendar: Calendar = .current,
+        now: @escaping () -> Date = { .now }
+    ) {
         self.service = service
         self.calendar = calendar
         self.now = now

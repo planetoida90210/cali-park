@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - ExerciseCatalog integrity
@@ -118,16 +119,16 @@ struct ExerciseCatalogTests {
         // Payload shaped like a catalog snapshot encoded before `measurement`
         // and `variantOf` existed — both must decode to their defaults.
         let json = """
-        {
-            "id": "E0000000-0000-4000-8000-000000000001",
-            "name": "Podciągnięcia",
-            "category": "basic",
-            "muscleGroups": ["back", "arms"],
-            "description": "Test",
-            "instructions": ["a", "b", "c"],
-            "symbolName": "figure.climbing"
-        }
-        """
+            {
+                "id": "E0000000-0000-4000-8000-000000000001",
+                "name": "Podciągnięcia",
+                "category": "basic",
+                "muscleGroups": ["back", "arms"],
+                "description": "Test",
+                "instructions": ["a", "b", "c"],
+                "symbolName": "figure.climbing"
+            }
+            """
         let decoded = try JSONDecoder().decode(Exercise.self, from: Data(json.utf8))
         #expect(decoded.measurement == .reps)
         #expect(decoded.variantOf == nil)

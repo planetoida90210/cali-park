@@ -10,6 +10,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Copy formatting
@@ -96,8 +97,10 @@ struct ProgressionFormatTests {
 
 @MainActor
 struct SkillPathsViewModelTests {
-    private func makeViewModel(logs: [WorkoutLogEntry] = [],
-                               placement: SkillPlacement? = nil) -> SkillPathsViewModel {
+    private func makeViewModel(
+        logs: [WorkoutLogEntry] = [],
+        placement: SkillPlacement? = nil
+    ) -> SkillPathsViewModel {
         TrainingStack(
             logStore: InMemoryWorkoutLogStore(initial: logs),
             placementStore: InMemorySkillPlacementStore(initial: placement)

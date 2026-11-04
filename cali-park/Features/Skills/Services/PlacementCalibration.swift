@@ -63,19 +63,22 @@ nonisolated enum PlacementCalibration {
     static let skillQuestions: [SkillQuestion] = [
         SkillQuestion(id: "muscleUp", path: .muscleUp, label: String(localized: "Muscle-up"), step: ExerciseCatalog.muscleUpID),
         SkillQuestion(id: "fullLSit", path: .lSit, label: String(localized: "Pełny L-sit"), step: ExerciseCatalog.lSitID),
-        SkillQuestion(id: "pistolSquat", path: .legs,
-                      label: String(localized: "Pistolet (przysiad na jednej nodze)"),
-                      step: ExerciseCatalog.pistolSquatsID)
+        SkillQuestion(
+            id: "pistolSquat", path: .legs,
+            label: String(localized: "Pistolet (przysiad na jednej nodze)"),
+            step: ExerciseCatalog.pistolSquatsID)
     ]
 
     // MARK: Reducer
     /// The placement declared by a set of answers. Several answers targeting the
     /// same path resolve to the highest declared rung, matching the engine's
     /// "everything below the current rung is conquered" rule.
-    static func placement(repAnswers: [ProgressionPathID: RepCountBucket],
-                          masteredSkills: Set<String>,
-                          ownsBand: Bool,
-                          declaredAt: Date = .now) -> SkillPlacement {
+    static func placement(
+        repAnswers: [ProgressionPathID: RepCountBucket],
+        masteredSkills: Set<String>,
+        ownsBand: Bool,
+        declaredAt: Date = .now
+    ) -> SkillPlacement {
         var declared: [ProgressionPathID: RungReference] = [:]
 
         // Keeps the higher of two declarations on one path, by current position.
@@ -98,7 +101,8 @@ nonisolated enum PlacementCalibration {
         // A bottom-rung declaration is identical to no declaration (nothing
         // below to conquer), so drop it to keep the stored map minimal and
         // meaningful.
-        let meaningfulDeclarations = declared
+        let meaningfulDeclarations =
+            declared
             .filter { ($0.value.rungIndex ?? 0) > 0 }
             .mapValues(\.stepID)
 
@@ -116,8 +120,10 @@ nonisolated enum PlacementCalibration {
     /// itself), or that no answer declares, stays unanswered. `merging` keeps
     /// the saved declaration for such a path as long as the athlete does not
     /// answer it again.
-    static func answers(from placement: SkillPlacement) -> (repAnswers: [ProgressionPathID: RepCountBucket],
-                                                             masteredSkills: Set<String>) {
+    static func answers(from placement: SkillPlacement) -> (
+        repAnswers: [ProgressionPathID: RepCountBucket],
+        masteredSkills: Set<String>
+    ) {
         var repAnswers: [ProgressionPathID: RepCountBucket] = [:]
         var masteredSkills: Set<String> = []
 
@@ -152,9 +158,11 @@ nonisolated enum PlacementCalibration {
     ///     session.
     ///   - saved: The placement saved before this session, or `nil` on first
     ///     calibration.
-    static func merging(_ answers: SkillPlacement,
-                        answeredPaths: Set<ProgressionPathID>,
-                        into saved: SkillPlacement?) -> SkillPlacement {
+    static func merging(
+        _ answers: SkillPlacement,
+        answeredPaths: Set<ProgressionPathID>,
+        into saved: SkillPlacement?
+    ) -> SkillPlacement {
         guard let saved else { return answers }
 
         var declarations = saved.declaredStepByPath.filter { !answeredPaths.contains($0.key) }

@@ -185,8 +185,10 @@ private struct ParkDetailRow: View {
         osmRefs: ["n13608564606"],
         generatedName: "Street workout · Skwer Młodego Strażaka",
         locality: Locality(city: "Gliwice", district: "Ostropa"),
-        equipment: [ParkEquipment(type: .horizontalBar, count: 7, heights: [.low, .high]),
-                    ParkEquipment(type: .parallelBars, count: 2)],
+        equipment: [
+            ParkEquipment(type: .horizontalBar, count: 7, heights: [.low, .high]),
+            ParkEquipment(type: .parallelBars, count: 2)
+        ],
         hasMachines: true, surface: .rubber, lit: false, openingHours: "Mo-Su 06:00-22:00"
     )
     ScrollView {

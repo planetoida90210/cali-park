@@ -35,8 +35,8 @@ nonisolated struct SkillProgress: Codable, Equatable, Sendable {
     func markingCelebrated(_ event: CelebrationEvent) -> SkillProgress {
         var progress = self
         switch event {
-        case let .rungConquered(rung): progress.celebratedRungs.insert(rung)
-        case let .levelReached(level): progress.celebratedLevel = max(progress.celebratedLevel, level)
+        case .rungConquered(let rung): progress.celebratedRungs.insert(rung)
+        case .levelReached(let level): progress.celebratedLevel = max(progress.celebratedLevel, level)
         }
         return progress
     }

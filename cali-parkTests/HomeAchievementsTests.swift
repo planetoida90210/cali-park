@@ -11,6 +11,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Fixtures
@@ -100,8 +101,10 @@ struct ProgressionHintTests {
 
 @MainActor
 struct HomeAchievementsSummaryTests {
-    private func dashboard(entries: [WorkoutLogEntry] = [],
-                           placement: SkillPlacement? = nil) -> HomeDashboardViewModel {
+    private func dashboard(
+        entries: [WorkoutLogEntry] = [],
+        placement: SkillPlacement? = nil
+    ) -> HomeDashboardViewModel {
         HomeDashboardViewModel(
             store: InMemoryWorkoutLogStore(initial: entries),
             planService: .testing(InMemoryWorkoutPlanStore(initial: [])),

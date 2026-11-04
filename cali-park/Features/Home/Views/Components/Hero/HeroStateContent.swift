@@ -19,7 +19,7 @@ struct HeroStateContent: View {
 
     var body: some View {
         switch state {
-        case let .planToday(plan, loggedTodayReps, loggedTodaySeconds):
+        case .planToday(let plan, let loggedTodayReps, let loggedTodaySeconds):
             HeroPlanTodayView(
                 plan: plan,
                 loggedTodayReps: loggedTodayReps,
@@ -30,7 +30,7 @@ struct HeroStateContent: View {
                 onStart: { onStartPlan(plan) }
             )
 
-        case let .completedToday(summary, _):
+        case .completedToday(let summary, _):
             HeroCompletedTodayView(
                 summary: summary,
                 weeklyGoal: weeklyGoal,
@@ -38,7 +38,7 @@ struct HeroStateContent: View {
                 now: now
             )
 
-        case let .restDay(nextPlan, date, _):
+        case .restDay(let nextPlan, let date, _):
             HeroRestDayView(
                 nextPlan: nextPlan,
                 date: date,
@@ -49,7 +49,7 @@ struct HeroStateContent: View {
                 now: now
             )
 
-        case let .freeMode(lastWorkout, suggestion, _):
+        case .freeMode(let lastWorkout, let suggestion, _):
             HeroFreeModeView(
                 lastWorkout: lastWorkout,
                 suggestion: suggestion,

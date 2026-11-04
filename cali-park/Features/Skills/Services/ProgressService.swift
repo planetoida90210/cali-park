@@ -57,10 +57,12 @@ final class ProgressService {
     private let clock: () -> Date
 
     // MARK: Init
-    init(journal: TrainingJournal,
-         placementStore: SkillPlacementStoring,
-         calendar: Calendar = .current,
-         clock: @escaping () -> Date = { .now }) {
+    init(
+        journal: TrainingJournal,
+        placementStore: SkillPlacementStoring,
+        calendar: Calendar = .current,
+        clock: @escaping () -> Date = { .now }
+    ) {
         self.journal = journal
         self.placementStore = placementStore
         self.calendar = calendar
@@ -75,8 +77,9 @@ final class ProgressService {
         placement = loadedPlacement
         // Synchronous once: the journal is already read, and the first screen
         // must not show empty progress.
-        let input = Input(logs: journal.entries, placement: loadedPlacement, calendar: calendar,
-                          today: clock(), revision: journal.revision)
+        let input = Input(
+            logs: journal.entries, placement: loadedPlacement, calendar: calendar,
+            today: clock(), revision: journal.revision)
         snapshot = input.snapshot()
         revision = input.revision
         computationCount = 1
@@ -141,8 +144,9 @@ final class ProgressService {
     /// The inputs of a snapshot now. `revision` grows with every journal or
     /// placement change, as both counters only grow.
     private func currentInput() -> Input {
-        Input(logs: journal.entries, placement: placement, calendar: calendar,
-              today: clock(), revision: journal.revision + placementRevision)
+        Input(
+            logs: journal.entries, placement: placement, calendar: calendar,
+            today: clock(), revision: journal.revision + placementRevision)
     }
 
     /// Starts computing a snapshot for the current inputs off the main actor,

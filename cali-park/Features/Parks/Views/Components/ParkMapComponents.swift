@@ -148,11 +148,12 @@ extension View {
             ParkVerificationBadge(verification: .osm)
             ParkVerificationBadge(verification: .verified)
         }
-        EquipmentChips(equipment: [
-            ParkEquipment(type: .horizontalBar, count: 3),
-            ParkEquipment(type: .parallelBars),
-            ParkEquipment(type: .rings)
-        ], limit: 2)
+        EquipmentChips(
+            equipment: [
+                ParkEquipment(type: .horizontalBar, count: 3),
+                ParkEquipment(type: .parallelBars),
+                ParkEquipment(type: .rings)
+            ], limit: 2)
         OSMAttributionLink()
     }
     .padding()

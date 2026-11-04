@@ -195,9 +195,15 @@ nonisolated extension ParkVerification {
     var explanation: String {
         switch self {
         case .osm:
-            String(localized: "Dane pochodzą z OpenStreetMap, otwartej mapy tworzonej przez wolontariuszy. Nikt z CaliPark jeszcze ich nie sprawdził na miejscu, więc mogą być nieaktualne.")
+            String(
+                localized:
+                    "Dane pochodzą z OpenStreetMap, otwartej mapy tworzonej przez wolontariuszy. Nikt z CaliPark jeszcze ich nie sprawdził na miejscu, więc mogą być nieaktualne."
+            )
         case .community:
-            String(localized: "Park dodała osoba ze Społeczności, ze zdjęciem z miejsca. Moderator sprawdził Zgłoszenie, ale ekipa CaliPark jeszcze tu nie była.")
+            String(
+                localized:
+                    "Park dodała osoba ze Społeczności, ze zdjęciem z miejsca. Moderator sprawdził Zgłoszenie, ale ekipa CaliPark jeszcze tu nie była."
+            )
         case .verified:
             String(localized: "Ekipa CaliPark była tu i sprawdziła sprzęt na miejscu.")
         }

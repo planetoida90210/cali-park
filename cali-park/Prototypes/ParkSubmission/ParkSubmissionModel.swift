@@ -112,7 +112,10 @@ final class ParkSubmissionPrototypeModel {
     func toggle(_ item: SubmissionEquipment) {
         if draft.equipment.contains(item) {
             draft.equipment.remove(item)
-            if item == .horizontalBar { draft.barCount = nil; draft.barHeights = [] }
+            if item == .horizontalBar {
+                draft.barCount = nil
+                draft.barHeights = []
+            }
             if item == .parallelBars { draft.parallelBarsCount = nil }
         } else {
             draft.equipment.insert(item)
@@ -251,7 +254,8 @@ extension ParkSubmissionPrototypeModel {
             fillRequired()
             send()
             finish(showingMine: true)
-            let wanted: (PrototypeSubmission) -> Bool = screen == "mine-pending"
+            let wanted: (PrototypeSubmission) -> Bool =
+                screen == "mine-pending"
                 ? { $0.id == self.lastSentID }
                 : { if case .rejected = $0.status { return true } else { return false } }
             if let item = submissions.first(where: wanted) { minePath = [item] }

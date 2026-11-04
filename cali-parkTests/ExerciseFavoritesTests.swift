@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Helpers
@@ -18,8 +19,10 @@ private enum ExerciseFavoritesSupport {
     /// An exercise that is not in the catalog: it was removed.
     static let goneExerciseID = UUID(uuidString: "E0000000-0000-4000-8000-0000000FFFFF")!
 
-    static func exercise(_ id: Int, _ name: String, _ category: ExerciseCategory = .basic,
-                         variantOf parent: Int? = nil) -> Exercise {
+    static func exercise(
+        _ id: Int, _ name: String, _ category: ExerciseCategory = .basic,
+        variantOf parent: Int? = nil
+    ) -> Exercise {
         Exercise(
             id: uuid(id),
             name: name,
@@ -181,12 +184,15 @@ struct ExerciseFavoritesTests {
 struct ExerciseListSectionsTests {
     fileprivate typealias S = ExerciseFavoritesSupport
 
-    private func sections(favorites: [UUID] = [],
-                          category: ExerciseCategory? = nil,
-                          query: String = "",
-                          includesVariants: Bool = true) -> [ExerciseListSection] {
-        ExerciseListSections.make(catalog: S.catalog, favoriteIDs: favorites,
-                                  category: category, query: query, includesVariants: includesVariants)
+    private func sections(
+        favorites: [UUID] = [],
+        category: ExerciseCategory? = nil,
+        query: String = "",
+        includesVariants: Bool = true
+    ) -> [ExerciseListSection] {
+        ExerciseListSections.make(
+            catalog: S.catalog, favoriteIDs: favorites,
+            category: category, query: query, includesVariants: includesVariants)
     }
 
     @Test("Without favorites the list is the catalog as before, untitled")
@@ -231,11 +237,13 @@ struct ExerciseListSectionsTests {
         #expect(basic == [ExerciseListSection(kind: .catalog, title: nil, exercises: [S.pullUps, S.pushUps])])
     }
 
-    @Test("Search searches everything, variants included, as one untitled list", arguments: [
-        ("pompki", ["Pompki", "Pompki diamentowe"]),
-        ("podciagniecia", ["Podciągnięcia", "Podciągnięcia australijskie", "Podciągnięcia łucznicze"]),
-        ("  łucznicze ", ["Podciągnięcia łucznicze"])
-    ])
+    @Test(
+        "Search searches everything, variants included, as one untitled list",
+        arguments: [
+            ("pompki", ["Pompki", "Pompki diamentowe"]),
+            ("podciagniecia", ["Podciągnięcia", "Podciągnięcia australijskie", "Podciągnięcia łucznicze"]),
+            ("  łucznicze ", ["Podciągnięcia łucznicze"])
+        ])
     func searchSearchesEverything(query: String, names: [String]) throws {
         let result = sections(favorites: [S.muscleUp.id], query: query)
         try #require(result.count == 1)
@@ -272,9 +280,10 @@ struct ExerciseListSectionsTests {
 
     @Test("Real catalog: a favorite pull-up variant is one tap from the top")
     func realCatalog() throws {
-        let result = ExerciseListSections.make(catalog: ExerciseCatalog.all,
-                                               favoriteIDs: [ExerciseCatalog.australianPullUpsID],
-                                               category: nil, query: "", includesVariants: true)
+        let result = ExerciseListSections.make(
+            catalog: ExerciseCatalog.all,
+            favoriteIDs: [ExerciseCatalog.australianPullUpsID],
+            category: nil, query: "", includesVariants: true)
         let australian = try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.australianPullUpsID))
         #expect(result.first?.exercises == [australian])
         #expect(result.last?.exercises == ExerciseCatalog.mainMovements)
@@ -287,18 +296,22 @@ struct ExerciseListSectionsTests {
 struct ExerciseRecentSectionTests {
     fileprivate typealias S = ExerciseFavoritesSupport
 
-    private func sections(favorites: [UUID] = [],
-                          recent: [UUID],
-                          category: ExerciseCategory? = nil,
-                          query: String = "") -> [ExerciseListSection] {
-        ExerciseListSections.make(catalog: S.catalog, favoriteIDs: favorites, recentExerciseIDs: recent,
-                                  category: category, query: query, includesVariants: true)
+    private func sections(
+        favorites: [UUID] = [],
+        recent: [UUID],
+        category: ExerciseCategory? = nil,
+        query: String = ""
+    ) -> [ExerciseListSection] {
+        ExerciseListSections.make(
+            catalog: S.catalog, favoriteIDs: favorites, recentExerciseIDs: recent,
+            category: category, query: query, includesVariants: true)
     }
 
     @Test("Ostatnio comes after Ulubione, newest first, each exercise once")
     func order() {
-        let result = sections(favorites: [S.pullUps.id],
-                              recent: [S.diamond.id, S.archer.id, S.diamond.id, S.muscleUp.id])
+        let result = sections(
+            favorites: [S.pullUps.id],
+            recent: [S.diamond.id, S.archer.id, S.diamond.id, S.muscleUp.id])
 
         #expect(result.map(\.kind) == [.favorites, .recent, .catalog])
         #expect(result.map(\.title) == ["Ulubione", "Ostatnio", "Wszystkie ćwiczenia"])
@@ -336,8 +349,9 @@ struct ExerciseRecentSectionTests {
             read += 1
             return id
         }
-        _ = ExerciseListSections.make(catalog: S.catalog, favoriteIDs: [], recentExerciseIDs: counted,
-                                      category: nil, query: "", includesVariants: true)
+        _ = ExerciseListSections.make(
+            catalog: S.catalog, favoriteIDs: [], recentExerciseIDs: counted,
+            category: nil, query: "", includesVariants: true)
         #expect(read == 5)
     }
 
@@ -360,9 +374,10 @@ struct ExerciseRecentSectionTests {
     func fromJournal() {
         let reference = Date(timeIntervalSince1970: 1_790_000_000)
         func entry(_ id: UUID, daysAgo: Int) -> WorkoutLogEntry {
-            WorkoutLogEntry(exerciseID: id,
-                            date: reference.addingTimeInterval(-Double(daysAgo) * 86_400),
-                            sets: [LoggedSet(reps: 5)])
+            WorkoutLogEntry(
+                exerciseID: id,
+                date: reference.addingTimeInterval(-Double(daysAgo) * 86_400),
+                sets: [LoggedSet(reps: 5)])
         }
         let environment = AppEnvironment.seeded(
             logs: [

@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 private typealias E = ExerciseCatalog
@@ -32,9 +33,9 @@ struct TrainingProgramCatalogTests {
     func everyItemPointsAtAnExistingLadderOrExercise(program: TrainingProgram) {
         for item in program.sessions.flatMap(\.items) {
             switch item.movement {
-            case let .ladder(path, _):
+            case .ladder(let path, _):
                 #expect(ProgressionCatalog.path(withID: path) != nil)
-            case let .exercise(id):
+            case .exercise(let id):
                 #expect(E.exercise(withID: id) != nil)
             }
         }
@@ -61,7 +62,7 @@ struct TrainingProgramCatalogTests {
         let items = ProgramCatalog.fundamentals.sessions[0].items
         let pairs = Dictionary(grouping: items, by: { $0.group ?? 0 }).mapValues { group in
             group.compactMap { item -> ProgressionPathID? in
-                if case let .ladder(path, _) = item.movement { return path }
+                if case .ladder(let path, _) = item.movement { return path }
                 return nil
             }
         }
@@ -94,8 +95,10 @@ struct TrainingProgramCatalogTests {
 
 @Suite("ProgramPrescriber turns a program into plans")
 struct ProgramPrescriberTests {
-    private func plan(_ program: TrainingProgram,
-                      _ states: [ProgressionPathID: PathState]) throws -> WorkoutPlan {
+    private func plan(
+        _ program: TrainingProgram,
+        _ states: [ProgressionPathID: PathState]
+    ) throws -> WorkoutPlan {
         let plans = ProgramPrescriber.plans(for: program, pathStates: states, today: ProgramFixtures.today)
         #expect(plans.count == 1)
         return try #require(plans.first)
@@ -142,8 +145,11 @@ struct ProgramPrescriberTests {
         let plan = try plan(ProgramCatalog.fundamentals, ProgramFixtures.newcomer)
         let items = plan.exercises
 
-        #expect(items.map(\.exerciseID) == [E.deadHangID, E.assistedSquatsID, E.parallelBarSupportID,
-                                            E.plankID, E.inclineRowsID, E.wallPushUpsID])
+        #expect(
+            items.map(\.exerciseID) == [
+                E.deadHangID, E.assistedSquatsID, E.parallelBarSupportID,
+                E.plankID, E.inclineRowsID, E.wallPushUpsID
+            ])
         #expect(items.map(\.pathID) == [.pullUp, .legs, .dip, .core, .row, .pushUp])
         #expect(items.map(\.group) == [1, 1, 2, 2, 3, 3])
         #expect(items.allSatisfy { $0.restSeconds == 90 && $0.targetSets == 3 })
@@ -162,10 +168,10 @@ struct ProgramPrescriberTests {
         let byPath = Dictionary(uniqueKeysWithValues: plan.exercises.compactMap { item in item.pathID.map { ($0, item) } })
 
         #expect(byPath[.pullUp]?.exerciseID == E.lPullUpsID)
-        #expect(byPath[.pullUp]?.targetRepsMin == 3)         // 3 × 5 rung → 3 × 3–5
+        #expect(byPath[.pullUp]?.targetRepsMin == 3) // 3 × 5 rung → 3 × 3–5
         #expect(byPath[.pullUp]?.targetReps == 5)
         #expect(byPath[.dip]?.exerciseID == E.ringSupportHoldID)
-        #expect(byPath[.dip]?.targetSecondsMin == 10)        // 1 × 60 s rung → 3 × 10–60 s
+        #expect(byPath[.dip]?.targetSecondsMin == 10) // 1 × 60 s rung → 3 × 10–60 s
         #expect(byPath[.dip]?.targetSeconds == 60)
         #expect(byPath[.legs]?.exerciseID == E.lungesID)
         #expect(byPath[.pushUp]?.exerciseID == E.diamondPushUpsID)
@@ -222,14 +228,15 @@ struct ProgramPrescriberTests {
 
     // MARK: Dose
 
-    @Test(arguments: [
-        (E.pullUpsID, 3, 5...8),             // 3 × 8
-        (E.negativePullUpsID, 3, 3...5),     // 3 × 5
-        (E.negativeMuscleUpsID, 3, 2...3),   // 3 × 3
-        (E.deadHangID, 3, 10...30),          // 3 × 30 s
-        (E.tuckLSitID, 3, 10...20),          // 3 × 20 s
-        (E.plankShoulderTapsID, 3, 5...8)    // off the ladders
-    ] as [(UUID, Int, ClosedRange<Int>)])
+    @Test(
+        arguments: [
+            (E.pullUpsID, 3, 5...8), // 3 × 8
+            (E.negativePullUpsID, 3, 3...5), // 3 × 5
+            (E.negativeMuscleUpsID, 3, 2...3), // 3 × 3
+            (E.deadHangID, 3, 10...30), // 3 × 30 s
+            (E.tuckLSitID, 3, 10...20), // 3 × 20 s
+            (E.plankShoulderTapsID, 3, 5...8) // off the ladders
+        ] as [(UUID, Int, ClosedRange<Int>)])
     func ladderDoseFollowsTheRungCriterion(exerciseID: UUID, sets: Int, range: ClosedRange<Int>) throws {
         let exercise = try #require(E.exercise(withID: exerciseID))
         let dose = ProgramPrescriber.ladderDose(for: exercise)
@@ -242,8 +249,9 @@ struct ProgramPrescriberTests {
 
 @Suite("Program items follow the athlete's current rung")
 struct ProgramResolutionTests {
-    private static let deadHangItem = PlannedExercise(exerciseID: E.deadHangID, targetSets: 3, pathID: .pullUp,
-                                                      targetSeconds: 30, targetSecondsMin: 10, restSeconds: 90, group: 1)
+    private static let deadHangItem = PlannedExercise(
+        exerciseID: E.deadHangID, targetSets: 3, pathID: .pullUp,
+        targetSeconds: 30, targetSecondsMin: 10, restSeconds: 90, group: 1)
 
     @Test
     func anItemMovesToTheNewRungWithItsDose() {
@@ -305,8 +313,10 @@ struct ProgramResolutionTests {
     func holdsStartFromTheLastBestWithinTheRange() {
         let item = PlannedExercise(exerciseID: E.plankID, targetSets: 3, targetSeconds: 30, targetSecondsMin: 10)
         #expect(ProgramPrescriber.suggestedValue(for: item, measurement: .seconds, logs: []) == 10)
-        #expect(ProgramPrescriber.suggestedValue(for: item, measurement: .seconds,
-                                                 logs: [ProgramFixtures.hold(E.plankID, 22)]) == 22)
+        #expect(
+            ProgramPrescriber.suggestedValue(
+                for: item, measurement: .seconds,
+                logs: [ProgramFixtures.hold(E.plankID, 22)]) == 22)
     }
 
     @Test
@@ -320,13 +330,14 @@ struct ProgramResolutionTests {
 
 @Suite("Which program to suggest")
 struct ProgramSuggestionTests {
-    @Test(arguments: [
-        (nil, .fundamentals),
-        (.some(.none), .firstPullUp),
-        (.some(.few), .fundamentals),
-        (.some(.several), .fundamentals),
-        (.some(.many), .fundamentals)
-    ] as [(RepCountBucket?, ProgramID)])
+    @Test(
+        arguments: [
+            (nil, .fundamentals),
+            (.some(.none), .firstPullUp),
+            (.some(.few), .fundamentals),
+            (.some(.several), .fundamentals),
+            (.some(.many), .fundamentals)
+        ] as [(RepCountBucket?, ProgramID)])
     func zeroPullUpsSuggestsFirstPullUp(answer: RepCountBucket?, expected: ProgramID) {
         let placement = PlacementCalibration.placement(
             repAnswers: answer.map { [.pullUp: $0] } ?? [:],
@@ -346,9 +357,12 @@ struct ProgramSuggestionTests {
 
     @Test
     func firstPullUpGraduatesAtThreeByEightPullUps() throws {
-        let plan = try #require(ProgramPrescriber.plans(for: ProgramCatalog.firstPullUp,
-                                                        pathStates: ProgramFixtures.newcomer,
-                                                        today: ProgramFixtures.today).first)
+        let plan = try #require(
+            ProgramPrescriber.plans(
+                for: ProgramCatalog.firstPullUp,
+                pathStates: ProgramFixtures.newcomer,
+                today: ProgramFixtures.today
+            ).first)
         let almost = ProgramFixtures.states(logs: [ProgramFixtures.reps(E.pullUpsID, 7)])
         let done = ProgramFixtures.states(logs: [ProgramFixtures.reps(E.pullUpsID, 8)])
 

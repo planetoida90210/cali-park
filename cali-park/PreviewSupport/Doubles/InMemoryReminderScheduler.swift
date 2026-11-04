@@ -15,11 +15,13 @@ actor InMemoryReminderScheduler: WorkoutReminderScheduling {
     private let calendar: Calendar
     private let clock: @Sendable () -> Date
 
-    init(status: ReminderAuthorizationStatus = .notDetermined,
-         grantOnRequest: Bool = true,
-         failsToSchedule: Bool = false,
-         calendar: Calendar = .current,
-         clock: @escaping @Sendable () -> Date = { .now }) {
+    init(
+        status: ReminderAuthorizationStatus = .notDetermined,
+        grantOnRequest: Bool = true,
+        failsToSchedule: Bool = false,
+        calendar: Calendar = .current,
+        clock: @escaping @Sendable () -> Date = { .now }
+    ) {
         self.status = status
         self.grantOnRequest = grantOnRequest
         self.failsToSchedule = failsToSchedule

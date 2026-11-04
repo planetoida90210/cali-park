@@ -26,14 +26,16 @@ struct WorkoutPlansView: View {
     var body: some View {
         Group {
             if viewModel.plans.isEmpty {
-                WorkoutPlansEmptyState(onCreate: { editorRoute = .new },
-                                       onBrowsePrograms: { showingPrograms = true })
+                WorkoutPlansEmptyState(
+                    onCreate: { editorRoute = .new },
+                    onBrowsePrograms: { showingPrograms = true })
             } else {
-                WorkoutPlanList(viewModel: viewModel,
-                                graduation: graduation,
-                                onMoveOnToFundamentals: { Task { await moveOnToFundamentals() } },
-                                onBrowsePrograms: { showingPrograms = true },
-                                onEdit: { editorRoute = .edit($0) })
+                WorkoutPlanList(
+                    viewModel: viewModel,
+                    graduation: graduation,
+                    onMoveOnToFundamentals: { Task { await moveOnToFundamentals() } },
+                    onBrowsePrograms: { showingPrograms = true },
+                    onEdit: { editorRoute = .edit($0) })
             }
         }
         .background(Color.appBackground.ignoresSafeArea())
@@ -58,8 +60,11 @@ struct WorkoutPlansView: View {
             }
         }
         .sheet(item: $editorRoute) { route in
-            PlanEditorView(viewModel: environment.makePlanEditorViewModel(plan: route.plan,
-                                                                          isJustCreated: route.isJustCreated)) {
+            PlanEditorView(
+                viewModel: environment.makePlanEditorViewModel(
+                    plan: route.plan,
+                    isJustCreated: route.isJustCreated)
+            ) {
                 viewModel.reload()
             }
         }

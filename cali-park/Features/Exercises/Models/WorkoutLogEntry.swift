@@ -25,13 +25,15 @@ nonisolated struct WorkoutLogEntry: Identifiable, Codable, Equatable, Hashable {
     /// The plan this entry was logged from; `nil` for a free (unplanned) log.
     var planID: UUID?
 
-    init(id: UUID = UUID(),
-         exerciseID: UUID,
-         date: Date = .now,
-         sets: [LoggedSet],
-         note: String? = nil,
-         sessionID: UUID? = nil,
-         planID: UUID? = nil) {
+    init(
+        id: UUID = UUID(),
+        exerciseID: UUID,
+        date: Date = .now,
+        sets: [LoggedSet],
+        note: String? = nil,
+        sessionID: UUID? = nil,
+        planID: UUID? = nil
+    ) {
         self.id = id
         self.exerciseID = exerciseID
         self.date = date
@@ -61,7 +63,7 @@ nonisolated struct WorkoutLogEntry: Identifiable, Codable, Equatable, Hashable {
     /// in `reps`. Entries already in the exercise's unit come back unchanged.
     var inCatalogUnits: WorkoutLogEntry {
         guard sets.contains(where: { !$0.isTimed }),
-              ExerciseCatalog.exercise(withID: exerciseID)?.measurement == .seconds
+            ExerciseCatalog.exercise(withID: exerciseID)?.measurement == .seconds
         else { return self }
         var copy = self
         copy.sets = sets.map { set in

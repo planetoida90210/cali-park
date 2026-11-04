@@ -50,11 +50,13 @@ nonisolated struct JSONFileStore<Value: Codable>: Sendable {
     ///   - decoderUserInfo: extra `userInfo` for the payload's decoder, e.g.
     ///     the calendar an older format needs to migrate.
     ///   - now: clock for quarantine file names; injectable for tests.
-    init(fileURL: URL,
-         logCategory: String,
-         schemaVersion: Int = JSONFileFormat.currentSchemaVersion,
-         decoderUserInfo: [CodingUserInfoKey: any Sendable] = [:],
-         now: @escaping @Sendable () -> Date = { .now }) {
+    init(
+        fileURL: URL,
+        logCategory: String,
+        schemaVersion: Int = JSONFileFormat.currentSchemaVersion,
+        decoderUserInfo: [CodingUserInfoKey: any Sendable] = [:],
+        now: @escaping @Sendable () -> Date = { .now }
+    ) {
         precondition(schemaVersion >= 1, "Schema versions start at 1")
         self.fileURL = fileURL
         self.schemaVersion = schemaVersion
@@ -126,7 +128,8 @@ nonisolated struct JSONFileStore<Value: Codable>: Sendable {
             if let header = try? JSONFileFormat.decoder.decode(JSONFileFormat.Header.self, from: data) {
                 guard (1...schemaVersion).contains(header.schemaVersion) else {
                     let copy = preserveCopy(of: data)
-                    logger.error("""
+                    logger.error(
+                        """
                         Unsupported schema version \(header.schemaVersion, privacy: .public) in \
                         \(fileURL.lastPathComponent, privacy: .public); writes refused
                         """)
@@ -143,7 +146,8 @@ nonisolated struct JSONFileStore<Value: Codable>: Sendable {
             throw error
         } catch {
             let copy = preserveCopy(of: data)
-            logger.error("""
+            logger.error(
+                """
                 Cannot decode \(fileURL.lastPathComponent, privacy: .public); writes refused, \
                 copy at \(copy?.lastPathComponent ?? "none", privacy: .public): \(String(describing: error), privacy: .public)
                 """)
@@ -191,7 +195,8 @@ nonisolated struct JSONFileStore<Value: Codable>: Sendable {
             } catch let error as CocoaError where error.code == .fileWriteFileExists {
                 continue
             } catch {
-                logger.error("Cannot copy \(fileURL.lastPathComponent, privacy: .public) aside: \(String(describing: error), privacy: .public)")
+                logger.error(
+                    "Cannot copy \(fileURL.lastPathComponent, privacy: .public) aside: \(String(describing: error), privacy: .public)")
                 return nil
             }
         }
@@ -268,8 +273,10 @@ nonisolated enum JSONFileFormat {
 
     /// A decoder that tells the payload which schema version it is reading.
     /// A fresh instance per read, because `userInfo` is mutable state.
-    static func decoder(forSchemaVersion version: Int,
-                        userInfo: [CodingUserInfoKey: any Sendable] = [:]) -> JSONDecoder {
+    static func decoder(
+        forSchemaVersion version: Int,
+        userInfo: [CodingUserInfoKey: any Sendable] = [:]
+    ) -> JSONDecoder {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         for (key, value) in userInfo {

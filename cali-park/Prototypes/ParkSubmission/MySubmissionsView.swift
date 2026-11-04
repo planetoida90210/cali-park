@@ -115,7 +115,8 @@ private struct SubmissionDetailView: View {
                 StatusExplanation(submission: submission)
 
                 VStack(alignment: .leading, spacing: 8) {
-                    SummaryRow(label: "Wysłane", value: submission.status == .draft ? "jeszcze nie" : SubmissionFormat.day(submission.sentAt))
+                    SummaryRow(
+                        label: "Wysłane", value: submission.status == .draft ? "jeszcze nie" : SubmissionFormat.day(submission.sentAt))
                     if let decidedAt = submission.decidedAt {
                         SummaryRow(label: "Decyzja", value: SubmissionFormat.day(decidedAt))
                     }
@@ -148,7 +149,8 @@ private struct StatusExplanation: View {
             )
         case .pending:
             InfoCard(
-                text: "Moderator sprawdzi zdjęcia i sprzęt. Damy znać, gdy podejmie decyzję. Do tego czasu Park nie jest widoczny na mapie.",
+                text:
+                    "Moderator sprawdzi zdjęcia i sprzęt. Damy znać, gdy podejmie decyzję. Do tego czasu Park nie jest widoczny na mapie.",
                 actionTitle: nil
             )
         case .published:
@@ -226,8 +228,8 @@ private struct DecisionCard: View {
     }
 }
 
-private extension SubmissionStatus {
-    var isRemoval: Bool {
+extension SubmissionStatus {
+    fileprivate var isRemoval: Bool {
         if case .removed = self { return true }
         return false
     }

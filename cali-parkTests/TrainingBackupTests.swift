@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Fixtures
@@ -9,14 +10,20 @@ private enum BackupFixtures {
     static let exportedAt = StoreFixtures.october2
 
     static let weeklyGoal = WeeklyGoalHistory(
-        versions: [WeeklyGoalVersion(effectiveFrom: StoreFixtures.october1,
-                                     goals: WeeklyGoal.defaultGoals(trainingDaysPerWeek: 4))],
+        versions: [
+            WeeklyGoalVersion(
+                effectiveFrom: StoreFixtures.october1,
+                goals: WeeklyGoal.defaultGoals(trainingDaysPerWeek: 4))
+        ],
         pauses: [],
         celebrated: [],
         // Matches the backup's plans, so importing records nothing new and
         // the export reads back exactly what was imported.
-        planSchedules: [PlanScheduleRecord(effectiveFrom: StoreFixtures.october1,
-                                           activePlansOf: StoreFixtures.workoutPlans)]
+        planSchedules: [
+            PlanScheduleRecord(
+                effectiveFrom: StoreFixtures.october1,
+                activePlansOf: StoreFixtures.workoutPlans)
+        ]
     )
 
     static let favoriteParks = [
@@ -67,13 +74,15 @@ private struct BackupRig {
     let environment: AppEnvironment
     let service: TrainingBackupService
 
-    init(log: WorkoutLogStoring = InMemoryWorkoutLogStore(),
-         plans: WorkoutPlanStoring = InMemoryWorkoutPlanStore(),
-         placement: SkillPlacementStoring = InMemorySkillPlacementStore(),
-         progress: SkillProgressStoring = InMemorySkillProgressStore(),
-         goal: WeeklyGoalStoring = InMemoryWeeklyGoalStore(),
-         favorites: FavoriteParkStoring = InMemoryFavoriteParkStore(),
-         exerciseFavorites: FavoriteExerciseStoring = InMemoryFavoriteExerciseStore()) {
+    init(
+        log: WorkoutLogStoring = InMemoryWorkoutLogStore(),
+        plans: WorkoutPlanStoring = InMemoryWorkoutPlanStore(),
+        placement: SkillPlacementStoring = InMemorySkillPlacementStore(),
+        progress: SkillProgressStoring = InMemorySkillProgressStore(),
+        goal: WeeklyGoalStoring = InMemoryWeeklyGoalStore(),
+        favorites: FavoriteParkStoring = InMemoryFavoriteParkStore(),
+        exerciseFavorites: FavoriteExerciseStoring = InMemoryFavoriteExerciseStore()
+    ) {
         self.log = log
         self.plans = plans
         self.placement = placement
@@ -102,9 +111,14 @@ private struct BackupRig {
     /// Some data that is not the full fixture, to replace.
     static func withOldData() -> BackupRig {
         BackupRig(
-            log: InMemoryWorkoutLogStore(initial: [WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID, date: StoreFixtures.october1, sets: [LoggedSet(reps: 3)])]),
-            plans: InMemoryWorkoutPlanStore(initial: [WorkoutPlan(name: "Stary plan", schedule: .once(nil), createdAt: StoreFixtures.october1)]),
-            placement: InMemorySkillPlacementStore(initial: SkillPlacement(declaredRungByPath: [.core: 1], declaredAt: StoreFixtures.october1)),
+            log: InMemoryWorkoutLogStore(initial: [
+                WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID, date: StoreFixtures.october1, sets: [LoggedSet(reps: 3)])
+            ]),
+            plans: InMemoryWorkoutPlanStore(initial: [
+                WorkoutPlan(name: "Stary plan", schedule: .once(nil), createdAt: StoreFixtures.october1)
+            ]),
+            placement: InMemorySkillPlacementStore(
+                initial: SkillPlacement(declaredRungByPath: [.core: 1], declaredAt: StoreFixtures.october1)),
             progress: InMemorySkillProgressStore(initial: SkillProgress(celebratedLevel: 2)),
             goal: InMemoryWeeklyGoalStore(initial: nil),
             favorites: InMemoryFavoriteParkStore(initial: [BackupFixtures.oldFavorite]),
@@ -171,21 +185,25 @@ struct TrainingBackupCodecTests {
 
     @Test("The file name carries the date in the athlete's calendar")
     func fileName() {
-        #expect(TrainingBackupCodec.fileName(for: StoreFixtures.october1, calendar: ProgramFixtures.calendar)
+        #expect(
+            TrainingBackupCodec.fileName(for: StoreFixtures.october1, calendar: ProgramFixtures.calendar)
                 == "calipark-backup-2026-10-01.json")
         var tokyo = ProgramFixtures.calendar
         tokyo.timeZone = TimeZone(identifier: "Asia/Tokyo")!
         // 18:05 UTC on 2 October is already 3 October in Tokyo.
-        #expect(TrainingBackupCodec.fileName(for: StoreFixtures.october2, calendar: tokyo)
+        #expect(
+            TrainingBackupCodec.fileName(for: StoreFixtures.october2, calendar: tokyo)
                 == "calipark-backup-2026-10-03.json")
     }
 
-    @Test("Files that are not CaliPark backups are refused as such", arguments: [
-        "not json at all",
-        "[1, 2, 3]",
-        #"{"schemaVersion": 1, "payload": []}"#,
-        #"{"format": "other-app", "schemaVersion": 1}"#
-    ])
+    @Test(
+        "Files that are not CaliPark backups are refused as such",
+        arguments: [
+            "not json at all",
+            "[1, 2, 3]",
+            #"{"schemaVersion": 1, "payload": []}"#,
+            #"{"format": "other-app", "schemaVersion": 1}"#
+        ])
     func notABackup(_ text: String) {
         #expect(throws: TrainingBackupError.notABackup) {
             try TrainingBackupCodec.decode(Data(text.utf8))
@@ -245,10 +263,12 @@ struct TrainingBackupCodecTests {
         }
 
         var noGoals = BackupFixtures.full
-        noGoals.weeklyGoal = WeeklyGoalHistory(versions: [WeeklyGoalVersion(
-            effectiveFrom: StoreFixtures.october1,
-            goals: [WeeklyGoal(metric: .trainingDays(days: 9))]
-        )])
+        noGoals.weeklyGoal = WeeklyGoalHistory(versions: [
+            WeeklyGoalVersion(
+                effectiveFrom: StoreFixtures.october1,
+                goals: [WeeklyGoal(metric: .trainingDays(days: 9))]
+            )
+        ])
         #expect(throws: TrainingBackupError.invalidContent("niepoprawny cel tygodniowy")) {
             try TrainingBackupCodec.decode(BackupFixtures.data(noGoals))
         }
@@ -324,9 +344,10 @@ struct TrainingBackupServiceTests {
     func restoreDoesNotCelebrate() async throws {
         let rig = BackupRig()
         let strongLog = (0..<6).map { day in
-            WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                            date: StoreFixtures.october1.addingTimeInterval(Double(day) * 86_400),
-                            sets: Array(repeating: LoggedSet(reps: 10), count: 3))
+            WorkoutLogEntry(
+                exerciseID: ExerciseCatalog.pullUpsID,
+                date: StoreFixtures.october1.addingTimeInterval(Double(day) * 86_400),
+                sets: Array(repeating: LoggedSet(reps: 10), count: 3))
         }
         try await rig.service.restore(TrainingBackup(workoutLog: strongLog))
         // The import's snapshot is settled synchronously; nothing lands later.
@@ -354,8 +375,9 @@ struct TrainingBackupServiceTests {
     @Test("Restore re-syncs plan reminders from the imported plans")
     func restoreSyncsReminders() async throws {
         let rig = BackupRig()
-        let plan = WorkoutPlan(name: "Push", exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID)],
-                               schedule: .weekly(Set(Weekday.allCases)), reminderTime: DateComponents(hour: 18, minute: 0))
+        let plan = WorkoutPlan(
+            name: "Push", exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID)],
+            schedule: .weekly(Set(Weekday.allCases)), reminderTime: DateComponents(hour: 18, minute: 0))
         try await rig.service.restore(TrainingBackup(workoutPlans: [plan]))
 
         #expect(await rig.scheduler.rescheduleCount == 1)
@@ -367,7 +389,8 @@ struct TrainingBackupServiceTests {
         let oldPlan = WorkoutPlan(name: "Stary plan", schedule: .once(nil), createdAt: StoreFixtures.october1)
         let rig = BackupRig(
             plans: FailingReplacePlanStore(initial: [oldPlan]),
-            placement: InMemorySkillPlacementStore(initial: SkillPlacement(declaredRungByPath: [.core: 1], declaredAt: StoreFixtures.october1)),
+            placement: InMemorySkillPlacementStore(
+                initial: SkillPlacement(declaredRungByPath: [.core: 1], declaredAt: StoreFixtures.october1)),
             progress: InMemorySkillProgressStore(initial: SkillProgress(celebratedLevel: 2))
         )
         let before = try rig.service.currentBackup()
@@ -431,8 +454,9 @@ struct TrainingBackupServiceTests {
         }
         let exporter = rig(source)
         try await exporter.service.restore(BackupFixtures.full)
-        let data = try TrainingBackupCodec.encode(exporter.service.currentBackup(),
-                                                  exportedAt: BackupFixtures.exportedAt, appVersion: "1.0 (1)")
+        let data = try TrainingBackupCodec.encode(
+            exporter.service.currentBackup(),
+            exportedAt: BackupFixtures.exportedAt, appVersion: "1.0 (1)")
 
         let importer = rig(target)
         try importer.placement.save(SkillPlacement(declaredRungByPath: [.core: 1]))
@@ -545,7 +569,9 @@ struct TrainingBackupViewModelTests {
 
         await model.confirmImport(pending)
 
-        #expect(model.resultMessage == "Zaimportowano: 2 treningi, 4 plany, test poziomu, cel tygodniowy, 2 ulubione Parki, 2 ulubione ćwiczenia.")
+        #expect(
+            model.resultMessage
+                == "Zaimportowano: 2 treningi, 4 plany, test poziomu, cel tygodniowy, 2 ulubione Parki, 2 ulubione ćwiczenia.")
         #expect(model.errorMessage == nil)
         #expect(try rig.service.currentBackup() == BackupFixtures.full)
         #expect(model.currentSummary == BackupFixtures.full.summary)
@@ -759,11 +785,13 @@ struct TrainingBackupExerciseFavoritesTests {
         #expect(store.saveCount == 0)
     }
 
-    @Test("The summary counts favorite exercises with the right Polish form", arguments: [
-        (1, "0 treningów, 0 planów, 1 ulubione ćwiczenie"),
-        (3, "0 treningów, 0 planów, 3 ulubione ćwiczenia"),
-        (5, "0 treningów, 0 planów, 5 ulubionych ćwiczeń")
-    ])
+    @Test(
+        "The summary counts favorite exercises with the right Polish form",
+        arguments: [
+            (1, "0 treningów, 0 planów, 1 ulubione ćwiczenie"),
+            (3, "0 treningów, 0 planów, 3 ulubione ćwiczenia"),
+            (5, "0 treningów, 0 planów, 5 ulubionych ćwiczeń")
+        ])
     func summaryText(count: Int, text: String) {
         let backup = TrainingBackup(favoriteExerciseIDs: (0..<count).map { _ in UUID() })
         #expect(backup.summary.text == text)

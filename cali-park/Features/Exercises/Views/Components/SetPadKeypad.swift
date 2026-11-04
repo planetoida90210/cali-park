@@ -7,13 +7,19 @@ struct SetPadKeypad: View {
     var body: some View {
         Grid(horizontalSpacing: 8, verticalSpacing: 8) {
             GridRow {
-                digitKey(1); digitKey(2); digitKey(3)
+                digitKey(1)
+                digitKey(2)
+                digitKey(3)
             }
             GridRow {
-                digitKey(4); digitKey(5); digitKey(6)
+                digitKey(4)
+                digitKey(5)
+                digitKey(6)
             }
             GridRow {
-                digitKey(7); digitKey(8); digitKey(9)
+                digitKey(7)
+                digitKey(8)
+                digitKey(9)
             }
             GridRow {
                 SetPadKey(label: String(localized: "Usuń"), isEnabled: canDelete) {

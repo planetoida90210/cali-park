@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Fixtures
@@ -90,9 +91,11 @@ struct TrainingJournalAsyncWriteTests {
         let imported = [AsyncFixture.entry(5), AsyncFixture.entry(6)]
         var seen: (count: Int, handlerRuns: Int)?
 
-        try await journal.replaceAll(imported, afterWrite: {
-            seen = (journal.entries.count, handlerRuns)
-        })
+        try await journal.replaceAll(
+            imported,
+            afterWrite: {
+                seen = (journal.entries.count, handlerRuns)
+            })
 
         #expect(seen?.count == 2)
         #expect(seen?.handlerRuns == 1)
@@ -108,9 +111,11 @@ struct TrainingJournalAsyncWriteTests {
         let journal = TrainingJournal(store: InMemoryWorkoutLogStore(initial: initial))
 
         try await journal.log(AsyncFixture.entry(10, at: base.addingTimeInterval(3 * 3600)))
-        try await journal.logSession([AsyncFixture.entry(11, at: base.addingTimeInterval(9 * 3600)),
-                                      AsyncFixture.entry(12, at: base.addingTimeInterval(-3600)),
-                                      AsyncFixture.entry(13, at: base.addingTimeInterval(3 * 3600))])
+        try await journal.logSession([
+            AsyncFixture.entry(11, at: base.addingTimeInterval(9 * 3600)),
+            AsyncFixture.entry(12, at: base.addingTimeInterval(-3600)),
+            AsyncFixture.entry(13, at: base.addingTimeInterval(3 * 3600))
+        ])
         try await journal.delete(ids: [initial[1].id, initial[4].id])
 
         #expect(journal.newestFirst == journal.entries.sorted { $0.date > $1.date })

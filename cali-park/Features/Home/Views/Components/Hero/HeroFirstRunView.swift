@@ -40,10 +40,10 @@ struct HeroFirstRunView: View {
 // MARK: - Preview
 #Preview("Pierwszy start") {
     HeroFirstRunView()
-    .padding(20)
-    .background(Color.componentBackground)
-    .clipShape(.rect(cornerRadius: AppRadius.medium))
-    .padding()
-    .background(Color.appBackground)
-    .preferredColorScheme(.dark)
+        .padding(20)
+        .background(Color.componentBackground)
+        .clipShape(.rect(cornerRadius: AppRadius.medium))
+        .padding()
+        .background(Color.appBackground)
+        .preferredColorScheme(.dark)
 }

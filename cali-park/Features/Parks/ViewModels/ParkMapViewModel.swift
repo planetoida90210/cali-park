@@ -212,8 +212,10 @@ final class ParkMapViewModel {
     func select(_ park: Park) {
         selectedParkID = park.id
         let span = min(visibleRegion.span.latitudeDelta, Self.selectionSpan)
-        move(to: MKCoordinateRegion(center: park.coordinate,
-                                    span: MKCoordinateSpan(latitudeDelta: span, longitudeDelta: span)))
+        move(
+            to: MKCoordinateRegion(
+                center: park.coordinate,
+                span: MKCoordinateSpan(latitudeDelta: span, longitudeDelta: span)))
     }
 
     func clearSelection() {
@@ -227,8 +229,10 @@ final class ParkMapViewModel {
         let maxSpan = visibleRegion.span.latitudeDelta / 2
         let latitudeDelta = min(fitted.span.latitudeDelta, maxSpan)
         let longitudeDelta = min(fitted.span.longitudeDelta, visibleRegion.span.longitudeDelta / 2)
-        move(to: MKCoordinateRegion(center: fitted.center,
-                                    span: MKCoordinateSpan(latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta)))
+        move(
+            to: MKCoordinateRegion(
+                center: fitted.center,
+                span: MKCoordinateSpan(latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta)))
     }
 
     /// Search "Enter": one match opens it, several frame them all.

@@ -10,6 +10,7 @@
 import BackgroundTasks
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Fixtures
@@ -25,22 +26,27 @@ private enum Fixtures {
     /// Thursday 09:00.
     static let now = day(0, hour: 9)
 
-    static func plan(_ name: String = "Push",
-                     schedule: WorkoutSchedule = .weekly([.thursday, .friday])) -> WorkoutPlan {
-        WorkoutPlan(name: name,
-                    exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID)],
-                    schedule: schedule,
-                    createdAt: day(-10),
-                    reminderTime: DateComponents(hour: 18, minute: 0))
+    static func plan(
+        _ name: String = "Push",
+        schedule: WorkoutSchedule = .weekly([.thursday, .friday])
+    ) -> WorkoutPlan {
+        WorkoutPlan(
+            name: name,
+            exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID)],
+            schedule: schedule,
+            createdAt: day(-10),
+            reminderTime: DateComponents(hour: 18, minute: 0))
     }
 
     static func entry(planID: UUID?, at date: Date = now) -> WorkoutLogEntry {
         WorkoutLogEntry(exerciseID: ExerciseCatalog.pushUpsID, date: date, sets: [LoggedSet(reps: 10)], planID: planID)
     }
 
-    static func requests(for plans: [WorkoutPlan],
-                         entries: [WorkoutLogEntry],
-                         limit: Int = WorkoutReminderPlanner.pendingLimit) -> [WorkoutReminderRequest] {
+    static func requests(
+        for plans: [WorkoutPlan],
+        entries: [WorkoutLogEntry],
+        limit: Int = WorkoutReminderPlanner.pendingLimit
+    ) -> [WorkoutReminderRequest] {
         WorkoutReminderPlanner.requests(for: plans, entries: entries, calendar: calendar, asOf: now, limit: limit)
     }
 
@@ -94,11 +100,12 @@ struct ReminderPlannerDoneDayTests {
     ])
     func otherEntriesDoNotCountAsDone(_ label: String, otherPlan: Int?, dayOffset: Int) {
         let plan = Fixtures.plan()
-        let planID: UUID? = switch otherPlan {
-        case nil: nil
-        case 0: plan.id
-        default: UUID()
-        }
+        let planID: UUID? =
+            switch otherPlan {
+            case nil: nil
+            case 0: plan.id
+            default: UUID()
+            }
         let entry = Fixtures.entry(planID: planID, at: Fixtures.day(dayOffset, hour: 12))
 
         let requests = Fixtures.requests(for: [plan], entries: [entry], limit: 1)
@@ -113,10 +120,12 @@ struct ReminderPlannerDoneDayTests {
         let lateThursday = Fixtures.day(1).addingTimeInterval(-60)
         let earlyFriday = Fixtures.day(1).addingTimeInterval(60)
 
-        #expect(Fixtures.requests(for: [plan], entries: [Fixtures.entry(planID: plan.id, at: lateThursday)], limit: 1)
-            .compactMap(Fixtures.fireDay) == [1])
-        #expect(Fixtures.requests(for: [plan], entries: [Fixtures.entry(planID: plan.id, at: earlyFriday)], limit: 1)
-            .compactMap(Fixtures.fireDay) == [8])
+        #expect(
+            Fixtures.requests(for: [plan], entries: [Fixtures.entry(planID: plan.id, at: lateThursday)], limit: 1)
+                .compactMap(Fixtures.fireDay) == [1])
+        #expect(
+            Fixtures.requests(for: [plan], entries: [Fixtures.entry(planID: plan.id, at: earlyFriday)], limit: 1)
+                .compactMap(Fixtures.fireDay) == [8])
     }
 
     @Test
@@ -157,9 +166,10 @@ struct WorkoutPlanServiceDoneDayTests {
     func syncSkipsThePlanDoneToday() async {
         let plan = Fixtures.plan()
         let scheduler = Fixtures.scheduler()
-        let service = WorkoutPlanService.testing(InMemoryWorkoutPlanStore(initial: [plan]),
-                                                 logStore: InMemoryWorkoutLogStore(initial: [Fixtures.entry(planID: plan.id)]),
-                                                 scheduler: scheduler)
+        let service = WorkoutPlanService.testing(
+            InMemoryWorkoutPlanStore(initial: [plan]),
+            logStore: InMemoryWorkoutLogStore(initial: [Fixtures.entry(planID: plan.id)]),
+            scheduler: scheduler)
 
         #expect(await service.syncReminders() == .synced)
 
@@ -173,9 +183,10 @@ struct WorkoutPlanServiceDoneDayTests {
     func unreadableLogSchedulesAsIfNothingWereDone() async {
         let plan = Fixtures.plan()
         let scheduler = Fixtures.scheduler()
-        let service = WorkoutPlanService.testing(InMemoryWorkoutPlanStore(initial: [plan]),
-                                                 logStore: UnreadableWorkoutLogStore(),
-                                                 scheduler: scheduler)
+        let service = WorkoutPlanService.testing(
+            InMemoryWorkoutPlanStore(initial: [plan]),
+            logStore: UnreadableWorkoutLogStore(),
+            scheduler: scheduler)
 
         #expect(await service.syncReminders() == .synced)
 
@@ -185,9 +196,10 @@ struct WorkoutPlanServiceDoneDayTests {
     @Test
     func everySyncRequestsTheNextBackgroundRefresh() async throws {
         let refresh = InMemoryReminderRefreshScheduler()
-        let service = WorkoutPlanService.testing(InMemoryWorkoutPlanStore(),
-                                                 scheduler: Fixtures.scheduler(),
-                                                 refreshScheduler: refresh)
+        let service = WorkoutPlanService.testing(
+            InMemoryWorkoutPlanStore(),
+            scheduler: Fixtures.scheduler(),
+            refreshScheduler: refresh)
 
         await service.syncReminders()
         try await service.save(Fixtures.plan())
@@ -261,19 +273,20 @@ struct AppEnvironmentReminderSyncTests {
     func savingTodaysPlanWorkoutDropsTodaysReminder() async throws {
         let plan = Fixtures.plan()
         let scheduler = Fixtures.scheduler()
-        let environment = AppEnvironment(parkDirectory: InMemoryParkDirectory(),
-                                         locationProvider: FixedLocationProvider(authorization: .denied),
-                                         favoriteParkStore: InMemoryFavoriteParkStore(),
-                                         favoriteExerciseStore: InMemoryFavoriteExerciseStore(),
-                                         workoutLogStore: InMemoryWorkoutLogStore(),
-                                         workoutPlanStore: InMemoryWorkoutPlanStore(initial: [plan]),
-                                         reminderScheduler: scheduler,
-                                         reminderRefreshScheduler: InMemoryReminderRefreshScheduler(),
-                                         placementStore: InMemorySkillPlacementStore(),
-                                         skillProgressStore: InMemorySkillProgressStore(),
-                                         weeklyGoalStore: InMemoryWeeklyGoalStore(),
-                                         diagnostics: DiagnosticsService(store: InMemoryDiagnosticReportStore()),
-                                         defaults: .throwaway())
+        let environment = AppEnvironment(
+            parkDirectory: InMemoryParkDirectory(),
+            locationProvider: FixedLocationProvider(authorization: .denied),
+            favoriteParkStore: InMemoryFavoriteParkStore(),
+            favoriteExerciseStore: InMemoryFavoriteExerciseStore(),
+            workoutLogStore: InMemoryWorkoutLogStore(),
+            workoutPlanStore: InMemoryWorkoutPlanStore(initial: [plan]),
+            reminderScheduler: scheduler,
+            reminderRefreshScheduler: InMemoryReminderRefreshScheduler(),
+            placementStore: InMemorySkillPlacementStore(),
+            skillProgressStore: InMemorySkillProgressStore(),
+            weeklyGoalStore: InMemoryWeeklyGoalStore(),
+            diagnostics: DiagnosticsService(store: InMemoryDiagnosticReportStore()),
+            defaults: .throwaway())
         await environment.workoutPlanService.syncReminders()
         #expect(await scheduler.scheduledRequests.compactMap(Fixtures.fireDay).first == 0)
 
@@ -293,19 +306,20 @@ struct AppEnvironmentReminderSyncTests {
         let plan = Fixtures.plan()
         let logStore = SpyWorkoutLogStore()
         let scheduler = Fixtures.scheduler()
-        let environment = AppEnvironment(parkDirectory: InMemoryParkDirectory(),
-                                         locationProvider: FixedLocationProvider(authorization: .denied),
-                                         favoriteParkStore: InMemoryFavoriteParkStore(),
-                                         favoriteExerciseStore: InMemoryFavoriteExerciseStore(),
-                                         workoutLogStore: logStore,
-                                         workoutPlanStore: InMemoryWorkoutPlanStore(initial: [plan]),
-                                         reminderScheduler: scheduler,
-                                         reminderRefreshScheduler: InMemoryReminderRefreshScheduler(),
-                                         placementStore: InMemorySkillPlacementStore(),
-                                         skillProgressStore: InMemorySkillProgressStore(),
-                                         weeklyGoalStore: InMemoryWeeklyGoalStore(),
-                                         diagnostics: DiagnosticsService(store: InMemoryDiagnosticReportStore()),
-                                         defaults: .throwaway())
+        let environment = AppEnvironment(
+            parkDirectory: InMemoryParkDirectory(),
+            locationProvider: FixedLocationProvider(authorization: .denied),
+            favoriteParkStore: InMemoryFavoriteParkStore(),
+            favoriteExerciseStore: InMemoryFavoriteExerciseStore(),
+            workoutLogStore: logStore,
+            workoutPlanStore: InMemoryWorkoutPlanStore(initial: [plan]),
+            reminderScheduler: scheduler,
+            reminderRefreshScheduler: InMemoryReminderRefreshScheduler(),
+            placementStore: InMemorySkillPlacementStore(),
+            skillProgressStore: InMemorySkillProgressStore(),
+            weeklyGoalStore: InMemoryWeeklyGoalStore(),
+            diagnostics: DiagnosticsService(store: InMemoryDiagnosticReportStore()),
+            defaults: .throwaway())
         try await environment.journal.log(Fixtures.entry(planID: plan.id))
         await environment.workoutPlanService.syncReminders()
 

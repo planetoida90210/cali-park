@@ -43,8 +43,9 @@ final class NearestParkViewModel {
             return
         }
         guard location.authorization == .authorized,
-              let origin = await location.currentLocation(),
-              let nearest = ParkSearch.nearest(parks, to: origin) else {
+            let origin = await location.currentLocation(),
+            let nearest = ParkSearch.nearest(parks, to: origin)
+        else {
             state = .needsLocation
             return
         }

@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Key sequences
@@ -106,8 +107,9 @@ struct WorkoutLogViewModelTests {
 
     @Test
     func saveFailureSurfacesErrorAndDoesNotDismiss() async {
-        let viewModel = WorkoutLogViewModel(exercise: ExerciseCatalog.all[0],
-                                            store: ReadOnlyWorkoutLogStore())
+        let viewModel = WorkoutLogViewModel(
+            exercise: ExerciseCatalog.all[0],
+            store: ReadOnlyWorkoutLogStore())
         viewModel.input.appendDigit(6)
         await viewModel.save()
 
@@ -132,12 +134,14 @@ struct WorkoutLogViewModelTests {
 struct WorkoutHistoryViewModelTests {
     @Test
     func entriesAreSortedNewestFirst() {
-        let old = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                                  date: Date(timeIntervalSince1970: 1_000),
-                                  sets: [LoggedSet(reps: 5)])
-        let new = WorkoutLogEntry(exerciseID: ExerciseCatalog.pushUpsID,
-                                  date: Date(timeIntervalSince1970: 2_000),
-                                  sets: [LoggedSet(reps: 10)])
+        let old = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.pullUpsID,
+            date: Date(timeIntervalSince1970: 1_000),
+            sets: [LoggedSet(reps: 5)])
+        let new = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.pushUpsID,
+            date: Date(timeIntervalSince1970: 2_000),
+            sets: [LoggedSet(reps: 10)])
         let viewModel = WorkoutHistoryViewModel(store: InMemoryWorkoutLogStore(initial: [old, new]))
 
         #expect(viewModel.entries.map(\.id) == [new.id, old.id])
@@ -145,8 +149,9 @@ struct WorkoutHistoryViewModelTests {
 
     @Test
     func deleteRemovesEntryFromStoreAndList() async {
-        let entry = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                                    sets: [LoggedSet(reps: 5)])
+        let entry = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.pullUpsID,
+            sets: [LoggedSet(reps: 5)])
         let store = InMemoryWorkoutLogStore(initial: [entry])
         let viewModel = WorkoutHistoryViewModel(store: store)
 
@@ -160,8 +165,9 @@ struct WorkoutHistoryViewModelTests {
     @Test
     func deleteFailureSurfacesError() async {
         let viewModel = WorkoutHistoryViewModel(store: ReadOnlyWorkoutLogStore())
-        let entry = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                                    sets: [LoggedSet(reps: 5)])
+        let entry = WorkoutLogEntry(
+            exerciseID: ExerciseCatalog.pullUpsID,
+            sets: [LoggedSet(reps: 5)])
 
         await viewModel.delete(entry)
 
@@ -178,9 +184,9 @@ struct PolishPluralTests {
         (4, "4 serie"),
         (5, "5 serii"),
         (11, "11 serii"),
-        (12, "12 serii"),   // teens exception
+        (12, "12 serii"), // teens exception
         (14, "14 serii"),
-        (22, "22 serie"),   // …but 22 goes back to "serie"
+        (22, "22 serie"), // …but 22 goes back to "serie"
         (25, "25 serii"),
         (0, "0 serii")
     ])

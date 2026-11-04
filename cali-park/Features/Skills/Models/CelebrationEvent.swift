@@ -18,8 +18,8 @@ nonisolated enum CelebrationEvent: Equatable, Hashable, Identifiable, Sendable {
     /// A stable identity, so a queue of events stays diffable in SwiftUI.
     var id: String {
         switch self {
-        case let .rungConquered(rung): "rung-\(rung.pathID.rawValue)-\(rung.stepID.uuidString)"
-        case let .levelReached(level): "level-\(level)"
+        case .rungConquered(let rung): "rung-\(rung.pathID.rawValue)-\(rung.stepID.uuidString)"
+        case .levelReached(let level): "level-\(level)"
         }
     }
 }

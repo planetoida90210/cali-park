@@ -122,8 +122,9 @@ private enum ActiveSheet: Identifiable {
         .ignoresSafeArea()
         .sheet(isPresented: .constant(true)) {
             QuickWorkoutView(
-                viewModel: QuickWorkoutViewModel(journal: TrainingJournal(store: InMemoryWorkoutLogStore()),
-                                                 plan: plan, clock: { .now })
+                viewModel: QuickWorkoutViewModel(
+                    journal: TrainingJournal(store: InMemoryWorkoutLogStore()),
+                    plan: plan, clock: { .now })
             )
             .preferredColorScheme(.dark)
         }
@@ -135,8 +136,9 @@ private enum ActiveSheet: Identifiable {
         .ignoresSafeArea()
         .sheet(isPresented: .constant(true)) {
             QuickWorkoutView(
-                viewModel: QuickWorkoutViewModel(journal: TrainingJournal(store: InMemoryWorkoutLogStore()),
-                                                 plan: plan, clock: { .now })
+                viewModel: QuickWorkoutViewModel(
+                    journal: TrainingJournal(store: InMemoryWorkoutLogStore()),
+                    plan: plan, clock: { .now })
             )
             .dynamicTypeSize(.accessibility5)
             .preferredColorScheme(.dark)

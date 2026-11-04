@@ -85,11 +85,13 @@ final class PlanEditorViewModel {
     }
 
     // MARK: Init
-    init(plan: WorkoutPlan?,
-         service: WorkoutPlanService,
-         isJustCreated: Bool = false,
-         calendar: Calendar = .current,
-         now: Date = .now) {
+    init(
+        plan: WorkoutPlan?,
+        service: WorkoutPlanService,
+        isJustCreated: Bool = false,
+        calendar: Calendar = .current,
+        now: Date = .now
+    ) {
         self.service = service
         self.isJustCreated = isJustCreated && plan != nil
         self.calendar = calendar

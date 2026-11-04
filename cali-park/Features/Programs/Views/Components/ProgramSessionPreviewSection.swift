@@ -9,9 +9,11 @@ struct ProgramSessionPreviewSection: View {
     var body: some View {
         Section {
             ForEach(plan.exercises) { planned in
-                ProgramItemRow(exercise: viewModel.exercise(for: planned),
-                               target: viewModel.targetSummary(for: planned, in: plan))
-                    .listRowBackground(Color.componentBackground)
+                ProgramItemRow(
+                    exercise: viewModel.exercise(for: planned),
+                    target: viewModel.targetSummary(for: planned, in: plan)
+                )
+                .listRowBackground(Color.componentBackground)
             }
         } header: {
             Text("Trening na Twoich szczeblach")

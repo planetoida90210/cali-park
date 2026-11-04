@@ -21,11 +21,13 @@ nonisolated struct ProgressionPath: Identifiable, Codable, Equatable, Hashable, 
     /// Never a prerequisite.
     var recommendedBase: String?
 
-    init(id: ProgressionPathID,
-         name: String,
-         symbolName: String,
-         steps: [ProgressionStep],
-         recommendedBase: String? = nil) {
+    init(
+        id: ProgressionPathID,
+        name: String,
+        symbolName: String,
+        steps: [ProgressionStep],
+        recommendedBase: String? = nil
+    ) {
         self.id = id
         self.name = name
         self.symbolName = symbolName

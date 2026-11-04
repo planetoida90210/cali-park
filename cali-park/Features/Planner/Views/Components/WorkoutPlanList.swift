@@ -40,9 +40,10 @@ struct WorkoutPlanList: View {
                     Button {
                         onEdit(plan)
                     } label: {
-                        WorkoutPlanRow(plan: plan,
-                                       summary: viewModel.scheduleSummary(for: plan),
-                                       reminder: viewModel.reminderSummary(for: plan))
+                        WorkoutPlanRow(
+                            plan: plan,
+                            summary: viewModel.scheduleSummary(for: plan),
+                            reminder: viewModel.reminderSummary(for: plan))
                     }
                     .listRowBackground(Color.componentBackground)
                     .listRowSeparatorTint(Color.divider)

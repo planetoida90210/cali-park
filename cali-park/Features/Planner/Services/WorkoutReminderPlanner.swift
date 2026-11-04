@@ -22,26 +22,31 @@ nonisolated enum WorkoutReminderPlanner {
     /// the same date, so a daily plan can't push out a weekly one that fires
     /// earlier. The cap bounds how far ahead reminders go; every sync (launch,
     /// foreground, background refresh, a plan or log change) tops them up.
-    static func requests(for plans: [WorkoutPlan],
-                         entries: [WorkoutLogEntry] = [],
-                         calendar: Calendar = .current,
-                         asOf reference: Date = .now,
-                         limit: Int = pendingLimit) -> [WorkoutReminderRequest] {
+    static func requests(
+        for plans: [WorkoutPlan],
+        entries: [WorkoutLogEntry] = [],
+        calendar: Calendar = .current,
+        asOf reference: Date = .now,
+        limit: Int = pendingLimit
+    ) -> [WorkoutReminderRequest] {
         let done = PlanAgenda.DoneDays(entries: entries, calendar: calendar)
         let all = plans.flatMap {
             Self.candidates(for: $0, skipping: done, calendar: calendar, asOf: reference, limit: limit)
         }
-        return all
+        return
+            all
             .sorted { $0.fireDate != $1.fireDate ? $0.fireDate < $1.fireDate : $0.request.id < $1.request.id }
             .prefix(max(0, limit))
             .map(\.request)
     }
 
-    static func requests(for plan: WorkoutPlan,
-                         entries: [WorkoutLogEntry] = [],
-                         calendar: Calendar = .current,
-                         asOf reference: Date = .now,
-                         limit: Int = pendingLimit) -> [WorkoutReminderRequest] {
+    static func requests(
+        for plan: WorkoutPlan,
+        entries: [WorkoutLogEntry] = [],
+        calendar: Calendar = .current,
+        asOf reference: Date = .now,
+        limit: Int = pendingLimit
+    ) -> [WorkoutReminderRequest] {
         requests(for: [plan], entries: entries, calendar: calendar, asOf: reference, limit: limit)
     }
 
@@ -55,15 +60,17 @@ nonisolated enum WorkoutReminderPlanner {
 
     /// Up to `limit` upcoming reminders for one plan, skipping done days.
     /// No plan needs more than `limit`, since the merged list is cut there.
-    private static func candidates(for plan: WorkoutPlan,
-                                   skipping done: PlanAgenda.DoneDays,
-                                   calendar: Calendar,
-                                   asOf reference: Date,
-                                   limit: Int) -> [Candidate] {
+    private static func candidates(
+        for plan: WorkoutPlan,
+        skipping done: PlanAgenda.DoneDays,
+        calendar: Calendar,
+        asOf reference: Date,
+        limit: Int
+    ) -> [Candidate] {
         guard plan.isActive,
-              let time = plan.reminderTime,
-              let hour = time.hour,
-              let minute = time.minute
+            let time = plan.reminderTime,
+            let hour = time.hour,
+            let minute = time.minute
         else { return [] }
 
         let title = plan.name.isEmpty ? String(localized: "Trening", comment: "Reminder title for a plan without a name") : plan.name
@@ -72,15 +79,17 @@ nonisolated enum WorkoutReminderPlanner {
         var result: [Candidate] = []
         var from = reference
         while result.count < limit,
-              let day = nextFireDay(for: plan.schedule, onOrAfter: from, hour: hour, minute: minute, calendar: calendar),
-              let fire = fireDate(on: day, hour: hour, minute: minute, calendar: calendar),
-              let dayAfter = calendar.date(byAdding: .day, value: 1, to: day) {
+            let day = nextFireDay(for: plan.schedule, onOrAfter: from, hour: hour, minute: minute, calendar: calendar),
+            let fire = fireDate(on: day, hour: hour, minute: minute, calendar: calendar),
+            let dayAfter = calendar.date(byAdding: .day, value: 1, to: day)
+        {
             if !done.contains(plan.id, on: day) {
-                let request = WorkoutReminderRequest(id: "plan-\(plan.id.uuidString)-\(dayKey(fire.components))",
-                                                     planID: plan.id,
-                                                     title: title,
-                                                     body: body,
-                                                     dateComponents: fire.components)
+                let request = WorkoutReminderRequest(
+                    id: "plan-\(plan.id.uuidString)-\(dayKey(fire.components))",
+                    planID: plan.id,
+                    title: title,
+                    body: body,
+                    dateComponents: fire.components)
                 result.append(Candidate(request: request, fireDate: fire.date))
             }
             from = dayAfter
@@ -93,13 +102,15 @@ nonisolated enum WorkoutReminderPlanner {
     /// The next scheduled day on or after `reference` whose reminder time is
     /// still ahead of `reference`. When that day's time already passed,
     /// advances to the following scheduled day (`nil` for a past one-off).
-    private static func nextFireDay(for schedule: WorkoutSchedule,
-                                    onOrAfter reference: Date,
-                                    hour: Int,
-                                    minute: Int,
-                                    calendar: Calendar) -> Date? {
+    private static func nextFireDay(
+        for schedule: WorkoutSchedule,
+        onOrAfter reference: Date,
+        hour: Int,
+        minute: Int,
+        calendar: Calendar
+    ) -> Date? {
         guard let day = schedule.nextOccurrence(onOrAfter: reference, calendar: calendar),
-              let fire = fireDate(on: day, hour: hour, minute: minute, calendar: calendar)
+            let fire = fireDate(on: day, hour: hour, minute: minute, calendar: calendar)
         else { return nil }
 
         if fire.date > reference { return day }
@@ -109,10 +120,12 @@ nonisolated enum WorkoutReminderPlanner {
     }
 
     /// The calendar components and instant of `hour:minute` on `day`.
-    private static func fireDate(on day: Date,
-                                 hour: Int,
-                                 minute: Int,
-                                 calendar: Calendar) -> (components: DateComponents, date: Date)? {
+    private static func fireDate(
+        on day: Date,
+        hour: Int,
+        minute: Int,
+        calendar: Calendar
+    ) -> (components: DateComponents, date: Date)? {
         var components = calendar.dateComponents([.year, .month, .day], from: day)
         components.hour = hour
         components.minute = minute

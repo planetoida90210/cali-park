@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 @MainActor
@@ -90,9 +91,9 @@ struct ExerciseLibraryViewModelTests {
     @Test(arguments: [
         ("pompki", ["Pompki"]),
         ("podciągnięcia", ["Podciągnięcia", "Podciągnięcia łucznicze"]),
-        ("podciagniecia", ["Podciągnięcia", "Podciągnięcia łucznicze"]),  // diacritic-insensitive
-        ("MUSCLE", ["Muscle-up"]),                                        // case-insensitive
-        ("  pompki  ", ["Pompki"]),                                       // trims whitespace
+        ("podciagniecia", ["Podciągnięcia", "Podciągnięcia łucznicze"]), // diacritic-insensitive
+        ("MUSCLE", ["Muscle-up"]), // case-insensitive
+        ("  pompki  ", ["Pompki"]), // trims whitespace
         ("kettlebell", [])
     ])
     func filtersBySearchText(query: String, expectedNames: [String]) {
@@ -211,7 +212,7 @@ struct ExercisePickerSearchTests {
     @Test
     func searchListsMovementsAndVariantsInCatalogOrder() {
         let viewModel = makeViewModel()
-        viewModel.searchText = "podciag"   // diacritic-insensitive
+        viewModel.searchText = "podciag" // diacritic-insensitive
 
         #expect(viewModel.pickerExercises == [Self.pullUps, Self.negatives, Self.chestToBar])
     }

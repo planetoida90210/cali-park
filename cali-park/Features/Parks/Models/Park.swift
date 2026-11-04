@@ -56,24 +56,26 @@ nonisolated struct Park: Identifiable, Hashable, Sendable {
     /// (`GLOSSARY.md`, 012). `sport=calisthenics` alone is not enough.
     var hasCoreEquipment: Bool { headlineEquipment != nil }
 
-    init(id: UUID,
-         latitude: Double,
-         longitude: Double,
-         status: ParkStatus = .published,
-         verification: ParkVerification = .osm,
-         source: ParkSource = .osm,
-         osmRefs: [String] = [],
-         name: String? = nil,
-         generatedName: String,
-         locality: Locality = Locality(),
-         equipment: [ParkEquipment] = [],
-         isCalisthenicsTagged: Bool = false,
-         hasMachines: Bool = false,
-         surface: ParkSurface? = nil,
-         lit: Bool? = nil,
-         covered: Bool? = nil,
-         access: ParkAccess = .public,
-         openingHours: String? = nil) {
+    init(
+        id: UUID,
+        latitude: Double,
+        longitude: Double,
+        status: ParkStatus = .published,
+        verification: ParkVerification = .osm,
+        source: ParkSource = .osm,
+        osmRefs: [String] = [],
+        name: String? = nil,
+        generatedName: String,
+        locality: Locality = Locality(),
+        equipment: [ParkEquipment] = [],
+        isCalisthenicsTagged: Bool = false,
+        hasMachines: Bool = false,
+        surface: ParkSurface? = nil,
+        lit: Bool? = nil,
+        covered: Bool? = nil,
+        access: ParkAccess = .public,
+        openingHours: String? = nil
+    ) {
         self.id = id
         self.latitude = latitude
         self.longitude = longitude
@@ -184,9 +186,9 @@ nonisolated struct Locality: Codable, Hashable, Sendable {
     /// "Mokotów, Warszawa", "Szamotuły", or nil when nothing is known.
     var label: String? {
         switch (district, city) {
-        case let (district?, city?): "\(district), \(city)"
-        case let (nil, city?): city
-        case let (district?, nil): district
+        case (let district?, let city?): "\(district), \(city)"
+        case (nil, let city?): city
+        case (let district?, nil): district
         case (nil, nil): nil
         }
     }

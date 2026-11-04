@@ -20,9 +20,10 @@ nonisolated enum ParkSearch {
         let tokens = normalized(query).split(whereSeparator: \.isWhitespace)
         guard !tokens.isEmpty else { return parks }
         return parks.filter { park in
-            let haystack = normalized([
-                park.displayName, park.generatedName, park.locality.city ?? "", park.locality.district ?? ""
-            ].joined(separator: " "))
+            let haystack = normalized(
+                [
+                    park.displayName, park.generatedName, park.locality.city ?? "", park.locality.district ?? ""
+                ].joined(separator: " "))
             return tokens.allSatisfy { haystack.contains($0) }
         }
     }
@@ -31,15 +32,18 @@ nonisolated enum ParkSearch {
     /// by city, then name, and no distance is invented.
     static func ordered(_ parks: [Park], from origin: CLLocationCoordinate2D?) -> [ParkDistance] {
         guard let origin else {
-            return parks
+            return
+                parks
                 .sorted { lhs, rhs in
-                    let lhsCity = lhs.locality.city ?? "", rhsCity = rhs.locality.city ?? ""
+                    let lhsCity = lhs.locality.city ?? ""
+                    let rhsCity = rhs.locality.city ?? ""
                     if lhsCity != rhsCity { return lhsCity.localizedStandardCompare(rhsCity) == .orderedAscending }
                     return lhs.displayName.localizedStandardCompare(rhs.displayName) == .orderedAscending
                 }
                 .map { ParkDistance(park: $0, meters: nil) }
         }
-        return parks
+        return
+            parks
             .map { ParkDistance(park: $0, meters: distance(from: origin, to: $0)) }
             .sorted { ($0.meters ?? 0, $0.park.id.uuidString) < ($1.meters ?? 0, $1.park.id.uuidString) }
     }

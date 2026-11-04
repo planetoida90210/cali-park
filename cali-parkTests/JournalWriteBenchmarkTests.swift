@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Journal write benchmark (C-8, D-7)
@@ -36,9 +37,10 @@ struct JournalWriteBenchmarkTests {
 
         var logged: [WorkoutLogEntry] = []
         let log = try await JournalBenchmark.median(runs: 7) {
-            let entry = WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                                        date: JournalBenchmark.start,
-                                        sets: [LoggedSet(reps: 8)])
+            let entry = WorkoutLogEntry(
+                exerciseID: ExerciseCatalog.pullUpsID,
+                date: JournalBenchmark.start,
+                sets: [LoggedSet(reps: 8)])
             logged.append(entry)
             try await journal.log(entry)
         }
@@ -53,46 +55,56 @@ struct JournalWriteBenchmarkTests {
         // without the file, to tell the two costs apart.
         let memoryJournal = TrainingJournal(store: InMemoryWorkoutLogStore(initial: entries))
         let inMemoryLog = try await JournalBenchmark.median(runs: 7) {
-            try await memoryJournal.log(WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                                                  date: JournalBenchmark.start,
-                                                  sets: [LoggedSet(reps: 8)]))
+            try await memoryJournal.log(
+                WorkoutLogEntry(
+                    exerciseID: ExerciseCatalog.pullUpsID,
+                    date: JournalBenchmark.start,
+                    sets: [LoggedSet(reps: 8)]))
         }
 
         // The longest the main actor stayed busy while a save went through
         // the file: what the user feels as a hitch.
         let stall = try await JournalBenchmark.longestMainActorStall {
-            try await journal.log(WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                                                  date: JournalBenchmark.start,
-                                                  sets: [LoggedSet(reps: 8)]))
+            try await journal.log(
+                WorkoutLogEntry(
+                    exerciseID: ExerciseCatalog.pullUpsID,
+                    date: JournalBenchmark.start,
+                    sets: [LoggedSet(reps: 8)]))
         }
 
         // The same save with everything that derives from it wired up as in
         // the app (progress, rewards, the weekly goal, Home), until Home shows
         // the new state: the main-actor time a save costs the interface.
         let calendar = Calendar.current
-        let progressService = ProgressService(journal: journal, placementStore: InMemorySkillPlacementStore(),
-                                              calendar: calendar, clock: { JournalBenchmark.start })
+        let progressService = ProgressService(
+            journal: journal, placementStore: InMemorySkillPlacementStore(),
+            calendar: calendar, clock: { JournalBenchmark.start })
         let rewards = RewardCenter(progress: progressService, store: InMemorySkillProgressStore(), goals: nil)
         let planService = WorkoutPlanService.testing(InMemoryWorkoutPlanStore())
-        let goals = WeeklyGoalService(journal: journal, store: InMemoryWeeklyGoalStore(), planService: planService,
-                                      calendar: calendar, clock: { JournalBenchmark.start })
-        let dashboard = HomeDashboardViewModel(journal: journal, planService: planService, progress: progressService,
-                                               goals: goals, defaults: .throwaway(), calendar: calendar,
-                                               clock: { JournalBenchmark.start })
+        let goals = WeeklyGoalService(
+            journal: journal, store: InMemoryWeeklyGoalStore(), planService: planService,
+            calendar: calendar, clock: { JournalBenchmark.start })
+        let dashboard = HomeDashboardViewModel(
+            journal: journal, planService: planService, progress: progressService,
+            goals: goals, defaults: .throwaway(), calendar: calendar,
+            clock: { JournalBenchmark.start })
         dashboard.reload()
         _ = dashboard.snapshot
         var derivedStalls: [Duration] = []
         var derivedTotals: [Duration] = []
         for _ in 0..<7 {
             let started = ContinuousClock.now
-            derivedStalls.append(try await JournalBenchmark.longestMainActorStall {
-                try await journal.log(WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID,
-                                                      date: JournalBenchmark.start,
-                                                      sets: [LoggedSet(reps: 8)]))
-                // Progress and Home are computed off the main actor; wait
-                // until Home holds the new snapshot.
-                await dashboard.settle()
-            })
+            derivedStalls.append(
+                try await JournalBenchmark.longestMainActorStall {
+                    try await journal.log(
+                        WorkoutLogEntry(
+                            exerciseID: ExerciseCatalog.pullUpsID,
+                            date: JournalBenchmark.start,
+                            sets: [LoggedSet(reps: 8)]))
+                    // Progress and Home are computed off the main actor; wait
+                    // until Home holds the new snapshot.
+                    await dashboard.settle()
+                })
             derivedTotals.append(ContinuousClock.now - started)
         }
         let derivedStall = derivedStalls.sorted()[derivedStalls.count / 2]
@@ -109,7 +121,8 @@ struct JournalWriteBenchmarkTests {
             _ = ProgressionEngine.snapshot(logs: entries, placement: nil, today: JournalBenchmark.start)
         }
 
-        print("""
+        print(
+            """
             [benchmark] journal file: \(entries.count) entries, \(bytes / 1024) KB
             [benchmark] store.load(): \(JournalBenchmark.format(load))
             [benchmark] journal.log(_:) through the file: \(JournalBenchmark.format(log))
@@ -153,11 +166,13 @@ nonisolated enum JournalBenchmark {
                 let sets = (0..<(3 + slot % 3)).map { set in
                     isHold ? LoggedSet(reps: 1, durationSeconds: 20 + set * 5) : LoggedSet(reps: 6 + (set + slot) % 7)
                 }
-                result.append(WorkoutLogEntry(exerciseID: exercise,
-                                              date: date.addingTimeInterval(Double(slot) * 300),
-                                              sets: sets,
-                                              sessionID: sessionID,
-                                              planID: planID))
+                result.append(
+                    WorkoutLogEntry(
+                        exerciseID: exercise,
+                        date: date.addingTimeInterval(Double(slot) * 300),
+                        sets: sets,
+                        sessionID: sessionID,
+                        planID: planID))
             }
             session += 1
         }

@@ -290,9 +290,11 @@ private struct DuplicateWarningSheet: View {
                     .font(.appTitle2.weight(.bold))
                     .foregroundStyle(Color.textPrimary)
                     .symbolRenderingMode(.multicolor)
-                Text("Twoja pinezka jest \(SubmissionFormat.meters(park.distance(from: pin))) od Parku, który już mamy na mapie. Sprawdź, czy to nie to samo miejsce.")
-                    .font(.subheadline)
-                    .foregroundStyle(Color.textSecondary)
+                Text(
+                    "Twoja pinezka jest \(SubmissionFormat.meters(park.distance(from: pin))) od Parku, który już mamy na mapie. Sprawdź, czy to nie to samo miejsce."
+                )
+                .font(.subheadline)
+                .foregroundStyle(Color.textSecondary)
 
                 VStack(alignment: .leading, spacing: 10) {
                     Text(park.name)

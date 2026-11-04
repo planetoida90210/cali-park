@@ -45,9 +45,11 @@ nonisolated struct FileWorkoutPlanStore: WorkoutPlanStoring {
     static let schemaVersion = 2
 
     /// - Parameter calendar: turns the instants of version 1 files into days.
-    init(directory: URL,
-         fileName: String = StoreFile.workoutPlans.fileName,
-         calendar: Calendar = .current) {
+    init(
+        directory: URL,
+        fileName: String = StoreFile.workoutPlans.fileName,
+        calendar: Calendar = .current
+    ) {
         file = JSONFileStore(
             fileURL: directory.appending(path: fileName),
             logCategory: "WorkoutPlanStore",

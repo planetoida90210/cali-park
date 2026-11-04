@@ -50,11 +50,13 @@ final class TrainingBackupViewModel {
     ///   - exportDirectory: where export files are written (a temporary
     ///     folder in the app; a test directory in tests).
     ///   - appVersion: stamped into the file, e.g. "1.0 (5)".
-    init(service: TrainingBackupService,
-         exportDirectory: URL = FileManager.default.temporaryDirectory,
-         appVersion: String = AppVersion.current.text,
-         calendar: Calendar = .current,
-         clock: @escaping () -> Date = { .now }) {
+    init(
+        service: TrainingBackupService,
+        exportDirectory: URL = FileManager.default.temporaryDirectory,
+        appVersion: String = AppVersion.current.text,
+        calendar: Calendar = .current,
+        clock: @escaping () -> Date = { .now }
+    ) {
         self.service = service
         self.exportDirectory = exportDirectory
         self.appVersion = appVersion

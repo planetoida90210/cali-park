@@ -67,7 +67,7 @@ nonisolated enum DiagnosticsFormat {
     private static func measurement(_ text: String) -> (number: Double, unit: String)? {
         let parts = text.split(separator: " ")
         guard parts.count == 2,
-              let number = Double(parts[0].replacingOccurrences(of: ",", with: ""))
+            let number = Double(parts[0].replacingOccurrences(of: ",", with: ""))
         else { return nil }
         return (number: number, unit: String(parts[1]))
     }

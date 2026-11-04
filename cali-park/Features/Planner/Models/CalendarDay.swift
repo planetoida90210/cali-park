@@ -98,8 +98,8 @@ nonisolated extension CalendarDay: Codable {
     private init?(key: String) {
         let parts = key.split(separator: "-", omittingEmptySubsequences: false)
         guard parts.count == 3, parts[0].count == 4, parts[1].count == 2, parts[2].count == 2,
-              parts.allSatisfy({ $0.allSatisfy(\.isASCII) && $0.allSatisfy(\.isNumber) }),
-              let year = Int(parts[0]), let month = Int(parts[1]), let day = Int(parts[2])
+            parts.allSatisfy({ $0.allSatisfy(\.isASCII) && $0.allSatisfy(\.isNumber) }),
+            let year = Int(parts[0]), let month = Int(parts[1]), let day = Int(parts[2])
         else { return nil }
         self.init(year: year, month: month, day: day)
     }

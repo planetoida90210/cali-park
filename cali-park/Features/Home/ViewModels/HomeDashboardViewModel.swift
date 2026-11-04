@@ -82,13 +82,15 @@ final class HomeDashboardViewModel {
     // MARK: Init
     /// Reads nothing: `HomeView` builds this in its `init`, which SwiftUI may
     /// run many times, so the view calls `reload()` on appear instead (D-6).
-    init(journal: TrainingJournal,
-         planService: WorkoutPlanService,
-         progress: ProgressService,
-         goals: WeeklyGoalService,
-         defaults: UserDefaults,
-         calendar: Calendar = .current,
-         clock: @escaping () -> Date = { .now }) {
+    init(
+        journal: TrainingJournal,
+        planService: WorkoutPlanService,
+        progress: ProgressService,
+        goals: WeeklyGoalService,
+        defaults: UserDefaults,
+        calendar: Calendar = .current,
+        clock: @escaping () -> Date = { .now }
+    ) {
         self.journal = journal
         self.planService = planService
         self.progress = progress
@@ -158,14 +160,16 @@ final class HomeDashboardViewModel {
     }
 
     private var currentKey: SnapshotKey {
-        SnapshotKey(plans: plansRevision,
-                    progress: progress.revision,
-                    day: calendar.startOfDay(for: now))
+        SnapshotKey(
+            plans: plansRevision,
+            progress: progress.revision,
+            day: calendar.startOfDay(for: now))
     }
 
     private func currentInput() -> SnapshotInput {
-        SnapshotInput(entries: journal.newestFirst, plans: plans, progress: progress.snapshot,
-                      calendar: calendar, today: now)
+        SnapshotInput(
+            entries: journal.newestFirst, plans: plans, progress: progress.snapshot,
+            calendar: calendar, today: now)
     }
 
     /// Computes the snapshot for `key` off the main actor and publishes it,

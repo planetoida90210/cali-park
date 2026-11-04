@@ -8,11 +8,12 @@ nonisolated extension CelebrationPresentation {
         let title = WeeklyGoalFormat.title(progress.goal.metric)
         let subtitle = isPrimary && streak > 0 ? WeeklyGoalFormat.streak(streak) : nil
         let spokenTitle = WeeklyGoalFormat.spokenTitle(progress.goal.metric)
-        let accessibilityLabel = if let subtitle {
-            String(localized: "Cel tygodniowy wykonany: \(spokenTitle). \(subtitle).")
-        } else {
-            String(localized: "Cel tygodniowy wykonany: \(spokenTitle).")
-        }
+        let accessibilityLabel =
+            if let subtitle {
+                String(localized: "Cel tygodniowy wykonany: \(spokenTitle). \(subtitle).")
+            } else {
+                String(localized: "Cel tygodniowy wykonany: \(spokenTitle).")
+            }
         return CelebrationPresentation(
             eyebrow: String(localized: "CEL TYGODNIOWY WYKONANY"),
             title: title,

@@ -31,21 +31,24 @@ struct ProfileStatisticsGrid: View {
     }
 
     private var workoutsTile: some View {
-        tile(value: "\(statistics.workouts)",
-             caption: PolishPlural.form(for: statistics.workouts, one: "trening", few: "treningi", many: "treningów"),
-             systemImage: "figure.strengthtraining.functional")
+        tile(
+            value: "\(statistics.workouts)",
+            caption: PolishPlural.form(for: statistics.workouts, one: "trening", few: "treningi", many: "treningów"),
+            systemImage: "figure.strengthtraining.functional")
     }
 
     private var dayStreakTile: some View {
-        tile(value: "\(statistics.dayStreak)",
-             caption: String(localized: "seria dni · rekord \(statistics.longestDayStreak)"),
-             systemImage: "flame.fill")
+        tile(
+            value: "\(statistics.dayStreak)",
+            caption: String(localized: "seria dni · rekord \(statistics.longestDayStreak)"),
+            systemImage: "flame.fill")
     }
 
     private var weekStreakTile: some View {
-        tile(value: statistics.weekStreak.map(String.init) ?? "–",
-             caption: String(localized: "seria tygodni z celem"),
-             systemImage: "calendar")
+        tile(
+            value: statistics.weekStreak.map(String.init) ?? "–",
+            caption: String(localized: "seria tygodni z celem"),
+            systemImage: "calendar")
     }
 
     private func tile(value: String, caption: String, systemImage: String) -> some View {

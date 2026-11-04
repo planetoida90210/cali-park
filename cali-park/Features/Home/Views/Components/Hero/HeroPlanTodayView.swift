@@ -63,11 +63,13 @@ struct HeroPlanTodayView: View {
 // MARK: - Preview
 #Preview("Plan dziś") {
     HeroPlanTodayView(
-        plan: WorkoutPlan(name: "Push Day", exercises: [
-            PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID),
-            PlannedExercise(exerciseID: ExerciseCatalog.dipsID),
-            PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)
-        ]),
+        plan: WorkoutPlan(
+            name: "Push Day",
+            exercises: [
+                PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID),
+                PlannedExercise(exerciseID: ExerciseCatalog.dipsID),
+                PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)
+            ]),
         loggedTodayReps: 24,
         weeklyGoal: WeeklyGoalPreview.running,
         onStart: {}

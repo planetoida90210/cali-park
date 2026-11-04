@@ -42,7 +42,7 @@ nonisolated enum WorkoutScheduleFormatter {
         locale: Locale = .current
     ) -> String {
         guard schedule.isExpired(asOf: reference, calendar: calendar),
-              case .once(let day?) = schedule
+            case .once(let day?) = schedule
         else { return summary(schedule, calendar: calendar, locale: locale) }
         let dateText = shortDate(day.startDate(in: calendar), calendar: calendar, locale: locale)
         return String(localized: "Minął · \(dateText)")

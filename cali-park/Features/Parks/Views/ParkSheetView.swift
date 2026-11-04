@@ -40,16 +40,18 @@ struct ParkSheetView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                ParkCardHeader(park: park, distance: distance, isFavorite: isFavorite, isExpanded: isExpanded,
-                               onToggleFavorite: onToggleFavorite, onExpand: onExpand, onClose: onClose)
-                    .accessibilityIdentifier("parks.card")
-                    .padding(.horizontal, 20)
-                    .padding(.top, ParkSheetView.headerTopPadding)
-                    .onGeometryChange(for: CGFloat.self) { proxy in
-                        proxy.size.height
-                    } action: { height in
-                        onHeaderHeightChange(height)
-                    }
+                ParkCardHeader(
+                    park: park, distance: distance, isFavorite: isFavorite, isExpanded: isExpanded,
+                    onToggleFavorite: onToggleFavorite, onExpand: onExpand, onClose: onClose
+                )
+                .accessibilityIdentifier("parks.card")
+                .padding(.horizontal, 20)
+                .padding(.top, ParkSheetView.headerTopPadding)
+                .onGeometryChange(for: CGFloat.self) { proxy in
+                    proxy.size.height
+                } action: { height in
+                    onHeaderHeightChange(height)
+                }
 
                 VStack(alignment: .leading, spacing: 28) {
                     ForEach(ParkCardSection.allCases) { section in
@@ -124,18 +126,20 @@ private struct ParkCardHeader: View {
                     }
                 }
                 Spacer(minLength: 0)
-                Button(isFavorite ? "Usuń z ulubionych" : "Dodaj do ulubionych",
-                       systemImage: isFavorite ? "heart.fill" : "heart",
-                       action: onToggleFavorite)
-                    .labelStyle(.iconOnly)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(isFavorite ? Color.accent : Color.textSecondary)
-                    .scaledIconFrame(32, relativeTo: .subheadline)
-                    .background(Color.controlFill, in: .circle)
-                    .buttonStyle(.plain)
-                    .contentTransition(.symbolEffect(.replace))
-                    .sensoryFeedback(.selection, trigger: isFavorite)
-                    .accessibilityAddTraits(isFavorite ? .isSelected : [])
+                Button(
+                    isFavorite ? "Usuń z ulubionych" : "Dodaj do ulubionych",
+                    systemImage: isFavorite ? "heart.fill" : "heart",
+                    action: onToggleFavorite
+                )
+                .labelStyle(.iconOnly)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(isFavorite ? Color.accent : Color.textSecondary)
+                .scaledIconFrame(32, relativeTo: .subheadline)
+                .background(Color.controlFill, in: .circle)
+                .buttonStyle(.plain)
+                .contentTransition(.symbolEffect(.replace))
+                .sensoryFeedback(.selection, trigger: isFavorite)
+                .accessibilityAddTraits(isFavorite ? .isSelected : [])
                 Button("Zamknij", systemImage: "xmark", action: onClose)
                     .labelStyle(.iconOnly)
                     .font(.subheadline.weight(.semibold))
@@ -163,8 +167,8 @@ private struct ParkCardHeader: View {
                 }
                 if !isExpanded {
                     Button("Szczegóły", systemImage: "chevron.up", action: onExpand)
-                    .buttonStyle(ParkCardButtonStyle(isProminent: false))
-                    .accessibilityHint("Rozwija pełną kartę Parku")
+                        .buttonStyle(ParkCardButtonStyle(isProminent: false))
+                        .accessibilityHint("Rozwija pełną kartę Parku")
                 }
             }
         }
@@ -220,44 +224,51 @@ struct ParkCardButtonStyle: ButtonStyle {
 
 // MARK: - Previews
 #Preview("Rich OSM data") {
-    ParkSheetPreview(park: Park(
-        id: UUID(), latitude: 50.285, longitude: 18.594,
-        osmRefs: ["n13608564606"],
-        generatedName: "Street workout · Skwer Młodego Strażaka",
-        locality: Locality(city: "Gliwice", district: "Ostropa"),
-        equipment: [ParkEquipment(type: .horizontalBar, count: 7, heights: [.low, .high]),
-                    ParkEquipment(type: .parallelBars, count: 2),
-                    ParkEquipment(type: .rings),
-                    ParkEquipment(type: .horizontalLadder),
-                    ParkEquipment(type: .wallBars, count: 2),
-                    ParkEquipment(type: .climbingPole)],
-        hasMachines: true, surface: .rubber, lit: false, openingHours: "Mo-Su 06:00-22:00"
-    ), distance: 1250)
+    ParkSheetPreview(
+        park: Park(
+            id: UUID(), latitude: 50.285, longitude: 18.594,
+            osmRefs: ["n13608564606"],
+            generatedName: "Street workout · Skwer Młodego Strażaka",
+            locality: Locality(city: "Gliwice", district: "Ostropa"),
+            equipment: [
+                ParkEquipment(type: .horizontalBar, count: 7, heights: [.low, .high]),
+                ParkEquipment(type: .parallelBars, count: 2),
+                ParkEquipment(type: .rings),
+                ParkEquipment(type: .horizontalLadder),
+                ParkEquipment(type: .wallBars, count: 2),
+                ParkEquipment(type: .climbingPole)
+            ],
+            hasMachines: true, surface: .rubber, lit: false, openingHours: "Mo-Su 06:00-22:00"
+        ), distance: 1250)
 }
 
 #Preview("Rich OSM data · AX5") {
-    ParkSheetPreview(park: Park(
-        id: UUID(), latitude: 50.285, longitude: 18.594,
-        osmRefs: ["n13608564606"],
-        generatedName: "Street workout · Skwer Młodego Strażaka",
-        locality: Locality(city: "Gliwice", district: "Ostropa"),
-        equipment: [ParkEquipment(type: .horizontalBar, count: 7, heights: [.low, .high]),
-                    ParkEquipment(type: .parallelBars, count: 2),
-                    ParkEquipment(type: .rings)],
-        hasMachines: true, surface: .rubber, lit: false, openingHours: "Mo-Su 06:00-22:00"
-    ), distance: 1250)
+    ParkSheetPreview(
+        park: Park(
+            id: UUID(), latitude: 50.285, longitude: 18.594,
+            osmRefs: ["n13608564606"],
+            generatedName: "Street workout · Skwer Młodego Strażaka",
+            locality: Locality(city: "Gliwice", district: "Ostropa"),
+            equipment: [
+                ParkEquipment(type: .horizontalBar, count: 7, heights: [.low, .high]),
+                ParkEquipment(type: .parallelBars, count: 2),
+                ParkEquipment(type: .rings)
+            ],
+            hasMachines: true, surface: .rubber, lit: false, openingHours: "Mo-Su 06:00-22:00"
+        ), distance: 1250
+    )
     .dynamicTypeSize(.accessibility5)
 }
 
-
 #Preview("Sparse OSM data, no location") {
-    ParkSheetPreview(park: Park(
-        id: UUID(), latitude: 52.23, longitude: 20.97,
-        osmRefs: ["w123456"],
-        generatedName: "Drążki · ul. Kasprzaka",
-        locality: Locality(city: "Warszawa", district: "Wola"),
-        equipment: [ParkEquipment(type: .horizontalBar)]
-    ), distance: nil)
+    ParkSheetPreview(
+        park: Park(
+            id: UUID(), latitude: 52.23, longitude: 20.97,
+            osmRefs: ["w123456"],
+            generatedName: "Drążki · ul. Kasprzaka",
+            locality: Locality(city: "Warszawa", district: "Wola"),
+            equipment: [ParkEquipment(type: .horizontalBar)]
+        ), distance: nil)
 }
 
 private struct ParkSheetPreview: View {
@@ -269,11 +280,13 @@ private struct ParkSheetPreview: View {
     var body: some View {
         Color.appBackground
             .sheet(isPresented: .constant(true)) {
-                ParkSheetView(park: park, distance: distance, dataTimestamp: .now,
-                              isFavorite: isFavorite, isExpanded: detent == .large,
-                              onHeaderHeightChange: { _ in }, onToggleFavorite: { isFavorite.toggle() },
-                              onExpand: { detent = .large }, onClose: {})
-                    .presentationDetents([.height(260), .large], selection: $detent)
+                ParkSheetView(
+                    park: park, distance: distance, dataTimestamp: .now,
+                    isFavorite: isFavorite, isExpanded: detent == .large,
+                    onHeaderHeightChange: { _ in }, onToggleFavorite: { isFavorite.toggle() },
+                    onExpand: { detent = .large }, onClose: {}
+                )
+                .presentationDetents([.height(260), .large], selection: $detent)
             }
             .preferredColorScheme(.dark)
     }

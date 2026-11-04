@@ -10,6 +10,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Fixtures
@@ -208,7 +209,7 @@ struct ProgressionEngineExperienceTests {
         // the athlete declares.
         let placement = SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.archerPullUpsID])
         let state = Fixture.pullUpState(logs: [], placement: placement)
-        #expect(state.currentRungIndex == 7)                 // declaration applied…
+        #expect(state.currentRungIndex == 7) // declaration applied…
         #expect(ProgressionEngine.experiencePoints(for: []) == 0) // …but zero XP.
     }
 
@@ -230,12 +231,12 @@ struct ProgressionEngineExperienceTests {
     }
 
     @Test(arguments: [
-        (0, 1),        // start of level 1
-        (499, 1),      // just below level 2
-        (500, 2),      // threshold for level 2
+        (0, 1), // start of level 1
+        (499, 1), // just below level 2
+        (500, 2), // threshold for level 2
         (1999, 2),
-        (2000, 3),     // threshold for level 3
-        (4500, 4)      // threshold for level 4
+        (2000, 3), // threshold for level 3
+        (4500, 4) // threshold for level 4
     ])
     func levelThresholds(xp: Int, expectedLevel: Int) {
         #expect(PlayerLevel.forXP(xp).level == expectedLevel)
@@ -347,9 +348,10 @@ struct SkillPlacementStoreTests {
         #expect(try store.load() == nil)
 
         // ISO 8601 stores whole seconds, so a sub-second `.now` wouldn't roundtrip.
-        let placement = SkillPlacement(declaredRungByPath: [.core: 1],
-                                       ownedEquipment: ["Pull-up bar"],
-                                       declaredAt: Date(timeIntervalSince1970: 1_000_000))
+        let placement = SkillPlacement(
+            declaredRungByPath: [.core: 1],
+            ownedEquipment: ["Pull-up bar"],
+            declaredAt: Date(timeIntervalSince1970: 1_000_000))
         try store.save(placement)
         #expect(try store.load() == placement)
     }
