@@ -5,7 +5,8 @@ import SwiftUI
 /// library's category filter, but tapping a row calls `onPick` instead of
 /// navigating. Searching also finds progression variants; tapping a movement
 /// that has variants first asks which one was done. The athlete's favorites
-/// ("Ulubione") come first, read from the `ExerciseFavorites` in the
+/// ("Ulubione") come first, then the recently logged exercises ("Ostatnio"),
+/// read from the `ExerciseFavorites` and `TrainingJournal` in the
 /// environment. Used by the quick workout, the plan editor and the weekly
 /// goal editor.
 struct ExercisePickerSheet: View {
@@ -90,9 +91,13 @@ private struct ExercisePickerList: View {
     let onPick: (Exercise) -> Void
 
     @Environment(ExerciseFavorites.self) private var favorites: ExerciseFavorites?
+    @Environment(TrainingJournal.self) private var journal: TrainingJournal?
 
     var body: some View {
-        let sections = viewModel.pickerSections(favoriteIDs: favorites?.ids ?? [])
+        let sections = viewModel.pickerSections(
+            favoriteIDs: favorites?.ids ?? [],
+            recentExerciseIDs: (journal?.newestFirst ?? []).lazy.map(\.exerciseID)
+        )
         if sections.isEmpty {
             VStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
@@ -127,15 +132,20 @@ private struct ExercisePickerList: View {
 }
 
 // MARK: - Preview
-#Preview("Ulubione") {
-    let environment = AppEnvironment.seeded(favoriteExercises: [
-        ExerciseCatalog.australianPullUpsID, ExerciseCatalog.pullUpsID, ExerciseCatalog.diamondPushUpsID
-    ])
+#Preview("Ulubione i ostatnie") {
+    let environment = AppEnvironment.seeded(
+        logs: [
+            WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID, sets: [LoggedSet(reps: 10)]),
+            WorkoutLogEntry(exerciseID: ExerciseCatalog.squatsID, sets: [LoggedSet(reps: 20)])
+        ],
+        favoriteExercises: [ExerciseCatalog.australianPullUpsID, ExerciseCatalog.pullUpsID, ExerciseCatalog.diamondPushUpsID]
+    )
     Color.appBackground
         .ignoresSafeArea()
         .sheet(isPresented: .constant(true)) {
             ExercisePickerSheet { _ in }
                 .environment(environment.exerciseFavorites)
+                .environment(environment.journal)
                 .preferredColorScheme(.dark)
         }
 }

@@ -282,3 +282,106 @@ struct ExerciseListSectionsTests {
         #expect(result.last?.exercises == ExerciseCatalog.mainMovements)
     }
 }
+
+// MARK: - Ostatnio
+
+@Suite("Exercise picker: recently used")
+struct ExerciseRecentSectionTests {
+    fileprivate typealias S = ExerciseFavoritesSupport
+
+    private func sections(favorites: [UUID] = [],
+                          recent: [UUID],
+                          category: ExerciseCategory? = nil,
+                          query: String = "") -> [ExerciseListSection] {
+        ExerciseListSections.make(catalog: S.catalog, favoriteIDs: favorites, recentExerciseIDs: recent,
+                                  category: category, query: query, includesVariants: true)
+    }
+
+    @Test("Ostatnio comes after Ulubione, newest first, each exercise once")
+    func order() {
+        let result = sections(favorites: [S.pullUps.id],
+                              recent: [S.diamond.id, S.archer.id, S.diamond.id, S.muscleUp.id])
+
+        #expect(result.map(\.kind) == [.favorites, .recent, .catalog])
+        #expect(result.map(\.title) == ["Ulubione", "Ostatnio", "Wszystkie ćwiczenia"])
+        #expect(result[1].exercises == [S.diamond, S.archer, S.muscleUp])
+    }
+
+    @Test("Favorites never repeat in Ostatnio")
+    func excludesFavorites() {
+        let result = sections(favorites: [S.archer.id], recent: [S.archer.id, S.pushUps.id, S.archer.id])
+        #expect(result[1].kind == .recent)
+        #expect(result[1].exercises == [S.pushUps])
+    }
+
+    @Test("Without favorites, Ostatnio leads and the catalog gets its title")
+    func recentWithoutFavorites() {
+        let result = sections(recent: [S.pushUps.id])
+        #expect(result.map(\.kind) == [.recent, .catalog])
+        #expect(result.last?.title == "Wszystkie ćwiczenia")
+    }
+
+    @Test("At most five, counted after favorites and removed exercises are skipped")
+    func limit() {
+        let many = [S.goneExerciseID, S.pullUps.id] + S.catalog.map(\.id)
+        let result = sections(favorites: [S.pullUps.id], recent: many)
+
+        #expect(result[1].exercises == [S.australian, S.archer, S.pushUps, S.diamond, S.muscleUp])
+        #expect(ExerciseListSections.recentLimit == 5)
+    }
+
+    @Test("Reading stops once Ostatnio is full")
+    func stopsEarly() {
+        var read = 0
+        let ids = S.catalog.map(\.id) + Array(repeating: S.pullUps.id, count: 1_000)
+        let counted = ids.lazy.map { id -> UUID in
+            read += 1
+            return id
+        }
+        _ = ExerciseListSections.make(catalog: S.catalog, favoriteIDs: [], recentExerciseIDs: counted,
+                                      category: nil, query: "", includesVariants: true)
+        #expect(read == 5)
+    }
+
+    @Test("The category chip filters Ostatnio too")
+    func categoryFilters() {
+        let result = sections(recent: [S.archer.id, S.pushUps.id, S.diamond.id], category: .advanced)
+        #expect(result.first?.kind == .recent)
+        #expect(result.first?.exercises == [S.archer, S.diamond])
+    }
+
+    @Test("A search hides Ostatnio and searches everything")
+    func searchHidesRecent() {
+        let result = sections(recent: [S.muscleUp.id], query: "muscle")
+        #expect(result.map(\.kind) == [.catalog])
+        #expect(result[0].exercises == [S.muscleUp])
+    }
+
+    @Test("The picker reads Ostatnio from the journal, newest entry first")
+    @MainActor
+    func fromJournal() {
+        let reference = Date(timeIntervalSince1970: 1_790_000_000)
+        func entry(_ id: UUID, daysAgo: Int) -> WorkoutLogEntry {
+            WorkoutLogEntry(exerciseID: id,
+                            date: reference.addingTimeInterval(-Double(daysAgo) * 86_400),
+                            sets: [LoggedSet(reps: 5)])
+        }
+        let environment = AppEnvironment.seeded(
+            logs: [
+                entry(ExerciseCatalog.dipsID, daysAgo: 3),
+                entry(ExerciseCatalog.squatsID, daysAgo: 1),
+                entry(S.goneExerciseID, daysAgo: 0)
+            ],
+            favoriteExercises: [ExerciseCatalog.pullUpsID]
+        )
+        let viewModel = environment.makeExerciseLibraryViewModel()
+
+        let result = viewModel.pickerSections(
+            favoriteIDs: environment.exerciseFavorites.ids,
+            recentExerciseIDs: environment.journal.newestFirst.lazy.map(\.exerciseID)
+        )
+
+        #expect(result.map(\.kind) == [.favorites, .recent, .catalog])
+        #expect(result[1].exercises.map(\.id) == [ExerciseCatalog.squatsID, ExerciseCatalog.dipsID])
+    }
+}

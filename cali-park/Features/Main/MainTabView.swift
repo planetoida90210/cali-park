@@ -34,8 +34,10 @@ struct MainTabView: View {
         // celebrates where it was saved, exactly once.
         .rewardOverlay()
         .environment(environment.rewardCenter)
-        // Every exercise picker lists the favorites first, wherever it opens.
+        // Every exercise picker lists the favorites first, then the recently
+        // logged exercises, wherever it opens.
         .environment(environment.exerciseFavorites)
+        .environment(environment.journal)
         // Lets deep views (the Home achievements module) switch tabs.
         .environment(router)
     }

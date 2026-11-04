@@ -1,11 +1,14 @@
 import Foundation
 
 // MARK: - ExerciseListSection
-/// One block of an exercise list: "Ulubione" first, then the whole catalog.
+/// One block of an exercise list: "Ulubione" first, then "Ostatnio", then
+/// the whole catalog.
 nonisolated struct ExerciseListSection: Identifiable, Equatable, Sendable {
     enum Kind: Hashable, Sendable {
         /// The athlete's favorite exercises, in the order they were added.
         case favorites
+        /// Exercises from the most recent journal entries, newest first.
+        case recent
         /// The catalog list as it always was (or the search results).
         case catalog
     }
@@ -26,21 +29,31 @@ nonisolated struct ExerciseListSection: Identifiable, Equatable, Sendable {
 /// - With a search query there is one untitled section: every match, in
 ///   catalog order. Search always searches everything.
 /// - Without one, "Ulubione" (favorites in the order they were added) comes
-///   first, then "Wszystkie ćwiczenia": the catalog list exactly as before,
-///   favorites included, so nothing moves out of its usual place.
+///   first, then "Ostatnio" (up to `recentLimit` distinct exercises from the
+///   newest journal entries, favorites left out), then "Wszystkie
+///   ćwiczenia": the catalog list exactly as before, favorites included, so
+///   nothing moves out of its usual place. Nothing about "Ostatnio" is
+///   stored; it is read from the journal.
 /// - The category chip filters every section.
-/// - Favorite IDs missing from the catalog are skipped.
+/// - Favorite and recent IDs missing from the catalog are skipped.
 nonisolated enum ExerciseListSections {
     static let favoritesTitle = "Ulubione"
+    static let recentTitle = "Ostatnio"
+    /// How many recent exercises "Ostatnio" lists at most.
+    static let recentLimit = 5
     static let catalogTitle = "Wszystkie ćwiczenia"
 
     /// - Parameters:
     ///   - catalog: every exercise, progression variants included.
+    ///   - recentExerciseIDs: the journal's exercise IDs, newest entry first
+    ///     (repeats allowed); read only until "Ostatnio" is full. Empty in
+    ///     the Exercises tab.
     ///   - includesVariants: whether search also matches progression variants
     ///     (the pickers) or only main movements (the Exercises tab). The
     ///     catalog section without a search lists main movements only.
     static func make(catalog: [Exercise],
                      favoriteIDs: [UUID],
+                     recentExerciseIDs: some Sequence<UUID> = [UUID](),
                      category: ExerciseCategory?,
                      query: String,
                      includesVariants: Bool) -> [ExerciseListSection] {
@@ -54,11 +67,16 @@ nonisolated enum ExerciseListSections {
 
         let byID = Dictionary(catalog.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         let favorites = filtered(unique(favoriteIDs).compactMap { byID[$0] }, category: category, query: "")
+        let recent = recentExercises(recentExerciseIDs, byID: byID,
+                                     excluding: Set(favorites.map(\.id)), category: category)
         let everything = filtered(mainMovements, category: category, query: "")
 
         var sections: [ExerciseListSection] = []
         if !favorites.isEmpty {
             sections.append(ExerciseListSection(kind: .favorites, title: favoritesTitle, exercises: favorites))
+        }
+        if !recent.isEmpty {
+            sections.append(ExerciseListSection(kind: .recent, title: recentTitle, exercises: recent))
         }
         if !everything.isEmpty {
             sections.append(ExerciseListSection(kind: .catalog,
@@ -77,6 +95,22 @@ nonisolated enum ExerciseListSections {
             (category == nil || exercise.category == category)
                 && (query.isEmpty || exercise.name.localizedStandardContains(query))
         }
+    }
+
+    /// Up to `recentLimit` distinct catalog exercises in the order of
+    /// `ids`, skipping favorites and other categories.
+    private static func recentExercises(_ ids: some Sequence<UUID>,
+                                        byID: [UUID: Exercise],
+                                        excluding favorites: Set<UUID>,
+                                        category: ExerciseCategory?) -> [Exercise] {
+        var seen = favorites
+        var result: [Exercise] = []
+        for id in ids where seen.insert(id).inserted {
+            guard let exercise = byID[id], category == nil || exercise.category == category else { continue }
+            result.append(exercise)
+            if result.count == recentLimit { break }
+        }
+        return result
     }
 
     private static func unique(_ ids: [UUID]) -> [UUID] {
