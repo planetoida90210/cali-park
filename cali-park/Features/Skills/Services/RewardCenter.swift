@@ -204,8 +204,11 @@ final class RewardCenter {
         if currentCelebration == nil { batchStartXP = nil }
     }
 
-    /// Clears the XP toast once it has been shown.
-    func clearXPToast() {
+    /// Clears the XP toast for `amount` once it has been shown. A newer toast
+    /// for a different amount stays up, so an older overlay timer can't hide
+    /// it early (D-13).
+    func clearXPToast(_ amount: Int) {
+        guard xpToastAmount == amount else { return }
         xpToastAmount = nil
     }
 

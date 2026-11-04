@@ -319,7 +319,7 @@ struct RewardCenterTests {
 
         let toast = try #require(stack.rewards.xpToastAmount)
         #expect(toast == 5 * ProgressionEngine.xpPerRep)
-        stack.rewards.clearXPToast() // shown by the overlay
+        stack.rewards.clearXPToast(toast) // shown by the overlay
 
         // Both screens reappear and refresh: nothing is announced again.
         ladder.load()
@@ -327,6 +327,28 @@ struct RewardCenterTests {
         stack.rewards.refresh()
         #expect(stack.rewards.xpToastAmount == nil)
         #expect(stack.rewards.currentCelebration == nil)
+    }
+
+    /// D-13: the overlay timer of an older toast must not hide a newer one.
+    @Test
+    func clearingAnOlderToastKeepsTheNewerOne() throws {
+        let stack = TrainingStack(logStore: InMemoryWorkoutLogStore(initial: [JournalFixture.pullUps([8, 8, 8])]))
+        let setPad = WorkoutLogViewModel(exercise: try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
+                                         journal: stack.journal)
+        setPad.input.appendDigit(5)
+        setPad.save()
+        let first = try #require(stack.rewards.xpToastAmount)
+
+        setPad.input.appendDigit(3)
+        setPad.save()
+        let second = try #require(stack.rewards.xpToastAmount)
+        #expect(second != first)
+
+        stack.rewards.clearXPToast(first)
+        #expect(stack.rewards.xpToastAmount == second)
+
+        stack.rewards.clearXPToast(second)
+        #expect(stack.rewards.xpToastAmount == nil)
     }
 
     /// A-10: after a celebration plays, popping back must not toast the same

@@ -50,6 +50,8 @@ final class HomeDashboardViewModel {
     private let clock: () -> Date
 
     // MARK: Init
+    /// Reads nothing: `HomeView` builds this in its `init`, which SwiftUI may
+    /// run many times, so the view calls `reload()` on appear instead (D-6).
     init(journal: TrainingJournal,
          planService: WorkoutPlanService,
          progress: ProgressService,
@@ -63,7 +65,6 @@ final class HomeDashboardViewModel {
         self.calendar = calendar
         self.clock = clock
         self.now = clock()
-        reload()
     }
 
     // MARK: Intentions

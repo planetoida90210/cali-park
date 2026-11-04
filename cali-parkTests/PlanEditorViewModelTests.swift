@@ -211,8 +211,22 @@ struct WorkoutPlansViewModelTests {
         let store = InMemoryWorkoutPlanStore(initial: [older, newer])
 
         let viewModel = WorkoutPlansViewModel(service: .testing(store))
+        viewModel.reload()
 
         #expect(viewModel.plans.map(\.name) == ["New", "Old"])
+    }
+
+    /// D-6: the view builds the view model in its `init`, which SwiftUI may
+    /// run many times, so the init must not read the store; appear does.
+    @Test
+    func initReadsNothingUntilReload() {
+        let store = InMemoryWorkoutPlanStore(initial: [WorkoutPlan(name: "Plan", schedule: .weekly([.monday]))])
+
+        let viewModel = WorkoutPlansViewModel(service: .testing(store))
+        #expect(viewModel.plans.isEmpty)
+
+        viewModel.reload()
+        #expect(viewModel.plans.map(\.name) == ["Plan"])
     }
 
     @Test

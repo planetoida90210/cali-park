@@ -45,8 +45,10 @@ private struct RewardOverlayContent: ViewModifier {
                         .task(id: amount) {
                             // The toast never takes focus, so VoiceOver hears it as an announcement.
                             AccessibilityNotification.Announcement(XPToastView.spokenText(amount: amount)).post()
-                            try? await Task.sleep(for: .seconds(2))
-                            center.clearXPToast()
+                            // A new amount cancels this task: then it must
+                            // not clear the new toast.
+                            do { try await Task.sleep(for: .seconds(2)) } catch { return }
+                            center.clearXPToast(amount)
                         }
                 }
             }

@@ -416,6 +416,7 @@ struct StoreLoadFailureViewModelTests {
     @Test
     func plansListReportsLoadFailure() {
         let viewModel = WorkoutPlansViewModel(service: .testing(BrokenPlanStore()))
+        viewModel.reload()
 
         #expect(viewModel.hasLoadError)
         #expect(viewModel.errorMessage == StoreLoadFailure.message)

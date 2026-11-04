@@ -4,9 +4,10 @@ import Foundation
 // MARK: - AppEnvironment
 /// Composition root: owns the single instances of app services and hands them
 /// to view models through initializer injection (no global singletons).
-/// Swapping a backend implementation later is a one-line change here.
+/// Swapping a backend implementation later is a one-line change here. A plain
+/// class: nothing observes it, views get it (or what it makes) explicitly.
 @MainActor
-final class AppEnvironment: ObservableObject {
+final class AppEnvironment {
     // MARK: Services
     /// Read-only Parks: the bundled OSM snapshot today, the backend later.
     let parkDirectory: ParkDirectory

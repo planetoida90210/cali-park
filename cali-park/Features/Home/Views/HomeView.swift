@@ -132,9 +132,11 @@ struct HomeView: View {
                     nearestParkRefresh += 1
                 }
             }
-            .onReceive(Self.dayChanges) { _ in
-                dashboard.reload()
-            }
+            // The calendar day rolls over (or the clock or time zone jumps)
+            // while Home stays on screen. Coming back to Home reloads in
+            // onAppear anyway.
+            .task { await reloadOnEach(.NSCalendarDayChanged) }
+            .task { await reloadOnEach(UIApplication.significantTimeChangeNotification) }
             .alert(dashboard.errorMessage ?? "", isPresented: errorBinding) {
                 Button("Rozumiem", role: .cancel) {}
             } message: {
@@ -150,13 +152,13 @@ struct HomeView: View {
         goalEditor = environment.makeWeeklyGoalEditorViewModel()
     }
 
-    /// Fires when the calendar day rolls over (or the clock or time zone jumps)
-    /// while the app stays in the foreground. The calendar-day notification
-    /// may arrive on any thread, so it is delivered on main.
-    private static let dayChanges = NotificationCenter.default
-        .publisher(for: .NSCalendarDayChanged)
-        .merge(with: NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification))
-        .receive(on: DispatchQueue.main)
+    /// Reloads the dashboard on every `name` notification until the task is
+    /// cancelled. The loop runs on the main actor, whichever thread posts.
+    private func reloadOnEach(_ name: Notification.Name) async {
+        for await _ in NotificationCenter.default.notifications(named: name) {
+            dashboard.reload()
+        }
+    }
 
     // Bridges the optional `errorMessage` to a Bool binding for `.alert`.
     private var errorBinding: Binding<Bool> {

@@ -89,6 +89,8 @@ extension HomeDashboardViewModel {
                                            calendar: calendar, clock: clock),
                   calendar: calendar,
                   clock: clock)
+        // The init reads nothing; `HomeView` reloads on appear.
+        reload()
     }
 }
 

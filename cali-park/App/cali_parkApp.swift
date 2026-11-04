@@ -9,8 +9,9 @@ import SwiftUI
 
 @main
 struct cali_parkApp: App {
-    /// Composition root – built once and injected down the view tree.
-    @StateObject private var environment = AppEnvironment.live()
+    /// Composition root, built once and passed down the view tree through
+    /// initializers. `@State` only keeps the one instance; nothing observes it.
+    @State private var environment = AppEnvironment.live()
     @AppStorage(DefaultsKey.hasCompletedOnboarding.rawValue) private var hasCompletedOnboarding: Bool = false
     @Environment(\.scenePhase) private var scenePhase
 
@@ -48,7 +49,6 @@ struct cali_parkApp: App {
             }
         }
         .preferredColorScheme(.dark)
-        .environmentObject(environment)
         // Re-sync plan reminders on launch and on every return to the app:
         // tops up the dated reminders and repairs any drift.
         .task(id: scenePhase) {
