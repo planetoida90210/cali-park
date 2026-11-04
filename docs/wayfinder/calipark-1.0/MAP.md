@@ -127,6 +127,7 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - kalibracja wskazuje szczeble po ID; dipy „12+” startują od podporu na kółkach,
   - jednorazowy skok XP za nowe niższe szczeble (np. +100 XP przy pełnych podciągnięciach, maks. +1100 XP), przyjęty w 015,
   - testy: 426 (722 przypadki).
+- **Ulubione ćwiczenia** (`f6ed20f`, `3ec8014`, 2026-11-04, prośba właściciela przy Q26/Q30): gwiazdka na ekranie ćwiczenia i w menu po przytrzymaniu; w każdym wyborze ćwiczeń najpierw „Ulubione” (w kolejności dodania), potem „Ostatnio” (do 5 z dziennika), potem wszystkie jak dotąd; ulubione w backupie; testy: 839 (1278 przypadków).
 - **Swift 6, krok F3 fundamentu** (`22b8994`, 2026-11-04):
   - wszystkie targety w trybie Swift 6 z pełnym sprawdzaniem współbieżności, domyślna izolacja `MainActor` w apce, czysta domena oznaczona `nonisolated` (G-19),
   - koniec `ObservableObject`, Combine i `DispatchQueue`; `AppEnvironment` to zwykła klasa (D-10, D-11, D-12),
