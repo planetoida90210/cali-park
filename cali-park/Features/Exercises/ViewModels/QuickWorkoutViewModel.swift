@@ -147,8 +147,10 @@ final class QuickWorkoutViewModel {
     }
 
     /// Persists every logged exercise as one session (shared `sessionID` and a
-    /// single timestamp). Pending items are skipped; no-op with nothing logged.
+    /// single timestamp). Pending items are skipped; no-op with nothing logged
+    /// or once saved, so a double tap can't save the session twice (D-15).
     func finish() {
+        guard !didFinish else { return }
         let logged = items.filter { !$0.isPending }
         guard !logged.isEmpty else { return }
 

@@ -150,6 +150,20 @@ struct QuickWorkoutViewModelTests {
         #expect(exerciseIDs.contains(ExerciseCatalog.all[1].id))
     }
 
+    /// D-15: a second tap on "Zakończ" before the summary shows saves nothing.
+    @Test
+    func finishingTwiceSavesTheSessionOnce() {
+        let store = InMemoryWorkoutLogStore()
+        let viewModel = QuickWorkoutViewModel(store: store)
+        viewModel.addExercise(ExerciseCatalog.all[0], sets: sets(6))
+
+        viewModel.finish()
+        viewModel.finish()
+
+        #expect(store.load().count == 1)
+        #expect(viewModel.didFinish)
+    }
+
     @Test
     func finishWithNoItemsIsANoOp() {
         let store = InMemoryWorkoutLogStore()
