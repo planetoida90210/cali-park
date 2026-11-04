@@ -93,11 +93,15 @@ struct WorkoutPlansView: View {
                     }
                     .listRowBackground(Color.componentBackground)
                     .listRowSeparatorTint(Color.divider)
-                }
-                .onDelete { offsets in
-                    let doomed = offsets.map { viewModel.plans[$0] }
-                    Task {
-                        for plan in doomed { await viewModel.delete(plan) }
+                    // An explicit "Usuń": `.onDelete` shows the system "Delete"
+                    // label, which stays English while the app declares only
+                    // the English localization (audit G-3).
+                    .swipeActions(edge: .trailing) {
+                        Button("Usuń", systemImage: "trash", role: .destructive) {
+                            Task { await viewModel.delete(plan) }
+                        }
+                        // The app-wide accent tint would paint it lime.
+                        .tint(Color.statusRed)
                     }
                 }
             }
