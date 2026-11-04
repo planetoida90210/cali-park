@@ -6,16 +6,17 @@ Każde znalezisko z [findings.md](findings.md) sprawdzone na kodzie po fundamenc
 
 | Status | Liczba |
 |---|---|
-| naprawione | 89 |
+| naprawione | 94 |
 | zniknęło | 25 |
 | świadomie odłożone | 4 |
-| otwarte | 23 (w tym 12 częściowo) |
+| otwarte | 18 (w tym 8 częściowo) |
 | **razem** | **141** |
 
 - **Wszystkie P0 z audytu są zamknięte**: dane i zaufanie (#1–#6), bloker uploadu (#7), mocki i uprawnienia (#8, #9), lokalizacja i dostępność (#10, #11). Swift 6, CI i lint też.
 - Ten przegląd zamknął 13 znalezisk, które jeszcze były otwarte: A-9, A-13, A-14, B-12, B-15, C-4, C-12, C-16, E-15, E-22, E-24, E-26, G-12. Do tego resztki D-13 i F-12 oraz część B-16, C-8/D-7, E-28, E-30, F-7, F-11, F-15, G-10, G-20, G-23 i G-24.
 - 25 znalezisk zniknęło razem ze starym kodem, głównie ze starymi Parkami i Społecznością na atrapach (`34554ab`).
-- Otwarte zostały wydajność przy dużym dzienniku (C-8/D-7, B-14), porządek w kodzie i testach (F-7, F-8, F-14, F-15, E-25, G-14, G-15, G-16, G-20, G-21, G-22) i kilka drobiazgów, które czekają na decyzję właściciela (E-21/F-10, E-30, F-11, G-8). Rekomendacje są w tabeli niżej.
+- Gałąź `w-ui-consistency` zamknęła spójność UI: E-21, E-23, E-28, E-30 i F-10 (jeden alert błędu, jeden styl przycisku akcentowego i drugorzędnego, skala promieni, kolory z katalogu, podglądy AX5).
+- Otwarte zostały wydajność przy dużym dzienniku (C-8/D-7, B-14), porządek w kodzie i testach (F-7, F-8, F-14, F-15, E-25, G-14, G-15, G-16, G-20, G-21, G-22) i dwa drobiazgi, które czekają na decyzję właściciela (F-11, G-8). Rekomendacje są w tabeli niżej.
 
 Statusy:
 
@@ -35,11 +36,7 @@ Commity od `2a2c469` do `dd2dc49` pochodzą z tego przeglądu; pozostałe opisuj
 | C-8, D-7 | M | nie | Najpierw zmierzyć zapis przy ok. 10 tys. wpisów. Jeśli trwa za długo, `JSONFileStore` dostaje wersje `async` (`@concurrent`), a `TrainingJournal` zapisuje asynchronicznie. Jeśli jest szybko, zapisać w MAP, że synchroniczne store'y są świadomie akceptowane do N wpisów. |
 | B-14 | M | nie | Home liczy hero, serię, ostatni trening i podpowiedź przy każdym renderze. Zrobić `HomeSnapshot` liczony raz na `journal.revision` + plany + dzień, jak `ProgressService.snapshot`. |
 | B-16 | S | nie | Dopisać testy DST dla przypomnień o godzinie, której nie ma (02:30 w nocy zmiany czasu) i dla granicy tygodnia celu tygodniowego. |
-| E-21, F-10 | M | **tak** (wygląd przycisku CTA, skala promieni; „Identyfikacja wizualna” w MAP) | Bez decyzji można od razu: jeden `View.errorAlert(...)` zamiast 15 kopii `errorBinding`, jeden komponent chipów kategorii, `.blur` na jednolitym kolorze do usunięcia. Po decyzji: jeden styl przycisku akcentowego i jeden drugorzędny zamiast ok. 14 ręcznych CTA. |
-| E-23 | S | nie | 10 przycisków z `Label` zamienić na `Button("…", systemImage:)` ze stylem. |
 | E-25, F-15 | M | nie | Rozbić największe widoki (`ExerciseLibraryView`, `PlanEditorView`, `PathDetailView`, `ExerciseDetailView`) na pliki w `Components/`, a 42 właściwości `var x: some View` na osobne struktury. Dublery i środowiska podglądów do `PreviewSupport/` pod `#if DEBUG`, razem z `#Preview`, które ich używają; sprawdzić build Release. |
-| E-28 | S | nie | Podglądy w rozmiarze `.accessibility5` dla Home, hero, listy ćwiczeń, ścieżki, edytora planu i karty Parku; podglądy dla 8 widoków bez nich. |
-| E-30 | S | **tak** (pulsowanie przycisku „Rozpocznij” bez końca jest celowym wyborem) | Pulsować kilka razy po pojawieniu się zamiast w nieskończoność. Ścieżka pierścienia celu (`WeeklyGoalRing`) jest prawie niewidoczna; `Color.divider` pokazałby stan 0%. |
 | F-7 | S | nie | Usunąć zdublowane fabryki z `HomeDashboardViewModel` (Home woła `environment.make…`), zrobić wszystkie parametry `AppEnvironment.init` wymaganymi, przenieść odczyt z `init` `ProgramDetailViewModel` do `.task`. |
 | F-8 | M–L | tylko nazwy folderów | Jeden commit z samym przenoszeniem plików po TestFlighcie: `Domain/` (modele treningu, katalogi) i `Services/` (dziennik, postęp, nagrody, plany, store'y). |
 | F-11 | M | **tak** przy drugim języku | Katalog ćwiczeń jako JSON dopiero razem z lokalizacją treści (String Catalog nie wyciąga tekstów z JSON). Do tego czasu zostaje w kodzie; ciche zastępstwa już usunięte. |
@@ -143,16 +140,16 @@ Commity od `2a2c469` do `dd2dc49` pochodzą z tego przeglądu; pozostałe opisuj
 | E-18 | Paralaksa w karcie Parku | zniknęło | `34554ab` | |
 | E-19 | Arkusz szczebla nieaktualny | naprawione | `688ee1e` | |
 | E-20 | Arkusz opinii gubi tekst | zniknęło | `34554ab` | |
-| E-21 | Niespójny motyw, kolory, promienie | otwarte | wiele widoków | Ok. 14 ręcznych przycisków CTA, 9 promieni, `Color.orange`, `white.opacity`. Patrz tabela wyżej. |
+| E-21 | Niespójny motyw, kolory, promienie | naprawione | `b115b59` | `AccentButtonStyle` i `SecondaryButtonStyle` zamiast 14 ręcznych CTA i stylu hero; `AppRadius` 8/12/18 zamiast 9 promieni; `Warning`, `Danger`, `Streak`, `ControlFill`, `Divider` w katalogu zamiast `Color.orange`, kolorów statusu i `white.opacity`. Przyciski karty Parku (kapsuły na szkle) zostają osobnym stylem mapy. |
 | E-22 | Martwy kod widoków | naprawione | `16467aa`, `d163d01` | Usunięte `hideKeyboard()` i `statusGreen`; prototypy tylko w Debug, celowo. |
-| E-23 | Przestarzałe modyfikatory | otwarte (częściowo) | `ModuleSelectionView.swift`, 10 przycisków | `foregroundColor` i `cornerRadius` = 0; zostały przyciski z `Label` i `fontWeight`. |
+| E-23 | Przestarzałe modyfikatory | naprawione | `c01ada3` | Ostatnie przyciski z `Label` (10 i menu „Dodaj cel”) na `Button(_:systemImage:)` ze stylem; `fontWeight` zastąpione `bold(_:)`. |
 | E-24 | `DispatchQueue`, `sleep(nanoseconds:)`, `String(format:)` | naprawione | `7ac1773`, `4114c35` | Lint: 0 dla wszystkich trzech. |
 | E-25 | `ObservableObject`, `AnyView`, wiele typów | otwarte (częściowo) | duże widoki | Dwa pierwsze zniknęły; zostały 42 widoki jako właściwości i pliki po 7–10 typów. |
 | E-26 | Sortowanie i filtrowanie w `body` | naprawione | `688ee1e`, `5c74141` | Rodzic i warianty ćwiczenia z gotowych indeksów. |
 | E-27 | Kamera bez sprawdzenia | zniknęło | `34554ab` | |
-| E-28 | Podglądy bez wariantów dostępności | otwarte (częściowo) | brak `.accessibility5` | Zepsute podglądy i prawdziwe store'y w podglądach zniknęły (`5f7775f`); brak wariantów AX i 8 widoków bez podglądu. |
+| E-28 | Podglądy bez wariantów dostępności | naprawione | `e07dfb7` | Warianty `.accessibility5` dla Home, hero, listy ćwiczeń, ścieżki, edytora planu i karty Parku; podglądy dla widoków bez nich (poza prototypami). |
 | E-29 | Drobiazgi nawigacji w Parkach | zniknęło | `34554ab` | |
-| E-30 | Pierścień, puls, haptyka, siatka | otwarte (częściowo) | `HeroPlanTodayView.swift` | Siatka, pierścień i haptyka naprawione (`8d07335`, `f152d6e`, `191dabd`); puls bez końca to decyzja. |
+| E-30 | Pierścień, puls, haptyka, siatka | naprawione | `1bf6fdc` | „Rozpocznij” pulsuje 3 razy po pojawieniu się (`PulsePhases`), bez pulsu przy Ograniczeniu ruchu; ścieżka pierścienia w `Color.divider`. Siatka i haptyka wcześniej (`8d07335`, `f152d6e`, `191dabd`). |
 | F-1 | Kopie store'ów kasują dane | naprawione | `daf0492` | Wszystkie store'y na `JSONFileStore`. |
 | F-2 | Atrapy na Home | naprawione | `16467aa`, `8d07335`, `d1d1736` | |
 | F-3 | „Zaloguj trening” w każdym flow | naprawione | `688ee1e` | `TrainingJournal`. |
@@ -162,7 +159,7 @@ Commity od `2a2c469` do `dd2dc49` pochodzą z tego przeglądu; pozostałe opisuj
 | F-7 | Problemy korzenia kompozycji | otwarte (częściowo) | `AppEnvironment.swift`, `HomeDashboardViewModel.swift` | Bez `ObservableObject` i podglądów na plikach (`7ac1773`, `5f7775f`); zostały zdublowane fabryki i domyślne parametry `init`. |
 | F-8 | Foldery a własność domeny | otwarte | `Features/` | Wspólna domena treningu leży w folderach funkcji. |
 | F-9 | Parki na starej architekturze | zniknęło | `34554ab`, `d1d1736` | |
-| F-10 | Fonty i trzy systemy przycisków | otwarte (częściowo) | `ButtonStyles.swift`, widoki | Typografia naprawiona (`9d340c9`); przyciski czekają na decyzję, `errorBinding` w 15 kopiach. |
+| F-10 | Fonty i trzy systemy przycisków | naprawione | `9d340c9`, `f7332b3`, `b115b59` | Typografia na stylach tekstu; jeden `errorAlert`/`messageAlert` zamiast 17 kopii `errorBinding`; wspólne `ExerciseCategoryChips`; bez `.blur` na jednolitym kolorze; jeden system przycisków (E-21). |
 | F-11 | Katalog ćwiczeń jako kod | otwarte | `ExerciseCatalog.swift` | Ciche zastępstwa usunięte (`89a63d0`); dane w kodzie do drugiego języka. |
 | F-12 | Martwy kod | naprawione | `16467aa`, `e3e2a39`, `34554ab`, `d163d01` | |
 | F-13 | Powielone formatowanie | naprawione | `688ee1e` | `MeasureFormat`. |
