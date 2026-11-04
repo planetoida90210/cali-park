@@ -19,7 +19,8 @@ struct ParkMapViewModelTests {
                                              answer: answer)
         let directory = InMemoryParkDirectory(parks: parks, dataTimestamp: Date(timeIntervalSince1970: 1_793_749_662),
                                               error: error)
-        return (ParkMapViewModel(directory: directory, location: location), location)
+        let favorites = ParkFavorites(store: InMemoryFavoriteParkStore())
+        return (ParkMapViewModel(directory: directory, location: location, favorites: favorites), location)
     }
 
     @Test func firstOpenAsksForLocationOnceAndCentresOnTheUser() async throws {
@@ -75,7 +76,8 @@ struct ParkMapViewModelTests {
 
     @Test func aLateFixDoesNotMoveACameraTheUserAlreadyMoved() async throws {
         let location = FixedLocationProvider(authorization: .authorized, location: ParkFixtures.warsawCentre)
-        let second = ParkMapViewModel(directory: InMemoryParkDirectory(parks: ParkFixtures.all), location: location)
+        let second = ParkMapViewModel(directory: InMemoryParkDirectory(parks: ParkFixtures.all), location: location,
+                                      favorites: ParkFavorites(store: InMemoryFavoriteParkStore()))
         await second.load()
         second.select(ParkFixtures.krakow)
         await second.refreshLocation()

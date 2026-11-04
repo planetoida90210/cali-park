@@ -271,7 +271,8 @@ struct AppEnvironmentReminderSyncTests {
     func savingTodaysPlanWorkoutDropsTodaysReminder() async throws {
         let plan = Fixtures.plan()
         let scheduler = Fixtures.scheduler()
-        let environment = AppEnvironment(workoutLogStore: InMemoryWorkoutLogStore(),
+        let environment = AppEnvironment(favoriteParkStore: InMemoryFavoriteParkStore(),
+                                         workoutLogStore: InMemoryWorkoutLogStore(),
                                          workoutPlanStore: InMemoryWorkoutPlanStore(initial: [plan]),
                                          reminderScheduler: scheduler,
                                          reminderRefreshScheduler: InMemoryReminderRefreshScheduler(),

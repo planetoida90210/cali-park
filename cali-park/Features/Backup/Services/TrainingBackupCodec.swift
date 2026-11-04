@@ -47,7 +47,7 @@ enum TrainingBackupError: Error, Equatable {
 ///   "appVersion": "1.0 (1)",
 ///   "payload": { "workoutLog": […], "workoutPlans": […],
 ///                "placement": {…} | null, "skillProgress": {…} | null,
-///                "weeklyGoal": {…} | null }
+///                "weeklyGoal": {…} | null, "favoriteParks": ["<Park UUID>", …] }
 /// }
 /// ```
 ///
@@ -60,6 +60,10 @@ enum TrainingBackupError: Error, Equatable {
 /// Version 2 stores plan schedule days as `"yyyy-MM-dd"`. Version 1 stored
 /// them as instants, which `CalendarDay` reads as days in the current
 /// calendar.
+///
+/// `favoriteParks` came later than the other sections: files without it
+/// (from before favorites existed) still read, as a backup that says nothing
+/// about favorites.
 enum TrainingBackupCodec {
     static let formatIdentifier = "calipark-backup"
     /// The version this build writes; it reads `1...schemaVersion`.
@@ -126,6 +130,9 @@ enum TrainingBackupCodec {
                 throw .invalidContent("niepoprawna historia celu tygodniowego")
             }
         }
+        if let favorites = backup.favoriteParkIDs, Set(favorites).count != favorites.count {
+            throw .invalidContent("powtórzone ulubione Parki")
+        }
     }
 
     // MARK: Format
@@ -148,6 +155,8 @@ enum TrainingBackupCodec {
         let placement: SkillPlacement?
         let skillProgress: SkillProgress?
         let weeklyGoal: WeeklyGoalHistory?
+        /// Absent in files written before favorites existed.
+        let favoriteParks: [UUID]?
 
         init(_ backup: TrainingBackup) {
             workoutLog = backup.workoutLog
@@ -155,6 +164,7 @@ enum TrainingBackupCodec {
             placement = backup.placement
             skillProgress = backup.skillProgress
             weeklyGoal = backup.weeklyGoal
+            favoriteParks = backup.favoriteParkIDs
         }
 
         var backup: TrainingBackup {
@@ -163,7 +173,8 @@ enum TrainingBackupCodec {
                 workoutPlans: workoutPlans,
                 placement: placement,
                 skillProgress: skillProgress,
-                weeklyGoal: weeklyGoal
+                weeklyGoal: weeklyGoal,
+                favoriteParkIDs: favoriteParks
             )
         }
 
@@ -176,6 +187,7 @@ enum TrainingBackupCodec {
             try container.encode(placement, forKey: .placement)
             try container.encode(skillProgress, forKey: .skillProgress)
             try container.encode(weeklyGoal, forKey: .weeklyGoal)
+            try container.encode(favoriteParks, forKey: .favoriteParks)
         }
     }
 

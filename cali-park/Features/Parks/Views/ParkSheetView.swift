@@ -28,18 +28,20 @@ struct ParkSheetView: View {
     /// Metres from the user; nil unless location is already allowed.
     let distance: Double?
     let dataTimestamp: Date?
+    let isFavorite: Bool
     let isExpanded: Bool
     /// Called with the header's height, so the compact detent fits it at any
     /// Dynamic Type size.
     let onHeaderHeightChange: (CGFloat) -> Void
+    let onToggleFavorite: () -> Void
     let onExpand: () -> Void
     let onClose: () -> Void
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                ParkCardHeader(park: park, distance: distance, isExpanded: isExpanded,
-                               onExpand: onExpand, onClose: onClose)
+                ParkCardHeader(park: park, distance: distance, isFavorite: isFavorite, isExpanded: isExpanded,
+                               onToggleFavorite: onToggleFavorite, onExpand: onExpand, onClose: onClose)
                     .padding(.horizontal, 20)
                     .padding(.top, ParkSheetView.headerTopPadding)
                     .onGeometryChange(for: CGFloat.self) { proxy in
@@ -91,7 +93,9 @@ struct ParkSheetView: View {
 private struct ParkCardHeader: View {
     let park: Park
     let distance: Double?
+    let isFavorite: Bool
     let isExpanded: Bool
+    let onToggleFavorite: () -> Void
     let onExpand: () -> Void
     let onClose: () -> Void
 
@@ -114,6 +118,18 @@ private struct ParkCardHeader: View {
                     }
                 }
                 Spacer(minLength: 0)
+                Button(isFavorite ? "Usuń z ulubionych" : "Dodaj do ulubionych",
+                       systemImage: isFavorite ? "heart.fill" : "heart",
+                       action: onToggleFavorite)
+                    .labelStyle(.iconOnly)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(isFavorite ? Color.accent : Color.textSecondary)
+                    .frame(width: 32, height: 32)
+                    .background(Color.white.opacity(0.08), in: .circle)
+                    .buttonStyle(.plain)
+                    .contentTransition(.symbolEffect(.replace))
+                    .sensoryFeedback(.selection, trigger: isFavorite)
+                    .accessibilityAddTraits(isFavorite ? .isSelected : [])
                 Button("Zamknij", systemImage: "xmark", action: onClose)
                     .labelStyle(.iconOnly)
                     .font(.subheadline.weight(.semibold))
@@ -235,13 +251,15 @@ private struct ParkSheetPreview: View {
     let park: Park
     let distance: Double?
     @State private var detent: PresentationDetent = .large
+    @State private var isFavorite = false
 
     var body: some View {
         Color.appBackground
             .sheet(isPresented: .constant(true)) {
                 ParkSheetView(park: park, distance: distance, dataTimestamp: .now,
-                              isExpanded: detent == .large,
-                              onHeaderHeightChange: { _ in }, onExpand: { detent = .large }, onClose: {})
+                              isFavorite: isFavorite, isExpanded: detent == .large,
+                              onHeaderHeightChange: { _ in }, onToggleFavorite: { isFavorite.toggle() },
+                              onExpand: { detent = .large }, onClose: {})
                     .presentationDetents([.height(260), .large], selection: $detent)
             }
             .preferredColorScheme(.dark)

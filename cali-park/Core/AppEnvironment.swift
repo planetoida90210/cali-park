@@ -12,6 +12,11 @@ final class AppEnvironment: ObservableObject {
     let parkDirectory: ParkDirectory
     /// The user's position for distances to Parks; never stored.
     let locationProvider: LocationProviding
+    /// Persists the favorite Parks. Only `parkFavorites` talks to it.
+    let favoriteParkStore: FavoriteParkStoring
+    /// The favorite Parks ("Ulubione"), shared by the Parks tab and the
+    /// training backup; the one write path to `favoriteParkStore`.
+    let parkFavorites: ParkFavorites
     /// The training journal: the only write path for workout logs. Every
     /// change rescores progress (and the reward loop) and re-syncs plan
     /// reminders (a plan done today gets no reminder today), so every view
@@ -52,6 +57,7 @@ final class AppEnvironment: ObservableObject {
     /// `live()`, tests and previews pass in-memory ones.
     init(parkDirectory: ParkDirectory = BundledParkDirectory(),
          locationProvider: LocationProviding? = nil,
+         favoriteParkStore: FavoriteParkStoring,
          workoutLogStore: WorkoutLogStoring,
          workoutPlanStore: WorkoutPlanStoring,
          reminderScheduler: WorkoutReminderScheduling = NotificationCenterReminderScheduler(center: SystemNotificationCenter()),
@@ -64,6 +70,8 @@ final class AppEnvironment: ObservableObject {
         // Built here: a main-actor default argument can't be evaluated in the
         // caller's nonisolated context.
         self.locationProvider = locationProvider ?? CoreLocationProvider()
+        self.favoriteParkStore = favoriteParkStore
+        self.parkFavorites = ParkFavorites(store: favoriteParkStore)
         self.workoutPlanStore = workoutPlanStore
         self.reminderScheduler = reminderScheduler
         // The plan service only reads the log, to skip days already done.
@@ -92,7 +100,7 @@ final class AppEnvironment: ObservableObject {
     /// Keeps the dependency wiring for each view model in one place.
     /// Parks tab: map and list of Parks.
     func makeParkMapViewModel() -> ParkMapViewModel {
-        ParkMapViewModel(directory: parkDirectory, location: locationProvider)
+        ParkMapViewModel(directory: parkDirectory, location: locationProvider, favorites: parkFavorites)
     }
 
     /// Home module with the nearest Park.
@@ -196,6 +204,7 @@ final class AppEnvironment: ObservableObject {
             placementStore: placementStore,
             progressStore: skillProgressStore,
             goalStore: weeklyGoalStore,
+            favorites: parkFavorites,
             planService: workoutPlanService,
             progress: progressService,
             goals: weeklyGoalService,
@@ -216,6 +225,7 @@ final class AppEnvironment: ObservableObject {
         CoreDataScaffoldCleanup().run()
         let locations = StoreDirectoryMigration.live().run()
         return AppEnvironment(
+            favoriteParkStore: FileFavoriteParkStore(directory: locations.directory(for: .favoriteParks)),
             workoutLogStore: FileWorkoutLogStore(directory: locations.directory(for: .workoutLog)),
             workoutPlanStore: FileWorkoutPlanStore(directory: locations.directory(for: .workoutPlans)),
             placementStore: FileSkillPlacementStore(directory: locations.directory(for: .skillPlacement)),
@@ -256,6 +266,7 @@ extension AppEnvironment {
                        plans: [WorkoutPlan] = [],
                        placement: SkillPlacement? = nil,
                        weeklyGoal: WeeklyGoalHistory? = nil,
+                       favoriteParks: [UUID] = [],
                        location: LocationProviding? = nil) -> AppEnvironment {
         AppEnvironment(
             parkDirectory: BundledParkDirectory(),
@@ -263,6 +274,7 @@ extension AppEnvironment {
                 authorization: .authorized,
                 location: CLLocationCoordinate2D(latitude: 52.2297, longitude: 21.0122)
             ),
+            favoriteParkStore: InMemoryFavoriteParkStore(initial: favoriteParks),
             workoutLogStore: InMemoryWorkoutLogStore(initial: logs),
             workoutPlanStore: InMemoryWorkoutPlanStore(initial: plans),
             reminderScheduler: InMemoryReminderScheduler(status: .authorized),

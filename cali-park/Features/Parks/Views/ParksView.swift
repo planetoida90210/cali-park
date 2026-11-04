@@ -43,14 +43,19 @@ struct ParksView: View {
                 ParkSheetView(park: park,
                               distance: viewModel.distance(to: park),
                               dataTimestamp: viewModel.dataTimestamp,
+                              isFavorite: viewModel.isFavorite(park),
                               isExpanded: sheetDetent == .large,
                               onHeaderHeightChange: updateCompactHeight,
+                              onToggleFavorite: { viewModel.toggleFavorite(park) },
                               onExpand: { withAnimation(.smooth) { sheetDetent = .large } },
                               onClose: { viewModel.clearSelection() })
                 .presentationDetents([compactDetent, .large], selection: $sheetDetent)
                 .presentationBackgroundInteraction(.enabled(upThrough: compactDetent))
                 .presentationContentInteraction(.resizes)
                 .presentationDragIndicator(.visible)
+                .alert(viewModel.favoritesMessage ?? "", isPresented: favoritesAlertBinding) {
+                    Button("OK", role: .cancel) {}
+                }
             }
         }
         .onChange(of: viewModel.selectedParkID == nil) {
@@ -144,7 +149,7 @@ struct ParksView: View {
                     isSearchFocused = false
                     viewModel.focus(on: item.park.id)
                 } label: {
-                    ParkRow(item: item)
+                    ParkRow(item: item, isFavorite: viewModel.isFavorite(item.park))
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
                         .contentShape(.rect)
@@ -185,6 +190,13 @@ struct ParksView: View {
         )
     }
 
+    private var favoritesAlertBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.favoritesMessage != nil },
+            set: { if !$0 { viewModel.favoritesMessage = nil } }
+        )
+    }
+
     private var errorBinding: Binding<Bool> {
         Binding(
             get: { viewModel.errorMessage != nil },
@@ -208,10 +220,13 @@ private struct ParkMapContent: View {
                         Button {
                             withAnimation(.smooth) { viewModel.select(park) }
                         } label: {
-                            ParkPin(equipment: park.headlineEquipment, isSelected: park.id == viewModel.selectedParkID)
+                            ParkPin(equipment: park.headlineEquipment,
+                                    isSelected: park.id == viewModel.selectedParkID,
+                                    isFavorite: viewModel.isFavorite(park))
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(park.displayName)
+                        .accessibilityValue(viewModel.isFavorite(park) ? "Ulubiony" : "")
                         .accessibilityHint("Otwiera kartę Parku")
                         .accessibilityAddTraits(park.id == viewModel.selectedParkID ? .isSelected : [])
                     }
@@ -253,21 +268,30 @@ private struct ParkMapContent: View {
 // MARK: - ParkListContent
 /// Variant C list as a toggle: nearest Parks with distance.
 private struct ParkListContent: View {
-    let viewModel: ParkMapViewModel
+    @Bindable var viewModel: ParkMapViewModel
     @Environment(\.openURL) private var openURL
 
     var body: some View {
         let items = viewModel.listItems
         List {
+            Picker("Pokaż", selection: $viewModel.listFilter) {
+                ForEach(ParkMapViewModel.ListFilter.allCases, id: \.self) { filter in
+                    Text(filter.title).tag(filter)
+                }
+            }
+            .pickerStyle(.segmented)
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
+
             Section {
-                if viewModel.authorization != .authorized {
+                if viewModel.authorization != .authorized && viewModel.listFilter == .all {
                     locationPrompt
                 }
                 ForEach(items) { item in
                     Button {
                         withAnimation(.smooth) { viewModel.focus(on: item.park.id) }
                     } label: {
-                        ParkRow(item: item)
+                        ParkRow(item: item, isFavorite: viewModel.isFavorite(item.park))
                             .contentShape(.rect)
                     }
                     .buttonStyle(.plain)
@@ -290,13 +314,27 @@ private struct ParkListContent: View {
         .scrollDismissesKeyboard(.interactively)
         .overlay {
             if viewModel.isLoaded && items.isEmpty {
-                ContentUnavailableView.search(text: viewModel.searchText)
+                emptyState
             }
         }
     }
 
+    @ViewBuilder
+    private var emptyState: some View {
+        if viewModel.listFilter == .favorites && viewModel.favoritesUnreadable {
+            ContentUnavailableView("Ulubione niedostępne", systemImage: "exclamationmark.triangle",
+                                   description: Text(ParkFavorites.loadFailureMessage))
+        } else if viewModel.listFilter == .favorites && !viewModel.isSearching {
+            ContentUnavailableView("Brak ulubionych Parków", systemImage: "heart",
+                                   description: Text("Stuknij serce na karcie Parku, a zapiszesz go tutaj."))
+        } else {
+            ContentUnavailableView.search(text: viewModel.searchText)
+        }
+    }
+
     private func header(count: Int) -> String {
-        if !viewModel.searchText.isEmpty { return "Wyniki: \(ParkFormat.parkCount(count))" }
+        if viewModel.isSearching { return "Wyniki: \(ParkFormat.parkCount(count))" }
+        if viewModel.listFilter == .favorites { return "Ulubione: \(ParkFormat.parkCount(count))" }
         return viewModel.userLocation == nil ? ParkFormat.parkCount(count) : "Najbliżej Ciebie"
     }
 
@@ -323,6 +361,7 @@ private struct ParkListContent: View {
 // MARK: - ParkRow
 struct ParkRow: View {
     let item: ParkDistance
+    var isFavorite = false
 
     var body: some View {
         HStack(spacing: 12) {
@@ -334,10 +373,18 @@ struct ParkRow: View {
                 .overlay(Circle().stroke(Color.accent.opacity(0.6), lineWidth: 1))
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
-                Text(item.park.displayName)
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(Color.textPrimary)
-                    .lineLimit(2)
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text(item.park.displayName)
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(Color.textPrimary)
+                        .lineLimit(2)
+                    if isFavorite {
+                        Image(systemName: "heart.fill")
+                            .font(.caption)
+                            .foregroundStyle(Color.accent)
+                            .accessibilityLabel("Ulubiony")
+                    }
+                }
                 if let locality = item.park.locality.label {
                     Text(locality)
                         .font(.footnote)

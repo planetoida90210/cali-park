@@ -13,6 +13,18 @@ final class ParkMapViewModel {
         case map, list
     }
 
+    /// Which Parks the list shows.
+    enum ListFilter: Hashable, CaseIterable {
+        case all, favorites
+
+        var title: String {
+            switch self {
+            case .all: "Wszystkie"
+            case .favorites: "Ulubione"
+            }
+        }
+    }
+
     /// Whole Poland, used until (or unless) the user's position is known. No
     /// fake "you are here".
     static let fallbackRegion = MKCoordinateRegion(
@@ -32,9 +44,12 @@ final class ParkMapViewModel {
     private(set) var dataTimestamp: Date?
     private(set) var isLoaded = false
     var errorMessage: String?
+    /// A favorite couldn't be read or saved; shown as its own alert.
+    var favoritesMessage: String?
 
     var searchText = ""
     var mode: Mode = .map
+    var listFilter: ListFilter = .all
     var selectedParkID: UUID?
 
     private(set) var authorization: LocationAuthorization
@@ -49,15 +64,17 @@ final class ParkMapViewModel {
 
     private let directory: ParkDirectory
     private let location: LocationProviding
+    private let favorites: ParkFavorites
     /// Set once the camera moved for a reason the user cares about (their
     /// position, a selection, a search), so a late location fix doesn't yank
     /// the map away.
     private var hasPlacedCamera = false
     private var pendingFocusID: UUID?
 
-    init(directory: ParkDirectory, location: LocationProviding) {
+    init(directory: ParkDirectory, location: LocationProviding, favorites: ParkFavorites) {
         self.directory = directory
         self.location = location
+        self.favorites = favorites
         authorization = location.authorization
         position = .region(Self.fallbackRegion)
         visibleRegion = Self.fallbackRegion
@@ -70,9 +87,20 @@ final class ParkMapViewModel {
         ParkSearch.matching(parks, query: searchText)
     }
 
-    /// Parks matching the search, nearest first when the position is known.
+    /// Parks matching the search and the list filter, nearest first when the
+    /// position is known.
     var listItems: [ParkDistance] {
-        ParkSearch.ordered(filteredParks, from: userLocation)
+        var parks = filteredParks
+        if listFilter == .favorites {
+            parks = parks.filter { favorites.contains($0.id) }
+        }
+        return ParkSearch.ordered(parks, from: userLocation)
+    }
+
+    /// Favorite Parks present in the current snapshot. Saved IDs of Parks
+    /// that disappeared are kept but not counted.
+    var favoriteCount: Int {
+        parks.count(where: { favorites.contains($0.id) })
     }
 
     /// True while the search field holds more than whitespace.
@@ -80,10 +108,11 @@ final class ParkMapViewModel {
         !searchText.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
-    /// Up to five matches under the search field on the map.
+    /// Up to five matches under the search field on the map (whatever the
+    /// list filter is).
     var searchSuggestions: [ParkDistance] {
         guard isSearching else { return [] }
-        return Array(listItems.prefix(5))
+        return Array(ParkSearch.ordered(filteredParks, from: userLocation).prefix(5))
     }
 
     var clusters: [ParkCluster] {
@@ -100,6 +129,28 @@ final class ParkMapViewModel {
 
     func distance(to park: Park) -> CLLocationDistance? {
         userLocation.map { ParkSearch.distance(from: $0, to: park) }
+    }
+
+    func isFavorite(_ park: Park) -> Bool {
+        favorites.contains(park.id)
+    }
+
+    /// True while the saved favorites can't be read.
+    var favoritesUnreadable: Bool {
+        favorites.loadFailure != nil
+    }
+
+    // MARK: Favorites
+
+    /// The heart on the card. A failure changes nothing and shows an alert.
+    func toggleFavorite(_ park: Park) {
+        do {
+            try favorites.toggle(park.id)
+        } catch is StoreLoadFailure {
+            favoritesMessage = ParkFavorites.loadFailureMessage
+        } catch {
+            favoritesMessage = ParkFavorites.saveFailureMessage
+        }
     }
 
     // MARK: Lifecycle

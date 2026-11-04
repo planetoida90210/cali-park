@@ -10,6 +10,7 @@ enum StoreFile: String, CaseIterable, Sendable {
     case skillPlacement = "skill-placement.json"
     case skillProgress = "skill-progress.json"
     case weeklyGoal = "weekly-goal.json"
+    case favoriteParks = "favorite-parks.json"
 
     var fileName: String { rawValue }
 

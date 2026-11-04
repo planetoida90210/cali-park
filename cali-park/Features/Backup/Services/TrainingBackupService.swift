@@ -44,6 +44,7 @@ final class TrainingBackupService {
     private let placementStore: PlacementStoring
     private let progressStore: SkillProgressStoring
     private let goalStore: WeeklyGoalStoring
+    private let favorites: ParkFavorites
     private let planService: WorkoutPlanService
     private let progress: ProgressService
     private let goals: WeeklyGoalService
@@ -58,6 +59,7 @@ final class TrainingBackupService {
          placementStore: PlacementStoring,
          progressStore: SkillProgressStoring,
          goalStore: WeeklyGoalStoring,
+         favorites: ParkFavorites,
          planService: WorkoutPlanService,
          progress: ProgressService,
          goals: WeeklyGoalService,
@@ -67,6 +69,7 @@ final class TrainingBackupService {
         self.placementStore = placementStore
         self.progressStore = progressStore
         self.goalStore = goalStore
+        self.favorites = favorites
         self.planService = planService
         self.progress = progress
         self.goals = goals
@@ -84,7 +87,8 @@ final class TrainingBackupService {
             workoutPlans: try planStore.load(),
             placement: try placementStore.load(),
             skillProgress: try progressStore.load(),
-            weeklyGoal: try goalStore.load()
+            weeklyGoal: try goalStore.load(),
+            favoriteParkIDs: try favorites.currentIDs()
         )
     }
 
@@ -137,6 +141,13 @@ final class TrainingBackupService {
                  holds: { [goalStore] backup in (try? goalStore.load() == backup.weeklyGoal) ?? false }),
             Step(write: { [planStore] in try planStore.replaceAll(with: $0.workoutPlans) },
                  holds: { [planStore] backup in (try? planStore.load() == backup.workoutPlans) ?? false }),
+            // A file from before favorites existed leaves them as they are.
+            Step(write: { [favorites] backup in
+                     if let ids = backup.favoriteParkIDs { try favorites.replaceAll(with: ids) }
+                 },
+                 holds: { [favorites] backup in
+                     backup.favoriteParkIDs.map { (try? favorites.currentIDs()) == $0 } ?? true
+                 }),
             Step(write: { [journal] in try journal.replaceAll($0.workoutLog) },
                  holds: { [journal] backup in journal.loadFailure == nil && journal.entries == backup.workoutLog })
         ]

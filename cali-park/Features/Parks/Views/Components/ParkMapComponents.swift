@@ -5,6 +5,7 @@ import SwiftUI
 struct ParkPin: View {
     let equipment: EquipmentType?
     let isSelected: Bool
+    var isFavorite = false
 
     @ScaledMetric(relativeTo: .body) private var size: CGFloat = 34
 
@@ -17,6 +18,16 @@ struct ParkPin: View {
                 .frame(width: diameter, height: diameter)
                 .background(isSelected ? Color.accent : Color.componentBackground, in: .circle)
                 .overlay(Circle().stroke(Color.accent.opacity(isSelected ? 0 : 0.85), lineWidth: 1.5))
+                .overlay(alignment: .topTrailing) {
+                    if isFavorite {
+                        Image(systemName: "heart.fill")
+                            .font(.caption2.weight(.bold))
+                            .foregroundStyle(isSelected ? Color.black : Color.accent)
+                            .padding(3)
+                            .background(isSelected ? Color.accent : Color.componentBackground, in: .circle)
+                            .offset(x: 5, y: -5)
+                    }
+                }
             Image(systemName: "arrowtriangle.down.fill")
                 .font(.caption2)
                 .foregroundStyle(isSelected ? Color.accent : Color.componentBackground)
