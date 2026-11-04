@@ -47,6 +47,8 @@ todos:
 isProject: false
 ---
 
+> **Archiwum (2026-11-04).** Ten plan jest historyczny i nie opisuje już aktualnego kodu. Plan i postęp: `docs/wayfinder/calipark-1.0/MAP.md`, znane problemy: `docs/audit/STATUS.md`, zasady pracy: `CLAUDE.md`, drabiny progresji: `docs/PROGRESSIONS.md`. Zakaz uruchamiania `xcodebuild` poniżej już nie obowiązuje.
+
 # Ścieżki progresji kalisteniki (Sprinty SK1–SK6)
 
 ## Po co i dlaczego tak

@@ -50,6 +50,8 @@ todos:
 isProject: false
 ---
 
+> **Archiwum (2026-11-04).** Ten plan jest historyczny i nie opisuje już aktualnego kodu. Plan i postęp: `docs/wayfinder/calipark-1.0/MAP.md`, znane problemy: `docs/audit/STATUS.md`, zasady pracy: `CLAUDE.md`, drabiny progresji: `docs/PROGRESSIONS.md`. Zakaz uruchamiania `xcodebuild` poniżej już nie obowiązuje.
+
 # Profil + powiadomienia lokalne
 
 Kontynuacja po ukończonym planie „Zakładka Ćwiczenia + dziennik" (Sprinty 1–8). Dwa niezależne feature'y, wykonywane małymi sprintami — kolejność zależnościowa: najpierw powiadomienia (planer z S6–S8 jest gotowy → szybki, shippable feature), potem Profil (jego ekran Ustawień pomieści zarządzanie przypomnieniami i podmieni mockowe imię/cel z `MockDataProvider`).

@@ -1,5 +1,7 @@
 # Tracker sprintów — Profil + powiadomienia lokalne
 
+> **Archiwum (2026-11-04).** Ten dokument jest historyczny i nie opisuje już aktualnego kodu. Plan i postęp: [MAP](wayfinder/calipark-1.0/MAP.md), znane problemy: [stan audytu](audit/STATUS.md), zasady pracy: `CLAUDE.md`, drabiny progresji: [PROGRESSIONS.md](PROGRESSIONS.md). Zakaz uruchamiania `xcodebuild`, instrukcje dla agentów i statusy „do weryfikacji” poniżej już nie obowiązują.
+
 Plan źródłowy: [.cursor/plans/profil_+_powiadomienia_lokalne.plan.md](../.cursor/plans/profil_+_powiadomienia_lokalne.plan.md)
 
 Poprzedni, ukończony plan: [docs/SPRINTS.md](SPRINTS.md) („Zakładka Ćwiczenia + dziennik", Sprinty 1–8, zakończone).

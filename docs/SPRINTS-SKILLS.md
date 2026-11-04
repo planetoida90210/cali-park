@@ -1,5 +1,7 @@
 # Tracker sprintów — Ścieżki progresji kalisteniki (SK1–SK6)
 
+> **Archiwum (2026-11-04).** Ten dokument jest historyczny i nie opisuje już aktualnego kodu. Plan i postęp: [MAP](wayfinder/calipark-1.0/MAP.md), znane problemy: [stan audytu](audit/STATUS.md), zasady pracy: `CLAUDE.md`, drabiny progresji: [PROGRESSIONS.md](PROGRESSIONS.md). Zakaz uruchamiania `xcodebuild`, instrukcje dla agentów i statusy „do weryfikacji” poniżej już nie obowiązują.
+
 Plan źródłowy: [.cursor/plans/skill_tree_kalisteniki_4d366e3c.plan.md](../.cursor/plans/skill_tree_kalisteniki_4d366e3c.plan.md)
 Poprzednie trackery (kontekst, zamknięte): [docs/SPRINTS.md](SPRINTS.md) (Ćwiczenia + dziennik + planer, S1–S8), [docs/SPRINTS-HOME.md](SPRINTS-HOME.md) (kontekstowy hero, H1–H3)
 

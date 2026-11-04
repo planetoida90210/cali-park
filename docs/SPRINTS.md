@@ -1,5 +1,7 @@
 # Tracker sprintów — Zakładka Ćwiczenia + dziennik
 
+> **Archiwum (2026-11-04).** Ten dokument jest historyczny i nie opisuje już aktualnego kodu. Plan i postęp: [MAP](wayfinder/calipark-1.0/MAP.md), znane problemy: [stan audytu](audit/STATUS.md), zasady pracy: `CLAUDE.md`, drabiny progresji: [PROGRESSIONS.md](PROGRESSIONS.md). Zakaz uruchamiania `xcodebuild`, instrukcje dla agentów i statusy „do weryfikacji” poniżej już nie obowiązują.
+
 Plan źródłowy: [.cursor/plans/zakładka_ćwiczenia_+_dziennik_4ca18af5.plan.md](../.cursor/plans/zakładka_ćwiczenia_+_dziennik_4ca18af5.plan.md)
 
 ## Instrukcja dla agenta
