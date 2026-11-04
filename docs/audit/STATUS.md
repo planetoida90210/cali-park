@@ -6,9 +6,9 @@ Każde znalezisko z [findings.md](findings.md) sprawdzone na kodzie po fundamenc
 
 | Status | Liczba |
 |---|---|
-| naprawione | 94 |
+| naprawione | 95 |
 | zniknęło | 25 |
-| świadomie odłożone | 4 |
+| świadomie odłożone | 3 |
 | otwarte | 18 (w tym 8 częściowo) |
 | **razem** | **141** |
 
@@ -175,7 +175,7 @@ Commity od `2a2c469` do `dd2dc49` pochodzą z tego przeglądu; pozostałe opisuj
 | G-7 | Brak CI | naprawione | `449024e`, `45de40c`, `3b5dd4a` | |
 | G-8 | Claude nie widzi reguł i skilli | otwarte | `.gitignore` | `CLAUDE.md` importuje reguły; skille dalej lokalne, decyzja właściciela. |
 | G-9 | `project-rules.mdc` błędne | naprawione | `e09f965` | Domyślna izolacja `MainActor` jest teraz włączona. |
-| G-10 | Brak diagnostyki | świadomie odłożone | `daf0492`, `3398af3`; MAP „Diagnostyka” | Logowanie jest wszędzie, ostatnie ciche `catch` logują; zgłaszanie crashy czeka na decyzję. |
+| G-10 | Brak diagnostyki | naprawione | `daf0492`, `3398af3`, `e25a224` | Logowanie przez `os.Logger` wszędzie; raporty MetricKit zostają na telefonie i wysyła je tylko użytkownik („Diagnostyka”, Q33). |
 | G-11 | Landscape i iPad | naprawione | `e6fc8a9` | |
 | G-12 | Asercje wywalające testy | naprawione | `4041ab2` | `try #require` zamiast `try!` i indeksów po `#expect`; stałe katalogu w fixture'ach zostają. |
 | G-13 | Testy Codable bez formatu z dysku | naprawione | `daf0492` | Złote pliki w `Fixtures/`. |
