@@ -57,3 +57,7 @@ Przyjęte: rodzaje celu (1–3 cele, jeden główny), tydzień przerwy bez utrat
 ## Wdrożenie (2026-11-04)
 
 Zmergowane jako `8d07335`. Koordynator (z delegacji właściciela) przyjął: hero bez serii dni, tydzień z dowolnym dniem pauzy jest neutralny, chyba że cel zrobiony; pierścień w hero tylko w stanach „zrobione dziś”, odpoczynek i wolny trening, żeby „Rozpocznij” zostało w centrum.
+
+## Dopisek (2026-11-04)
+
+Pierścień celu głównego i seria tygodni są w hero zawsze, także gdy dziś czeka plan: pod „Rozpocznij”, które zostaje w centrum (`e2e3335`…, po przeglądzie wizualnym). Zastępuje wcześniejsze „pierścień tylko w stanach zrobione dziś, odpoczynek i wolny trening”.

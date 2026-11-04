@@ -127,6 +127,14 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - kalibracja wskazuje szczeble po ID; dipy „12+” startują od podporu na kółkach,
   - jednorazowy skok XP za nowe niższe szczeble (np. +100 XP przy pełnych podciągnięciach, maks. +1100 XP), przyjęty w 015,
   - testy: 426 (722 przypadki).
+- **Tylko Parki z drążkiem albo poręczami** (`8f58aab`, 2026-11-04, „Model Parku i sprzętu”, Q28/Q29): świeże dane z OSM (2026-11-04), 233 Parki zamiast 330, 97 miejsc bez opisanego sprzętu wypadło; ID pozostałych Parków bez zmian, więc ulubione działają; „Sprzęt nieznany” usunięty z apki; testy: 800 (1235 przypadków).
+- **Polski region i poprawki z przeglądu** (`e2e3335`…`c83865a`, 2026-11-04):
+  - polski region deweloperski: daty, dni tygodnia, liczby i przyciski systemowe po polsku (G-3), nazwa apki „CaliPark”,
+  - Home: pierścień celu tygodniowego zawsze w hero (pod „Rozpocznij”), powitanie według godziny („Dobrej nocy” w nocy), kalendarz serii od poniedziałku z nagłówkiem dni, ozdobne ikony ukryte przed VoiceOverem,
+  - „Anuluj” zaraz po „Utwórz plan” usuwa plan, drugi plan z tego samego programu wymaga potwierdzenia,
+  - toast XP pod paskiem nawigacji i ogłaszany VoiceOverowi, celebracja modalna (reszta E-13),
+  - „Historia treningów”, trening z planu nazwany jak plan, linia „Skąd to kryterium?” bez skrótu, minione plany jednorazowe oznaczone „Minął · …”, zakresy liczb bez łamania linii,
+  - testy: 798 (1233 przypadki).
 - **Prawdziwa karta Parku** (`76b46c3`…`bb51815`, 2026-11-04, „Karta parku”):
   - kompaktowa karta (nazwa, okolica, odległość, etykieta „Z OSM”, ikony sprzętu, „Nawiguj”) i pełna karta jako arkusz w kolejności A, tylko z sekcjami, które wypełnia OSM: sprzęt z liczbą sztuk („Sprzęt nieznany” dla miejsc bez opisu), „Skąd te dane” z linkiem do OpenStreetMap, szczegóły (nawierzchnia, oświetlenie, dach, dostęp, godziny otwarcia po polsku),
   - zdjęcia, opinie, pogoda i zgłoszenia dojdą z backendem; bez atrap,
