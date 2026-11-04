@@ -41,14 +41,14 @@ struct ExerciseLibraryView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    NavigationLink(value: WorkoutPlansDestination()) {
+                    NavigationLink(value: ExerciseLibraryRoute.workoutPlans) {
                         Image(systemName: "calendar")
                             .foregroundStyle(Color.accent)
                     }
                     .accessibilityLabel("Plany treningowe")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink(value: WorkoutHistoryDestination()) {
+                    NavigationLink(value: ExerciseLibraryRoute.workoutHistory) {
                         Image(systemName: "clock.arrow.circlepath")
                             .foregroundStyle(Color.accent)
                     }
@@ -61,11 +61,13 @@ struct ExerciseLibraryView: View {
             .navigationDestination(for: ProgressionPathID.self) { pathID in
                 PathDetailView(environment: environment, pathID: pathID)
             }
-            .navigationDestination(for: WorkoutHistoryDestination.self) { _ in
-                WorkoutHistoryView(viewModel: environment.makeWorkoutHistoryViewModel())
-            }
-            .navigationDestination(for: WorkoutPlansDestination.self) { _ in
-                WorkoutPlansView(environment: environment)
+            .navigationDestination(for: ExerciseLibraryRoute.self) { route in
+                switch route {
+                case .workoutHistory:
+                    WorkoutHistoryView(viewModel: environment.makeWorkoutHistoryViewModel())
+                case .workoutPlans:
+                    WorkoutPlansView(environment: environment)
+                }
             }
             .sheet(isPresented: $showingQuickWorkout) {
                 QuickWorkoutView(viewModel: environment.makeQuickWorkoutViewModel())
@@ -74,157 +76,12 @@ struct ExerciseLibraryView: View {
     }
 }
 
-// MARK: - QuickWorkoutButton
-/// Primary "log a whole workout" action, pinned above the tab bar.
-private struct QuickWorkoutButton: View {
-    let action: () -> Void
-
-    var body: some View {
-        Button("Szybki trening", systemImage: "bolt.fill", action: action)
-            .buttonStyle(.accent)
-        .padding(.horizontal, 16)
-        .padding(.bottom, 8)
-    }
-}
-
-// MARK: - WorkoutHistoryDestination
-/// Value-based navigation token for the workout history screen
-/// (keeps `navigationDestination(for:)` instead of an inline-destination link).
-private struct WorkoutHistoryDestination: Hashable {}
-
-// MARK: - WorkoutPlansDestination
-/// Value-based navigation token for the workout plans list.
-private struct WorkoutPlansDestination: Hashable {}
-
-// MARK: - ExerciseSearchField
-private struct ExerciseSearchField: View {
-    @Binding var text: String
-    var isFocused: FocusState<Bool>.Binding
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(Color.accent)
-
-            TextField("Szukaj ćwiczenia", text: $text)
-                .textFieldStyle(.plain)
-                .focused(isFocused)
-                .submitLabel(.search)
-                .foregroundStyle(Color.textPrimary)
-
-            if !text.isEmpty {
-                Button {
-                    text = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(Color.textSecondary)
-                }
-                .accessibilityLabel("Wyczyść wyszukiwanie")
-            }
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 12)
-        .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: AppRadius.medium))
-        .overlay(
-            RoundedRectangle(cornerRadius: AppRadius.medium)
-                .stroke(Color.accent.opacity(isFocused.wrappedValue ? 1 : 0.4), lineWidth: 1)
-        )
-    }
-}
-
-// MARK: - ExerciseLibraryList
-private struct ExerciseLibraryList: View {
-    let sections: [ExerciseListSection]
-    let favorites: ExerciseFavorites
-
-    var body: some View {
-        if sections.isEmpty {
-            ExerciseEmptyState()
-                .padding(.top, 48)
-        } else {
-            LazyVStack(spacing: 12) {
-                ForEach(sections) { section in
-                    if let title = section.title {
-                        ExerciseListSectionHeader(title: title)
-                    }
-                    ForEach(section.exercises) { exercise in
-                        NavigationLink(value: exercise) {
-                            ExerciseRowView(exercise: exercise, isFavorite: favorites.contains(exercise.id))
-                        }
-                        .exerciseFavoriteActions(exercise)
-                    }
-                }
-            }
-        }
-    }
-}
-
-// MARK: - ExerciseRowView
-private struct ExerciseRowView: View {
-    let exercise: Exercise
-    let isFavorite: Bool
-
-    var body: some View {
-        HStack(spacing: 12) {
-            ExerciseIconView(symbolName: exercise.symbolName, size: .row)
-
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    Text(exercise.name)
-                        .font(.bodyLarge)
-                        .foregroundStyle(Color.textPrimary)
-
-                    if isFavorite {
-                        ExerciseFavoriteBadge()
-                    }
-                }
-
-                Text(subtitle)
-                    .font(.bodySmall)
-                    .foregroundStyle(Color.textSecondary)
-            }
-
-            Spacer()
-
-            Image(systemName: "chevron.right")
-                .font(.bodySmall)
-                .foregroundStyle(Color.textSecondary)
-        }
-        .padding(12)
-        .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: AppRadius.medium))
-        .contentShape(.rect(cornerRadius: AppRadius.medium))
-    }
-
-    /// Muscle groups; a favorite variant names its main movement instead.
-    private var subtitle: String {
-        if let parentID = exercise.variantOf, let parent = ExerciseCatalog.exercise(withID: parentID) {
-            return String(localized: "Wariant: \(parent.name)")
-        }
-        return exercise.muscleGroups.map(\.displayName).joined(separator: " · ")
-    }
-}
-
-// MARK: - ExerciseEmptyState
-private struct ExerciseEmptyState: View {
-    var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
-                .font(.appTitle2)
-                .foregroundStyle(Color.accent.opacity(0.8))
-
-            Text("Brak wyników")
-                .font(.bodyMedium)
-                .foregroundStyle(Color.textPrimary)
-
-            Text("Zmień kategorię lub wpisz inną nazwę.")
-                .font(.bodySmall)
-                .foregroundStyle(Color.textSecondary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-    }
+// MARK: - ExerciseLibraryRoute
+/// Value-based navigation tokens for the toolbar's screens (keeps
+/// `navigationDestination(for:)` instead of an inline-destination link).
+private enum ExerciseLibraryRoute: Hashable {
+    case workoutHistory
+    case workoutPlans
 }
 
 #if DEBUG
