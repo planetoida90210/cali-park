@@ -127,6 +127,11 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
   - kalibracja wskazuje szczeble po ID; dipy „12+” startują od podporu na kółkach,
   - jednorazowy skok XP za nowe niższe szczeble (np. +100 XP przy pełnych podciągnięciach, maks. +1100 XP), przyjęty w 015,
   - testy: 426 (722 przypadki).
+- **Swift 6, krok F3 fundamentu** (`22b8994`, 2026-11-04):
+  - wszystkie targety w trybie Swift 6 z pełnym sprawdzaniem współbieżności, domyślna izolacja `MainActor` w apce, czysta domena oznaczona `nonisolated` (G-19),
+  - koniec `ObservableObject`, Combine i `DispatchQueue`; `AppEnvironment` to zwykła klasa (D-10, D-11, D-12),
+  - toast XP nie chowa nowszego toastu (D-13), szybki trening nie zapisze się dwa razy (D-15), view modele nie czytają plików w `init` (D-6, D-7); reszta znalezisk D była już naprawiona albo zniknęła ze starym kodem,
+  - testy: 803 (1238 przypadków).
 - **Tylko Parki z drążkiem albo poręczami** (`8f58aab`, 2026-11-04, „Model Parku i sprzętu”, Q28/Q29): świeże dane z OSM (2026-11-04), 233 Parki zamiast 330, 97 miejsc bez opisanego sprzętu wypadło; ID pozostałych Parków bez zmian, więc ulubione działają; „Sprzęt nieznany” usunięty z apki; testy: 800 (1235 przypadków).
 - **Polski region i poprawki z przeglądu** (`e2e3335`…`c83865a`, 2026-11-04):
   - polski region deweloperski: daty, dni tygodnia, liczby i przyciski systemowe po polsku (G-3), nazwa apki „CaliPark”,

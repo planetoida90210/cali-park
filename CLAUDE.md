@@ -14,7 +14,7 @@ xcodebuild -project cali-park.xcodeproj -scheme cali-park \
 
 - Simulator access fails inside the Bash sandbox (CoreSimulator, xcrun cache). Run xcodebuild with the sandbox disabled.
 - Some simulator names exist on more than one runtime. Without `OS=26.5` in the destination, xcodebuild may fail to match a device; `id=<UDID>` from `xcrun simctl list devices` also works.
-- Baseline as of 2026-11-04, after the Polish locale fixes and the strict Park rule (`8f58aab`): the build has zero warnings and every unit test passes (800 `@Test` functions, 1235 cases including parameterized ones). Keep the build warning-free and the tests green.
+- Baseline as of 2026-11-04, after Swift 6 (`22b8994`): the build has zero warnings and every unit test passes (803 `@Test` functions, 1238 cases including parameterized ones). Keep the build warning-free and the tests green.
 - Targets use synchronized folders. A new file under `cali-park/` or `cali-parkTests/` is compiled automatically, so add files without editing `project.pbxproj`.
 
 ## CI
