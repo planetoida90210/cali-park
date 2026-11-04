@@ -9,12 +9,7 @@
 
 import XCTest
 
-@MainActor
-final class PlanFlowTests: XCTestCase {
-    override func setUp() async throws {
-        continueAfterFailure = false
-    }
-
+final class PlanFlowTests: CaliParkUITestCase {
     func testAPlanFromAProgramStartsFromHomeAndCountsAsDone() {
         let app = XCUIApplication.launched(.onboarded)
 

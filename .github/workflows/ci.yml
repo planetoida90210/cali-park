@@ -181,18 +181,47 @@ jobs:
           udid="$(scripts/ci-pick-simulator.sh "$SIMULATOR_OS")"
           echo "udid=$udid" >> "$GITHUB_OUTPUT"
 
+      # The simulator boots while the app builds; the tests then run on the
+      # built products. The cali-park-ui test plan holds only the UI tests, so
+      # the unit test target is not compiled. A failed test is retried once, so one slow launch on
+      # the shared runner does not fail the run, while a real failure (two in
+      # a row) still does.
       - name: UI tests
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
         run: |
           set -o pipefail
+          xcrun simctl boot "$UDID" > "$RUNNER_TEMP/simctl-boot.log" 2>&1 &
+          boot_pid=$!
           xcodebuild \
             -project cali-park.xcodeproj \
             -scheme cali-park \
-            -destination "platform=iOS Simulator,id=${{ steps.simulator.outputs.udid }}" \
+            -destination "platform=iOS Simulator,id=$UDID" \
+            -derivedDataPath "$RUNNER_TEMP/dd" \
+            -testPlan cali-park-ui \
+            CODE_SIGNING_ALLOWED=NO \
+            build-for-testing 2>&1 | tee "$RUNNER_TEMP/xcodebuild-ui.log"
+          wait "$boot_pid" || cat "$RUNNER_TEMP/simctl-boot.log"
+          xcrun simctl bootstatus "$UDID" -b
+          xcodebuild \
+            -project cali-park.xcodeproj \
+            -scheme cali-park \
+            -destination "platform=iOS Simulator,id=$UDID" \
             -derivedDataPath "$RUNNER_TEMP/dd" \
             -resultBundlePath "$RUNNER_TEMP/UITestResults.xcresult" \
-            -only-testing:cali-parkUITests \
-            CODE_SIGNING_ALLOWED=NO \
-            test 2>&1 | tee "$RUNNER_TEMP/xcodebuild-ui.log"
+            -testPlan cali-park-ui \
+            -retry-tests-on-failure -test-iterations 2 \
+            test-without-building 2>&1 | tee -a "$RUNNER_TEMP/xcodebuild-ui.log"
+
+      - name: UI test summary
+        if: always()
+        run: |
+          result="$RUNNER_TEMP/UITestResults.xcresult"
+          if [ -d "$result" ]; then
+            xcrun xcresulttool get test-results summary --path "$result" --compact || true
+          else
+            echo "No result bundle; the build probably failed before tests ran."
+          fi
 
       - name: Upload UI test results
         if: failure()

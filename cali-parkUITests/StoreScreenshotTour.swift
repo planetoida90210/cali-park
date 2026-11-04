@@ -12,8 +12,7 @@
 
 import XCTest
 
-@MainActor
-final class StoreScreenshotTour: XCTestCase {
+final class StoreScreenshotTour: CaliParkUITestCase {
     /// The environment value that turns the tour on; xcodebuild passes
     /// `TEST_RUNNER_CALIPARK_STORE_SHOTS` to the runner without its prefix.
     private static let switchKey = "CALIPARK_STORE_SHOTS"
@@ -21,7 +20,7 @@ final class StoreScreenshotTour: XCTestCase {
     override func setUp() async throws {
         try XCTSkipUnless(ProcessInfo.processInfo.environment[Self.switchKey] == "1",
                           "App Store screenshots run only through scripts/store-screenshots.sh")
-        continueAfterFailure = false
+        try await super.setUp()
     }
 
     /// The six screens, in the App Store order.

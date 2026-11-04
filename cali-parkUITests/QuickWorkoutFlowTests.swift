@@ -8,12 +8,7 @@
 
 import XCTest
 
-@MainActor
-final class QuickWorkoutFlowTests: XCTestCase {
-    override func setUp() async throws {
-        continueAfterFailure = false
-    }
-
+final class QuickWorkoutFlowTests: CaliParkUITestCase {
     func testAQuickWorkoutShowsInHistoryAndOnHome() {
         let app = XCUIApplication.launched(.onboarded)
 

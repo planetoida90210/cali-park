@@ -8,12 +8,7 @@
 
 import XCTest
 
-@MainActor
-final class OnboardingFlowTests: XCTestCase {
-    override func setUp() async throws {
-        continueAfterFailure = false
-    }
-
+final class OnboardingFlowTests: CaliParkUITestCase {
     func testOnboardingLandsOnHomeWithTheProgramsPlan() {
         let app = XCUIApplication.launched(.fresh)
 
