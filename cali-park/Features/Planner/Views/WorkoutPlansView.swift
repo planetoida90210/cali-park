@@ -244,11 +244,9 @@ private struct WorkoutPlansEmptyState: View {
                 .buttonStyle(.accent(.compact, fillsWidth: false))
             .padding(.top, 8)
 
-            Button(action: onBrowsePrograms) {
-                Label("Wybierz gotowy program", systemImage: "list.bullet.clipboard")
-                    .font(.buttonMedium)
-                    .foregroundStyle(Color.accent)
-            }
+            Button("Wybierz gotowy program", systemImage: "list.bullet.clipboard", action: onBrowsePrograms)
+                .font(.buttonMedium)
+                .foregroundStyle(Color.accent)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

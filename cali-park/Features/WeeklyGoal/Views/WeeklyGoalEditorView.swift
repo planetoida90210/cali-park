@@ -82,16 +82,14 @@ private struct WeeklyGoalListSection: View {
             }
 
             if viewModel.canAddGoal {
-                Menu {
+                Menu("Dodaj cel", systemImage: "plus.circle.fill") {
                     ForEach(WeeklyGoal.Kind.allCases) { kind in
                         Button(kind.displayName, systemImage: kind.symbolName) {
                             if let id = viewModel.addGoal(kind) { onOpen(id) }
                         }
                     }
-                } label: {
-                    Label("Dodaj cel", systemImage: "plus.circle.fill")
-                        .foregroundStyle(Color.accent)
                 }
+                .foregroundStyle(Color.accent)
             }
         } header: {
             Text("Cele (\(viewModel.goals.count) z \(WeeklyGoal.maximumCount))")

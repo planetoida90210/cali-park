@@ -123,17 +123,10 @@ struct QuickWorkoutView: View {
 
     // MARK: Bottom bar
     private var bottomBar: some View {
-        Button {
+        Button("Dodaj ćwiczenie", systemImage: "plus") {
             activeSheet = .picker
-        } label: {
-            Label("Dodaj ćwiczenie", systemImage: "plus")
-                .font(.buttonLarge)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(Color.componentBackground)
-                .foregroundStyle(Color.textPrimary)
-                .clipShape(.rect(cornerRadius: AppRadius.medium))
         }
+        .buttonStyle(.secondary)
         .padding(.horizontal, 16)
         .padding(.bottom, 8)
     }

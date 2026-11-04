@@ -303,15 +303,8 @@ private struct CalibrationButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            Label("Ustaw poziom", systemImage: "slider.horizontal.3")
-                .font(.buttonMedium)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .foregroundStyle(Color.accent)
-                .background(Color.componentBackground)
-                .clipShape(.rect(cornerRadius: AppRadius.medium))
-        }
+        Button("Ustaw poziom", systemImage: "slider.horizontal.3", action: action)
+            .buttonStyle(.secondary(.compact))
     }
 }
 

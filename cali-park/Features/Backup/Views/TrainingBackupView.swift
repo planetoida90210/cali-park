@@ -25,12 +25,10 @@ struct TrainingBackupView: View {
             .listRowBackground(Color.componentBackground)
 
             Section {
-                Button {
+                Button("Importuj z pliku", systemImage: "square.and.arrow.down") {
                     isPickingFile = true
-                } label: {
-                    Label("Importuj z pliku", systemImage: "square.and.arrow.down")
-                        .foregroundStyle(Color.accent)
                 }
+                .foregroundStyle(Color.accent)
                 .disabled(viewModel.isImporting)
             } header: {
                 Text("Import")

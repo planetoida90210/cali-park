@@ -61,7 +61,7 @@ struct ModuleSelectionView: View {
                             editMode = editMode.isEditing ? .inactive : .active
                         }
                     }
-                    .fontWeight(editMode.isEditing ? .semibold : .regular)
+                    .bold(editMode.isEditing)
                     .disabled(!editMode.isEditing && preferences.enabledModules.count < 2)
                 }
                 if !editMode.isEditing {

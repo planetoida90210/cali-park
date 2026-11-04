@@ -228,16 +228,17 @@ struct PhotosSection: View {
             }
 
             if model.draft.photos.count < SubmissionDraft.maxPhotos {
-                Button {
+                let takePhoto = Button(
+                    model.draft.photos.isEmpty ? "Zrób zdjęcie" : "Zrób kolejne zdjęcie",
+                    systemImage: "camera.fill"
+                ) {
                     model.isCameraPresented = true
-                } label: {
-                    Label(model.draft.photos.isEmpty ? "Zrób zdjęcie" : "Zrób kolejne zdjęcie", systemImage: "camera.fill")
-                        .frame(maxWidth: .infinity)
                 }
-                .font(.headline)
-                .foregroundStyle(model.draft.photos.isEmpty ? Color.black : Color.accent)
-                .padding(.vertical, 14)
-                .background(model.draft.photos.isEmpty ? Color.accent : Color.componentBackground, in: .capsule)
+                if model.draft.photos.isEmpty {
+                    takePhoto.buttonStyle(.accent)
+                } else {
+                    takePhoto.buttonStyle(.secondary)
+                }
             }
 
             Label {

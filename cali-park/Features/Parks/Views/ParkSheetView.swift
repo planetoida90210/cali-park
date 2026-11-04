@@ -147,18 +147,14 @@ private struct ParkCardHeader: View {
 
             HStack(spacing: 10) {
                 if let url = ParkFormat.appleMapsURL(for: park) {
-                    Button {
+                    Button("Nawiguj", systemImage: "arrow.triangle.turn.up.right.diamond.fill") {
                         openURL(url)
-                    } label: {
-                        Label("Nawiguj", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
                     }
                     .buttonStyle(ParkCardButtonStyle(isProminent: true))
                     .accessibilityHint("Otwiera trasę w Mapach Apple")
                 }
                 if !isExpanded {
-                    Button(action: onExpand) {
-                        Label("Szczegóły", systemImage: "chevron.up")
-                    }
+                    Button("Szczegóły", systemImage: "chevron.up", action: onExpand)
                     .buttonStyle(ParkCardButtonStyle(isProminent: false))
                     .accessibilityHint("Rozwija pełną kartę Parku")
                 }

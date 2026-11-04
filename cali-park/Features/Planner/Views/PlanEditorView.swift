@@ -117,10 +117,8 @@ private struct PlanExercisesSection: View {
             }
             .onDelete { viewModel.remove(atOffsets: $0) }
 
-            Button(action: onAdd) {
-                Label("Dodaj ćwiczenie", systemImage: "plus")
-                    .foregroundStyle(Color.accent)
-            }
+            Button("Dodaj ćwiczenie", systemImage: "plus", action: onAdd)
+                .foregroundStyle(Color.accent)
             .listRowBackground(Color.componentBackground)
         } header: {
             Text("Ćwiczenia")

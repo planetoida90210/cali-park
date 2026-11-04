@@ -93,16 +93,10 @@ struct SubmissionSummaryView: View {
         .background(Color.appBackground)
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .bottom) {
-            Button {
+            Button("Wyślij do moderacji", systemImage: "paperplane.fill") {
                 model.send()
-            } label: {
-                Label("Wyślij do moderacji", systemImage: "paperplane.fill")
-                    .frame(maxWidth: .infinity)
             }
-            .font(.headline)
-            .foregroundStyle(.black)
-            .padding(.vertical, 14)
-            .background(Color.accent, in: .capsule)
+            .buttonStyle(.accent)
             .padding(.horizontal, 20)
             .padding(.top, 10)
             .padding(.bottom, 6)
