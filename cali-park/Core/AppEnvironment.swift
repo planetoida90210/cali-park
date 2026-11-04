@@ -1,3 +1,4 @@
+import CoreLocation
 import Foundation
 
 // MARK: - AppEnvironment
@@ -7,10 +8,10 @@ import Foundation
 @MainActor
 final class AppEnvironment: ObservableObject {
     // MARK: Services
-    let communityPhotoService: CommunityPhotoServiceProtocol
-    let reviewsService: ReviewsServicing
-    let calendarService: CalendarService
-    let favoritesStore: FavoritesStoring
+    /// Read-only Parks: the bundled OSM snapshot today, the backend later.
+    let parkDirectory: ParkDirectory
+    /// The user's position for distances to Parks; never stored.
+    let locationProvider: LocationProviding
     /// The training journal: the only write path for workout logs. Every
     /// change rescores progress (and the reward loop) and re-syncs plan
     /// reminders (a plan done today gets no reminder today), so every view
@@ -44,10 +45,8 @@ final class AppEnvironment: ObservableObject {
     let weeklyGoalStore: WeeklyGoalStoring
 
     // MARK: Init
-    init(communityPhotoService: CommunityPhotoServiceProtocol = InMemoryCommunityPhotoService(),
-         reviewsService: ReviewsServicing = ReviewsService(),
-         calendarService: CalendarService = CalendarService(),
-         favoritesStore: FavoritesStoring = UserDefaultsFavoritesStore(),
+    init(parkDirectory: ParkDirectory = BundledParkDirectory(),
+         locationProvider: LocationProviding? = nil,
          workoutLogStore: WorkoutLogStoring = FileWorkoutLogStore(),
          workoutPlanStore: WorkoutPlanStoring = FileWorkoutPlanStore(),
          reminderScheduler: WorkoutReminderScheduling = NotificationCenterReminderScheduler(center: SystemNotificationCenter()),
@@ -55,10 +54,10 @@ final class AppEnvironment: ObservableObject {
          placementStore: PlacementStoring = FileSkillPlacementStore(),
          skillProgressStore: SkillProgressStoring = FileSkillProgressStore(),
          weeklyGoalStore: WeeklyGoalStoring = FileWeeklyGoalStore()) {
-        self.communityPhotoService = communityPhotoService
-        self.reviewsService = reviewsService
-        self.calendarService = calendarService
-        self.favoritesStore = favoritesStore
+        self.parkDirectory = parkDirectory
+        // Built here: a main-actor default argument can't be evaluated in the
+        // caller's nonisolated context.
+        self.locationProvider = locationProvider ?? CoreLocationProvider()
         self.workoutPlanStore = workoutPlanStore
         self.reminderScheduler = reminderScheduler
         // The plan service only reads the log, to skip days already done.
@@ -84,20 +83,14 @@ final class AppEnvironment: ObservableObject {
 
     // MARK: View Model Factories
     /// Keeps the dependency wiring for each view model in one place.
-    func makeParksViewModel() -> ParksViewModel {
-        ParksViewModel(favoritesStore: favoritesStore)
+    /// Parks tab: map and list of Parks.
+    func makeParkMapViewModel() -> ParkMapViewModel {
+        ParkMapViewModel(directory: parkDirectory, location: locationProvider)
     }
 
-    func makeReviewsViewModel(parkID: UUID) -> ParkReviewsViewModel {
-        ParkReviewsViewModel(parkID: parkID, service: reviewsService)
-    }
-
-    func makePhotosViewModel(parkID: UUID) -> ParkPhotosViewModel {
-        ParkPhotosViewModel(parkID: parkID, service: communityPhotoService)
-    }
-
-    func makeEventsViewModel(parkID: UUID) -> ParkEventsViewModel {
-        ParkEventsViewModel(parkID: parkID, calendarService: calendarService)
+    /// Home module with the nearest Park.
+    func makeNearestParkViewModel() -> NearestParkViewModel {
+        NearestParkViewModel(directory: parkDirectory, location: locationProvider)
     }
 
     func makeExerciseLibraryViewModel() -> ExerciseLibraryViewModel {
@@ -216,12 +209,19 @@ final class AppEnvironment: ObservableObject {
 extension AppEnvironment {
     /// A preview environment backed by in-memory stores seeded with the given
     /// logs and plans, so the whole `HomeView` can be eyeballed in each hero
-    /// state without touching disk.
+    /// state without touching disk. Parks are the real bundled snapshot; the
+    /// location is a fixed point (central Warsaw) so previews never prompt.
     static func seeded(logs: [WorkoutLogEntry] = [],
                        plans: [WorkoutPlan] = [],
                        placement: SkillPlacement? = nil,
-                       weeklyGoal: WeeklyGoalHistory? = nil) -> AppEnvironment {
+                       weeklyGoal: WeeklyGoalHistory? = nil,
+                       location: LocationProviding? = nil) -> AppEnvironment {
         AppEnvironment(
+            parkDirectory: BundledParkDirectory(),
+            locationProvider: location ?? FixedLocationProvider(
+                authorization: .authorized,
+                location: CLLocationCoordinate2D(latitude: 52.2297, longitude: 21.0122)
+            ),
             workoutLogStore: InMemoryWorkoutLogStore(initial: logs),
             workoutPlanStore: InMemoryWorkoutPlanStore(initial: plans),
             reminderScheduler: InMemoryReminderScheduler(status: .authorized),

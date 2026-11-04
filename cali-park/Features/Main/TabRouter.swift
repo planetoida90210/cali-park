@@ -22,8 +22,17 @@ enum AppTab: Int, CaseIterable, Sendable {
 final class TabRouter {
     /// The tab currently shown.
     var selection: AppTab
+    /// A Park another tab asked the Parks map to show. The Parks tab clears it
+    /// once it has focused the Park.
+    var parkToFocus: UUID?
 
     init(selection: AppTab = .home) {
         self.selection = selection
+    }
+
+    /// Switches to the Parks tab and centres the map on `parkID`.
+    func showPark(_ parkID: UUID) {
+        parkToFocus = parkID
+        selection = .parks
     }
 }

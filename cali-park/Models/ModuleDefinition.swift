@@ -22,9 +22,9 @@ struct ModuleDefinition: Identifiable, Codable, Equatable {
         ),
         ModuleDefinition(
             id: "parks",
-            name: "Pogoda i siłownia",
+            name: "Najbliższy Park",
             iconName: "mappin.and.ellipse",
-            description: "Pogoda i najbliższa siłownia."
+            description: "Najbliższy Park z mapy Siłowni."
         ),
         ModuleDefinition(
             id: WeeklyGoalModule.id,

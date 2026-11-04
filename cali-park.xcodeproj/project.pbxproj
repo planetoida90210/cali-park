@@ -414,8 +414,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "cali-park/Info.plist";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Pozwól CaliPark użyć aparatu, aby udostępniać zdjęcia.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "CaliPark używa Twojej lokalizacji, aby pokazać najbliższe parki na mapie.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "CaliPark używa Twojej lokalizacji, aby pokazać najbliższe Parki i odległość do nich. Pozycja nie opuszcza telefonu.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -447,8 +446,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "cali-park/Info.plist";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Pozwól CaliPark użyć aparatu, aby udostępniać zdjęcia.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "CaliPark używa Twojej lokalizacji, aby pokazać najbliższe parki na mapie.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "CaliPark używa Twojej lokalizacji, aby pokazać najbliższe Parki i odległość do nich. Pozycja nie opuszcza telefonu.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -262,9 +262,9 @@ struct LadderRevisionContentTests {
     }
 
     @Test func newEquipmentKeysHavePolishLabels() {
-        #expect(EquipmentItem.displayName(for: "fitness_pole") == "Pionowy drążek")
-        #expect(EquipmentItem.displayName(for: "wall_bars") == "Drabinki gimnastyczne")
-        #expect(EquipmentItem.displayName(for: "Monkey bars") == "Drabinka pozioma")
+        #expect(ExerciseEquipment.displayName(for: "fitness_pole") == "Pionowy drążek")
+        #expect(ExerciseEquipment.displayName(for: "wall_bars") == "Drabinki gimnastyczne")
+        #expect(ExerciseEquipment.displayName(for: "Monkey bars") == "Drabinka pozioma")
     }
 
     @Test func everyStepHasASourceLabel() {

@@ -6,6 +6,8 @@ struct ModuleView: View {
 
     // Realne dane dziennika dla modułów Quick Log / streak / następny trening
     let dashboard: HomeDashboardViewModel
+    // Najbliższy Park dla modułu "parks"
+    let nearestPark: NearestParkViewModel
 
     // Obsługa rozwijania/zwijania
     @State private var isExpanded: Bool = false
@@ -144,7 +146,7 @@ struct ModuleView: View {
         case "next":
             NextWorkoutModuleContent(dashboard: dashboard)
         case "parks":
-            ParksModuleContent()
+            ParksModuleContent(model: nearestPark)
         case WeeklyGoalModule.id:
             WeeklyGoalModuleContent(snapshot: dashboard.weeklyGoal, onEdit: onEditGoal)
         case "streak":
@@ -164,14 +166,17 @@ struct ModuleView: View {
 // MARK: - Preview
 
 #Preview {
+    let environment = AppEnvironment.seeded()
+    let dashboard = environment.makeHomeDashboardViewModel()
+    let nearestPark = environment.makeNearestParkViewModel()
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
         ScrollView {
             VStack(spacing: 0) {
-                ModuleView(moduleId: "log", dashboard: AppEnvironment.preview.makeHomeDashboardViewModel())
-                ModuleView(moduleId: "next", dashboard: AppEnvironment.preview.makeHomeDashboardViewModel())
-                ModuleView(moduleId: "streak", dashboard: AppEnvironment.preview.makeHomeDashboardViewModel())
+                ModuleView(moduleId: "log", dashboard: dashboard, nearestPark: nearestPark)
+                ModuleView(moduleId: "next", dashboard: dashboard, nearestPark: nearestPark)
+                ModuleView(moduleId: "parks", dashboard: dashboard, nearestPark: nearestPark)
             }
         }
     }

@@ -4,9 +4,10 @@ import Foundation
 /// Everything the athlete owns in one value: the content of the export file
 /// ("Eksport i import treningów" in Profile) and the unit an import replaces.
 ///
-/// Favorite Parks are not included: they point at the placeholder Parks, which
-/// the map of real Parks replaces. Progress (level, streaks, rungs) is never
-/// stored; it is recomputed from the log after an import.
+/// There are no favorite Parks to include: the read-only map of OSM Parks has
+/// none yet (the placeholder favorites were removed with it). Progress (level,
+/// streaks, rungs) is never stored; it is recomputed from the log after an
+/// import.
 struct TrainingBackup: Equatable, Sendable {
     var workoutLog: [WorkoutLogEntry]
     var workoutPlans: [WorkoutPlan]

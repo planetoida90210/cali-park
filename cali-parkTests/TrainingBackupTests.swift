@@ -65,7 +65,8 @@ private struct BackupRig {
         self.progress = progress
         self.goal = goal
         environment = AppEnvironment(
-            favoritesStore: InMemoryFavoritesStore(),
+            parkDirectory: InMemoryParkDirectory(),
+            locationProvider: FixedLocationProvider(authorization: .denied),
             workoutLogStore: log,
             workoutPlanStore: plans,
             reminderScheduler: scheduler,

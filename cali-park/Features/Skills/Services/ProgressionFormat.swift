@@ -35,6 +35,6 @@ enum ProgressionFormat {
     static func equipment(_ equipment: [String]) -> String {
         equipment.isEmpty
             ? "Masa ciała"
-            : equipment.map(EquipmentItem.displayName(for:)).joined(separator: " · ")
+            : equipment.map(ExerciseEquipment.displayName(for:)).joined(separator: " · ")
     }
 }

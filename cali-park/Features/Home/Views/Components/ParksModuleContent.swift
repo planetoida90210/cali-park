@@ -1,93 +1,92 @@
 import SwiftUI
 
 // MARK: - Parks Module
-
+/// "Najbliższy Park": the closest real Park, or an invitation to the map when
+/// the location isn't shared yet. No weather until WeatherKit arrives.
 struct ParksModuleContent: View {
+    let model: NearestParkViewModel
+
+    @Environment(TabRouter.self) private var router: TabRouter?
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                // Pogoda
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Warszawa")
-                        .font(.bodySmall)
-                        .foregroundStyle(Color.textSecondary)
-                    
-                    HStack {
-                        Image(systemName: "sun.max.fill")
-                            .foregroundStyle(Color.yellow)
-                        
-                        Text("22°C")
-                            .font(.title3.bold())
-                            .foregroundStyle(Color.textPrimary)
-                    }
-                }
-                
-                Spacer()
-                
-                // Najbliższe parki
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text("Najbliższa siłownia")
-                        .font(.bodySmall)
-                        .foregroundStyle(Color.textSecondary)
-                    
-                    Text("Park Skaryszewski (1,2 km)")
-                        .font(.bodyMedium)
-                        .foregroundStyle(Color.textPrimary)
-                }
-            }
-            
-            // Lista pobliskich parków
-            VStack(spacing: 12) {
-                parkRow(name: "Park Skaryszewski", distance: "1,2 km", busy: "Średnio zatłoczony")
-                parkRow(name: "Park Praski", distance: "2,5 km", busy: "Mało zatłoczony")
-            }
-            
-            Button(action: {
-                // Akcja otworzenia mapy
-            }) {
-                Text("Pokaż na mapie")
-                    .font(.buttonMedium)
-                    .foregroundStyle(Color.accent)
+            switch model.state {
+            case .loading:
+                ProgressView()
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color.glassBackground)
-                    .clipShape(.rect(cornerRadius: 8))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.accent, lineWidth: 1)
-                    )
+            case .nearest(let item):
+                nearest(item)
+            case .needsLocation:
+                message("Włącz lokalizację na mapie Parków, a pokażemy tu najbliższy Park.",
+                        systemImage: "location")
+                mapButton("Otwórz mapę") { router?.selection = .parks }
+            case .noParks:
+                message("Nie mamy jeszcze Parków do pokazania.", systemImage: "mappin.slash")
+            case .failed(let text):
+                message(text, systemImage: "exclamationmark.triangle")
             }
         }
         .padding()
         .background(Color.componentBackground)
         .clipShape(.rect(cornerRadius: 12))
     }
-    
-    private func parkRow(name: String, distance: String, busy: String) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(name)
-                    .font(.bodyMedium)
-                    .foregroundStyle(Color.textPrimary)
-                
-                Text(busy)
-                    .font(.caption)
+
+    @ViewBuilder
+    private func nearest(_ item: ParkDistance) -> some View {
+        HStack(alignment: .firstTextBaseline) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Najbliższy Park")
+                    .font(.bodySmall)
                     .foregroundStyle(Color.textSecondary)
+                Text(item.park.displayName)
+                    .font(.bodyLarge.weight(.semibold))
+                    .foregroundStyle(Color.textPrimary)
+                if let locality = item.park.locality.label {
+                    Text(locality)
+                        .font(.bodySmall)
+                        .foregroundStyle(Color.textSecondary)
+                }
             }
-            
             Spacer()
-            
-            Text(distance)
-                .font(.bodyMedium)
-                .foregroundStyle(Color.accent)
+            if let meters = item.meters {
+                Text(ParkFormat.distance(meters))
+                    .font(.bodyMedium.weight(.semibold).monospacedDigit())
+                    .foregroundStyle(Color.accent)
+            }
         }
-        .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
+        EquipmentChips(equipment: item.park.equipment, limit: 3)
+        mapButton("Pokaż na mapie") { router?.showPark(item.park.id) }
+    }
+
+    private func message(_ text: String, systemImage: String) -> some View {
+        Label(text, systemImage: systemImage)
+            .font(.bodyMedium)
+            .foregroundStyle(Color.textSecondary)
+    }
+
+    private func mapButton(_ title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.buttonMedium)
+                .foregroundStyle(Color.accent)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Color.glassBackground)
+                .clipShape(.rect(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.accent, lineWidth: 1)
+                )
+        }
     }
 }
 
 #Preview {
-    ParksModuleContent()
+    let model = AppEnvironment.seeded().makeNearestParkViewModel()
+    ParksModuleContent(model: model)
+        .task { await model.refresh() }
         .padding()
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
-} 
+}

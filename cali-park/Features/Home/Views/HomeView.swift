@@ -10,6 +10,8 @@ enum HomeRoute: Hashable {
 struct HomeView: View {
     // Real workout data for hero + modules.
     @State private var dashboard: HomeDashboardViewModel
+    // Nearest real Park for the "parks" module.
+    @State private var nearestPark: NearestParkViewModel
 
     // Module preferences
     @StateObject private var modulePreferences = ModulePreferences()
@@ -22,6 +24,9 @@ struct HomeView: View {
 
     // Module selector state
     @State private var showModuleSelector = false
+
+    // Bumped to re-run the nearest-Park lookup (return to the app or to Home).
+    @State private var nearestParkRefresh = 0
 
     // The plan the hero's "Rozpocznij" is starting; presents its quick workout.
     @State private var startingPlan: WorkoutPlan?
@@ -36,6 +41,7 @@ struct HomeView: View {
     init(environment: AppEnvironment) {
         self.environment = environment
         _dashboard = State(initialValue: environment.makeHomeDashboardViewModel())
+        _nearestPark = State(initialValue: environment.makeNearestParkViewModel())
     }
 
     var body: some View {
@@ -125,11 +131,22 @@ struct HomeView: View {
                 // Picks up plans changed in the Planner. Workouts need no
                 // reload: Home reads the shared journal.
                 dashboard.reload()
+                // Picks up location allowed on the Parks map meanwhile.
+                nearestParkRefresh += 1
+            }
+            // Also re-runs when the user answers the location prompt on the
+            // Parks map or changes it in Settings.
+            .task(id: NearestParkRefreshKey(tick: nearestParkRefresh,
+                                            authorization: environment.locationProvider.authorization)) {
+                await nearestPark.refresh()
             }
             // onAppear does not fire when the app returns from background, and
             // nothing observed changes at midnight, so "today" would go stale.
             .onChange(of: scenePhase) { _, phase in
-                if phase == .active { dashboard.reload() }
+                if phase == .active {
+                    dashboard.reload()
+                    nearestParkRefresh += 1
+                }
             }
             .onReceive(Self.dayChanges) { _ in
                 dashboard.reload()
@@ -168,7 +185,7 @@ struct HomeView: View {
     private var modulesStackView: some View {
         VStack(spacing: 8) {
             ForEach(modulePreferences.enabledModules, id: \.self) { moduleId in
-                ModuleView(moduleId: moduleId, dashboard: dashboard, onEditGoal: openGoalEditor)
+                ModuleView(moduleId: moduleId, dashboard: dashboard, nearestPark: nearestPark, onEditGoal: openGoalEditor)
                     .id(moduleId)
                     .onDrag({
                         draggingModuleId = moduleId
@@ -216,6 +233,13 @@ struct HomeView: View {
         .padding(.vertical, 60)
         .padding(.horizontal, 16)
     }
+}
+
+// MARK: - NearestParkRefreshKey
+/// Re-runs the nearest-Park lookup on every bump or authorization change.
+private struct NearestParkRefreshKey: Equatable {
+    let tick: Int
+    let authorization: LocationAuthorization
 }
 
 // MARK: - Module Selection View
