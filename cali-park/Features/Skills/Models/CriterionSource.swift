@@ -36,6 +36,13 @@ enum CriterionSource: String, Codable, CaseIterable, Sendable {
         }
     }
 
+    /// The rung sheet's source line, e.g. "Skąd to kryterium? Zasada z
+    /// Recommended Routine (r/bodyweightfitness)." The explanation names the
+    /// source in full, so the short `label` would only repeat it.
+    var sourceLine: String {
+        "Skąd to kryterium? \(explanation)"
+    }
+
     /// One sentence answering "Skąd to kryterium?" in the rung sheet.
     var explanation: String {
         switch self {

@@ -104,7 +104,7 @@ struct StepDetailSheetView: View {
                 .tint(Color.accent)
                 .padding(.top, 4)
 
-            Text("Skąd to kryterium? \(step.criterionSource.label). \(step.criterionSource.explanation)")
+            Text(step.criterionSource.sourceLine)
                 .font(.bodySmall)
                 .foregroundStyle(Color.textTertiary)
                 .padding(.top, 4)

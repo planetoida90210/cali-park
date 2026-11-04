@@ -286,3 +286,18 @@ struct LadderRevisionContentTests {
         }
     }
 }
+
+// MARK: - "Skąd to kryterium?" line
+
+struct CriterionSourceLineTests {
+    @Test
+    func recommendedRoutineLineDoesNotRepeatTheCode() {
+        #expect(CriterionSource.rr.sourceLine == "Skąd to kryterium? Zasada z Recommended Routine (r/bodyweightfitness).")
+    }
+
+    @Test(arguments: CriterionSource.allCases)
+    func everyLineIsTheExplanationWithoutTheShortLabel(source: CriterionSource) {
+        #expect(source.sourceLine == "Skąd to kryterium? \(source.explanation)")
+        #expect(!source.sourceLine.contains("\(source.label). "))
+    }
+}
