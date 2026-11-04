@@ -16,7 +16,7 @@ nonisolated enum ProgressionFormat {
 
         let remaining = max(0, hint.progress.targetValue - hint.progress.bestValue)
         let remainingText = MeasureFormat.amount(remaining, hint.progress.criterion.measurement)
-        let goal = MeasureFormat.criterion(hint.progress.criterion, side: path.steps[hint.currentRungIndex].unilateralSide)
+        let goal = MeasureFormat.criterionGoal(hint.progress.criterion, side: path.steps[hint.currentRungIndex].unilateralSide)
 
         // The next rung to name skips parallel tracks: they are options, not
         // the next step (audit A-3).

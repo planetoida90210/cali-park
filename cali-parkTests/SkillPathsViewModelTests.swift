@@ -22,6 +22,26 @@ struct ProgressionFormatTests {
         #expect(MeasureFormat.criterion(.setsOfHold(sets: 1, seconds: 5)) == "pierwsze 5 s")
     }
 
+    /// A-13: after "do" the mastery markers take the genitive.
+    @Test func criterionGoalPutsMarkersInTheGenitive() {
+        #expect(MeasureFormat.criterionGoal(.setsOfReps(sets: 3, reps: 8)) == "3 × 8")
+        #expect(MeasureFormat.criterionGoal(.setsOfHold(sets: 3, seconds: 20)) == "3 × 20 s")
+        #expect(MeasureFormat.criterionGoal(.setsOfReps(sets: 1, reps: 1)) == "pierwszego czystego")
+        #expect(MeasureFormat.criterionGoal(.setsOfHold(sets: 1, seconds: 5)) == "pierwszych 5 s")
+    }
+
+    @Test func hintLineForTheTopHoldRungIsGrammatical() throws {
+        let path = try #require(ProgressionCatalog.path(withID: .frontLever))
+        let top = path.steps.count - 1
+        let hint = ProgressionHint(
+            pathID: .frontLever,
+            currentRungIndex: top,
+            progress: RungProgress(criterion: path.steps[top].criterion, bestValue: 3)
+        )
+        let line = try #require(ProgressionFormat.hintLine(hint))
+        #expect(line.hasPrefix("Jeszcze 2 s do pierwszych 5 s — "))
+    }
+
     @Test func bestPairsSetsWithLoggedValue() {
         #expect(MeasureFormat.best(RungProgress(criterion: .setsOfReps(sets: 3, reps: 8), bestValue: 6)) == "3 × 6")
         #expect(MeasureFormat.best(RungProgress(criterion: .setsOfHold(sets: 3, seconds: 20), bestValue: 15)) == "3 × 15 s")

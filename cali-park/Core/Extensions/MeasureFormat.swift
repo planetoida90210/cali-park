@@ -124,6 +124,23 @@ nonisolated enum MeasureFormat {
         return withSide(target, side)
     }
 
+    /// The target for a rung after "do" ("Jeszcze 2 s do …"): the same as
+    /// `criterion(_:side:)` except that the mastery markers take the genitive,
+    /// "pierwszego czystego" / "pierwszych 5 s" (audit A-13).
+    static func criterionGoal(_ criterion: AdvancementCriterion,
+                              side: UnilateralSide? = nil) -> String {
+        let target: String
+        switch criterion {
+        case .setsOfReps(1, 1):
+            target = String(localized: "pierwszego czystego", comment: "Goal after \"do\": the first clean rep")
+        case let .setsOfHold(1, held):
+            target = String(localized: "pierwszych \(seconds(held))", comment: "Goal after \"do\": the first hold of N seconds")
+        default:
+            return self.criterion(criterion, side: side)
+        }
+        return withSide(target, side)
+    }
+
     /// The target for a step, counted per side when its exercise is
     /// unilateral.
     static func criterion(for step: ProgressionStep) -> String {
