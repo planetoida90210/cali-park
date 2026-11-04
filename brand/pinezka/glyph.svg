@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- C · Pinezka parku: a map pin with a pull-up bar and a head cut out of it.
+       One outline with even-odd holes and a rounded tip. -->
+  <path fill="#D1FF00" fill-rule="evenodd" d="M282.3 596.4A286 286 0 1 1 741.7 596.4L539.3 869.2A34 34 0 0 1 484.7 869.2Z M368 566V456A32 32 0 0 1 400 424H624A32 32 0 0 1 656 456V566A32 32 0 0 1 592 566V488H432V566A32 32 0 0 1 368 566Z M566 326A54 54 0 1 1 458 326A54 54 0 1 1 566 326Z"/>
+</svg>
