@@ -6,10 +6,10 @@ Każde znalezisko z [findings.md](findings.md) sprawdzone na kodzie po fundamenc
 
 | Status | Liczba |
 |---|---|
-| naprawione | 108 |
+| naprawione | 110 |
 | zniknęło | 25 |
 | świadomie odłożone | 3 |
-| otwarte | 5 (w tym 2 częściowo) |
+| otwarte | 3 |
 | **razem** | **141** |
 
 - **Wszystkie P0 z audytu są zamknięte**: dane i zaufanie (#1–#6), bloker uploadu (#7), mocki i uprawnienia (#8, #9), lokalizacja i dostępność (#10, #11). Swift 6, CI i lint też.
@@ -18,7 +18,8 @@ Każde znalezisko z [findings.md](findings.md) sprawdzone na kodzie po fundamenc
 - 25 znalezisk zniknęło razem ze starym kodem, głównie ze starymi Parkami i Społecznością na atrapach (`34554ab`).
 - Gałąź `w-ui-consistency` zamknęła spójność UI: E-21, E-23, E-28, E-30 i F-10 (jeden alert błędu, jeden styl przycisku akcentowego i drugorzędnego, skala promieni, kolory z katalogu, podglądy AX5). Gałąź `w-tests-tooling` zamknęła testy i narzędzia: B-16, F-14, G-8, G-14, G-16, G-20, G-21, G-22, G-23.
 - Gałąź `w-perf` zamknęła wydajność przy dużym dzienniku i korzeń kompozycji: C-8, D-7, B-14 i F-7. Pomiary i przyjęty limit są w sekcji „Duży dziennik: pomiar i limit” niżej.
-- Otwarte zostały porządek w kodzie (F-8, F-15, E-25), testy UI (G-15) i katalog ćwiczeń, który czeka na drugi język (F-11). Rekomendacje są w tabeli niżej.
+- Gałąź `w-views` zamknęła porządek w widokach i resztę korzenia kompozycji: E-25 (duże widoki rozbite na `Components/`, widoki z właściwości `var x: some View` jako osobne struktury), F-15 (dublery i środowiska podglądów tylko w buildzie Debug, `cali-park/PreviewSupport/`) i resztę F-7 (edytor celu i formularz poziomu czytają store dopiero przy pokazaniu).
+- Otwarte zostały przenosiny folderów po TestFlighcie (F-8), testy UI (G-15) i katalog ćwiczeń, który czeka na drugi język (F-11). Rekomendacje są w tabeli niżej.
 
 Statusy:
 
@@ -35,7 +36,6 @@ Commity od `2a2c469` do `dd2dc49` pochodzą z tego przeglądu; pozostałe opisuj
 
 | ID | Wysiłek | Decyzja właściciela | Rekomendacja |
 |---|---|---|---|
-| E-25, F-15 | M | nie | Rozbić największe widoki (`ExerciseLibraryView`, `PlanEditorView`, `PathDetailView`, `ExerciseDetailView`) na pliki w `Components/`, a 42 właściwości `var x: some View` na osobne struktury. Dublery i środowiska podglądów do `PreviewSupport/` pod `#if DEBUG`, razem z `#Preview`, które ich używają; sprawdzić build Release. |
 | F-8 | M–L | tylko nazwy folderów | Jeden commit z samym przenoszeniem plików po TestFlighcie: `Domain/` (modele treningu, katalogi) i `Services/` (dziennik, postęp, nagrody, plany, store'y). |
 | F-11 | M | **tak** przy drugim języku | Katalog ćwiczeń jako JSON dopiero razem z lokalizacją treści (String Catalog nie wyciąga tekstów z JSON). Do tego czasu zostaje w kodzie; ciche zastępstwa już usunięte. |
 | G-15 | M | tylko wybór 3 ścieżek | Argument `-uitest-reset` budujący `AppEnvironment.seeded(...)`, identyfikatory dostępności i 3 testy UI (onboarding → Home, szybki trening → Historia, plan → Home). |
@@ -151,7 +151,7 @@ Przyjęty limit: do ok. 10 000 wpisów. Realny intensywny użytkownik ma po 3 la
 | E-22 | Martwy kod widoków | naprawione | `16467aa`, `d163d01` | Usunięte `hideKeyboard()` i `statusGreen`; prototypy tylko w Debug, celowo. |
 | E-23 | Przestarzałe modyfikatory | naprawione | `c01ada3` | Ostatnie przyciski z `Label` (10 i menu „Dodaj cel”) na `Button(_:systemImage:)` ze stylem; `fontWeight` zastąpione `bold(_:)`. |
 | E-24 | `DispatchQueue`, `sleep(nanoseconds:)`, `String(format:)` | naprawione | `7ac1773`, `4114c35` | Lint: 0 dla wszystkich trzech. |
-| E-25 | `ObservableObject`, `AnyView`, wiele typów | otwarte (częściowo) | duże widoki | Dwa pierwsze zniknęły; zostały 42 widoki jako właściwości i pliki po 7–10 typów. |
+| E-25 | `ObservableObject`, `AnyView`, wiele typów | naprawione | `0f5a3e2`, `fe53c2f`, `47326e5`, `2c7ab22` i dalsze z gałęzi `w-views` | `ExerciseLibraryView`, `ExerciseDetailView`, `PlanEditorView`, `PathDetailView` i inne ekrany rozbite na pliki w `Views/Components/`; widoki z właściwości ponad kilka linii są osobnymi strukturami. Zostały tylko jednolinijkowe właściwości i świadome wyjątki (szczegóły w raporcie gałęzi). |
 | E-26 | Sortowanie i filtrowanie w `body` | naprawione | `688ee1e`, `5c74141` | Rodzic i warianty ćwiczenia z gotowych indeksów. |
 | E-27 | Kamera bez sprawdzenia | zniknęło | `34554ab` | |
 | E-28 | Podglądy bez wariantów dostępności | naprawione | `e07dfb7` | Warianty `.accessibility5` dla Home, hero, listy ćwiczeń, ścieżki, edytora planu i karty Parku; podglądy dla widoków bez nich (poza prototypami). |
@@ -163,7 +163,7 @@ Przyjęty limit: do ok. 10 000 wpisów. Realny intensywny użytkownik ma po 3 la
 | F-4 | Stan nagród w każdym ekranie | naprawione | `688ee1e` | `RewardCenter`. |
 | F-5 | Brak koordynacji przypomnień | naprawione | `bfb3796`, `5012b44` | `WorkoutPlanService`. |
 | F-6 | Postęp liczony wielokrotnie | naprawione | `688ee1e` | `ProgressService`. |
-| F-7 | Problemy korzenia kompozycji | naprawione | `7ac1773`, `5f7775f`, `052396e` | Home bierze modele arkuszy z `AppEnvironment`, wszystkie parametry `AppEnvironment.init` są wymagane, `ProgramDetailViewModel` czyta w `.task`. Edytory budowane na żądanie (cel tygodniowy, kalibracja) dalej czytają swój store w `init`. |
+| F-7 | Problemy korzenia kompozycji | naprawione | `7ac1773`, `5f7775f`, `052396e`, `6a6f7bb` | Home bierze modele arkuszy z `AppEnvironment`, wszystkie parametry `AppEnvironment.init` są wymagane, `ProgramDetailViewModel` czyta w `.task`. Edytor celu tygodniowego i formularz poziomu czytają store w `load()` przy pokazaniu, nie w `init` (`6a6f7bb`). |
 | F-8 | Foldery a własność domeny | otwarte | `Features/` | Wspólna domena treningu leży w folderach funkcji. |
 | F-9 | Parki na starej architekturze | zniknęło | `34554ab`, `d1d1736` | |
 | F-10 | Fonty i trzy systemy przycisków | naprawione | `9d340c9`, `f7332b3`, `b115b59` | Typografia na stylach tekstu; jeden `errorAlert`/`messageAlert` zamiast 17 kopii `errorBinding`; wspólne `ExerciseCategoryChips`; bez `.blur` na jednolitym kolorze; jeden system przycisków (E-21). |
@@ -171,7 +171,7 @@ Przyjęty limit: do ok. 10 000 wpisów. Realny intensywny użytkownik ma po 3 la
 | F-12 | Martwy kod | naprawione | `16467aa`, `e3e2a39`, `34554ab`, `d163d01` | |
 | F-13 | Powielone formatowanie | naprawione | `688ee1e` | `MeasureFormat`. |
 | F-14 | Niespójne nazwy, ID modułów | naprawione | `06fc6a4` | `enum HomeModule: String` z tymi samymi surowymi wartościami (test starej zapisanej tablicy), `CaliParkApp`, `SkillPlacementStoring`; reszta nazw zniknęła ze starym kodem. |
-| F-15 | Wiele typów w pliku, dublery w produkcji | otwarte (częściowo) | `7b3d3fa` | Dublery `InMemory…`, trasy i niezwiązane typy w osobnych plikach; zostały duże widoki i dublery poza `#if DEBUG`. |
+| F-15 | Wiele typów w pliku, dublery w produkcji | naprawione | `7b3d3fa`, `97f1a75` | Dublery `InMemory…`, `FixedLocationProvider`, `DiagnosticPreviewData`, `UserDefaults.throwaway()` i `AppEnvironment.seeded(...)`/`preview…` w `cali-park/PreviewSupport/` pod `#if DEBUG`, razem z `#Preview`, które ich używają. Build Release kompiluje się bez ostrzeżeń, a jego binarka nie zawiera żadnego dublera. |
 | F-V1 | Odległości od sztywnej Warszawy | naprawione | `d1d1736` | `LocationProviding`. |
 | G-1 | Brak manifestu prywatności | naprawione | `7a802c5` | |
 | G-2 | Atrapy na Home | naprawione | `16467aa`, `89a3528` | |
