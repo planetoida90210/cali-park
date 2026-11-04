@@ -1,19 +1,13 @@
-// SWAP POINT for the brand. The app icon is not chosen yet (W-icon), so the
-// site uses a neutral mark (a pull-up bar on a lime tile) and the text
-// "CaliPark". When the icon lands:
-//   1. replace <BrandMark> below with the icon artwork (e.g. an <img> from
-//      `public/brand/`),
-//   2. regenerate `app/icon.svg`, `app/apple-icon.png` and
-//      `app/opengraph-image.png` (see README, "Brand assets").
-// Every page gets the brand only through this file.
+// The brand on the site. Every page gets it only through this file.
+// The mark is the app icon on a rounded tile, generated into
+// `public/brand/mark.svg` by `node scripts/brand/build-icons.mjs` at the repo
+// root (together with `app/icon.svg`, `app/apple-icon.png` and the OG image).
+// To change the icon, change `brand/ACTIVE` and rerun that script; this file
+// does not change.
 
 export function BrandMark({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-      <rect width="32" height="32" rx="8" fill="#D1FF00" />
-      <path d="M6 10h20M10 10v14M22 10v14" stroke="#121212" strokeWidth="3" strokeLinecap="round" />
-    </svg>
-  );
+  // A plain <img>: the site is a static export with unoptimized images.
+  return <img className={className} src="/brand/mark.svg" alt="" aria-hidden="true" width={32} height={32} />;
 }
 
 export function Wordmark({ size = "md" }: { size?: "md" | "lg" }) {

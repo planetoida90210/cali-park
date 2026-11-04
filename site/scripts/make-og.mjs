@@ -1,11 +1,14 @@
 // Renders the brand images from SVG with sharp, so they need no browser:
 //   app/opengraph-image.png (1200 × 630, also used for Twitter/X cards)
 //   app/apple-icon.png      (180 × 180)
-// Run `npm run og` after changing the brand (see components/Wordmark.tsx).
+// The brand mark comes from public/brand/ (mark.svg, app-icon.svg), which
+// `node scripts/brand/build-icons.mjs` at the repo root writes and which then
+// runs this script; run `npm run og` alone only after editing the text.
 // Text uses the system's rounded font through fontconfig; check the output
 // by eye after running it on a new machine.
 import sharp from "sharp";
 
+import { readFileSync } from "node:fs";
 import path from "node:path";
 
 const root = path.join(import.meta.dirname, "..");
@@ -13,11 +16,13 @@ const lime = "#D1FF00";
 const bg = "#121212";
 const font = "SF Pro Rounded, SF Pro Display, Helvetica Neue, Arial, sans-serif";
 
-const mark = (x, y, s) => `
-  <g transform="translate(${x} ${y}) scale(${s / 32})">
-    <rect width="32" height="32" rx="8" fill="${lime}"/>
-    <path d="M6 10h20M10 10v14M22 10v14" stroke="${bg}" stroke-width="3" stroke-linecap="round" fill="none"/>
-  </g>`;
+const brandSVG = (name) => readFileSync(path.join(root, "public", "brand", name), "utf8");
+// The brand mark (a 1024 × 1024 SVG) nested at (x, y) with side s.
+const mark = (x, y, s, name = "mark.svg") => {
+  const svg = brandSVG(name);
+  const inner = svg.slice(svg.indexOf(">", svg.indexOf("<svg")) + 1, svg.lastIndexOf("</svg>"));
+  return `<svg x="${x}" y="${y}" width="${s}" height="${s}" viewBox="0 0 1024 1024">${inner}</svg>`;
+};
 
 const og = `
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
@@ -32,8 +37,10 @@ const og = `
 
 await sharp(Buffer.from(og)).png({ compressionLevel: 9 }).toFile(path.join(root, "app", "opengraph-image.png"));
 
-const icon = `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
-  <rect width="180" height="180" fill="${bg}"/>${mark(20, 20, 140)}</svg>`;
-await sharp(Buffer.from(icon)).png().toFile(path.join(root, "app", "apple-icon.png"));
+// iOS rounds the apple-touch-icon itself, so it is the full-bleed app icon.
+await sharp(Buffer.from(brandSVG("app-icon.svg")), { density: 72 * (180 / 1024) * 4 })
+  .resize(180, 180, { kernel: "lanczos3" })
+  .png({ compressionLevel: 9 })
+  .toFile(path.join(root, "app", "apple-icon.png"));
 
 console.log("app/opengraph-image.png, app/apple-icon.png written");

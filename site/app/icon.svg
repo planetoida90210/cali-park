@@ -1,1 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#D1FF00"/><path d="M6 10h20M10 10v14M22 10v14" stroke="#121212" stroke-width="3" stroke-linecap="round" fill="none"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><rect width="1024" height="1024" rx="229" fill="#121212"/><rect x="8" y="8" width="1008" height="1008" rx="221" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="16"/><defs>
+    <linearGradient id="fade" gradientUnits="userSpaceOnUse" x1="0" y1="300" x2="0" y2="866">
+      <stop offset="0" stop-color="#D1FF00" stop-opacity="1"/>
+      <stop offset="1" stop-color="#D1FF00" stop-opacity="0.25"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#fade)" fill-rule="evenodd" d="M288 830V230A36 36 0 0 1 324 194H700A36 36 0 0 1 736 230V830A36 36 0 0 1 664 830V716H360V830A36 36 0 0 1 288 830Z M360 266H664V352H360Z M360 416H664V502H360Z M360 566H664V652H360Z"/></svg>

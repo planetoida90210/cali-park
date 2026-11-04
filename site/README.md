@@ -64,11 +64,7 @@ After the first deploy, check: `/prywatnosc` opens without a trailing slash, `/r
 
 ## Brand assets
 
-The app icon is not chosen yet, so the site uses a neutral mark (a pull-up bar on a lime tile). The swap point is `components/Wordmark.tsx`; when the icon lands:
-
-1. Put the artwork in `public/brand/` and render it in `BrandMark`.
-2. Replace `app/icon.svg` (favicon) by hand.
-3. Update the mark in `scripts/make-og.mjs`, then `npm run og` to regenerate `app/opengraph-image.png` (1200 × 630) and `app/apple-icon.png` (180 × 180). Check the output by eye: the text uses the machine's system font.
+The mark is the app icon. `app/icon.svg` (favicon), `app/apple-icon.png`, `app/opengraph-image.png` and `public/brand/*.svg` are generated from the brand glyph by `node scripts/brand/build-icons.mjs` at the repo root (see `brand/README.md`), which also runs `npm run og`. `components/Wordmark.tsx` shows `public/brand/mark.svg`, so changing the icon never touches the components. After editing only the OG text, `npm run og` is enough. Check the OG image by eye: the text uses the machine's system font.
 
 Colors follow the app's asset catalog and `AppTheme` (`#121212` background, `#1E1E1E` cards, `#D1FF00` accent); see the top of `app/globals.css`.
 
