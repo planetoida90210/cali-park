@@ -34,3 +34,7 @@ Co jest na ekranie Start w TestFlighcie z samym treningiem i w 1.0?
 - Przestawianie dostaje alternatywę dla VoiceOver (akcje „Przesuń wyżej / niżej”, E-12).
 - Znika „Michał” i każdy mock. Moduł „Pogoda i siłownia” pokazuje najbliższy Park z danych OSM; pogoda z WeatherKit dochodzi po zakupie konta (017).
 - Cel tygodniowy: osobny ticket [027](027-weekly-goal.md), bo ma być „elastyczniejszy i dobrze logicznie przekminiony”.
+
+## Dopisek (2026-11-04)
+
+Moduł Parków zostaje „Najbliższy Park”; Home dalej konfigurowalny (Q27, właściciel: „home jest konfigurowalne, to się nie zmienia”).

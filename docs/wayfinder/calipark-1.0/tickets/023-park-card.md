@@ -47,3 +47,8 @@ Klikalna karta Parku w SwiftUI na mapie A „Wyciszona”, ze zmyślonymi danymi
 - Średnia ocena od 3 opinii.
 - Pogoda schowana w całości do WeatherKit, bez danych przykładowych i innego dostawcy.
 - Park z OSM bez znanego sprzętu: „Street workout · …”. „Nawiguj” tylko do Map Apple w v1. „Zgłoś treść” także przy zdjęciach ekipy; teksty zgłoszeń razem z regulaminem.
+
+## Dopisek (2026-11-04)
+
+- **Ulubione Parki: tak** (Q26), na telefonie, bez Konta, w backupie. Zrobione w `bb51815`.
+- **„Sprzęt nieznany” znika** (Q28): takie miejsca nie są Parkami, patrz dopisek w [012](012-park-model.md).

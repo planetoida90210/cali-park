@@ -76,7 +76,7 @@ Zdecydowany spec CaliPark 1.0: zakres, backend, model danych, wygląd kluczowych
 
 - [Panel moderacji: w apce, strona www czy oba](tickets/008-moderation-panel.md): strona www dla Moderatorów, w apce tylko zgłaszanie.
 - [Wygląd mapy parków](tickets/011-map-look.md): wariant A (wyciszona) na MapKit, lista z C jako przełącznik.
-- [Model Parku i sprzętu](tickets/012-park-model.md): model z propozycji; Park = drążek albo poręcze (definicja bez zmian).
+- [Model Parku i sprzętu](tickets/012-park-model.md): model z propozycji; Park = drążek albo poręcze (definicja bez zmian); miejsca z OSM bez opisanego sprzętu nie są Parkami (2026-11-04).
 - [Status „Zweryfikowany” i poprawki do parków](tickets/014-verified-parks.md): tak, status dla Parków odwiedzonych przez ekipę i poprawki przez kolejkę moderacji.
 - [Rewizja drabin progresji](tickets/015-ladders-revision.md): z propozycji, 11 nowych szczebli, statyki 3×20 s, guma jako tor równoległy.
 - [Gotowe programy treningowe w 1.0](tickets/016-programs-v1.md): Minimum, Fundamenty, Pierwsze podciągnięcie i Skille.
@@ -89,7 +89,7 @@ Zdecydowany spec CaliPark 1.0: zakres, backend, model danych, wygląd kluczowych
 - [Home w 1.0](tickets/024-home-v1.md): moduły dalej do przestawiania (z alternatywą dla VoiceOver), bez mocków, cel tygodniowy w osobnym tickecie.
 - [Profil i ustawienia w 1.0](tickets/025-profile-settings-v1.md): statystyki, cel, historia, eksport i import, pomoc, „O apce”; Konto ze Społecznością.
 - [Onboarding w 1.0](tickets/026-onboarding-v1.md): powitanie, test poziomu, program, cel tygodniowy; zgody i Konto dopiero przy użyciu.
-- [Karta parku](tickets/023-park-card.md): najpierw zdjęcia, pełna karta jako arkusz, opinie od razu, zdjęcia po moderacji, średnia od 3 opinii, pogoda dopiero z WeatherKit.
+- [Karta parku](tickets/023-park-card.md): najpierw zdjęcia, pełna karta jako arkusz, opinie od razu, zdjęcia po moderacji, średnia od 3 opinii, pogoda dopiero z WeatherKit; ulubione Parki na telefonie (2026-11-04).
 - [Cel tygodniowy](tickets/027-weekly-goal.md): 1–3 cele (dni, plany, objętość), pierwszy tydzień rozgrzewkowy, pauza do 90 dni bez utraty serii, seria tygodni w hero (wzór: Apple Watch).
 
 ## Postęp wykonania
@@ -206,7 +206,7 @@ Wyjęte z mgły 2026-11-04 jako tickety: [Karta parku](tickets/023-park-card.md)
 
 - **Identyfikacja wizualna:** ikona, spójny styl całej apki, czyli to samo „stylowo” co przy mapie.
 - **Diagnostyka:** zgłaszanie crashy i analityka zgodne z RODO.
-- **Wydanie:** strona z polityką prywatności i regulaminem; opis, screeny (od kwietnia 2027 także iPhone Duo) i kategoria w App Store; zbieranie feedbacku od ekipy z TestFlight.
+- **Wydanie:** strona startowa apki z polityką prywatności, regulaminem i adresem kontaktowym (ten sam adres trafi do „Pomoc i opinie”, Q25); opis, screeny (od kwietnia 2027 także iPhone Duo) i kategoria w App Store; zbieranie feedbacku od ekipy z TestFlight.
 - **Zasady Społeczności i regulamin:** treść regulaminu (zero tolerancji, licencja na treści, wymogi DSA), powiadamianie autorów o wyniku moderacji, blokowanie użytkowników. Zależy od wyboru backendu i minimalnego wieku Konta.
 
 ## Poza zakresem
