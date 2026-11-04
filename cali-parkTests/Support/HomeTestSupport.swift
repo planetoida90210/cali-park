@@ -30,7 +30,7 @@ struct HomeHarness {
         self.progress = progress
         self.clock = clock
         dashboard = HomeDashboardViewModel(journal: journal, planService: planService, progress: progress,
-                                           goals: goals, calendar: calendar, clock: clock)
+                                           goals: goals, defaults: .throwaway(), calendar: calendar, clock: clock)
         // The init reads nothing; `HomeView` reloads on appear.
         dashboard.reload()
     }

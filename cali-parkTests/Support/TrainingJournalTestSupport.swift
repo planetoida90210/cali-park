@@ -86,6 +86,7 @@ extension HomeDashboardViewModel {
                      planService: WorkoutPlanService,
                      placementStore: SkillPlacementStoring = InMemorySkillPlacementStore(),
                      goalStore: WeeklyGoalStoring = InMemoryWeeklyGoalStore(),
+                     defaults: UserDefaults = .throwaway(),
                      calendar: Calendar,
                      clock: @escaping () -> Date) {
         let journal = TrainingJournal(store: store)
@@ -94,6 +95,7 @@ extension HomeDashboardViewModel {
                   progress: ProgressService(journal: journal, placementStore: placementStore, calendar: calendar, clock: clock),
                   goals: WeeklyGoalService(journal: journal, store: goalStore, planService: planService,
                                            calendar: calendar, clock: clock),
+                  defaults: defaults,
                   calendar: calendar,
                   clock: clock)
         // The init reads nothing; `HomeView` reloads on appear.

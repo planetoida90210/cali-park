@@ -18,6 +18,10 @@ nonisolated struct HomeSnapshot: Equatable {
     let achievements: HomeAchievementsSummary
     /// The one-line progression nudge, `nil` when no rung is partway done.
     let progressionHint: String?
+    /// The "Pierwsze podciągnięcie" plan that has done its job, so the
+    /// Planner shows "Czas na Fundamenty" (`ProgramPrescriber.graduationCandidate`).
+    /// Whether the card was dismissed is not part of the snapshot.
+    let graduationCandidate: WorkoutPlan?
 }
 
 // MARK: - NextWorkoutState
@@ -62,7 +66,8 @@ nonisolated enum HomeEngine {
             latestWorkout: latest,
             streak: streak,
             achievements: achievements(from: progress),
-            progressionHint: progress.hint.flatMap(ProgressionFormat.hintLine)
+            progressionHint: progress.hint.flatMap(ProgressionFormat.hintLine),
+            graduationCandidate: ProgramPrescriber.graduationCandidate(plans: plans, pathStates: progress.pathStates)
         )
     }
 

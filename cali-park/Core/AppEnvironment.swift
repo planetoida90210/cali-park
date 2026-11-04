@@ -177,7 +177,8 @@ final class AppEnvironment {
             journal: journal,
             planService: workoutPlanService,
             progress: progressService,
-            goals: weeklyGoalService
+            goals: weeklyGoalService,
+            defaults: defaults
         )
     }
 

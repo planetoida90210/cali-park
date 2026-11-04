@@ -30,6 +30,9 @@ final class HomeDashboardViewModel {
     var errorMessage: String?
     /// Whether the plans failed to load on the last reload.
     private var plansFailed = false
+    /// Whether the Planner's "Czas na Fundamenty" card was dismissed or used,
+    /// re-read on `reload()` (Home reappears after the Planner).
+    private var hasDismissedGraduation = false
     /// Whether any store failed to load. Data that did load is shown; the
     /// rest keeps its previous value (empty on first load).
     var hasLoadError: Bool { plansFailed || goals.loadFailure != nil || progress.hasLoadError }
@@ -63,6 +66,8 @@ final class HomeDashboardViewModel {
     let calendar: Calendar
     /// Wall-clock source; tests inject a controllable one.
     private let clock: () -> Date
+    /// Holds the "Czas na Fundamenty" dismissal flag, shared with the Planner.
+    private let defaults: UserDefaults
 
     // MARK: Init
     /// Reads nothing: `HomeView` builds this in its `init`, which SwiftUI may
@@ -71,12 +76,14 @@ final class HomeDashboardViewModel {
          planService: WorkoutPlanService,
          progress: ProgressService,
          goals: WeeklyGoalService,
+         defaults: UserDefaults,
          calendar: Calendar = .current,
          clock: @escaping () -> Date = { .now }) {
         self.journal = journal
         self.planService = planService
         self.progress = progress
         self.goals = goals
+        self.defaults = defaults
         self.calendar = calendar
         self.clock = clock
         self.now = clock()
@@ -87,6 +94,7 @@ final class HomeDashboardViewModel {
     /// to the current time.
     func reload() {
         now = clock()
+        hasDismissedGraduation = defaults.bool(forKey: DefaultsKey.hasDismissedFundamentalsHint.rawValue)
         progress.reloadIfFailed()
         do {
             plans = try planService.loadPlans()
@@ -134,6 +142,13 @@ final class HomeDashboardViewModel {
     /// states ("Jeszcze 2 powtórzenia do 3 × 8 — następny szczebel: …"), or
     /// `nil` when no rung is partway done.
     var progressionHint: String? { snapshot.progressionHint }
+
+    /// The plan the Planner's "Czas na Fundamenty" card is about, while that
+    /// card would show (ready to move on, not dismissed). Home's hint slot
+    /// then leads to the plans instead of the progression nudge.
+    var graduationCandidate: WorkoutPlan? {
+        hasDismissedGraduation ? nil : snapshot.graduationCandidate
+    }
 
     /// What the "Następny trening" module shows.
     var nextWorkoutState: NextWorkoutState { snapshot.nextWorkout }

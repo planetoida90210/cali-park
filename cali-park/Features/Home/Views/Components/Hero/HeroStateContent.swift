@@ -9,6 +9,8 @@ struct HeroStateContent: View {
     let weeklyGoal: WeeklyGoalSnapshot?
     /// The one-line progression nudge for rest / free-training days; `nil` hides it.
     let progressionHint: String?
+    /// Whether "Czas na Fundamenty" takes the hint's line.
+    let showsGraduationHint: Bool
     let now: Date
     /// Starts today's plan.
     let onStartPlan: (WorkoutPlan) -> Void
@@ -43,6 +45,7 @@ struct HeroStateContent: View {
                 weeklyGoal: weeklyGoal,
                 onEditGoal: onEditGoal,
                 progressionHint: progressionHint,
+                showsGraduationHint: showsGraduationHint,
                 now: now
             )
 
@@ -53,6 +56,7 @@ struct HeroStateContent: View {
                 weeklyGoal: weeklyGoal,
                 onEditGoal: onEditGoal,
                 progressionHint: progressionHint,
+                showsGraduationHint: showsGraduationHint,
                 now: now
             )
 

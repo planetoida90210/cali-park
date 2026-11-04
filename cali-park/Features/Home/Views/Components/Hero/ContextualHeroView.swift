@@ -18,6 +18,9 @@ struct ContextualHeroView: View {
     /// A one-line progression nudge shown on rest / free-training days, e.g.
     /// "Jeszcze 2 powtórzenia do 3 × 8 — następny szczebel: …". `nil` hides it.
     var progressionHint: String? = nil
+    /// Whether the Planner's "Czas na Fundamenty" card is waiting; the hint
+    /// line then leads to the plans instead.
+    var showsGraduationHint = false
     var now: Date = .now
 
     /// Only the contextual "start today's plan" is a hero action. The
@@ -34,6 +37,7 @@ struct ContextualHeroView: View {
             state: state,
             weeklyGoal: weeklyGoal,
             progressionHint: progressionHint,
+            showsGraduationHint: showsGraduationHint,
             now: now,
             onStartPlan: onStartPlan,
             onEditGoal: onEditGoal

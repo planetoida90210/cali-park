@@ -44,6 +44,7 @@ struct HomeView: View {
                             state: dashboard.heroState(),
                             weeklyGoal: dashboard.weeklyGoal,
                             progressionHint: dashboard.progressionHint,
+                            showsGraduationHint: dashboard.graduationCandidate != nil,
                             now: dashboard.now,
                             onStartPlan: { startingPlan = $0 },
                             onEditGoal: openGoalEditor

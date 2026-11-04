@@ -14,6 +14,9 @@ struct HeroFreeModeView: View {
     var onEditGoal: () -> Void = {}
     /// A one-line progression nudge, or `nil` when no rung is partway done.
     var progressionHint: String? = nil
+    /// Whether "Czas na Fundamenty" is waiting in the Planner; it then takes
+    /// the hint's line.
+    var showsGraduationHint = false
     var now: Date = .now
 
     var body: some View {
@@ -40,9 +43,7 @@ struct HeroFreeModeView: View {
             }
             .accessibilityElement(children: .combine)
 
-            if let progressionHint {
-                HeroProgressionHintView(hint: progressionHint)
-            }
+            HeroHintSlot(showsGraduation: showsGraduationHint, progressionHint: progressionHint)
 
             if let weeklyGoal {
                 Divider().overlay(Color.divider)

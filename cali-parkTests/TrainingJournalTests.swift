@@ -210,6 +210,7 @@ struct ProgressServiceTests {
                                           goals: WeeklyGoalService(journal: journal, store: InMemoryWeeklyGoalStore(),
                                                                    planService: planService,
                                                                    calendar: TestCalendar.utc, clock: clock),
+                                          defaults: .throwaway(),
                                           calendar: TestCalendar.utc,
                                           clock: clock)
         let skills = SkillPathsViewModel(progress: progress)
