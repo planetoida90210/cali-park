@@ -20,6 +20,7 @@ struct SetPadSheetView: View {
             cancel: SetPadEntryView.Cancel(hasUnsavedChanges: viewModel.hasUnsavedChanges) { dismiss() },
             onSave: viewModel.save
         )
+        .disabled(viewModel.didSave)
         .interactiveDismissDisabled(viewModel.hasUnsavedChanges)
         .padding(.horizontal, 16)
         .padding(.top, 24)

@@ -29,8 +29,10 @@ final class WorkoutLogViewModel {
 
     // MARK: Intentions
     /// Persists the current sets (committed + pending entry) as one log entry.
-    /// No-op when there is nothing to save.
+    /// No-op when there is nothing to save, or when this entry is already
+    /// saved (a second tap while the sheet closes must not log it twice).
     func save() {
+        guard !didSave else { return }
         let sets = input.loggedSets(for: exercise.measurement)
         guard !sets.isEmpty else { return }
 

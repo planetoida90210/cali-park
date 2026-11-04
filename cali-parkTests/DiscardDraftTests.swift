@@ -139,6 +139,17 @@ struct SetPadDiscardTests {
         #expect(pad.didSave)
         #expect(!pad.hasUnsavedChanges)
     }
+
+    /// C-12: a second tap on "Zapisz" while the sheet closes logs nothing.
+    @Test
+    func savingTwiceLogsOneEntry() {
+        let store = InMemoryWorkoutLogStore()
+        let pad = WorkoutLogViewModel(exercise: Fixtures.pullUps, store: store)
+        pad.input.appendDigit(8)
+        pad.save()
+        pad.save()
+        #expect(store.load().count == 1)
+    }
 }
 
 // MARK: - Plan editor
