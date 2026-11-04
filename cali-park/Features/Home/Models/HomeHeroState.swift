@@ -8,7 +8,7 @@ import Foundation
 ///
 /// The weekly goal and its week streak never live *inside* these cases: they
 /// stay on the view model and the hero view shows them as a secondary row
-/// where they fit (completed / rest / free mode). The hero no longer shows the
+/// in every state. The hero no longer shows the
 /// day `streak` carried here (ticket 027: rest days are part of training); the
 /// "Seria dni" module still does.
 enum HomeHeroState: Equatable {

@@ -5,22 +5,34 @@ import SwiftUI
 /// two permanent actions ("Szybki trening" / "Plany") live in the rail right
 /// below, so it points there instead of repeating the same buttons.
 struct HeroFirstRunView: View {
+    /// The weekly goal row; `nil` hides it (the goal could not be read).
+    var weeklyGoal: WeeklyGoalSnapshot? = nil
+    /// Opens the goal editor (long press on the goal row).
+    var onEditGoal: () -> Void = {}
     var now: Date = .now
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HeroHeaderView(now: now)
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                HeroHeaderView(now: now)
 
-            Text("Zacznij swoją serię")
-                .font(.title2)
-                .foregroundStyle(Color.textPrimary)
+                Text("Zacznij swoją serię")
+                    .font(.title2)
+                    .foregroundStyle(Color.textPrimary)
 
-            Text("Wybierz poniżej szybki trening albo ułóż swój pierwszy plan.")
-                .font(.bodySmall)
-                .foregroundStyle(Color.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
+                Text("Wybierz poniżej szybki trening albo ułóż swój pierwszy plan.")
+                    .font(.bodySmall)
+                    .foregroundStyle(Color.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .accessibilityElement(children: .combine)
+
+            if let weeklyGoal {
+                Divider().overlay(Color.divider)
+
+                HeroWeeklyGoalView(snapshot: weeklyGoal, onEdit: onEditGoal)
+            }
         }
-        .accessibilityElement(children: .combine)
     }
 }
 

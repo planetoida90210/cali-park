@@ -3,10 +3,15 @@ import SwiftUI
 // MARK: - HeroPlanTodayView
 /// Today has a plan that isn't done yet: the plan is the headline and a big
 /// "Rozpocznij" is the one move to make. Any reps already logged today show as
-/// quiet progress. A "dumb" view — the state is passed in, the tap is a closure.
+/// quiet progress, and the weekly goal sits below the button. A "dumb" view —
+/// the state is passed in, the taps are closures.
 struct HeroPlanTodayView: View {
     let plan: WorkoutPlan
     let loggedTodayReps: Int
+    /// The weekly goal row; `nil` hides it (the goal could not be read).
+    var weeklyGoal: WeeklyGoalSnapshot? = nil
+    /// Opens the goal editor (long press on the goal row).
+    var onEditGoal: () -> Void = {}
     var now: Date = .now
     let onStart: () -> Void
 
@@ -41,6 +46,12 @@ struct HeroPlanTodayView: View {
                 }
             }
             .buttonStyle(HeroPrimaryButtonStyle())
+
+            if let weeklyGoal {
+                Divider().overlay(Color.divider)
+
+                HeroWeeklyGoalView(snapshot: weeklyGoal, onEdit: onEditGoal)
+            }
         }
     }
 
@@ -70,6 +81,7 @@ struct HeroPlanTodayView: View {
             PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)
         ]),
         loggedTodayReps: 24,
+        weeklyGoal: WeeklyGoalPreview.running,
         onStart: {}
     )
     .padding(20)

@@ -8,8 +8,9 @@ import SwiftUI
 /// `HomeView` happens in Sprint H3 — for now it drives the previews below.
 ///
 /// The weekly goal lives *outside* the state (on the view model), so it is
-/// passed in here and shown as a secondary row, with the week streak, in the
-/// states that have room for it (completed / rest / free mode).
+/// passed in here and shown as a secondary row, with the week streak, in every
+/// state (ticket 027: the hero always carries the primary goal's ring). In
+/// "plan today" it sits below "Rozpocznij", so the button stays the headline.
 struct ContextualHeroView: View {
     let state: HomeHeroState
     /// `nil` hides the goal row (the goal could not be read).
@@ -46,6 +47,8 @@ struct ContextualHeroView: View {
             HeroPlanTodayView(
                 plan: plan,
                 loggedTodayReps: loggedTodayReps,
+                weeklyGoal: weeklyGoal,
+                onEditGoal: onEditGoal,
                 now: now,
                 onStart: { onStartPlan(plan) }
             )
@@ -79,7 +82,7 @@ struct ContextualHeroView: View {
             )
 
         case .firstRun:
-            HeroFirstRunView(now: now)
+            HeroFirstRunView(weeklyGoal: weeklyGoal, onEditGoal: onEditGoal, now: now)
         }
     }
 
