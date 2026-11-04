@@ -53,6 +53,43 @@ nonisolated enum ProgramFormat {
         planned.restSeconds.map { String(localized: "przerwa \($0) s") }
     }
 
+    // MARK: Workout screen
+
+    /// How a group is done, for its header on the workout screen: "Na
+    /// przemian, przerwa 90 s po każdej serii" for a pair, "Jedno po drugim,
+    /// przerwa po rundzie" for a circuit, `nil` for a group without either.
+    static func groupInstruction(for items: [PlannedExercise]) -> String? {
+        if items.contains(where: { $0.rounds != nil }) {
+            return String(localized: "Jedno po drugim, przerwa po rundzie")
+        }
+        if let rest = items.compactMap(\.restSeconds).max() {
+            return String(localized: "Na przemian, przerwa \(rest) s po każdej serii")
+        }
+        return items.count > 1 ? String(localized: "Na przemian") : nil
+    }
+
+    /// "Runda 2/3" for a fixed number of rounds, "Runda 3 (2–6)" for a range,
+    /// "3/3 rundy zrobione" or "6 rund zrobionych" once every round is done.
+    static func roundLabel(for tracker: RoundTracker) -> String {
+        let rounds = tracker.rounds
+        if tracker.isFinished {
+            let noun = PolishPlural.form(for: tracker.completed, one: "runda zrobiona",
+                                         few: "rundy zrobione", many: "rund zrobionych")
+            return rounds.lowerBound == rounds.upperBound
+                ? "\(tracker.completed)/\(rounds.upperBound) \(noun)"
+                : "\(tracker.completed) \(noun)"
+        }
+        if rounds.lowerBound == rounds.upperBound {
+            return String(localized: "Runda \(tracker.currentRound)/\(rounds.upperBound)")
+        }
+        return String(localized: "Runda \(tracker.currentRound) (\(rangeText(rounds)))")
+    }
+
+    /// "Przerwa 90 s", or "Przerwa 2 min" for whole minutes.
+    static func restLabel(seconds: Int) -> String {
+        String(localized: "Przerwa \(duration(seconds))")
+    }
+
     /// "Program Fundamenty · wersja 1".
     static func originLine(for program: TrainingProgram, version: Int?) -> String {
         String(localized: "Program \(program.name) · wersja \(version ?? program.version)")

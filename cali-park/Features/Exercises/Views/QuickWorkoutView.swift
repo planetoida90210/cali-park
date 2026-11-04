@@ -94,27 +94,47 @@ struct QuickWorkoutView: View {
     }
 
     // MARK: Session list
+    /// Exercises done on their own share a section; each pair or circuit of
+    /// the plan gets its own, with how it is done and a round counter.
     private var sessionList: some View {
-        List {
-            Section {
-                ForEach(viewModel.items) { item in
-                    Button {
-                        activeSheet = .editItem(item)
-                    } label: {
-                        QuickWorkoutItemRow(item: item)
+        let blocks = viewModel.blocks
+        return List {
+            ForEach(blocks) { block in
+                Section {
+                    ForEach(block.items) { item in
+                        Button {
+                            activeSheet = .editItem(item)
+                        } label: {
+                            QuickWorkoutItemRow(item: item)
+                        }
+                        .buttonStyle(.plain)
+                        .listRowBackground(Color.componentBackground)
+                        .listRowSeparatorTint(Color.divider)
                     }
-                    .buttonStyle(.plain)
-                    .listRowBackground(Color.componentBackground)
-                    .listRowSeparatorTint(Color.divider)
+                    .onDelete { offsets in
+                        let doomed = offsets.map { block.items[$0] }
+                        for item in doomed { viewModel.remove(item) }
+                    }
+
+                    if case .group(let number) = block.kind, let tracker = viewModel.groups[number]?.tracker {
+                        RoundTrackerRow(
+                            tracker: tracker,
+                            onFinishRound: { viewModel.finishRound(inGroup: number) },
+                            onEndRest: { viewModel.endRest(inGroup: number) }
+                        )
+                        .listRowBackground(Color.componentBackground)
+                    }
+                } header: {
+                    if case .group(let number) = block.kind, let group = viewModel.groups[number] {
+                        SessionGroupHeader(group: group)
+                    }
+                } footer: {
+                    if block.id == blocks.last?.id {
+                        Text("\(PolishPlural.exercises(viewModel.exerciseCount)) · \(PolishPlural.sets(viewModel.totalSets))")
+                            .font(.bodySmall)
+                            .foregroundStyle(Color.textSecondary)
+                    }
                 }
-                .onDelete { offsets in
-                    let doomed = offsets.map { viewModel.items[$0] }
-                    for item in doomed { viewModel.remove(item) }
-                }
-            } footer: {
-                Text("\(PolishPlural.exercises(viewModel.exerciseCount)) · \(PolishPlural.sets(viewModel.totalSets))")
-                    .font(.bodySmall)
-                    .foregroundStyle(Color.textSecondary)
             }
         }
         .listStyle(.insetGrouped)
@@ -238,6 +258,105 @@ private struct QuickWorkoutItemRow: View {
     }
 }
 
+// MARK: - SessionGroupHeader
+/// "Para 1" or "Obwód" above a group, with how it is done.
+private struct SessionGroupHeader: View {
+    let group: QuickWorkoutViewModel.SessionGroup
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(group.title)
+                .font(.bodyLarge.weight(.semibold))
+                .foregroundStyle(Color.textPrimary)
+                .accessibilityAddTraits(.isHeader)
+            if let instruction = group.instruction {
+                Text(instruction)
+                    .font(.bodySmall)
+                    .foregroundStyle(Color.textSecondary)
+            }
+        }
+        .textCase(nil)
+        .padding(.bottom, 4)
+    }
+}
+
+// MARK: - RoundTrackerRow
+/// The round counter of a pair or circuit: "Runda 2/3" with "Runda
+/// zrobiona", then the rest countdown with "Pomiń". The rest clears itself
+/// when it runs out.
+private struct RoundTrackerRow: View {
+    let tracker: RoundTracker
+    let onFinishRound: () -> Void
+    let onEndRest: () -> Void
+
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    var body: some View {
+        let layout = typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
+            : AnyLayout(HStackLayout(spacing: 12))
+        layout {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(ProgramFormat.roundLabel(for: tracker))
+                    .font(.bodyLarge)
+                    .foregroundStyle(Color.textPrimary)
+                    .monospacedDigit()
+                if let rest = tracker.rest {
+                    restCountdown(rest)
+                } else if tracker.hasMetMinimum, !tracker.isFinished {
+                    Text("Minimum zrobione, kolejne rundy są dla chętnych")
+                        .font(.bodySmall)
+                        .foregroundStyle(Color.textSecondary)
+                }
+            }
+
+            if !typeSize.isAccessibilitySize { Spacer(minLength: 0) }
+
+            if tracker.rest != nil {
+                Button("Pomiń przerwę", action: onEndRest)
+                    .font(.buttonMedium)
+                    .foregroundStyle(Color.accent)
+            } else if !tracker.isFinished {
+                Button("Runda zrobiona", systemImage: "checkmark", action: onFinishRound)
+                    .buttonStyle(.accent(.compact, fillsWidth: false))
+            } else {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(Color.accent)
+                    .accessibilityHidden(true)
+            }
+        }
+        .padding(.vertical, 4)
+        .task(id: tracker.rest) {
+            guard let rest = tracker.rest else { return }
+            let remaining = rest.end.timeIntervalSinceNow
+            if remaining > 0 {
+                do {
+                    try await Task.sleep(for: .seconds(remaining))
+                } catch {
+                    return
+                }
+            }
+            onEndRest()
+        }
+        .sensoryFeedback(.impact(weight: .medium), trigger: tracker.rest) { old, new in
+            old != nil && new == nil
+        }
+    }
+
+    private func restCountdown(_ rest: DateInterval) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: "timer")
+                .accessibilityHidden(true)
+            Text("Przerwa")
+            Text(timerInterval: rest.start...rest.end, countsDown: true)
+                .monospacedDigit()
+        }
+        .font(.bodySmall)
+        .foregroundStyle(Color.accent)
+        .accessibilityElement(children: .combine)
+    }
+}
+
 // MARK: - QuickWorkoutEmptyState
 private struct QuickWorkoutEmptyState: View {
     let onAdd: () -> Void
@@ -268,6 +387,19 @@ private struct QuickWorkoutEmptyState: View {
 }
 
 // MARK: - Preview
+#Preview("Fundamenty") {
+    let plan = ProgramPrescriber.plans(for: ProgramCatalog.fundamentals, pathStates: [:])[0]
+    Color.appBackground
+        .ignoresSafeArea()
+        .sheet(isPresented: .constant(true)) {
+            QuickWorkoutView(
+                viewModel: QuickWorkoutViewModel(journal: TrainingJournal(store: InMemoryWorkoutLogStore()),
+                                                 plan: plan, clock: { .now })
+            )
+            .preferredColorScheme(.dark)
+        }
+}
+
 #Preview {
     Color.appBackground
         .ignoresSafeArea()

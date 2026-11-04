@@ -100,6 +100,25 @@ Gdy aktualny szczebel stania na rękach to już pompki (pike i wyżej), blok A
 zostaje na najwyższym szczeblu trzymanym poniżej, czyli staniu przy ścianie.
 Blok C (statyki z tabelą OG2) jest w 1.1.
 
+## Na ekranie treningu
+
+Trening z planu pokazuje pary i obwody tak, jak je opisuje program
+(`SessionGrouping`, `RoundTracker`):
+
+- Ćwiczenia bez grupy idą jedno po drugim. Każda para i obwód (`group`) ma
+  własną sekcję z nazwą („Para 1”, „Obwód”) i opisem: „Na przemian, przerwa
+  90 s po każdej serii” dla pary, „Jedno po drugim, przerwa po rundzie” dla
+  obwodu.
+- Licznik rund pod sekcją: para liczy tyle rund, ile serii ma w planie
+  („Runda 2/3”), obwód liczy do górnej granicy zakresu („Runda 3 (2–6)”), a
+  po dolnej granicy pisze, że kolejne rundy są dla chętnych.
+- „Runda zrobiona” włącza odliczanie przerwy: przerwa z planu (90 s w parach),
+  w obwodzie bez stałej przerwy 90 s („zwykle 1–2 minuty” z opisu Minimum).
+  Po ostatniej rundzie przerwy nie ma. „Pomiń przerwę” kończy ją od razu.
+- Licznik tylko prowadzi trening i nic nie zapisuje. Serie zapisuje się dalej
+  przy każdym ćwiczeniu osobno, a „Zakończ” zapisuje je przez dziennik jak w
+  każdym treningu. Ćwiczenie dodane w trakcie treningu jest pojedyncze.
+
 ## Podpowiedź w onboardingu
 
 Po teście „Co już potrafisz?”: odpowiedź „0” przy podciąganiu (deklaracja
