@@ -32,13 +32,16 @@ struct TrainingStack {
         SkillPathsViewModel(progress: progress)
     }
 
-    /// Dismisses celebrations until the queue is empty; returns how many.
+    /// Dismisses celebrations until the queue is empty; returns how many
+    /// advances they showed (a card for several rungs counts each rung).
     @discardableResult
     func drainCelebrations() -> Int {
         var shown = 0
-        while rewards.currentCelebration != nil, shown < 100 {
+        var cards = 0
+        while let current = rewards.currentCelebration, cards < 100 {
             rewards.dismissCurrentCelebration()
-            shown += 1
+            shown += current.events.count
+            cards += 1
         }
         return shown
     }

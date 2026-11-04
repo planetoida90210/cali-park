@@ -17,10 +17,14 @@ import os
 /// dismissed (audit A-4, C-7), so an evaluation that runs while no overlay is
 /// on screen, or an app quit mid-queue, never loses a celebration.
 ///
-/// XP: each rung overlay says "+100 XP", and the last overlay of a batch adds
-/// the real total the saves gained ("Razem +740 XP"), so there is no separate
-/// toast while celebrations carry the moment. A save that conquers nothing
-/// gets the toast.
+/// Rungs conquered together share one overlay (`QueuedCelebration.rungs`):
+/// a save that clears six rungs shows "Nowe szczeble: 6" once, not six cards
+/// in a row. Level-ups and met weekly goals keep their own overlays after it.
+///
+/// XP: each rung overlay says what its rungs earned ("+100 XP", "+600 XP"),
+/// and the last overlay of a batch adds the real total the saves gained
+/// ("Razem +740 XP"), so there is no separate toast while celebrations carry
+/// the moment. A save that conquers nothing gets the toast.
 ///
 /// Presentation: `.rewardOverlay()` is mounted on the tab root and on the
 /// sheets that stay up after a save (the rung sheet, the quick workout). Each
@@ -30,16 +34,17 @@ import os
 @Observable
 final class RewardCenter {
     // MARK: State
-    /// The advance being celebrated right now, or `nil` when the queue is empty.
-    private(set) var currentCelebration: CelebrationEvent?
+    /// The advance (or rungs) being celebrated right now, or `nil` when the
+    /// queue is empty.
+    private(set) var currentCelebration: QueuedCelebration?
     /// XP gained by the most recent save, to show as a toast; `nil` when there
     /// is nothing fresh to announce (or a celebration is carrying the moment).
     private(set) var xpToastAmount: Int?
     /// The overlays on screen, oldest first; the last one presents.
     private(set) var presenters: [UUID] = []
 
-    /// Advances waiting behind `currentCelebration`, shown one at a time.
-    private var pendingCelebrations: [CelebrationEvent] = []
+    /// Overlays waiting behind `currentCelebration`, shown one at a time.
+    private var pendingCelebrations: [QueuedCelebration] = []
     /// Total XP at the previous evaluation, to measure a save's gain; `nil`
     /// until the first one, so launching never toasts historical XP.
     @ObservationIgnored private var previousTotalXP: Int?
@@ -121,14 +126,17 @@ final class RewardCenter {
         replaceCelebrationQueue(with: evaluation.pendingEvents)
     }
 
-    /// Makes `events` the queue. The overlay on screen stays put while it is
-    /// still pending.
+    /// Makes `events` the queue, the rungs waiting together grouped into one
+    /// overlay. The overlay on screen stays put while all of it is still
+    /// pending; what came in since queues behind it, so rungs from a later
+    /// save get their own card.
     private func replaceCelebrationQueue(with events: [CelebrationEvent]) {
-        if let current = currentCelebration, events.contains(current) {
-            pendingCelebrations = events.filter { $0 != current }
+        if let current = currentCelebration, current.events.allSatisfy(events.contains) {
+            pendingCelebrations = QueuedCelebration.grouping(events.filter { !current.events.contains($0) })
         } else {
-            currentCelebration = events.first
-            pendingCelebrations = Array(events.dropFirst())
+            let queue = QueuedCelebration.grouping(events)
+            currentCelebration = queue.first
+            pendingCelebrations = Array(queue.dropFirst())
         }
     }
 
@@ -165,15 +173,15 @@ final class RewardCenter {
     /// progress is still computing the same save, which may queue rungs to
     /// show first.
     var current: RewardPresentation? {
-        if let event = currentCelebration {
-            var presentation = CelebrationPresentation.resolving(event)
+        if let celebration = currentCelebration {
+            var presentation = CelebrationPresentation.resolving(celebration)
             let isLastOfBatch = pendingCelebrations.isEmpty
             if isLastOfBatch, let total = batchXPGain {
                 presentation = presentation.addingTotalXP(total)
             }
             return RewardPresentation(
                 presentation: presentation,
-                trigger: event.id,
+                trigger: celebration.id,
                 hasNext: !isLastOfBatch || goals?.pendingCelebration != nil
             )
         }
@@ -194,7 +202,7 @@ final class RewardCenter {
     }
 
     // MARK: Intentions
-    /// Whether more advances wait behind the one on screen.
+    /// Whether more overlays wait behind the one on screen.
     var hasQueuedCelebrations: Bool { !pendingCelebrations.isEmpty }
 
     /// Dismisses whatever the overlay shows and moves to the next one.
@@ -206,8 +214,8 @@ final class RewardCenter {
         }
     }
 
-    /// Records the skill overlay on screen as celebrated and moves to the next
-    /// one.
+    /// Records the skill overlay on screen as celebrated (each of its rungs)
+    /// and moves to the next one.
     func dismissCurrentCelebration() {
         if let shown = currentCelebration { markCelebrated(shown) }
         currentCelebration = pendingCelebrations.isEmpty ? nil : pendingCelebrations.removeFirst()
@@ -222,14 +230,15 @@ final class RewardCenter {
         xpToastAmount = nil
     }
 
-    /// Adds a shown event to the persisted record, re-reading it first. A
-    /// failed write only means the event may play once more.
-    private func markCelebrated(_ event: CelebrationEvent) {
+    /// Adds a shown overlay's events to the persisted record in one write,
+    /// re-reading it first. A failed write only means the overlay may play
+    /// once more.
+    private func markCelebrated(_ celebration: QueuedCelebration) {
         do {
             // No record means the baseline was never saved; marking now would
             // turn that into a near-empty record and replay history.
             guard let record = try store.load() else { return }
-            let marked = record.markingCelebrated(event)
+            let marked = celebration.events.reduce(record) { $0.markingCelebrated($1) }
             if marked != record { try store.save(marked) }
         } catch {
             logger.error("Cannot mark celebration as shown: \(String(describing: error), privacy: .public)")

@@ -169,7 +169,7 @@ struct RewardCenterLoopTests {
         try await stack.journal.log(RewardFixture.pullUps3x8())
         await stack.settle()
 
-        #expect(stack.rewards.currentCelebration == .rung(0, on: .pullUp))
+        #expect(stack.rewards.currentCelebration == .rungs(0...5, on: .pullUp))
         // The XP toast stays silent while a celebration carries the moment.
         #expect(stack.rewards.xpToastAmount == nil)
 

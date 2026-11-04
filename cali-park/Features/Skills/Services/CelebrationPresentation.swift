@@ -13,6 +13,9 @@ nonisolated struct CelebrationPresentation: Equatable, Sendable {
     let title: String
     /// Supporting context, e.g. the path name; `nil` when the title stands alone.
     let subtitle: String?
+    /// The conquered exercises, one per line, when one card celebrates
+    /// several rungs; empty otherwise.
+    let list: [String]
     /// A concrete XP note when the advance grants a fixed bonus; else `nil`.
     let xpNote: String?
     /// SF Symbol in the app's Watch-Workout style.
@@ -20,11 +23,36 @@ nonisolated struct CelebrationPresentation: Equatable, Sendable {
     /// A single spoken sentence for VoiceOver.
     let accessibilityLabel: String
 
+    init(eyebrow: String,
+         title: String,
+         subtitle: String?,
+         list: [String] = [],
+         xpNote: String?,
+         symbolName: String,
+         accessibilityLabel: String) {
+        self.eyebrow = eyebrow
+        self.title = title
+        self.subtitle = subtitle
+        self.list = list
+        self.xpNote = xpNote
+        self.symbolName = symbolName
+        self.accessibilityLabel = accessibilityLabel
+    }
+
     /// The presentation for an event, resolved from the catalogs.
     static func resolving(_ event: CelebrationEvent) -> CelebrationPresentation {
         switch event {
         case let .rungConquered(rung): rungPresentation(rung)
         case let .levelReached(level): levelPresentation(level)
+        }
+    }
+
+    /// The presentation for one overlay of the reward queue: a single event,
+    /// or the card for several rungs conquered together.
+    static func resolving(_ celebration: QueuedCelebration) -> CelebrationPresentation {
+        switch celebration {
+        case let .single(event): resolving(event)
+        case let .rungs(rungs): rungsPresentation(rungs)
         }
     }
 
@@ -36,6 +64,7 @@ nonisolated struct CelebrationPresentation: Equatable, Sendable {
             eyebrow: eyebrow,
             title: title,
             subtitle: subtitle,
+            list: list,
             xpNote: xpNote.map { "\($0) · \(note)" } ?? note,
             symbolName: symbolName,
             accessibilityLabel: "\(accessibilityLabel) \(note)."
@@ -62,6 +91,41 @@ nonisolated struct CelebrationPresentation: Equatable, Sendable {
             subtitle: pathName,
             xpNote: xpNote,
             symbolName: path?.symbolName ?? "checkmark.seal.fill",
+            accessibilityLabel: accessibilityLabel
+        )
+    }
+
+    // MARK: Several rungs
+
+    /// "Nowe szczeble: 6", the exercises listed under it, the paths they are
+    /// on, and the XP all of them earned. VoiceOver hears it as one sentence:
+    /// "6 nowych szczebli na ścieżce Podciąganie: …. +600 XP."
+    private static func rungsPresentation(_ rungs: [RungReference]) -> CelebrationPresentation {
+        let names = rungs.map { rung in
+            rung.step.flatMap { ExerciseCatalog.exercise(withID: $0.exerciseID)?.name } ?? String(localized: "Nowy szczebel")
+        }
+        var pathIDs: [ProgressionPathID] = []
+        for rung in rungs where !pathIDs.contains(rung.pathID) {
+            pathIDs.append(rung.pathID)
+        }
+        let paths = pathIDs.compactMap { ProgressionCatalog.path(withID: $0) }
+        let pathNames = paths.map(\.name).joined(separator: ", ")
+        let xpNote = String(localized: "+\(rungs.count * ProgressionEngine.xpPerConqueredRung) XP")
+        let list = names.joined(separator: ", ")
+
+        let count = PolishPlural.newRungs(rungs.count)
+        let accessibilityLabel = switch paths.count {
+        case 0: String(localized: "\(count): \(list). \(xpNote).")
+        case 1: String(localized: "\(count) na ścieżce \(pathNames): \(list). \(xpNote).")
+        default: String(localized: "\(count) na ścieżkach \(pathNames): \(list). \(xpNote).")
+        }
+        return CelebrationPresentation(
+            eyebrow: String(localized: "ZALICZONE SZCZEBLE"),
+            title: String(localized: "Nowe szczeble: \(rungs.count)"),
+            subtitle: pathNames.isEmpty ? nil : pathNames,
+            list: names,
+            xpNote: xpNote,
+            symbolName: paths.count == 1 ? paths[0].symbolName : "checkmark.seal.fill",
             accessibilityLabel: accessibilityLabel
         )
     }

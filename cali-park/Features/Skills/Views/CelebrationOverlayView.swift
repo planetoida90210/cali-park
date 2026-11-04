@@ -2,9 +2,9 @@ import SwiftUI
 
 // MARK: - CelebrationOverlayView
 /// The full-screen moment when a rung or a level is conquered: one icon, one
-/// headline, the XP it earned, and a way forward. Shown one advance at a time
-/// (the view model queues the rest), with success haptics on appear,
-/// including the first one.
+/// headline, the XP it earned, and a way forward. Shown one overlay at a time
+/// (`RewardCenter` queues the rest; rungs conquered together share one card),
+/// with success haptics on appear, including the first one.
 ///
 /// Restraint over fireworks: a single clear message, not a wall of text. The
 /// entrance pulse is skipped under Reduce Motion, and every way to dismiss is a
@@ -40,6 +40,15 @@ struct CelebrationOverlayView: View {
         self.init(presentation: .resolving(event), trigger: event.id, hasNext: hasNext, onDismiss: onDismiss)
     }
 
+    private var card: some View {
+        CelebrationCard(presentation: presentation,
+                        hasNext: hasNext,
+                        playedTrigger: playedTrigger,
+                        onDismiss: onDismiss)
+            .padding(.horizontal, 32)
+            .padding(.vertical, 16)
+    }
+
     var body: some View {
         ZStack {
             Button(action: onDismiss) {
@@ -49,11 +58,15 @@ struct CelebrationOverlayView: View {
             .accessibilityLabel("Zamknij")
             .accessibilityIdentifier("celebration.dismiss")
 
-            CelebrationCard(presentation: presentation,
-                            hasNext: hasNext,
-                            playedTrigger: playedTrigger,
-                            onDismiss: onDismiss)
-                .padding(.horizontal, 32)
+            // Centered while it fits; a card listing several rungs at large
+            // text sizes scrolls instead of running off the screen.
+            ViewThatFits(in: .vertical) {
+                card
+                ScrollView {
+                    card
+                }
+                .scrollBounceBehavior(.basedOnSize)
+            }
         }
         // Full screen over the app: VoiceOver stays inside until it is dismissed.
         .accessibilityAddTraits(.isModal)
@@ -70,6 +83,19 @@ struct CelebrationOverlayView: View {
         .overlay {
             CelebrationOverlayView(
                 event: .rungConquered(RungReference(pathID: .pullUp, stepID: ExerciseCatalog.pullUpsID)),
+                hasNext: true,
+                onDismiss: {}
+            )
+        }
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Kilka szczebli") {
+    Color.appBackground.ignoresSafeArea()
+        .overlay {
+            CelebrationOverlayView(
+                presentation: .resolving(QueuedCelebration.rungs((0...5).compactMap { RungReference(pathID: .pullUp, rungIndex: $0) })),
+                trigger: "preview",
                 hasNext: true,
                 onDismiss: {}
             )

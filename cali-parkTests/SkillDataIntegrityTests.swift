@@ -340,7 +340,7 @@ struct CelebratedWhenShownTests {
                                               date: IntegrityFixture.day,
                                               sets: [LoggedSet(reps: 5), LoggedSet(reps: 5), LoggedSet(reps: 5)]))
         await stack.settle()
-        #expect(stack.rewards.currentCelebration == .rungConquered(RungReference(pathID: .pullUp, stepID: ExerciseCatalog.lPullUpsID)))
+        #expect(stack.rewards.currentCelebration == .single(.rungConquered(RungReference(pathID: .pullUp, stepID: ExerciseCatalog.lPullUpsID))))
         #expect(progressStore.saveCount == 1)
 
         stack.rewards.dismissCurrentCelebration()

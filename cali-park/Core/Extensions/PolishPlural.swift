@@ -65,6 +65,11 @@ nonisolated enum PolishPlural {
         "\(count) \(form(for: count, one: "dzień treningowy", few: "dni treningowe", many: "dni treningowych"))"
     }
 
+    /// "1 nowy szczebel", "3 nowe szczeble", "5 nowych szczebli".
+    static func newRungs(_ count: Int) -> String {
+        "\(count) \(form(for: count, one: "nowy szczebel", few: "nowe szczeble", many: "nowych szczebli"))"
+    }
+
     /// "1 plan", "3 plany", "5 planów".
     static func plans(_ count: Int) -> String {
         "\(count) \(form(for: count, one: "plan", few: "plany", many: "planów"))"

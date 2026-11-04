@@ -8,3 +8,10 @@ extension CelebrationEvent {
         return .rungConquered(RungReference(pathID: path, stepID: step.exerciseID))
     }
 }
+
+extension QueuedCelebration {
+    /// The rungs at `indices` on `path`, conquered together: one card.
+    static func rungs(_ indices: ClosedRange<Int>, on path: ProgressionPathID) -> QueuedCelebration {
+        .rungs(indices.compactMap { RungReference(pathID: path, rungIndex: $0) })
+    }
+}

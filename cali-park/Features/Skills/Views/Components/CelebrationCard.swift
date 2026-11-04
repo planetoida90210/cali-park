@@ -1,8 +1,9 @@
 import SwiftUI
 
 // MARK: - CelebrationCard
-/// The celebration's card: the icon, eyebrow, headline, optional subtitle and
-/// XP note, and the button that moves on; read by VoiceOver as one element.
+/// The celebration's card: the icon, eyebrow, headline, optional subtitle,
+/// the list of rungs when it celebrates several, the XP note, and the button
+/// that moves on; read by VoiceOver as one element.
 struct CelebrationCard: View {
     let presentation: CelebrationPresentation
     /// Whether another advance follows, so the button reads "Dalej" vs "Świetnie".
@@ -30,6 +31,19 @@ struct CelebrationCard: View {
                     Text(subtitle)
                         .font(.bodyMedium)
                         .foregroundStyle(Color.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
+
+                if !presentation.list.isEmpty {
+                    VStack(spacing: 4) {
+                        ForEach(presentation.list.indices, id: \.self) { index in
+                            Text(presentation.list[index])
+                                .font(.bodyMedium)
+                                .foregroundStyle(Color.textPrimary)
+                                .multilineTextAlignment(.center)
+                        }
+                    }
+                    .padding(.top, 4)
                 }
 
                 if let xpNote = presentation.xpNote {

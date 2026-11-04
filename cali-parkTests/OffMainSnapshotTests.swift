@@ -125,7 +125,7 @@ struct OffMainRewardTests {
         try await stack.journal.log(Fixture.pullUps([8, 8, 8]))
         await stack.settle()
 
-        #expect(stack.rewards.currentCelebration == .rung(0, on: .pullUp))
+        #expect(stack.rewards.currentCelebration == .rungs(0...5, on: .pullUp))
         let shown = stack.drainCelebrations()
         #expect(shown > 0)
 

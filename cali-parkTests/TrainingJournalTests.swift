@@ -350,7 +350,7 @@ struct RewardCenterTests {
 
         try await stack.journal.log(JournalFixture.pullUps([8, 8, 8]))
         await stack.settle()
-        #expect(stack.rewards.currentCelebration == .rung(0, on: .pullUp))
+        #expect(stack.rewards.currentCelebration == .rungs(0...5, on: .pullUp))
         #expect(stack.rewards.xpToastAmount == nil)
 
         #expect(stack.drainCelebrations() > 0)
@@ -372,7 +372,104 @@ struct RewardCenterTests {
         await session.finish()
         await environment.progressService.settle()
 
-        #expect(environment.rewardCenter.currentCelebration == .rung(0, on: .pullUp))
+        #expect(environment.rewardCenter.currentCelebration == .rungs(0...5, on: .pullUp))
+    }
+
+    /// Row 19 of the second visual pass: one save that clears six rungs
+    /// showed six overlays in a row. Now it is one card, then the level-up.
+    @Test
+    func rungsClearedByOneSaveShareOneCard() async throws {
+        let progressStore = InMemorySkillProgressStore()
+        let stack = TrainingStack(progressStore: progressStore)
+
+        try await stack.journal.log(JournalFixture.pullUps([8, 8, 8]))
+        await stack.settle()
+
+        let card = try #require(stack.rewards.current)
+        #expect(stack.rewards.currentCelebration == .rungs(0...5, on: .pullUp))
+        #expect(card.presentation.eyebrow == "ZALICZONE SZCZEBLE")
+        #expect(card.presentation.title == "Nowe szczeble: 6")
+        #expect(card.presentation.subtitle == "Podciąganie")
+        #expect(card.presentation.list.count == 6)
+        #expect(card.presentation.xpNote == "+600 XP")
+        #expect(card.hasNext) // the level-up follows
+
+        // One dismissal marks every rung on the card as celebrated.
+        stack.rewards.dismissCurrent()
+        let record = try #require(progressStore.load())
+        for index in 0...5 {
+            #expect(record.hasCelebrated(try #require(RungReference(pathID: .pullUp, rungIndex: index))))
+        }
+
+        // The level-up keeps its own card, the last one.
+        #expect(stack.rewards.currentCelebration == .single(.levelReached(2)))
+        stack.rewards.dismissCurrent()
+        #expect(stack.rewards.current == nil)
+    }
+
+    @Test
+    func theCombinedCardReadsAsOneSentence() throws {
+        let rungs = (0...1).compactMap { RungReference(pathID: .pullUp, rungIndex: $0) }
+            + (0...2).compactMap { RungReference(pathID: .dip, rungIndex: $0) }
+        let presentation = CelebrationPresentation.resolving(QueuedCelebration.rungs(rungs))
+
+        #expect(presentation.title == "Nowe szczeble: 5")
+        #expect(presentation.list.count == 5)
+        #expect(presentation.xpNote == "+500 XP")
+        #expect(presentation.symbolName == "checkmark.seal.fill") // two paths
+        let pathNames = try #require(presentation.subtitle)
+        #expect(presentation.accessibilityLabel == "5 nowych szczebli na ścieżkach \(pathNames): \(presentation.list.joined(separator: ", ")). +500 XP.")
+    }
+
+    @Test
+    func aSingleRungKeepsItsOwnCard() async throws {
+        // A 3 × 8 seeds the baseline; L-pull-ups then clear one more rung.
+        let stack = TrainingStack(logStore: InMemoryWorkoutLogStore(initial: [JournalFixture.pullUps([8, 8, 8])]))
+
+        try await stack.journal.log(WorkoutLogEntry(exerciseID: ExerciseCatalog.lPullUpsID, date: JournalFixture.day,
+                                                    sets: [LoggedSet(reps: 5), LoggedSet(reps: 5), LoggedSet(reps: 5)]))
+        await stack.settle()
+
+        let card = try #require(stack.rewards.current)
+        #expect(card.presentation.eyebrow == "ZALICZONY SZCZEBEL")
+        #expect(card.presentation.list.isEmpty)
+    }
+
+    @Test
+    func rungsFromALaterSaveGetTheirOwnCard() async throws {
+        let stack = TrainingStack()
+        try await stack.journal.log(JournalFixture.pullUps([8, 8, 8]))
+        await stack.settle()
+        let first = try #require(stack.rewards.currentCelebration)
+
+        // Saved again while the first card is still up: it stays, and the new
+        // rungs queue behind it on a card of their own.
+        try await stack.journal.log(JournalFixture.dips([10, 10, 10]))
+        await stack.settle()
+        #expect(stack.rewards.currentCelebration == first)
+
+        var cards: [QueuedCelebration] = []
+        while let current = stack.rewards.currentCelebration, cards.count < 10 {
+            cards.append(current)
+            stack.rewards.dismissCurrentCelebration()
+        }
+        #expect(cards.first == first)
+        let dipCards = cards.filter { $0.events.contains { if case let .rungConquered(rung) = $0 { rung.pathID == .dip } else { false } } }
+        #expect(dipCards.count == 1)
+        #expect((dipCards.first?.events.count ?? 0) >= 2)
+    }
+
+    @Test
+    func groupingJoinsRungsWaitingTogetherOnly() throws {
+        let a = try #require(CelebrationEvent.rung(0, on: .pullUp))
+        let b = try #require(CelebrationEvent.rung(1, on: .pullUp))
+        let level = CelebrationEvent.levelReached(2)
+
+        #expect(QueuedCelebration.grouping([]) == [])
+        #expect(QueuedCelebration.grouping([a]) == [.single(a)])
+        #expect(QueuedCelebration.grouping([a, level]) == [.single(a), .single(level)])
+        #expect(QueuedCelebration.grouping([a, b, level]).map(\.events) == [[a, b], [level]])
+        #expect(QueuedCelebration.grouping([level, .levelReached(3)]) == [.single(level), .single(.levelReached(3))])
     }
 
     @Test
@@ -462,7 +559,7 @@ struct PerSessionScoringTests {
 
         #expect(stack.journal.entries.count == 3)
         #expect(stack.skillPaths().summary(for: .pullUp)?.state.conqueredRungCount == 6)
-        #expect(stack.rewards.currentCelebration == .rung(0, on: .pullUp))
+        #expect(stack.rewards.currentCelebration == .rungs(0...5, on: .pullUp))
     }
 
     @Test
@@ -667,8 +764,10 @@ struct RewardQueueTests {
             overlays.append(current)
             stack.rewards.dismissCurrent()
         }
-        let rungNotes = overlays.compactMap(\.presentation.xpNote)
-        #expect(rungNotes.dropLast().allSatisfy { $0 == "+100 XP" })
+        // Six rungs on one card, then the level-up with the batch total.
+        #expect(overlays.count == 2)
+        let rungs = try #require(overlays.first)
+        #expect(rungs.presentation.xpNote == "+600 XP")
         let last = try #require(overlays.last)
         #expect(last.presentation.xpNote?.hasSuffix("Razem +\(gained) XP") == true)
         #expect(last.hasNext == false)
