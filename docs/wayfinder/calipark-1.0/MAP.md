@@ -92,6 +92,9 @@ Zdecydowany spec CaliPark 1.0: zakres, backend, model danych, wygląd kluczowych
 - [Karta parku](tickets/023-park-card.md): najpierw zdjęcia, pełna karta jako arkusz, opinie od razu, zdjęcia po moderacji, średnia od 3 opinii, pogoda dopiero z WeatherKit; ulubione Parki na telefonie (2026-11-04).
 - [Cel tygodniowy](tickets/027-weekly-goal.md): 1–3 cele (dni, plany, objętość), pierwszy tydzień rozgrzewkowy, pauza do 90 dni bez utraty serii, seria tygodni w hero (wzór: Apple Watch).
 - Ulubione ćwiczenia (2026-11-04, właściciel przy Q26): gwiazdka przy ćwiczeniu, sekcje „Ulubione” i „Ostatnio” (do 5 z historii) na górze każdego wyboru ćwiczeń, ulubione w backupie.
+- Strona startowa (2026-11-04, Q32): na Vercelu właściciela (Pro), nie na GitHub Pages; opis apki, polityka prywatności, dane Parków (ODbL), pomoc. Publikacja dopiero po akceptacji tekstu przez właściciela.
+- Diagnostyka (2026-11-04, Q33, decyzja delegowana koordynatorowi): tylko narzędzia Apple, czyli raporty crashy z TestFlight i App Store w Xcode Organizer oraz MetricKit trzymany na telefonie; raport wychodzi tylko wtedy, gdy użytkownik sam go wyśle mailem z „Pomoc i opinie”. Bez zewnętrznego SDK.
+- Motyw (2026-11-04, Q34): w 1.0 tylko ciemny.
 
 ## Postęp wykonania
 
@@ -228,8 +231,8 @@ Prace „bez żalu” z workerów, zmergowane na `main`. Testy: build bez warnin
 Wyjęte z mgły 2026-11-04 jako tickety: [Karta parku](tickets/023-park-card.md), [Home w 1.0](tickets/024-home-v1.md), [Profil i ustawienia w 1.0](tickets/025-profile-settings-v1.md), [Onboarding w 1.0](tickets/026-onboarding-v1.md), [Cel tygodniowy](tickets/027-weekly-goal.md).
 
 - **Identyfikacja wizualna:** ikona, spójny styl całej apki, czyli to samo „stylowo” co przy mapie.
-- **Diagnostyka:** zgłaszanie crashy i analityka zgodne z RODO.
-- **Wydanie:** strona startowa apki z polityką prywatności, regulaminem i adresem kontaktowym (ten sam adres trafi do „Pomoc i opinie”, Q25); opis, screeny (od kwietnia 2027 także iPhone Duo) i kategoria w App Store; zbieranie feedbacku od ekipy z TestFlight.
+- **Diagnostyka:** zdecydowana (Q33, tylko Apple + MetricKit); analityka poza zakresem 1.0.
+- **Wydanie:** strona startowa apki (Vercel, Q32) z polityką prywatności, regulaminem i adresem kontaktowym (ten sam adres trafi do „Pomoc i opinie”, Q25); opis, screeny (od kwietnia 2027 także iPhone Duo) i kategoria w App Store; zbieranie feedbacku od ekipy z TestFlight.
 - **Zasady Społeczności i regulamin:** treść regulaminu (zero tolerancji, licencja na treści, wymogi DSA), powiadamianie autorów o wyniku moderacji, blokowanie użytkowników. Zależy od wyboru backendu i minimalnego wieku Konta.
 
 ## Poza zakresem
