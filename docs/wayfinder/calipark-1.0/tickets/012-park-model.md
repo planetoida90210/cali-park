@@ -48,3 +48,5 @@ Propozycja: [proposals/012-park-model.md](../proposals/012-park-model.md). Ticke
 ## Dopisek (2026-11-04): miejsca bez opisanego sprzętu
 
 Właściciel: „nie liczą się jako parki, każdy musi wiedzieć, że jest przynajmniej drążek”. Miejsce otagowane w OSM tylko jako `sport=calisthenics`, bez drążka ani poręczy w danych, nie jest Parkiem i wylatuje z importu (ok. 1/4 z 330). Definicja Parku zostaje: drążek albo poręcze (z 013: same poręcze do dipów też). „Sprzęt nieznany” znika z karty.
+
+Potwierdzone (Q29): Park = w danych jest drążek **albo** poręcze (także same poręcze do dipów). Miejsca bez żadnego opisanego sprzętu wylatują przy imporcie.

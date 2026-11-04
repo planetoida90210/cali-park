@@ -91,6 +91,7 @@ Zdecydowany spec CaliPark 1.0: zakres, backend, model danych, wygląd kluczowych
 - [Onboarding w 1.0](tickets/026-onboarding-v1.md): powitanie, test poziomu, program, cel tygodniowy; zgody i Konto dopiero przy użyciu.
 - [Karta parku](tickets/023-park-card.md): najpierw zdjęcia, pełna karta jako arkusz, opinie od razu, zdjęcia po moderacji, średnia od 3 opinii, pogoda dopiero z WeatherKit; ulubione Parki na telefonie (2026-11-04).
 - [Cel tygodniowy](tickets/027-weekly-goal.md): 1–3 cele (dni, plany, objętość), pierwszy tydzień rozgrzewkowy, pauza do 90 dni bez utraty serii, seria tygodni w hero (wzór: Apple Watch).
+- Ulubione ćwiczenia (2026-11-04, właściciel przy Q26): gwiazdka przy ćwiczeniu, sekcje „Ulubione” i „Ostatnio” (do 5 z historii) na górze każdego wyboru ćwiczeń, ulubione w backupie.
 
 ## Postęp wykonania
 
