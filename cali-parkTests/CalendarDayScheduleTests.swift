@@ -143,7 +143,7 @@ struct ScheduleTimeZoneTests {
         let text = try String(decoding: Data(contentsOf: url), as: UTF8.self)
         #expect(text.contains(#""schemaVersion":2"#))
         #expect(text.contains(#""2026-11-10""#))
-        #expect(!text.contains("T23:00:00Z"))
+        #expect(text.contains("T23:00:00Z") == false)
 
         // Read later in London, the day doesn't move.
         let afterTravel = try FileWorkoutPlanStore(directory: directory, calendar: Zones.london).load()
@@ -206,7 +206,7 @@ struct PastOneOffPlanTests {
         editor.onceDate = Zones.date(3, in: calendar)
 
         #expect(editor.isOnceDateInPast)
-        #expect(!editor.canSave)
+        #expect(editor.canSave == false)
         #expect(editor.scheduleProblem?.contains("minęła") == true)
     }
 
@@ -244,7 +244,7 @@ struct PastOneOffPlanTests {
 
         await editor.save()
 
-        #expect(!editor.didSave)
+        #expect(editor.didSave == false)
         #expect(store.load().isEmpty)
     }
 
@@ -257,8 +257,8 @@ struct PastOneOffPlanTests {
 
         #expect(editor.onceDate == CalendarDay(year: 2026, month: 10, day: 20)!.startDate(in: calendar))
         #expect(editor.earliestOnceDate == editor.onceDate)
-        #expect(!editor.canSave)
-        #expect(!editor.hasUnsavedChanges)
+        #expect(editor.canSave == false)
+        #expect(editor.hasUnsavedChanges == false)
 
         editor.onceDate = Zones.date(6, in: calendar)
         #expect(editor.canSave)

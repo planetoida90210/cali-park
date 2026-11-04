@@ -32,8 +32,8 @@ struct KeptTogetherTests {
     func everyProgramCardKeepsItsRangesTogether() {
         for program in ProgramCatalog.all {
             let card = "\(program.frequency) · \(program.sessionLength) \(program.creditLine)".keptTogether
-            #expect(!card.contains("r/b"))
-            #expect(!card.contains(" min"))
+            #expect(card.contains("r/b") == false)
+            #expect(card.contains(" min") == false)
         }
     }
 }

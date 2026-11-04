@@ -151,7 +151,7 @@ struct ParkMapFavoritesTests {
         #expect(favorites.ids == [ParkFixtures.pragaID])
 
         viewModel.toggleFavorite(ParkFixtures.praga)
-        #expect(!viewModel.isFavorite(ParkFixtures.praga))
+        #expect(viewModel.isFavorite(ParkFixtures.praga) == false)
         #expect(viewModel.favoritesMessage == nil)
     }
 
@@ -208,6 +208,6 @@ struct ParkMapFavoritesTests {
         viewModel.toggleFavorite(ParkFixtures.mokotow)
 
         #expect(viewModel.favoritesMessage == ParkFavorites.saveFailureMessage)
-        #expect(!viewModel.isFavorite(ParkFixtures.mokotow))
+        #expect(viewModel.isFavorite(ParkFixtures.mokotow) == false)
     }
 }

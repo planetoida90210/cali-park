@@ -176,7 +176,7 @@ struct QuickWorkoutPrefillTests {
         let store = InMemoryWorkoutLogStore()
         let vm = QuickWorkoutViewModel(store: store, plan: plan)
 
-        #expect(!vm.canFinish)
+        #expect(vm.canFinish == false)
         vm.finish()
         #expect(store.load().isEmpty) // nothing logged yet — no-op
 

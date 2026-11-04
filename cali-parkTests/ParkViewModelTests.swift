@@ -93,7 +93,7 @@ struct ParkMapViewModelTests {
         await viewModel.start()
 
         #expect(viewModel.errorMessage == ParkMapViewModel.loadErrorMessage)
-        #expect(!viewModel.isLoaded)
+        #expect(viewModel.isLoaded == false)
         #expect(viewModel.parks.isEmpty)
     }
 

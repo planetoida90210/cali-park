@@ -66,7 +66,7 @@ struct ProgramPlanModelTests {
         #expect(plans == StoreFixtures.workoutPlans)
         #expect(plans.allSatisfy { $0.programID == nil && $0.programVersion == nil })
         let items = plans.flatMap(\.exercises)
-        #expect(!items.isEmpty)
+        #expect(items.isEmpty == false)
         #expect(items.allSatisfy { $0.pathID == nil && !$0.holdRungsOnly && $0.rounds == nil })
         #expect(items.allSatisfy { $0.targetRepsMin == nil && $0.targetSeconds == nil && $0.restSeconds == nil })
     }

@@ -244,7 +244,7 @@ struct PlacementCalibrationViewModelTests {
         let viewModel = PlacementCalibrationViewModel(store: FailingPlacementStore())
         viewModel.save()
         #expect(viewModel.didSave == false)
-        #expect(viewModel.errorMessage != nil)
+        #expect(viewModel.errorMessage == "Nie udało się zapisać poziomu.")
     }
 }
 

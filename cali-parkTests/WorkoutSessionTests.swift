@@ -59,7 +59,7 @@ struct WorkoutSessionGroupingTests {
         let sessions = WorkoutSession.grouped(from: [entry])
 
         try #require(sessions.map(\.id) == [entry.id])
-        #expect(!sessions[0].isSession)
+        #expect(sessions[0].isSession == false)
     }
 
     /// A one-exercise quick workout still carries a `sessionID`; the workout
@@ -209,8 +209,8 @@ struct WorkoutSessionDetailViewModelTests {
 
         viewModel.delete()
 
-        #expect(viewModel.errorMessage != nil)
-        #expect(!viewModel.didDelete)
+        #expect(viewModel.errorMessage == TrainingJournal.deleteFailureMessage)
+        #expect(viewModel.didDelete == false)
         #expect(viewModel.session?.entries == [entry])
     }
 
@@ -287,6 +287,6 @@ struct QuickWorkoutSummaryTests {
         viewModel.finish()
 
         #expect(viewModel.savedSessionID == nil)
-        #expect(viewModel.errorMessage != nil)
+        #expect(viewModel.errorMessage == TrainingJournal.saveFailureMessage)
     }
 }

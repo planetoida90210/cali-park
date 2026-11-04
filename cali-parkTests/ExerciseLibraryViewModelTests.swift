@@ -238,8 +238,8 @@ struct ExercisePickerSearchTests {
         let viewModel = makeViewModel()
 
         #expect(viewModel.hasVariants(Self.pullUps))
-        #expect(!viewModel.hasVariants(Self.pushUps))
-        #expect(!viewModel.hasVariants(Self.negatives))
+        #expect(viewModel.hasVariants(Self.pushUps) == false)
+        #expect(viewModel.hasVariants(Self.negatives) == false)
     }
 
     @Test

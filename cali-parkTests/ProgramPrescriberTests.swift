@@ -17,11 +17,14 @@ struct TrainingProgramCatalogTests {
     @Test(arguments: ProgramCatalog.all)
     func everyProgramIsComplete(program: TrainingProgram) {
         #expect(program.version >= 1)
-        #expect(!program.tagline.isEmpty && !program.audience.isEmpty && !program.details.isEmpty)
-        #expect(!program.frequency.isEmpty && !program.sessionLength.isEmpty)
-        #expect(!program.creditLine.isEmpty)
-        #expect(!program.weekdays.isEmpty)
-        #expect(!program.sessions.isEmpty)
+        #expect(program.tagline.isEmpty == false)
+        #expect(program.audience.isEmpty == false)
+        #expect(program.details.isEmpty == false)
+        #expect(program.frequency.isEmpty == false)
+        #expect(program.sessionLength.isEmpty == false)
+        #expect(program.creditLine.isEmpty == false)
+        #expect(program.weekdays.isEmpty == false)
+        #expect(program.sessions.isEmpty == false)
         #expect(program.sessions.allSatisfy { !$0.items.isEmpty })
     }
 
@@ -41,8 +44,8 @@ struct TrainingProgramCatalogTests {
     @Test(arguments: ProgramCatalog.all)
     func creditLinesNeverClaimToBeOfficial(program: TrainingProgram) {
         let text = ([program.creditLine, program.tagline] + program.details).joined(separator: " ").lowercased()
-        #expect(!text.contains("oficjalny rr"))
-        #expect(!text.contains("official"))
+        #expect(text.contains("oficjalny rr") == false)
+        #expect(text.contains("official") == false)
     }
 
     @Test
@@ -83,7 +86,7 @@ struct TrainingProgramCatalogTests {
         #expect(taps.unilateralSide == .side)
         #expect(taps.measurement == .reps)
         #expect(ProgressionCatalog.paths(containing: taps.id).isEmpty)
-        #expect(!E.mainMovements.contains(taps))
+        #expect(E.mainMovements.contains(taps) == false)
     }
 }
 
@@ -338,7 +341,7 @@ struct ProgramSuggestionTests {
     func fundamentalsHintsAtFirstPullUpBelowFullPullUps() {
         #expect(ProgramPrescriber.needsFirstPullUp(ProgramFixtures.newcomer))
         #expect(ProgramPrescriber.needsFirstPullUp(ProgramFixtures.zeroPullUps))
-        #expect(!ProgramPrescriber.needsFirstPullUp(ProgramFixtures.advanced))
+        #expect(ProgramPrescriber.needsFirstPullUp(ProgramFixtures.advanced) == false)
     }
 
     @Test
@@ -349,11 +352,11 @@ struct ProgramSuggestionTests {
         let almost = ProgramFixtures.states(logs: [ProgramFixtures.reps(E.pullUpsID, 7)])
         let done = ProgramFixtures.states(logs: [ProgramFixtures.reps(E.pullUpsID, 8)])
 
-        #expect(!ProgramPrescriber.isReadyToGraduate(plan, pathStates: almost))
+        #expect(ProgramPrescriber.isReadyToGraduate(plan, pathStates: almost) == false)
         #expect(ProgramPrescriber.isReadyToGraduate(plan, pathStates: done))
 
         var other = plan
         other.programID = ProgramID.fundamentals.rawValue
-        #expect(!ProgramPrescriber.isReadyToGraduate(other, pathStates: done))
+        #expect(ProgramPrescriber.isReadyToGraduate(other, pathStates: done) == false)
     }
 }

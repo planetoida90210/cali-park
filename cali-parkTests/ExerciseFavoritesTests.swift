@@ -261,7 +261,7 @@ struct ExerciseListSectionsTests {
         let viewModel = ExerciseLibraryViewModel(exercises: S.catalog)
         viewModel.selectedCategory = .advanced
         #expect(viewModel.pickerSections(favoriteIDs: [S.diamond.id]).flatMap(\.exercises) == [S.diamond])
-        #expect(!viewModel.isSearching)
+        #expect(viewModel.isSearching == false)
 
         viewModel.selectedCategory = nil
         viewModel.searchText = "diament"

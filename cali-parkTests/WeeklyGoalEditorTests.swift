@@ -30,7 +30,7 @@ struct WeeklyGoalEditorViewModelTests {
 
         #expect(viewModel.goals == WeeklyGoal.defaultGoals)
         #expect(viewModel.isDefault)
-        #expect(!viewModel.hasUnsavedChanges)
+        #expect(viewModel.hasUnsavedChanges == false)
         #expect(viewModel.save())
         #expect(store.saveCount == 0)
     }
@@ -40,7 +40,7 @@ struct WeeklyGoalEditorViewModelTests {
         let viewModel = editor()
         #expect(viewModel.addGoal(.plannedWorkouts) != nil)
         #expect(viewModel.addGoal(.exerciseVolume) != nil)
-        #expect(!viewModel.canAddGoal)
+        #expect(viewModel.canAddGoal == false)
         #expect(viewModel.addGoal(.trainingDays) == nil)
         #expect(viewModel.goals.map(\.metric.kind) == [.trainingDays, .plannedWorkouts, .exerciseVolume])
     }
@@ -55,7 +55,7 @@ struct WeeklyGoalEditorViewModelTests {
 
         viewModel.removeGoal(added)
         #expect(viewModel.goals.map(\.id) == [added])
-        #expect(!viewModel.canRemoveGoals)
+        #expect(viewModel.canRemoveGoals == false)
     }
 
     @Test
@@ -91,8 +91,8 @@ struct WeeklyGoalEditorViewModelTests {
             F.version(WeeklyGoal.defaultGoals, from: firstWorkout),
             F.version([F.days(4)], from: F.day(2))
         ])
-        #expect(!viewModel.hasUnsavedChanges)
-        #expect(!viewModel.isDefault)
+        #expect(viewModel.hasUnsavedChanges == false)
+        #expect(viewModel.isDefault == false)
     }
 
     @Test
@@ -111,16 +111,16 @@ struct WeeklyGoalEditorViewModelTests {
         #expect(viewModel.errorMessage == StoreLoadFailure.message)
         #expect(viewModel.hasLoadError)
         #expect(viewModel.goals.isEmpty)
-        #expect(!viewModel.canEdit)
+        #expect(viewModel.canEdit == false)
         #expect(viewModel.addGoal(.trainingDays) == nil)
-        #expect(!viewModel.save())
+        #expect(viewModel.save() == false)
     }
 
     @Test
     func failedWriteKeepsTheDraft() {
         let viewModel = editor(store: ReadOnlyWeeklyGoalStore())
         viewModel.updateMetric(.trainingDays(days: 2), forGoal: WeeklyGoal.defaultGoalID)
-        #expect(!viewModel.save())
+        #expect(viewModel.save() == false)
         #expect(viewModel.errorMessage == WeeklyGoalEditorViewModel.saveFailureMessage)
         #expect(viewModel.hasUnsavedChanges)
     }
@@ -201,7 +201,7 @@ struct HomeWeeklyGoalTests {
         let goal = try #require(home.weeklyGoal)
         #expect(goal.week.primary.goal == volume)
         #expect(goal.week.primary.value == 16)
-        #expect(!goal.isDefault)
+        #expect(goal.isDefault == false)
     }
 
     @Test

@@ -78,7 +78,7 @@ struct StoreDirectoryMigrationTests {
         try log.append(WorkoutLogEntry(exerciseID: StoreFixtures.pullUpsID, date: StoreFixtures.october1,
                                        sets: [LoggedSet(reps: 5)]))
         #expect(rig.exists("workout-log.json", in: rig.destination))
-        #expect(!rig.exists("workout-log.json", in: rig.documents))
+        #expect(rig.exists("workout-log.json", in: rig.documents) == false)
     }
 
     @Test
@@ -97,7 +97,7 @@ struct StoreDirectoryMigrationTests {
         for file in StoreFile.allCases {
             #expect(locations.directory(for: file) == rig.destination)
             #expect(rig.exists(file.fileName, in: rig.destination))
-            #expect(!rig.exists(file.fileName, in: rig.documents))
+            #expect(rig.exists(file.fileName, in: rig.documents) == false)
         }
         let log = FileWorkoutLogStore(directory: locations.directory(for: .workoutLog))
         #expect(try log.load() == StoreFixtures.workoutLog)
@@ -128,9 +128,9 @@ struct StoreDirectoryMigrationTests {
 
         #expect(rig.exists("workout-plans.json", in: rig.destination))
         #expect(rig.exists("workout-plans.corrupt-20261103T211500Z.json", in: rig.destination))
-        #expect(!rig.exists("workout-plans.corrupt-20261103T211500Z.json", in: rig.documents))
+        #expect(rig.exists("workout-plans.corrupt-20261103T211500Z.json", in: rig.documents) == false)
         #expect(rig.exists("notes.txt", in: rig.documents))
-        #expect(!rig.exists("notes.txt", in: rig.destination))
+        #expect(rig.exists("notes.txt", in: rig.destination) == false)
     }
 
     @Test
@@ -158,7 +158,7 @@ struct StoreDirectoryMigrationTests {
 
         #expect(locations.directory(for: .workoutLog) == rig.documents)
         #expect(try Data(contentsOf: rig.documents.appending(path: "workout-log.json")) == original)
-        #expect(!rig.exists("workout-log.json", in: rig.destination))
+        #expect(rig.exists("workout-log.json", in: rig.destination) == false)
         // No silent empty journal: the store still reads the old entries.
         #expect(try FileWorkoutLogStore(directory: locations.directory(for: .workoutLog)).load()
                 == StoreFixtures.workoutLog)
@@ -237,7 +237,7 @@ struct CoreDataScaffoldCleanupTests {
         CoreDataScaffoldCleanup(directory: rig.applicationSupport, defaults: defaults).run()
 
         for name in CoreDataScaffoldCleanup.fileNames {
-            #expect(!rig.exists(name, in: rig.applicationSupport))
+            #expect(rig.exists(name, in: rig.applicationSupport) == false)
         }
         #expect(rig.exists("cali_park.sqlite.bak", in: rig.applicationSupport))
         #expect(rig.exists("workout-log.json", in: rig.destination))

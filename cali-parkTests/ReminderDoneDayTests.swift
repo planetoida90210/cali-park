@@ -164,7 +164,7 @@ struct WorkoutPlanServiceDoneDayTests {
 
         let days = await scheduler.scheduledRequests.compactMap(Fixtures.fireDay)
         #expect(days.first == 1)
-        #expect(!days.contains(0))
+        #expect(days.contains(0) == false)
     }
 
     /// Better a reminder too many than none.

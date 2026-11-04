@@ -104,12 +104,12 @@ struct ModulePreferencesTests {
         defaults.set(["log", "next", "parks"], forKey: key)
         let preferences = ModulePreferences(defaults: defaults)
 
-        #expect(!preferences.canMoveUp("log"))
+        #expect(preferences.canMoveUp("log") == false)
         #expect(preferences.canMoveDown("log"))
         #expect(preferences.canMoveUp("parks"))
-        #expect(!preferences.canMoveDown("parks"))
-        #expect(!preferences.canMoveUp("streak"))
-        #expect(!preferences.canMoveDown("streak"))
+        #expect(preferences.canMoveDown("parks") == false)
+        #expect(preferences.canMoveUp("streak") == false)
+        #expect(preferences.canMoveDown("streak") == false)
 
         preferences.moveDown("log")
         #expect(preferences.enabledModules == ["next", "log", "parks"])
@@ -219,6 +219,6 @@ struct ModulePreferencesTests {
         environment.modulePreferences.setEnabled(true, for: "streak")
 
         #expect(environment.modulePreferences.isEnabled("streak"))
-        #expect(!other.modulePreferences.isEnabled("streak"))
+        #expect(other.modulePreferences.isEnabled("streak") == false)
     }
 }

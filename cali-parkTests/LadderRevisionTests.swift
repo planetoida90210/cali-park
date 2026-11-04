@@ -179,7 +179,7 @@ struct LadderRevisionContentTests {
         let exercise = try #require(E.exercise(withID: id))
         let parent = try #require(exercise.variantOf.flatMap(E.exercise(withID:)))
         #expect(parent.variantOf == nil)
-        #expect(!ProgressionCatalog.paths(containing: id).isEmpty)
+        #expect(ProgressionCatalog.paths(containing: id).isEmpty == false)
     }
 
     @Test func theUnilateralExercisesCountPerSide() {
@@ -269,7 +269,7 @@ struct LadderRevisionContentTests {
 
     @Test func everyCatalogEquipmentKeyHasAPolishLabel() {
         let keys = Set(ExerciseCatalog.all.flatMap(\.equipment))
-        #expect(!keys.isEmpty)
+        #expect(keys.isEmpty == false)
         for key in keys {
             #expect(ExerciseEquipment.displayName(for: key) != key, "No Polish label for \(key)")
         }
@@ -281,8 +281,8 @@ struct LadderRevisionContentTests {
 
     @Test func everyStepHasASourceLabel() {
         for step in ProgressionCatalog.all.flatMap(\.steps) {
-            #expect(!step.criterionSource.label.isEmpty)
-            #expect(!step.criterionSource.explanation.isEmpty)
+            #expect(step.criterionSource.label.isEmpty == false)
+            #expect(step.criterionSource.explanation.isEmpty == false)
         }
     }
 }
@@ -298,6 +298,6 @@ struct CriterionSourceLineTests {
     @Test(arguments: CriterionSource.allCases)
     func everyLineIsTheExplanationWithoutTheShortLabel(source: CriterionSource) {
         #expect(source.sourceLine == "Skąd to kryterium? \(source.explanation)")
-        #expect(!source.sourceLine.contains("\(source.label). "))
+        #expect(source.sourceLine.contains("\(source.label). ") == false)
     }
 }

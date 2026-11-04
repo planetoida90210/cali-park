@@ -276,7 +276,7 @@ struct TrainingBackupCodecTests {
         #expect(summary.favoriteExercises == 2)
         #expect(summary.text == "2 treningi, 4 plany, test poziomu, cel tygodniowy, 2 ulubione Parki, 2 ulubione ćwiczenia")
         #expect(TrainingBackup(favoriteParkIDs: [UUID()]).summary.text == "0 treningów, 0 planów, 1 ulubiony Park")
-        #expect(!TrainingBackup(favoriteParkIDs: [UUID()]).summary.isEmpty)
+        #expect(TrainingBackup(favoriteParkIDs: [UUID()]).summary.isEmpty == false)
         #expect(TrainingBackup(favoriteParkIDs: nil).summary.isEmpty)
         #expect(TrainingBackup().summary.isEmpty)
         #expect(TrainingBackup().summary.text == "0 treningów, 0 planów")
@@ -340,7 +340,7 @@ struct TrainingBackupServiceTests {
                                schedule: .weekly(Set(Weekday.allCases)), reminderTime: DateComponents(hour: 18, minute: 0))
         try await rig.service.restore(TrainingBackup(workoutPlans: [plan]))
 
-        #expect(await rig.scheduler.rescheduleCount >= 1)
+        #expect(await rig.scheduler.rescheduleCount == 1)
         #expect(await rig.scheduler.scheduledRequests.contains { $0.planID == plan.id })
     }
 
@@ -433,7 +433,7 @@ struct TrainingBackupServiceTests {
         try store.replace(with: nil)
 
         #expect(try store.load() == nil)
-        #expect(!FileManager.default.fileExists(atPath: directory.appending(path: "skill-placement.json").path()))
+        #expect(FileManager.default.fileExists(atPath: directory.appending(path: "skill-placement.json").path()) == false)
         try store.replace(with: nil)
     }
 
@@ -749,6 +749,6 @@ struct TrainingBackupExerciseFavoritesTests {
     func summaryText(count: Int, text: String) {
         let backup = TrainingBackup(favoriteExerciseIDs: (0..<count).map { _ in UUID() })
         #expect(backup.summary.text == text)
-        #expect(!backup.summary.isEmpty)
+        #expect(backup.summary.isEmpty == false)
     }
 }

@@ -35,14 +35,14 @@ struct WeeklyGoalSetTests {
 
         #expect(WeeklyGoal.isValidSet([a]))
         #expect(WeeklyGoal.isValidSet([a, b, c]))
-        #expect(!WeeklyGoal.isValidSet([]))
-        #expect(!WeeklyGoal.isValidSet([a, b, c, d]))
-        #expect(!WeeklyGoal.isValidSet([a, a]))
-        #expect(!WeeklyGoal.isValidSet([F.goal(.trainingDays(days: 0))]))
-        #expect(!WeeklyGoal.isValidSet([F.goal(.trainingDays(days: 8))]))
-        #expect(!WeeklyGoal.isValidSet([F.goal(.plannedWorkouts(target: .count(workouts: 0)))]))
-        #expect(!WeeklyGoal.isValidSet([F.goal(.exerciseVolume(exerciseID: ExerciseCatalog.pullUpsID,
-                                                                measurement: .reps, amount: 0))]))
+        #expect(WeeklyGoal.isValidSet([]) == false)
+        #expect(WeeklyGoal.isValidSet([a, b, c, d]) == false)
+        #expect(WeeklyGoal.isValidSet([a, a]) == false)
+        #expect(WeeklyGoal.isValidSet([F.goal(.trainingDays(days: 0))]) == false)
+        #expect(WeeklyGoal.isValidSet([F.goal(.trainingDays(days: 8))]) == false)
+        #expect(WeeklyGoal.isValidSet([F.goal(.plannedWorkouts(target: .count(workouts: 0)))]) == false)
+        #expect(WeeklyGoal.isValidSet([F.goal(.exerciseVolume(exerciseID: ExerciseCatalog.pullUpsID,
+                                                                measurement: .reps, amount: 0))]) == false)
     }
 
     @Test
@@ -173,7 +173,7 @@ struct WeeklyGoalPauseTests {
         #expect(pause.endedAt == F.day(3))
         #expect(pause.end == F.day(3))
         #expect(pause.overlaps(F.week(0)))
-        #expect(!pause.overlaps(F.week(1)))
+        #expect(pause.overlaps(F.week(1)) == false)
     }
 
     @Test
@@ -201,8 +201,8 @@ struct WeeklyGoalCelebrationMarkTests {
         }
         #expect(history.celebrated.count == 9) // weeks -8 … 0
         #expect(history.hasCelebrated(goalID: goalID, weekStart: F.week(-8).start))
-        #expect(!history.hasCelebrated(goalID: goalID, weekStart: F.week(-9).start))
-        #expect(!history.hasCelebrated(goalID: UUID(), weekStart: F.week(0).start))
+        #expect(history.hasCelebrated(goalID: goalID, weekStart: F.week(-9).start) == false)
+        #expect(history.hasCelebrated(goalID: UUID(), weekStart: F.week(0).start) == false)
     }
 }
 

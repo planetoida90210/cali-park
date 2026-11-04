@@ -38,7 +38,7 @@ struct ParallelTrackTests {
 
         #expect(path.steps[state.currentRungIndex].exerciseID == E.pullUpsID)
         // The band rung is skipped, not conquered: it stays an open option.
-        #expect(!state.isConquered(rungAt: try Self.index(of: E.bandPullUpsID, in: path)))
+        #expect(state.isConquered(rungAt: try Self.index(of: E.bandPullUpsID, in: path)) == false)
         #expect(state.isConquered(rungAt: try Self.index(of: E.negativePullUpsID, in: path)))
     }
 
@@ -56,7 +56,7 @@ struct ParallelTrackTests {
         let (path, state) = try Self.state(.legs, logs: [Self.reps(E.bulgarianSplitSquatID, 8, 8, 8)])
 
         #expect(path.steps[state.currentRungIndex].exerciseID == E.assistedPistolSquatsID)
-        #expect(!state.isConquered(rungAt: try Self.index(of: E.stepUpsID, in: path)))
+        #expect(state.isConquered(rungAt: try Self.index(of: E.stepUpsID, in: path)) == false)
     }
 
     @Test func aDeclarationOnAParallelRungStartsOnTheNextMainLineRung() throws {

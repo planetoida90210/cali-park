@@ -94,7 +94,7 @@ struct WeeklyGoalProgressTests {
                                                     calendar: F.calendar)
         #expect(progress.target == 3)
         #expect(progress.value == 2)
-        #expect(!progress.isMet)
+        #expect(progress.isMet == false)
         #expect(abs(progress.fraction - 2.0 / 3.0) < 0.0001)
     }
 
@@ -124,7 +124,7 @@ struct WeeklyGoalProgressTests {
         let progress = WeeklyGoalEvaluator.progress(of: goal, in: F.week(0), entries: entries, plans: [],
                                                     calendar: F.calendar)
         #expect(progress.value == 60)
-        #expect(!progress.isMet)
+        #expect(progress.isMet == false)
     }
 
     /// One plan workout per plan per day, however many exercises it logged.
@@ -316,7 +316,7 @@ struct WeeklyGoalStreakTests {
         let versions = [F.version([F.days(3)], from: F.day(week: -2, hour: 18))]
         let entries = F.trained(week: -2, days: [1]) + F.trained(week: -1, days: [0, 2, 4])
         let first = try #require(verdict(-2, versions, entries: entries, asOf: F.day(1)))
-        #expect(!first.isWarmUp)
+        #expect(first.isWarmUp == false)
         #expect(first.status == .missed)
         #expect(streak(versions, entries: entries, asOf: F.day(1)) == 1)
     }

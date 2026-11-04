@@ -71,8 +71,8 @@ struct SetPadInputTests {
     @Test
     func emptyPadCannotSaveOrCommit() {
         let input = SetPadInput()
-        #expect(!input.canSave)
-        #expect(!input.canCommit)
+        #expect(input.canSave == false)
+        #expect(input.canCommit == false)
         #expect(input.displayText == "0")
     }
 
@@ -111,8 +111,8 @@ struct WorkoutLogViewModelTests {
         viewModel.input.appendDigit(6)
         viewModel.save()
 
-        #expect(viewModel.errorMessage != nil)
-        #expect(!viewModel.didSave)
+        #expect(viewModel.errorMessage == TrainingJournal.saveFailureMessage)
+        #expect(viewModel.didSave == false)
     }
 
     @Test
@@ -122,7 +122,7 @@ struct WorkoutLogViewModelTests {
         viewModel.save()
 
         #expect(store.load().isEmpty)
-        #expect(!viewModel.didSave)
+        #expect(viewModel.didSave == false)
     }
 }
 
@@ -165,7 +165,7 @@ struct WorkoutHistoryViewModelTests {
 
         viewModel.delete(entry)
 
-        #expect(viewModel.errorMessage != nil)
+        #expect(viewModel.errorMessage == TrainingJournal.deleteFailureMessage)
     }
 }
 

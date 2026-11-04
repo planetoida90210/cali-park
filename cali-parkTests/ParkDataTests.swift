@@ -68,8 +68,8 @@ struct ParkSnapshotTests {
 
         #expect(park.osmRefs.isEmpty)
         #expect(park.equipment == [ParkEquipment(type: .horizontalBar)])
-        #expect(!park.isCalisthenicsTagged)
-        #expect(!park.hasMachines)
+        #expect(park.isCalisthenicsTagged == false)
+        #expect(park.hasMachines == false)
         #expect(park.access == .public)
         #expect(park.locality == Locality())
     }
@@ -126,9 +126,9 @@ struct ParkDirectoryTests {
             // A Park: a pull-up bar or parallel bars in the data. The
             // calisthenics tag alone doesn't count (012, owner's addendum).
             #expect(park.equipment.contains { $0.type.isCore }, "\(park.displayName)")
-            #expect(!park.generatedName.isEmpty)
+            #expect(park.generatedName.isEmpty == false)
             #expect(park.generatedName.hasPrefix(Self.namePrefix(for: park)), "\(park.generatedName)")
-            #expect(!park.osmRefs.isEmpty)
+            #expect(park.osmRefs.isEmpty == false)
             #expect(park.source == .osm && park.verification == .osm && park.status == .published)
         }
     }

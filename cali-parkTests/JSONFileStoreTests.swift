@@ -441,7 +441,7 @@ struct StoreLoadFailureViewModelTests {
         let viewModel = TrainingStack(placementStore: BrokenPlacementStore()).skillPaths()
 
         #expect(viewModel.hasLoadError)
-        #expect(!viewModel.needsCalibration)
+        #expect(viewModel.needsCalibration == false)
         #expect(viewModel.errorMessage == StoreLoadFailure.message)
     }
 
@@ -449,7 +449,7 @@ struct StoreLoadFailureViewModelTests {
     func skillsOfferCalibrationWhenPlacementIsMissing() {
         let viewModel = TrainingStack().skillPaths()
 
-        #expect(!viewModel.hasLoadError)
+        #expect(viewModel.hasLoadError == false)
         #expect(viewModel.needsCalibration)
     }
 
@@ -465,7 +465,7 @@ struct StoreLoadFailureViewModelTests {
 
         #expect(progressStore.saveAttempts == 0)
         #expect(stack.rewards.currentCelebration == nil)
-        #expect(!stack.skillPaths().hasLoadError) // logs and placement still show
+        #expect(stack.skillPaths().hasLoadError == false) // logs and placement still show
     }
 
     @Test
@@ -483,7 +483,7 @@ struct StoreLoadFailureViewModelTests {
         setPad.input.appendDigit(5)
         setPad.save()
 
-        #expect(setPad.errorMessage != nil)
+        #expect(setPad.errorMessage == TrainingJournal.saveFailureMessage)
         #expect(try String(contentsOf: url, encoding: .utf8) == garbage)
     }
 }

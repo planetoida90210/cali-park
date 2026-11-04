@@ -121,7 +121,7 @@ struct OnboardingFlowTests {
         #expect(await rig.viewModel.finish())
 
         #expect(rig.viewModel.errorMessage == nil)
-        #expect(rig.placementStore.load() != nil)
+        #expect(rig.placementStore.load()?.declaredStepByPath[.pullUp] == ExerciseCatalog.negativePullUpsID)
         let plans = try rig.planStore.load()
         #expect(plans.map(\.programID) == ["firstPullUp"])
         // The placement was saved first, so the plan starts on the declared rung.
@@ -151,7 +151,7 @@ struct OnboardingFlowTests {
         #expect(await rig.viewModel.finish() == false)
 
         #expect(rig.viewModel.errorMessage?.contains("celu tygodniowego") == true)
-        #expect(try rig.planStore.load().isEmpty == false)
+        #expect(Set(try rig.planStore.load().map(\.programID)) == ["fundamentals"])
     }
 
     @Test("A program that cannot be created is reported, and the goal is still saved")

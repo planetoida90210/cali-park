@@ -99,7 +99,7 @@ struct QuickWorkoutViewModelTests {
         viewModel.addExercise(ExerciseCatalog.all[0], sets: [])
 
         #expect(viewModel.isEmpty)
-        #expect(!viewModel.canFinish)
+        #expect(viewModel.canFinish == false)
     }
 
     @Test
@@ -116,8 +116,8 @@ struct QuickWorkoutViewModelTests {
     }
 
     @Test
-    func finishPersistsEveryExerciseUnderOneSession() throws {
-        let store = InMemoryWorkoutLogStore()
+    func finishPersistsEveryExerciseUnderOneSessionInOneWrite() throws {
+        let store = SpyWorkoutLogStore()
         let finishedAt = TestDate.epochDay(3, hour: 7)
         let viewModel = QuickWorkoutViewModel(store: store, clock: { finishedAt })
         viewModel.addExercise(ExerciseCatalog.all[0], sets: sets(6, 6, 8))
@@ -125,55 +125,62 @@ struct QuickWorkoutViewModelTests {
 
         viewModel.finish()
 
-        let saved = store.load()
-        #expect(saved.count == 2)
+        let saved = store.entries
+        #expect(store.writes == [.append(saved.map(\.id))])
         #expect(viewModel.didFinish)
         #expect(viewModel.errorMessage == nil)
 
-        // All entries share one non-nil sessionID and the injected clock's time.
-        let sessionIDs = Set(saved.compactMap(\.sessionID))
-        #expect(sessionIDs.count == 1)
+        // In the order logged, under one session, at the injected clock's time.
+        let sessionID = try #require(viewModel.savedSessionID)
+        #expect(saved.map(\.exerciseID) == [ExerciseCatalog.all[0].id, ExerciseCatalog.all[1].id])
+        #expect(saved.map(\.sets) == [sets(6, 6, 8), sets(10)])
+        #expect(saved.map(\.sessionID) == [sessionID, sessionID])
         #expect(saved.map(\.date) == [finishedAt, finishedAt])
-
-        let exerciseIDs = saved.map(\.exerciseID)
-        #expect(exerciseIDs.contains(ExerciseCatalog.all[0].id))
-        #expect(exerciseIDs.contains(ExerciseCatalog.all[1].id))
+        #expect(saved.map(\.planID) == [nil, nil])
     }
 
     /// D-15: a second tap on "Zakończ" before the summary shows saves nothing.
     @Test
     func finishingTwiceSavesTheSessionOnce() {
-        let store = InMemoryWorkoutLogStore()
+        let store = SpyWorkoutLogStore()
         let viewModel = QuickWorkoutViewModel(store: store)
         viewModel.addExercise(ExerciseCatalog.all[0], sets: sets(6))
 
         viewModel.finish()
         viewModel.finish()
 
-        #expect(store.load().count == 1)
+        #expect(store.writeCount == 1)
+        #expect(store.entries.count == 1)
         #expect(viewModel.didFinish)
     }
 
     @Test
     func finishWithNoItemsIsANoOp() {
-        let store = InMemoryWorkoutLogStore()
+        let store = SpyWorkoutLogStore()
         let viewModel = QuickWorkoutViewModel(store: store)
 
         viewModel.finish()
 
-        #expect(store.load().isEmpty)
-        #expect(!viewModel.didFinish)
+        #expect(store.writeCount == 0)
+        #expect(viewModel.didFinish == false)
     }
 
     @Test
     func finishFailureSurfacesErrorAndSavesNothing() {
-        let viewModel = QuickWorkoutViewModel(store: ReadOnlyWorkoutLogStore())
+        let earlier = WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID,
+                                      date: TestDate.epochDay(1),
+                                      sets: [LoggedSet(reps: 8)])
+        let journal = TrainingJournal(store: ReadOnlyWorkoutLogStore(entries: [earlier]))
+        journal.reload()
+        let viewModel = QuickWorkoutViewModel(journal: journal, clock: { TestDate.reference })
         viewModel.addExercise(ExerciseCatalog.all[0], sets: sets(6))
 
         viewModel.finish()
 
-        #expect(viewModel.errorMessage != nil)
-        #expect(!viewModel.didFinish)
+        #expect(viewModel.errorMessage == TrainingJournal.saveFailureMessage)
+        #expect(viewModel.didFinish == false)
+        #expect(viewModel.savedSessionID == nil)
+        #expect(journal.entries == [earlier])
     }
 }
 
@@ -191,25 +198,28 @@ struct WorkoutLogStoreBatchTests {
 
         try store.append(contentsOf: entries)
 
-        #expect(store.load().count == 2)
+        #expect(store.load() == entries)
     }
 
+    /// The file store writes a batch as one file; reading it back gives the
+    /// same entries, session included. (That the quick workout uses one
+    /// batch write is checked with a spy store above.)
     @Test
-    func fileStoreBatchAppendPersistsAllInOneWrite() throws {
+    func fileStoreBatchAppendPersistsEveryEntry() throws {
         let directory = try TemporaryDirectory.make()
 
         let store = FileWorkoutLogStore(directory: directory)
         let sessionID = UUID()
         let entries = [
-            WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, sets: [LoggedSet(reps: 6)], sessionID: sessionID),
-            WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID, sets: [LoggedSet(reps: 8)], sessionID: sessionID)
+            WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, date: StoreFixtures.october1,
+                            sets: [LoggedSet(reps: 6)], sessionID: sessionID),
+            WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID, date: StoreFixtures.october1,
+                            sets: [LoggedSet(reps: 8)], sessionID: sessionID)
         ]
 
         try store.append(contentsOf: entries)
 
-        let reloaded = try FileWorkoutLogStore(directory: directory).load()
-        #expect(reloaded.count == 2)
-        #expect(Set(reloaded.compactMap(\.sessionID)) == [sessionID])
+        #expect(try FileWorkoutLogStore(directory: directory).load() == entries)
     }
 }
 

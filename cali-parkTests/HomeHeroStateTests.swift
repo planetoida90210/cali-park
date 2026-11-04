@@ -281,8 +281,8 @@ struct QuickWorkoutPlanIDTests {
         vm.finish()
 
         let saved = store.load()
-        #expect(saved.isEmpty == false)
-        #expect(saved.allSatisfy { $0.planID == plan.id })
+        #expect(saved.map(\.exerciseID) == [ExerciseCatalog.pullUpsID])
+        #expect(saved.map(\.planID) == [plan.id])
     }
 
     @Test

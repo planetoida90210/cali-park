@@ -45,7 +45,7 @@ struct QuickWorkoutDiscardTests {
     @Test
     func emptyFreeWorkoutHasNothingToDiscard() {
         let session = QuickWorkoutViewModel(store: InMemoryWorkoutLogStore())
-        #expect(!session.hasUnsavedChanges)
+        #expect(session.hasUnsavedChanges == false)
     }
 
     /// A prefilled plan item counts as finishable, but the user has not
@@ -54,7 +54,7 @@ struct QuickWorkoutDiscardTests {
     func untouchedPlanSessionHasNothingToDiscard() {
         let session = QuickWorkoutViewModel(store: InMemoryWorkoutLogStore(), plan: Fixtures.plan)
         #expect(session.canFinish)
-        #expect(!session.hasUnsavedChanges)
+        #expect(session.hasUnsavedChanges == false)
     }
 
     @Test
@@ -85,7 +85,7 @@ struct QuickWorkoutDiscardTests {
         let session = QuickWorkoutViewModel(store: InMemoryWorkoutLogStore())
         session.addExercise(Fixtures.pullUps, sets: [LoggedSet(reps: 6)])
         session.remove(try #require(session.items.first))
-        #expect(!session.hasUnsavedChanges)
+        #expect(session.hasUnsavedChanges == false)
     }
 
     @Test
@@ -94,7 +94,7 @@ struct QuickWorkoutDiscardTests {
         session.addExercise(Fixtures.pullUps, sets: [LoggedSet(reps: 6)])
         session.finish()
         #expect(session.didFinish)
-        #expect(!session.hasUnsavedChanges)
+        #expect(session.hasUnsavedChanges == false)
     }
 }
 
@@ -108,7 +108,7 @@ struct SetPadDiscardTests {
 
     @Test
     func emptyPadHasNothingToDiscard() {
-        #expect(!logger().hasUnsavedChanges)
+        #expect(logger().hasUnsavedChanges == false)
     }
 
     @Test
@@ -124,7 +124,7 @@ struct SetPadDiscardTests {
         pad.input.appendDigit(6)
         pad.input.commitSet()
         pad.input.clear()
-        #expect(!pad.hasUnsavedChanges)
+        #expect(pad.hasUnsavedChanges == false)
     }
 
     @Test
@@ -133,7 +133,7 @@ struct SetPadDiscardTests {
         pad.input.appendDigit(8)
         pad.save()
         #expect(pad.didSave)
-        #expect(!pad.hasUnsavedChanges)
+        #expect(pad.hasUnsavedChanges == false)
     }
 
     /// C-12: a second tap on "Zapisz" while the sheet closes logs nothing.
@@ -158,8 +158,8 @@ struct PlanEditorDiscardTests {
 
     @Test
     func freshEditorHasNothingToDiscard() {
-        #expect(!editor(nil).hasUnsavedChanges)
-        #expect(!editor(Fixtures.plan).hasUnsavedChanges)
+        #expect(editor(nil).hasUnsavedChanges == false)
+        #expect(editor(Fixtures.plan).hasUnsavedChanges == false)
     }
 
     /// `.once(nil)` opens as today's date in the picker; that is not an edit.
@@ -167,14 +167,14 @@ struct PlanEditorDiscardTests {
     func undatedOncePlanOpensClean() {
         let plan = WorkoutPlan(name: "Kiedyś", exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)],
                                schedule: .once(nil))
-        #expect(!editor(plan).hasUnsavedChanges)
+        #expect(editor(plan).hasUnsavedChanges == false)
     }
 
     @Test
     func whitespaceInTheNameIsNotAChange() {
         let edit = editor(nil)
         edit.name = "   "
-        #expect(!edit.hasUnsavedChanges)
+        #expect(edit.hasUnsavedChanges == false)
     }
 
     enum Edit: CaseIterable {
@@ -206,7 +206,7 @@ struct PlanEditorDiscardTests {
         let editor = editor(Fixtures.plan)
         editor.scheduleMode = .once
         editor.scheduleMode = .weekly
-        #expect(!editor.hasUnsavedChanges)
+        #expect(editor.hasUnsavedChanges == false)
     }
 
     @Test
@@ -215,7 +215,7 @@ struct PlanEditorDiscardTests {
         editor.name = "Push v2"
         await editor.save()
         #expect(editor.didSave)
-        #expect(!editor.hasUnsavedChanges)
+        #expect(editor.hasUnsavedChanges == false)
     }
 }
 

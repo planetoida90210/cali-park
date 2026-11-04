@@ -142,7 +142,7 @@ struct TrainingJournalTests {
         store.isReadable = true
         journal.reloadIfFailed()
 
-        #expect(!journal.hasLoadFailure)
+        #expect(journal.hasLoadFailure == false)
         #expect(journal.entries == [saved])
     }
 
@@ -256,7 +256,7 @@ struct ProgressServiceTests {
         calibration.save()
 
         #expect(calibration.didSave)
-        #expect(!skills.needsCalibration)
+        #expect(skills.needsCalibration == false)
     }
 
     @Test
@@ -342,7 +342,7 @@ struct RewardCenterTests {
         let stack = TrainingStack()
 
         try stack.journal.log(JournalFixture.pullUps([8, 8, 8]))
-        #expect(stack.rewards.currentCelebration != nil)
+        #expect(stack.rewards.currentCelebration == .rung(0, on: .pullUp))
         #expect(stack.rewards.xpToastAmount == nil)
 
         #expect(stack.drainCelebrations() > 0)
@@ -363,7 +363,7 @@ struct RewardCenterTests {
                             sets: [LoggedSet(reps: 8), LoggedSet(reps: 8), LoggedSet(reps: 8)])
         session.finish()
 
-        #expect(environment.rewardCenter.currentCelebration != nil)
+        #expect(environment.rewardCenter.currentCelebration == .rung(0, on: .pullUp))
     }
 
     @Test
@@ -377,7 +377,7 @@ struct RewardCenterTests {
 
         stack.rewards.register(presenter: sheet)
         #expect(stack.rewards.isPresenting(sheet))
-        #expect(!stack.rewards.isPresenting(root))
+        #expect(stack.rewards.isPresenting(root) == false)
 
         stack.rewards.unregister(presenter: sheet)
         #expect(stack.rewards.isPresenting(root))
@@ -452,7 +452,7 @@ struct PerSessionScoringTests {
 
         #expect(stack.journal.entries.count == 3)
         #expect(stack.skillPaths().summary(for: .pullUp)?.state.conqueredRungCount == 6)
-        #expect(stack.rewards.currentCelebration != nil)
+        #expect(stack.rewards.currentCelebration == .rung(0, on: .pullUp))
     }
 
     @Test
@@ -502,7 +502,7 @@ struct HoldSecondsTests {
     func aLegacyPlankDoesNotCountTowardTheRepBadge() {
         let planks = Array(repeating: Self.legacyPlank, count: 6) // 1080 "reps"
 
-        #expect(!ProgressionEngine.earnedBadges(from: planks).contains(.thousandReps))
+        #expect(ProgressionEngine.earnedBadges(from: planks).contains(.thousandReps) == false)
     }
 
     @Test
@@ -618,7 +618,7 @@ struct RewardQueueTests {
         #expect(rungNotes.dropLast().allSatisfy { $0 == "+100 XP" })
         let last = try #require(overlays.last)
         #expect(last.presentation.xpNote?.hasSuffix("Razem +\(gained) XP") == true)
-        #expect(!last.hasNext)
+        #expect(last.hasNext == false)
         #expect(stack.rewards.xpToastAmount == nil) // no separate toast
     }
 

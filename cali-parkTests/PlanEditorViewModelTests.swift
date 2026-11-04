@@ -39,13 +39,13 @@ struct PlanEditorViewModelTests {
     @Test
     func newPlanCannotBeSavedUntilComplete() {
         let editor = newEditor()
-        #expect(!editor.canSave)
+        #expect(editor.canSave == false)
 
         editor.name = "  "
         editor.addExercise(ExerciseCatalog.all[0])
         editor.toggle(.monday)
         // Whitespace-only name still blocks saving.
-        #expect(!editor.canSave)
+        #expect(editor.canSave == false)
 
         editor.name = "Pull day"
         #expect(editor.canSave)
@@ -57,7 +57,7 @@ struct PlanEditorViewModelTests {
         editor.name = "Pull"
         editor.addExercise(ExerciseCatalog.all[0])
         editor.scheduleMode = .weekly
-        #expect(!editor.canSave)
+        #expect(editor.canSave == false)
 
         editor.toggle(.monday)
         #expect(editor.canSave)
@@ -163,7 +163,7 @@ struct PlanEditorViewModelTests {
         // No exercises yet.
         await editor.save()
 
-        #expect(!editor.didSave)
+        #expect(editor.didSave == false)
         #expect(store.load().isEmpty)
     }
 
@@ -176,8 +176,8 @@ struct PlanEditorViewModelTests {
 
         await editor.save()
 
-        #expect(editor.errorMessage != nil)
-        #expect(!editor.didSave)
+        #expect(editor.errorMessage == "Nie udało się zapisać planu.")
+        #expect(editor.didSave == false)
     }
 
     @Test
@@ -259,9 +259,9 @@ struct ExpiredPlanListTests {
         let today = try #require(CalendarDay(year: 2026, month: 11, day: 4))
         let now = today.startDate(in: Fixtures.calendar) + 23 * 3_600
 
-        #expect(!WorkoutSchedule.once(today).isExpired(asOf: now, calendar: Fixtures.calendar))
-        #expect(!WorkoutSchedule.once(nil).isExpired(asOf: now, calendar: Fixtures.calendar))
-        #expect(!WorkoutSchedule.weekly([.monday]).isExpired(asOf: now, calendar: Fixtures.calendar))
+        #expect(WorkoutSchedule.once(today).isExpired(asOf: now, calendar: Fixtures.calendar) == false)
+        #expect(WorkoutSchedule.once(nil).isExpired(asOf: now, calendar: Fixtures.calendar) == false)
+        #expect(WorkoutSchedule.weekly([.monday]).isExpired(asOf: now, calendar: Fixtures.calendar) == false)
         let line = WorkoutScheduleFormatter.listSummary(.once(today), asOf: now, calendar: Fixtures.calendar, locale: Self.polish)
         #expect(line == "Jednorazowo · 4 lis")
     }

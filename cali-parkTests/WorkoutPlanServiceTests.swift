@@ -61,7 +61,7 @@ struct WorkoutPlanServiceTests {
         #expect(result == .synced)
         #expect(store.load() == [plan])
         let scheduled = await scheduler.scheduledRequests
-        #expect(!scheduled.isEmpty)
+        #expect(scheduled.isEmpty == false)
         #expect(Set(scheduled.map(\.planID)) == [plan.id])
     }
 
@@ -71,7 +71,7 @@ struct WorkoutPlanServiceTests {
         let scheduler = Fixtures.scheduler()
         let service = WorkoutPlanService.testing(InMemoryWorkoutPlanStore(initial: [plan]), scheduler: scheduler)
         await service.syncReminders()
-        #expect(!(await scheduler.scheduledRequests.isEmpty))
+        #expect(await scheduler.scheduledRequests.isEmpty == false)
 
         try await service.delete(id: plan.id)
 
@@ -139,7 +139,7 @@ struct PlanEditorReminderTests {
         await editor.setReminderEnabled(true)
 
         #expect(editor.reminderEnabled)
-        #expect(!editor.showsNotificationsDeniedHint)
+        #expect(editor.showsNotificationsDeniedHint == false)
         #expect(await scheduler.authorizationRequestCount == 1)
     }
 
@@ -149,7 +149,7 @@ struct PlanEditorReminderTests {
 
         await editor.setReminderEnabled(true)
 
-        #expect(!editor.reminderEnabled)
+        #expect(editor.reminderEnabled == false)
         #expect(editor.showsNotificationsDeniedHint)
     }
 
@@ -160,7 +160,7 @@ struct PlanEditorReminderTests {
 
         await editor.setReminderEnabled(true)
 
-        #expect(!editor.reminderEnabled)
+        #expect(editor.reminderEnabled == false)
         #expect(editor.showsNotificationsDeniedHint)
         #expect(await scheduler.authorizationRequestCount == 0)
     }
@@ -202,7 +202,7 @@ struct PlanEditorReminderTests {
         let editor = editor(plan, store: store, scheduler: Fixtures.scheduler())
         #expect(editor.reminderEnabled)
         #expect(Fixtures.calendar.dateComponents([.hour, .minute], from: editor.reminderTime) == DateComponents(hour: 18, minute: 30))
-        #expect(!editor.hasUnsavedChanges)
+        #expect(editor.hasUnsavedChanges == false)
 
         await editor.setReminderEnabled(false)
         #expect(editor.hasUnsavedChanges)

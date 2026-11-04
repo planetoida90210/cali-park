@@ -87,9 +87,9 @@ struct ExerciseCatalogTests {
 
     @Test(arguments: ExerciseCatalog.all)
     func exerciseIsComplete(exercise: Exercise) {
-        #expect(!exercise.name.isEmpty)
-        #expect(!exercise.description.isEmpty)
-        #expect(!exercise.muscleGroups.isEmpty)
+        #expect(exercise.name.isEmpty == false)
+        #expect(exercise.description.isEmpty == false)
+        #expect(exercise.muscleGroups.isEmpty == false)
         #expect(exercise.instructions.count >= 3)
         #expect(exercise.instructions.allSatisfy { !$0.isEmpty })
         #expect(exercise.symbolName.hasPrefix("figure."))

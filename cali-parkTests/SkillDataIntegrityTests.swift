@@ -337,7 +337,7 @@ struct CelebratedWhenShownTests {
         try stack.journal.log(WorkoutLogEntry(exerciseID: ExerciseCatalog.lPullUpsID,
                                               date: IntegrityFixture.day,
                                               sets: [LoggedSet(reps: 5), LoggedSet(reps: 5), LoggedSet(reps: 5)]))
-        #expect(stack.rewards.currentCelebration != nil)
+        #expect(stack.rewards.currentCelebration == .rungConquered(RungReference(pathID: .pullUp, stepID: ExerciseCatalog.lPullUpsID)))
         #expect(progressStore.saveCount == 1)
 
         stack.rewards.dismissCurrentCelebration()
@@ -422,7 +422,7 @@ struct RecalibrationTests {
         #expect(viewModel.savedRungName(for: try Self.question(.legs)) == nil)
         #expect(viewModel.isMastered(try Self.skill("pistolSquat")))
         #expect(viewModel.isMastered(try Self.skill("fullLSit")))
-        #expect(!viewModel.isMastered(try Self.skill("muscleUp")))
+        #expect(viewModel.isMastered(try Self.skill("muscleUp")) == false)
         #expect(viewModel.savedRungName(for: try Self.question(.pullUp)) == nil)
     }
 
@@ -474,8 +474,8 @@ struct RecalibrationTests {
         viewModel.select(.few, for: try Self.question(.dip))
         viewModel.save()
 
-        #expect(!viewModel.didSave)
-        #expect(viewModel.errorMessage != nil)
+        #expect(viewModel.didSave == false)
+        #expect(viewModel.errorMessage == "Nie udało się zapisać poziomu.")
         #expect(store.saveAttempts == 0)
     }
 

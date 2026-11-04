@@ -57,8 +57,8 @@ struct ProgressionEnginePathStateTests {
         #expect(state.conqueredRungCount == 6)
         #expect(state.currentRungIndex == 6)
         #expect(state.isConquered(rungAt: 5))
-        #expect(!state.isConquered(rungAt: 6))
-        #expect(!state.isComplete)
+        #expect(state.isConquered(rungAt: 6) == false)
+        #expect(state.isComplete == false)
     }
 
     @Test
@@ -83,7 +83,7 @@ struct ProgressionEnginePathStateTests {
         #expect(state.currentRungIndex == 5)
         #expect(state.currentProgress.bestValue == 6)
         #expect(state.currentProgress.targetValue == 8)
-        #expect(!state.currentProgress.isMet)
+        #expect(state.currentProgress.isMet == false)
     }
 
     @Test
@@ -105,7 +105,7 @@ struct ProgressionEnginePathStateTests {
         )
         #expect(short.conqueredRungCount == 0)
         #expect(short.currentProgress.bestValue == 15)
-        #expect(!short.currentProgress.isMet)
+        #expect(short.currentProgress.isMet == false)
 
         let met = ProgressionEngine.pathState(
             for: path,
@@ -143,7 +143,7 @@ struct ProgressionEnginePlacementTests {
         #expect(state.currentRungIndex == 7)
         #expect(state.conqueredRungCount == 7)
         #expect(state.isConquered(rungAt: 6))
-        #expect(!state.isConquered(rungAt: 7))
+        #expect(state.isConquered(rungAt: 7) == false)
     }
 
     @Test
@@ -278,8 +278,8 @@ struct ProgressionEngineBadgeTests {
     func anyWorkoutEarnsFirstWorkout() {
         let badges = earned([Fixture.reps(ExerciseCatalog.pullUpsID, 3, date: Self.today)])
         #expect(badges.contains(.firstWorkout))
-        #expect(!badges.contains(.tenTrainingDays))
-        #expect(!badges.contains(.firstSkill))
+        #expect(badges.contains(.tenTrainingDays) == false)
+        #expect(badges.contains(.firstSkill) == false)
     }
 
     @Test
@@ -372,7 +372,7 @@ struct SkillProgressStoreTests {
         let decoded = try JSONDecoder().decode(SkillProgress.self, from: data)
         #expect(decoded == progress)
         #expect(decoded.hasCelebrated(RungReference(pathID: .pullUp, rungIndex: 4)!))
-        #expect(!decoded.hasCelebrated(RungReference(pathID: .pullUp, rungIndex: 5)!))
+        #expect(decoded.hasCelebrated(RungReference(pathID: .pullUp, rungIndex: 5)!) == false)
     }
 
     @Test

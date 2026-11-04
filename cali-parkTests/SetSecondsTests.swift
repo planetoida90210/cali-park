@@ -18,7 +18,7 @@ struct LoggedSetMeasurementTests {
         let set = LoggedSet(value: 8, measurement: .reps)
         #expect(set.reps == 8)
         #expect(set.durationSeconds == nil)
-        #expect(!set.isTimed)
+        #expect(set.isTimed == false)
     }
 
     @Test
@@ -59,7 +59,7 @@ struct LoggedSetCodableTests {
         let decoded = try JSONDecoder().decode(LoggedSet.self, from: Data(json.utf8))
         #expect(decoded.reps == 6)
         #expect(decoded.durationSeconds == nil)
-        #expect(!decoded.isTimed)
+        #expect(decoded.isTimed == false)
     }
 }
 
@@ -75,7 +75,7 @@ struct WorkoutLogEntryTotalsTests {
         let e = entry([LoggedSet(reps: 6), LoggedSet(reps: 6), LoggedSet(reps: 8)])
         #expect(e.totalReps == 20)
         #expect(e.totalSeconds == 0)
-        #expect(!e.isTimed)
+        #expect(e.isTimed == false)
     }
 
     @Test

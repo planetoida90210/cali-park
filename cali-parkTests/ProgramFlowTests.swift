@@ -77,13 +77,13 @@ struct ProgramDetailViewModelTests {
         let placement = SkillPlacement(declaredStepByPath: [.pullUp: E.pullUpsID], declaredAt: ProgramFixtures.today)
         let viewModel = ProgramDetailViewModel(program: ProgramCatalog.fundamentals,
                                                starter: makeStarter(placement: placement))
-        #expect(!viewModel.showsFirstPullUpHint)
+        #expect(viewModel.showsFirstPullUpHint == false)
     }
 
     @Test
     func hintOnlyOnFundamentals() {
         let viewModel = ProgramDetailViewModel(program: ProgramCatalog.minimum, starter: makeStarter())
-        #expect(!viewModel.showsFirstPullUpHint)
+        #expect(viewModel.showsFirstPullUpHint == false)
     }
 
     @Test
@@ -99,7 +99,7 @@ struct ProgramDetailViewModelTests {
         #expect(store.load().count == 1)
         #expect(created.first?.programID == "skills")
         #expect(created.first?.programVersion == 1)
-        #expect(!viewModel.canCreate)
+        #expect(viewModel.canCreate == false)
         #expect(viewModel.errorMessage == nil)
 
         // The created plan opens in the normal editor, which keeps the origin.
@@ -118,7 +118,7 @@ struct ProgramDetailViewModelTests {
 
         #expect(viewModel.hasLoadError)
         #expect(viewModel.errorMessage == StoreLoadFailure.message)
-        #expect(!viewModel.canCreate)
+        #expect(viewModel.canCreate == false)
 
         await viewModel.create()
         #expect(store.load().isEmpty)
@@ -406,7 +406,7 @@ struct ProgramCreateCancelTests {
         let viewModel = ProgramDetailViewModel(program: ProgramCatalog.minimum, starter: makeStarter(plans: store))
         await viewModel.requestCreate()
 
-        #expect(!viewModel.asksToCreateAnother)
+        #expect(viewModel.asksToCreateAnother == false)
         #expect(viewModel.createdPlans?.count == 1)
         #expect(store.load().count == 2)
     }

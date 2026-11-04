@@ -48,7 +48,7 @@ struct ParkOpeningHoursTests {
     func bundledValuesTranslate() async throws {
         let catalog = try await BundledParkDirectory(bundle: Bundle(for: AppEnvironment.self)).catalog()
         let values = Set(catalog.parks.compactMap(\.openingHours))
-        #expect(!values.isEmpty)
+        #expect(values.isEmpty == false)
         for value in values {
             #expect(ParkOpeningHours.translate(value) != nil, "\(value)")
         }
@@ -119,8 +119,8 @@ struct ParkCardFormatTests {
     @Test("Flag support needs a pole or wall bars (012 §3)")
     func flagSupport() {
         #expect(ParkFormat.supportsFlag(Self.richPark))
-        #expect(!ParkFormat.supportsFlag(Self.sparsePark))
-        #expect(!ParkFormat.supportsFlag(ParkFixtures.mokotow))
+        #expect(ParkFormat.supportsFlag(Self.sparsePark) == false)
+        #expect(ParkFormat.supportsFlag(ParkFixtures.mokotow) == false)
     }
 
     @Test("Details list every row in order, with readable values")

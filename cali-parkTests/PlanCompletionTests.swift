@@ -54,7 +54,7 @@ struct PlanAgendaTests {
 
         #expect(today.due == [Fixtures.mobility, Fixtures.push]) // older plan first
         #expect(today.undone == [Fixtures.push])
-        #expect(!today.isAllDone)
+        #expect(today.isAllDone == false)
         #expect(next == PlanAgenda.Occurrence(plan: Fixtures.push, date: Fixtures.day(0)))
     }
 
@@ -80,14 +80,14 @@ struct PlanAgendaTests {
         let today = PlanAgenda.day(Fixtures.today, plans: plans, entries: entries, calendar: Fixtures.calendar)
 
         #expect(today.undone == [Fixtures.mobility, Fixtures.push])
-        #expect(!PlanAgenda.isDone(Fixtures.mobility, on: Fixtures.today, entries: entries, calendar: Fixtures.calendar))
+        #expect(PlanAgenda.isDone(Fixtures.mobility, on: Fixtures.today, entries: entries, calendar: Fixtures.calendar) == false)
     }
 
     @Test
     func entryJustBeforeMidnightBelongsToThePreviousDay() {
         let lastNight = Fixtures.entry(at: Fixtures.day(0) - 1, plan: Fixtures.mobility)
 
-        #expect(!PlanAgenda.isDone(Fixtures.mobility, on: Fixtures.today, entries: [lastNight], calendar: Fixtures.calendar))
+        #expect(PlanAgenda.isDone(Fixtures.mobility, on: Fixtures.today, entries: [lastNight], calendar: Fixtures.calendar) == false)
         #expect(PlanAgenda.isDone(Fixtures.mobility, on: Fixtures.day(-1), entries: [lastNight], calendar: Fixtures.calendar))
     }
 
@@ -116,7 +116,7 @@ struct PlanAgendaTests {
         let today = PlanAgenda.day(Fixtures.today, plans: [paused], entries: [], calendar: Fixtures.calendar)
 
         #expect(today.due.isEmpty)
-        #expect(!today.isAllDone)
+        #expect(today.isAllDone == false)
     }
 }
 

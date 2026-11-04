@@ -129,7 +129,7 @@ struct HomeAchievementsSummaryTests {
         let summary = vm.achievementsSummary
         // 24 reps × 10 XP + six conquered rungs × 100 XP = 840 XP → level 2.
         #expect(summary.level == 2)
-        #expect(summary.earnedBadgeCount >= 1) // at least the first-workout badge
+        #expect(summary.earnedBadgeCount == 1) // the first-workout badge
 
         let advancement = try #require(summary.lastAdvancement)
         let path = try #require(ProgressionCatalog.path(withID: .pullUp))

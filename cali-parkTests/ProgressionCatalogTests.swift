@@ -30,7 +30,7 @@ struct ProgressionCatalogTests {
 
     @Test(arguments: ProgressionCatalog.all)
     func pathHasStepsAndDisplayText(path: ProgressionPath) {
-        #expect(!path.name.isEmpty)
+        #expect(path.name.isEmpty == false)
         #expect(path.symbolName.hasPrefix("figure."))
         #expect(path.steps.count >= 3)
         #expect(path.recommendedBase.map { !$0.isEmpty } ?? true)

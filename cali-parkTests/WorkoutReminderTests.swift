@@ -178,8 +178,12 @@ struct WorkoutReminderContentTests {
     }
 }
 
-// MARK: - InMemory scheduler
+// MARK: - InMemory scheduler (test double)
 
+/// These check the test double itself, not app code: the plan service and
+/// backup suites trust it to record requests, count reschedules and fail on
+/// demand the way they assume.
+@Suite("The in-memory reminder scheduler double records and fails as other suites expect")
 struct InMemoryReminderSchedulerTests {
     @Test
     func rescheduleRecordsBuiltRequests() async throws {
