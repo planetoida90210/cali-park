@@ -38,7 +38,8 @@ struct HomeHeroStateResolutionTests {
             planService: .testing(InMemoryWorkoutPlanStore(initial: plans)),
             placementStore: InMemorySkillPlacementStore(),
             goalStore: InMemoryWeeklyGoalStore(),
-            calendar: Fixtures.calendar
+            calendar: Fixtures.calendar,
+            clock: { Fixtures.middayOf(0) }
         )
     }
 

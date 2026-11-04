@@ -153,7 +153,9 @@ struct WorkoutSessionSharingTests {
             store: store,
             planService: .testing(InMemoryWorkoutPlanStore()),
             placementStore: InMemorySkillPlacementStore(),
-            goalStore: InMemoryWeeklyGoalStore()
+            goalStore: InMemoryWeeklyGoalStore(),
+            calendar: TestCalendar.utc,
+            clock: { TestDate.epochDay(0, hour: 12) }
         )
         let history = WorkoutHistoryViewModel(store: store)
 

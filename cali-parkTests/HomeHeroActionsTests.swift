@@ -21,7 +21,9 @@ struct HomeHeroActionsTests {
             store: logStore,
             planService: .testing(planStore),
             placementStore: InMemorySkillPlacementStore(),
-            goalStore: InMemoryWeeklyGoalStore()
+            goalStore: InMemoryWeeklyGoalStore(),
+            calendar: TestCalendar.utc,
+            clock: { TestDate.reference }
         )
     }
 
@@ -32,7 +34,7 @@ struct HomeHeroActionsTests {
         let plan = WorkoutPlan(
             name: "Push Day",
             exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID, targetSets: 3, targetReps: 12)],
-            schedule: .once(.now, in: .current)
+            schedule: .once(TestDate.reference, in: TestCalendar.utc)
         )
         let logStore = InMemoryWorkoutLogStore()
         let dashboard = dashboard(logStore: logStore, planStore: InMemoryWorkoutPlanStore(initial: [plan]))
@@ -70,6 +72,20 @@ struct HomeHeroActionsTests {
         #expect(dashboard.heroState().isCompletedToday)
     }
 
+    /// A session started from Home finishes at Home's clock, not the wall
+    /// clock, so "done today" and the saved entries agree.
+    @Test
+    func aSessionFromHomeIsStampedWithHomesClock() throws {
+        let logStore = InMemoryWorkoutLogStore()
+        let dashboard = dashboard(logStore: logStore, planStore: InMemoryWorkoutPlanStore())
+
+        let session = dashboard.makeQuickWorkoutViewModel()
+        session.addExercise(ExerciseCatalog.all[0], sets: [LoggedSet(reps: 10)])
+        session.finish()
+
+        #expect(logStore.load().map(\.date) == [TestDate.reference])
+    }
+
     /// A free (unplanned) log while a plan is due today is progress, not "done":
     /// the hero stays on planToday so the plan's CTA remains available.
     @Test
@@ -77,7 +93,7 @@ struct HomeHeroActionsTests {
         let plan = WorkoutPlan(
             name: "Push Day",
             exercises: [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID)],
-            schedule: .once(.now, in: .current)
+            schedule: .once(TestDate.reference, in: TestCalendar.utc)
         )
         let logStore = InMemoryWorkoutLogStore()
         let dashboard = dashboard(logStore: logStore, planStore: InMemoryWorkoutPlanStore(initial: [plan]))

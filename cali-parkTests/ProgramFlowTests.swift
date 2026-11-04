@@ -11,6 +11,7 @@ private func makeStarter(plans: WorkoutPlanStoring = InMemoryWorkoutPlanStore(),
     ProgramStarter(planService: .testing(plans),
                    logStore: logs,
                    placementStore: InMemorySkillPlacementStore(initial: placement),
+                   calendar: ProgramFixtures.calendar,
                    clock: { ProgramFixtures.today })
 }
 

@@ -273,7 +273,7 @@ private struct QuickWorkoutEmptyState: View {
         .ignoresSafeArea()
         .sheet(isPresented: .constant(true)) {
             QuickWorkoutView(
-                viewModel: QuickWorkoutViewModel(journal: TrainingJournal(store: InMemoryWorkoutLogStore()))
+                viewModel: QuickWorkoutViewModel(journal: TrainingJournal(store: InMemoryWorkoutLogStore()), clock: { .now })
             )
             .preferredColorScheme(.dark)
         }

@@ -426,7 +426,9 @@ struct StoreLoadFailureViewModelTests {
             store: InMemoryWorkoutLogStore(initial: [entry]),
             planService: .testing(BrokenPlanStore()),
             placementStore: InMemorySkillPlacementStore(),
-            goalStore: InMemoryWeeklyGoalStore()
+            goalStore: InMemoryWeeklyGoalStore(),
+            calendar: TestCalendar.utc,
+            clock: { StoreFixtures.october2 }
         )
 
         #expect(viewModel.entries == [entry])

@@ -107,7 +107,8 @@ struct HomeAchievementsSummaryTests {
             planService: .testing(InMemoryWorkoutPlanStore(initial: [])),
             placementStore: InMemorySkillPlacementStore(initial: placement),
             goalStore: InMemoryWeeklyGoalStore(),
-            calendar: AchievementFixture.calendar
+            calendar: AchievementFixture.calendar,
+            clock: { AchievementFixture.day(0) + 12 * 3_600 }
         )
     }
 

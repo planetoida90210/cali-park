@@ -118,7 +118,8 @@ struct QuickWorkoutViewModelTests {
     @Test
     func finishPersistsEveryExerciseUnderOneSession() throws {
         let store = InMemoryWorkoutLogStore()
-        let viewModel = QuickWorkoutViewModel(store: store)
+        let finishedAt = TestDate.epochDay(3, hour: 7)
+        let viewModel = QuickWorkoutViewModel(store: store, clock: { finishedAt })
         viewModel.addExercise(ExerciseCatalog.all[0], sets: sets(6, 6, 8))
         viewModel.addExercise(ExerciseCatalog.all[1], sets: sets(10))
 
@@ -129,11 +130,10 @@ struct QuickWorkoutViewModelTests {
         #expect(viewModel.didFinish)
         #expect(viewModel.errorMessage == nil)
 
-        // All entries share one non-nil sessionID and one timestamp.
+        // All entries share one non-nil sessionID and the injected clock's time.
         let sessionIDs = Set(saved.compactMap(\.sessionID))
         #expect(sessionIDs.count == 1)
-        let dates = Set(saved.map(\.date))
-        #expect(dates.count == 1)
+        #expect(saved.map(\.date) == [finishedAt, finishedAt])
 
         let exerciseIDs = saved.map(\.exerciseID)
         #expect(exerciseIDs.contains(ExerciseCatalog.all[0].id))

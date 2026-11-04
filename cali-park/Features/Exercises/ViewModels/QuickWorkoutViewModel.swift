@@ -38,14 +38,17 @@ final class QuickWorkoutViewModel {
     /// The items the session opened with (a plan's seeded exercises, or none),
     /// so leaving untouched never asks to discard anything.
     private let initialItems: [DraftItem]
+    /// Wall-clock source for the time a finished session is stamped with.
+    private let clock: () -> Date
 
     /// The screen title: the plan's name for a workout started from a plan,
     /// otherwise "Szybki trening".
     let title: String
 
     // MARK: Init
-    init(journal: TrainingJournal) {
+    init(journal: TrainingJournal, clock: @escaping () -> Date) {
         self.journal = journal
+        self.clock = clock
         self.planID = nil
         self.initialItems = []
         self.title = String(localized: "Szybki trening")
@@ -62,8 +65,10 @@ final class QuickWorkoutViewModel {
     init(journal: TrainingJournal,
          plan: WorkoutPlan,
          pathStates: [ProgressionPathID: PathState]? = nil,
-         logs: [WorkoutLogEntry] = []) {
+         logs: [WorkoutLogEntry] = [],
+         clock: @escaping () -> Date) {
         self.journal = journal
+        self.clock = clock
         self.planID = plan.id
         let name = plan.name.trimmingCharacters(in: .whitespacesAndNewlines)
         self.title = name.isEmpty ? String(localized: "Szybki trening") : name
@@ -154,7 +159,7 @@ final class QuickWorkoutViewModel {
         let logged = items.filter { !$0.isPending }
         guard !logged.isEmpty else { return }
 
-        let date = Date.now
+        let date = clock()
         let entries = logged.map { item in
             WorkoutLogEntry(
                 exerciseID: item.exercise.id,

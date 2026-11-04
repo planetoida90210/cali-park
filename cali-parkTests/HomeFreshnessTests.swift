@@ -167,7 +167,9 @@ struct HomeReloadAfterSummaryDeleteTests {
             store: logStore,
             planService: .testing(InMemoryWorkoutPlanStore()),
             placementStore: InMemorySkillPlacementStore(),
-            goalStore: InMemoryWeeklyGoalStore()
+            goalStore: InMemoryWeeklyGoalStore(),
+            calendar: Fixtures.calendar,
+            clock: { Fixtures.mondayEvening }
         )
 
         let session = dashboard.makeQuickWorkoutViewModel()

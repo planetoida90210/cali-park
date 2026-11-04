@@ -92,7 +92,7 @@ final class HomeDashboardViewModel {
 
     /// Quick workout session started from Home (Quick Log).
     func makeQuickWorkoutViewModel() -> QuickWorkoutViewModel {
-        QuickWorkoutViewModel(journal: journal)
+        QuickWorkoutViewModel(journal: journal, clock: clock)
     }
 
     /// Quick workout session seeded with a plan's exercises; the user confirms
@@ -101,7 +101,7 @@ final class HomeDashboardViewModel {
     /// load, the ladder state is unknown, so items keep their stored exercise.
     func makeQuickWorkoutViewModel(plan: WorkoutPlan) -> QuickWorkoutViewModel {
         let pathStates = hasLoadError ? nil : progress.snapshot.pathStates
-        return QuickWorkoutViewModel(journal: journal, plan: plan, pathStates: pathStates, logs: entries)
+        return QuickWorkoutViewModel(journal: journal, plan: plan, pathStates: pathStates, logs: entries, clock: clock)
     }
 
     /// Detail screen for a workout opened from the "Ostatni trening" card.

@@ -199,14 +199,19 @@ struct ProgressServiceTests {
     func aNewRevisionIsComputedOnceForEveryScreen() throws {
         let logStore = InMemoryWorkoutLogStore()
         let journal = TrainingJournal(store: logStore)
-        let progress = ProgressService(journal: journal, placementStore: InMemorySkillPlacementStore())
+        let clock = { TestDate.reference }
+        let progress = ProgressService(journal: journal, placementStore: InMemorySkillPlacementStore(),
+                                       calendar: TestCalendar.utc, clock: clock)
         let rewards = RewardCenter(progress: progress, store: InMemorySkillProgressStore(), goals: nil)
         let planService = WorkoutPlanService.testing(InMemoryWorkoutPlanStore())
         let home = HomeDashboardViewModel(journal: journal,
                                           planService: planService,
                                           progress: progress,
                                           goals: WeeklyGoalService(journal: journal, store: InMemoryWeeklyGoalStore(),
-                                                                   planService: planService))
+                                                                   planService: planService,
+                                                                   calendar: TestCalendar.utc, clock: clock),
+                                          calendar: TestCalendar.utc,
+                                          clock: clock)
         let skills = SkillPathsViewModel(progress: progress)
         let before = progress.computationCount
 
@@ -436,7 +441,7 @@ struct PerSessionScoringTests {
     @Test
     func addingTheSameExerciseTwiceInAQuickWorkoutAdvances() throws {
         let stack = TrainingStack()
-        let session = QuickWorkoutViewModel(journal: stack.journal)
+        let session = QuickWorkoutViewModel(journal: stack.journal, clock: { TestDate.reference })
         let pullUps = try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID))
         let dips = try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.dipsID))
 

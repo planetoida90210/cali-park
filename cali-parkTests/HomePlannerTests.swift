@@ -30,7 +30,8 @@ struct NextPlannedWorkoutTests {
             planService: .testing(InMemoryWorkoutPlanStore(initial: plans)),
             placementStore: InMemorySkillPlacementStore(),
             goalStore: InMemoryWeeklyGoalStore(),
-            calendar: Fixtures.calendar
+            calendar: Fixtures.calendar,
+            clock: { Fixtures.day(0) }
         )
     }
 

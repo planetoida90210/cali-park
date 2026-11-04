@@ -160,7 +160,7 @@ final class AppEnvironment {
     }
 
     func makeQuickWorkoutViewModel() -> QuickWorkoutViewModel {
-        QuickWorkoutViewModel(journal: journal)
+        QuickWorkoutViewModel(journal: journal, clock: { .now })
     }
 
     func makeHomeDashboardViewModel() -> HomeDashboardViewModel {
