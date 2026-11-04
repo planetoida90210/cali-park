@@ -18,10 +18,16 @@ final class ExerciseLibraryViewModel {
     /// production. Progression variants are filtered out below, so the library
     /// only ever lists main movements.
     private let exercises: [Exercise]
+    /// Lookups the picker rows ask for, built once instead of scanning the
+    /// catalog per row (audit E-26).
+    private let exercisesByID: [UUID: Exercise]
+    private let movementIDsWithVariants: Set<UUID>
 
     // MARK: Init
     init(exercises: [Exercise] = ExerciseCatalog.all) {
         self.exercises = exercises
+        exercisesByID = Dictionary(exercises.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        movementIDsWithVariants = Set(exercises.compactMap(\.variantOf))
     }
 
     // MARK: Output
@@ -44,12 +50,12 @@ final class ExerciseLibraryViewModel {
     /// The main movement `exercise` is a variant of; `nil` for a main movement.
     func parent(of exercise: Exercise) -> Exercise? {
         guard let parentID = exercise.variantOf else { return nil }
-        return exercises.first { $0.id == parentID }
+        return exercisesByID[parentID]
     }
 
     /// Whether picking `exercise` should first ask which variant was done.
     func hasVariants(_ exercise: Exercise) -> Bool {
-        exercise.variantOf == nil && exercises.contains { $0.variantOf == exercise.id }
+        exercise.variantOf == nil && movementIDsWithVariants.contains(exercise.id)
     }
 
     /// The choices offered after tapping a movement: the base movement first,
