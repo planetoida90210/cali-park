@@ -25,8 +25,28 @@ struct ModulePreferencesTests {
     func freshInstallDefaults() {
         let preferences = ModulePreferences(defaults: defaults)
 
-        #expect(preferences.enabledModules == ["log", "next", WeeklyGoalModule.id, "parks"])
+        #expect(preferences.enabledModules == [.lastWorkout, .nextWorkout, .weeklyGoal, .nearestPark])
         #expect(defaults.object(forKey: key) == nil)
+    }
+
+    @Test("The raw values are the IDs every earlier build stored")
+    func rawValuesNeverChange() {
+        #expect(HomeModule.allCases.map(\.rawValue) == ["log", "next", "parks", "goal", "streak", "achievements"])
+    }
+
+    @Test("A stored array from an earlier build decodes to the same modules in the same order")
+    func storedArrayFromAnEarlierBuild() {
+        let stored = ["goal", "achievements", "streak", "log", "parks", "next"]
+        defaults.set(stored, forKey: key)
+
+        let preferences = ModulePreferences(defaults: defaults)
+
+        #expect(preferences.enabledModules == [.weeklyGoal, .achievements, .streak, .lastWorkout, .nearestPark, .nextWorkout])
+        #expect(preferences.disabledModules == [])
+        #expect(defaults.stringArray(forKey: key) == stored)
+
+        preferences.moveUp(.lastWorkout)
+        #expect(defaults.stringArray(forKey: key) == ["goal", "achievements", "log", "streak", "parks", "next"])
     }
 
     @Test("The stored order and choice from an earlier build is kept")
@@ -36,7 +56,7 @@ struct ModulePreferencesTests {
 
         let preferences = ModulePreferences(defaults: defaults)
 
-        #expect(preferences.enabledModules == legacy)
+        #expect(preferences.enabledModules == [.achievements, .streak, .lastWorkout])
         #expect(defaults.stringArray(forKey: key) == legacy)
     }
 
@@ -53,7 +73,7 @@ struct ModulePreferencesTests {
 
         let preferences = ModulePreferences(defaults: defaults)
 
-        #expect(preferences.enabledModules == ["log", "parks"])
+        #expect(preferences.enabledModules == [.lastWorkout, .nearestPark])
         #expect(defaults.stringArray(forKey: key) == ["log", "parks"])
     }
 
@@ -63,38 +83,37 @@ struct ModulePreferencesTests {
 
         let preferences = ModulePreferences(defaults: defaults)
 
-        #expect(preferences.enabledModules == ModulePreferences.defaultModuleIDs)
+        #expect(preferences.enabledModules == ModulePreferences.defaultModules)
         #expect(defaults.string(forKey: key) == "log")
     }
 
     @Test("Changes survive a relaunch")
     func changesPersist() {
         let preferences = ModulePreferences(defaults: defaults)
-        preferences.setEnabled(true, for: "streak")
-        preferences.setEnabled(false, for: "next")
-        preferences.moveUp("streak")
+        preferences.setEnabled(true, for: .streak)
+        preferences.setEnabled(false, for: .nextWorkout)
+        preferences.moveUp(.streak)
 
         let relaunched = ModulePreferences(defaults: defaults)
 
-        #expect(relaunched.enabledModules == ["log", WeeklyGoalModule.id, "streak", "parks"])
-        #expect(defaults.stringArray(forKey: key) == relaunched.enabledModules)
+        #expect(relaunched.enabledModules == [.lastWorkout, .weeklyGoal, .streak, .nearestPark])
+        #expect(defaults.stringArray(forKey: key) == ["log", "goal", "streak", "parks"])
     }
 
     // MARK: Show and hide
 
-    @Test("Enabling appends at the end; enabling twice or an unknown ID changes nothing")
+    @Test("Enabling appends at the end; enabling twice changes nothing")
     func setEnabled() {
         defaults.set(["log"], forKey: key)
         let preferences = ModulePreferences(defaults: defaults)
 
-        preferences.setEnabled(true, for: "parks")
-        preferences.setEnabled(true, for: "parks")
-        preferences.setEnabled(true, for: "friends")
-        #expect(preferences.enabledModules == ["log", "parks"])
+        preferences.setEnabled(true, for: .nearestPark)
+        preferences.setEnabled(true, for: .nearestPark)
+        #expect(preferences.enabledModules == [.lastWorkout, .nearestPark])
 
-        preferences.setEnabled(false, for: "log")
-        #expect(preferences.enabledModules == ["parks"])
-        #expect(preferences.disabledDefinitions.map(\.id) == ["log", "next", WeeklyGoalModule.id, "streak", "achievements"])
+        preferences.setEnabled(false, for: .lastWorkout)
+        #expect(preferences.enabledModules == [.nearestPark])
+        #expect(preferences.disabledModules == [.lastWorkout, .nextWorkout, .weeklyGoal, .streak, .achievements])
     }
 
     // MARK: Move up and down
@@ -104,35 +123,35 @@ struct ModulePreferencesTests {
         defaults.set(["log", "next", "parks"], forKey: key)
         let preferences = ModulePreferences(defaults: defaults)
 
-        #expect(preferences.canMoveUp("log") == false)
-        #expect(preferences.canMoveDown("log"))
-        #expect(preferences.canMoveUp("parks"))
-        #expect(preferences.canMoveDown("parks") == false)
-        #expect(preferences.canMoveUp("streak") == false)
-        #expect(preferences.canMoveDown("streak") == false)
+        #expect(preferences.canMoveUp(.lastWorkout) == false)
+        #expect(preferences.canMoveDown(.lastWorkout))
+        #expect(preferences.canMoveUp(.nearestPark))
+        #expect(preferences.canMoveDown(.nearestPark) == false)
+        #expect(preferences.canMoveUp(.streak) == false)
+        #expect(preferences.canMoveDown(.streak) == false)
 
-        preferences.moveDown("log")
-        #expect(preferences.enabledModules == ["next", "log", "parks"])
-        preferences.moveUp("parks")
-        #expect(preferences.enabledModules == ["next", "parks", "log"])
+        preferences.moveDown(.lastWorkout)
+        #expect(preferences.enabledModules == [.nextWorkout, .lastWorkout, .nearestPark])
+        preferences.moveUp(.nearestPark)
+        #expect(preferences.enabledModules == [.nextWorkout, .nearestPark, .lastWorkout])
 
-        preferences.moveUp("next")
-        preferences.moveDown("log")
-        preferences.moveUp("streak")
-        #expect(preferences.enabledModules == ["next", "parks", "log"])
+        preferences.moveUp(.nextWorkout)
+        preferences.moveDown(.lastWorkout)
+        preferences.moveUp(.streak)
+        #expect(preferences.enabledModules == [.nextWorkout, .nearestPark, .lastWorkout])
         #expect(defaults.stringArray(forKey: key) == ["next", "parks", "log"])
     }
 
-    @Test(
-        "List.onMove offsets reorder; out-of-range offsets are ignored",
-        arguments: [
-            (IndexSet(integer: 0), 3, ["next", "parks", "log"]),
-            (IndexSet(integer: 2), 0, ["parks", "log", "next"]),
-            (IndexSet(integer: 1), 1, ["log", "next", "parks"]),
-            (IndexSet(integer: 5), 0, ["log", "next", "parks"]),
-            (IndexSet(integer: 0), 4, ["log", "next", "parks"])
-        ])
-    func listMove(source: IndexSet, destination: Int, expected: [String]) {
+    nonisolated static let listMoves: [(IndexSet, Int, [HomeModule])] = [
+        (IndexSet(integer: 0), 3, [.nextWorkout, .nearestPark, .lastWorkout]),
+        (IndexSet(integer: 2), 0, [.nearestPark, .lastWorkout, .nextWorkout]),
+        (IndexSet(integer: 1), 1, [.lastWorkout, .nextWorkout, .nearestPark]),
+        (IndexSet(integer: 5), 0, [.lastWorkout, .nextWorkout, .nearestPark]),
+        (IndexSet(integer: 0), 4, [.lastWorkout, .nextWorkout, .nearestPark])
+    ]
+
+    @Test("List.onMove offsets reorder; out-of-range offsets are ignored", arguments: listMoves)
+    func listMove(source: IndexSet, destination: Int, expected: [HomeModule]) {
         defaults.set(["log", "next", "parks"], forKey: key)
         let preferences = ModulePreferences(defaults: defaults)
 
@@ -141,16 +160,16 @@ struct ModulePreferencesTests {
         #expect(preferences.enabledModules == expected)
     }
 
-    @Test(
-        "Dragging onto a module takes its place, down or up",
-        arguments: [
-            ("log", "parks", ["next", "streak", "parks", "log"]),
-            ("parks", "log", ["parks", "log", "next", "streak"]),
-            ("next", "streak", ["log", "streak", "next", "parks"]),
-            ("log", "log", ["log", "next", "streak", "parks"]),
-            ("log", "achievements", ["log", "next", "streak", "parks"])
-        ])
-    func dragOnto(dragged: String, target: String, expected: [String]) {
+    nonisolated static let drags: [(HomeModule, HomeModule, [HomeModule])] = [
+        (.lastWorkout, .nearestPark, [.nextWorkout, .streak, .nearestPark, .lastWorkout]),
+        (.nearestPark, .lastWorkout, [.nearestPark, .lastWorkout, .nextWorkout, .streak]),
+        (.nextWorkout, .streak, [.lastWorkout, .streak, .nextWorkout, .nearestPark]),
+        (.lastWorkout, .lastWorkout, [.lastWorkout, .nextWorkout, .streak, .nearestPark]),
+        (.lastWorkout, .achievements, [.lastWorkout, .nextWorkout, .streak, .nearestPark])
+    ]
+
+    @Test("Dragging onto a module takes its place, down or up", arguments: drags)
+    func dragOnto(dragged: HomeModule, target: HomeModule, expected: [HomeModule]) {
         defaults.set(["log", "next", "streak", "parks"], forKey: key)
         let preferences = ModulePreferences(defaults: defaults)
 
@@ -168,13 +187,13 @@ struct ModulePreferencesTests {
         let drag = ModuleDragState()
 
         // Text dragged in from another app: no drag in progress.
-        drag.enter("log", in: preferences)
-        #expect(preferences.enabledModules == ["log", "next", "parks"])
+        drag.enter(.lastWorkout, in: preferences)
+        #expect(preferences.enabledModules == [.lastWorkout, .nextWorkout, .nearestPark])
 
-        _ = drag.begin("parks")
-        drag.enter("log", in: preferences)
-        #expect(preferences.enabledModules == ["parks", "log", "next"])
-        #expect(drag.draggingID == "parks")
+        _ = drag.begin(.nearestPark)
+        drag.enter(.lastWorkout, in: preferences)
+        #expect(preferences.enabledModules == [.nearestPark, .lastWorkout, .nextWorkout])
+        #expect(drag.draggingID == .nearestPark)
     }
 
     @Test("A module shows as lifted only once a drop target on Home has seen the drag")
@@ -183,15 +202,15 @@ struct ModulePreferencesTests {
         let drag = ModuleDragState()
 
         // SwiftUI also asks for a drag item right after a drop, with no drag.
-        _ = drag.begin("parks")
+        _ = drag.begin(.nearestPark)
         #expect(drag.liftedID == nil)
 
-        drag.enter("parks", in: preferences)
-        #expect(drag.liftedID == "parks")
+        drag.enter(.nearestPark, in: preferences)
+        #expect(drag.liftedID == .nearestPark)
 
         drag.clear()
         #expect(drag.liftedID == nil)
-        _ = drag.begin("log")
+        _ = drag.begin(.lastWorkout)
         #expect(drag.liftedID == nil)
     }
 
@@ -199,13 +218,13 @@ struct ModulePreferencesTests {
     func dragEnds() {
         let drag = ModuleDragState()
 
-        let first = drag.begin("log")
+        let first = drag.begin(.lastWorkout)
         drag.clear()
         #expect(drag.draggingID == nil)
 
-        let second = drag.begin("next")
+        let second = drag.begin(.nextWorkout)
         drag.end(first)
-        #expect(drag.draggingID == "next")
+        #expect(drag.draggingID == .nextWorkout)
 
         drag.end(second)
         #expect(drag.draggingID == nil)
@@ -216,9 +235,9 @@ struct ModulePreferencesTests {
         let environment = AppEnvironment.seeded()
         let other = AppEnvironment.seeded()
 
-        environment.modulePreferences.setEnabled(true, for: "streak")
+        environment.modulePreferences.setEnabled(true, for: .streak)
 
-        #expect(environment.modulePreferences.isEnabled("streak"))
-        #expect(other.modulePreferences.isEnabled("streak") == false)
+        #expect(environment.modulePreferences.isEnabled(.streak))
+        #expect(other.modulePreferences.isEnabled(.streak) == false)
     }
 }

@@ -153,7 +153,7 @@ struct HomeView: View {
     @ViewBuilder
     private var modulesStackView: some View {
         VStack(spacing: 8) {
-            ForEach(modulePreferences.enabledDefinitions) { module in
+            ForEach(modulePreferences.enabledModules) { module in
                 ModuleView(
                     module: module,
                     dashboard: dashboard,
@@ -164,7 +164,7 @@ struct HomeView: View {
                 )
                 .onDrag {
                     let token = moduleDrag.begin(module.id)
-                    return ModuleDragItemProvider(moduleID: module.id) { [moduleDrag] in
+                    return ModuleDragItemProvider(module: module) { [moduleDrag] in
                         moduleDrag.end(token)
                     }
                 } preview: {

@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - InMemorySkillPlacementStore
 /// Non-persistent store for previews and unit tests.
-nonisolated final class InMemorySkillPlacementStore: PlacementStoring {
+nonisolated final class InMemorySkillPlacementStore: SkillPlacementStoring {
     private var placement: SkillPlacement?
 
     init(initial: SkillPlacement? = nil) {

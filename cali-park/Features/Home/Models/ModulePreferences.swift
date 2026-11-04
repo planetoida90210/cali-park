@@ -6,18 +6,19 @@ import Observation
 /// `AppEnvironment` and passed explicitly to Home and the module selection
 /// screen.
 ///
-/// Stored in `UserDefaults` under `DefaultsKey.enabledModules` as an array of module IDs in
-/// display order (the format every earlier build wrote), so existing users
-/// keep their choices. IDs of modules that no longer exist (the retired
-/// leaderboard and feed) and duplicates are dropped on load.
+/// Stored in `UserDefaults` under `DefaultsKey.enabledModules` as an array of
+/// `HomeModule` raw values in display order (the format every earlier build
+/// wrote), so existing users keep their choices. Values of modules that no
+/// longer exist (the retired leaderboard and feed) and duplicates are dropped
+/// on load.
 @MainActor
 @Observable
 final class ModulePreferences {
     /// What a fresh install shows, until the athlete changes anything.
-    static let defaultModuleIDs = ["log", "next", WeeklyGoalModule.id, "parks"]
+    static let defaultModules: [HomeModule] = [.lastWorkout, .nextWorkout, .weeklyGoal, .nearestPark]
 
-    /// The IDs of the shown modules, in display order.
-    private(set) var enabledModules: [String]
+    /// The shown modules, in display order.
+    private(set) var enabledModules: [HomeModule]
 
     @ObservationIgnored private let defaults: UserDefaults
 
@@ -26,49 +27,43 @@ final class ModulePreferences {
         guard let saved = defaults.stringArray(forKey: DefaultsKey.enabledModules.rawValue) else {
             // Nothing is written until the athlete changes something, so a
             // later change of the defaults still reaches untouched installs.
-            enabledModules = Self.defaultModuleIDs
+            enabledModules = Self.defaultModules
             return
         }
-        let known = Set(ModuleDefinition.allModules.map(\.id))
-        var seen = Set<String>()
-        let cleaned = saved.filter { known.contains($0) && seen.insert($0).inserted }
+        var seen = Set<HomeModule>()
+        let cleaned = saved.compactMap(HomeModule.init(rawValue:)).filter { seen.insert($0).inserted }
         enabledModules = cleaned
-        if cleaned != saved { save() }
+        if cleaned.map(\.rawValue) != saved { save() }
     }
 
     // MARK: Queries
-    /// The shown modules, in display order.
-    var enabledDefinitions: [ModuleDefinition] {
-        enabledModules.compactMap(ModuleDefinition.module(withID:))
-    }
-
     /// The hidden modules, in catalog order.
-    var disabledDefinitions: [ModuleDefinition] {
-        ModuleDefinition.allModules.filter { !enabledModules.contains($0.id) }
+    var disabledModules: [HomeModule] {
+        HomeModule.allCases.filter { !enabledModules.contains($0) }
     }
 
-    func isEnabled(_ id: String) -> Bool {
-        enabledModules.contains(id)
+    func isEnabled(_ module: HomeModule) -> Bool {
+        enabledModules.contains(module)
     }
 
-    func canMoveUp(_ id: String) -> Bool {
-        guard let index = enabledModules.firstIndex(of: id) else { return false }
+    func canMoveUp(_ module: HomeModule) -> Bool {
+        guard let index = enabledModules.firstIndex(of: module) else { return false }
         return index > 0
     }
 
-    func canMoveDown(_ id: String) -> Bool {
-        guard let index = enabledModules.firstIndex(of: id) else { return false }
+    func canMoveDown(_ module: HomeModule) -> Bool {
+        guard let index = enabledModules.firstIndex(of: module) else { return false }
         return index < enabledModules.count - 1
     }
 
     // MARK: Intentions
-    /// Shows a module (at the end) or hides it. Unknown IDs are ignored.
-    func setEnabled(_ enabled: Bool, for id: String) {
-        guard ModuleDefinition.module(withID: id) != nil, enabled != isEnabled(id) else { return }
+    /// Shows a module (at the end) or hides it.
+    func setEnabled(_ enabled: Bool, for module: HomeModule) {
+        guard enabled != isEnabled(module) else { return }
         if enabled {
-            enabledModules.append(id)
+            enabledModules.append(module)
         } else {
-            enabledModules.removeAll { $0 == id }
+            enabledModules.removeAll { $0 == module }
         }
         save()
     }
@@ -83,25 +78,25 @@ final class ModulePreferences {
     }
 
     /// Swaps a module with the one above it ("Przesuń wyżej").
-    func moveUp(_ id: String) {
-        guard canMoveUp(id), let index = enabledModules.firstIndex(of: id) else { return }
+    func moveUp(_ module: HomeModule) {
+        guard canMoveUp(module), let index = enabledModules.firstIndex(of: module) else { return }
         enabledModules.swapAt(index, index - 1)
         save()
     }
 
     /// Swaps a module with the one below it ("Przesuń niżej").
-    func moveDown(_ id: String) {
-        guard canMoveDown(id), let index = enabledModules.firstIndex(of: id) else { return }
+    func moveDown(_ module: HomeModule) {
+        guard canMoveDown(module), let index = enabledModules.firstIndex(of: module) else { return }
         enabledModules.swapAt(index, index + 1)
         save()
     }
 
-    /// Drag on Home: puts `id` where `target` is, shifting the modules in
+    /// Drag on Home: puts `module` where `target` is, shifting the modules in
     /// between by one. Dragging down lands below the target, dragging up lands
     /// above it.
-    func move(_ id: String, onto target: String) {
-        guard id != target,
-            let from = enabledModules.firstIndex(of: id),
+    func move(_ module: HomeModule, onto target: HomeModule) {
+        guard module != target,
+            let from = enabledModules.firstIndex(of: module),
             let to = enabledModules.firstIndex(of: target)
         else { return }
         enabledModules.move(fromOffsets: IndexSet(integer: from), toOffset: to > from ? to + 1 : to)
@@ -110,6 +105,6 @@ final class ModulePreferences {
 
     // MARK: Persistence
     private func save() {
-        defaults.set(enabledModules, forKey: DefaultsKey.enabledModules.rawValue)
+        defaults.set(enabledModules.map(\.rawValue), forKey: DefaultsKey.enabledModules.rawValue)
     }
 }

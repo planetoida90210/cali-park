@@ -9,7 +9,7 @@ import UniformTypeIdentifiers
 @MainActor
 struct ModuleDropDelegate: DropDelegate {
     /// The module under the finger, or nil for the area around the modules.
-    let targetID: String?
+    let targetID: HomeModule?
     let drag: ModuleDragState
     let preferences: ModulePreferences
 
@@ -43,10 +43,10 @@ struct ModuleDropDelegate: DropDelegate {
 nonisolated final class ModuleDragItemProvider: NSItemProvider {
     private let onEnd: @MainActor @Sendable () -> Void
 
-    init(moduleID: String, onEnd: @escaping @MainActor @Sendable () -> Void) {
+    init(module: HomeModule, onEnd: @escaping @MainActor @Sendable () -> Void) {
         self.onEnd = onEnd
         super.init()
-        registerObject(moduleID as NSString, visibility: .ownProcess)
+        registerObject(module.rawValue as NSString, visibility: .ownProcess)
     }
 
     deinit {

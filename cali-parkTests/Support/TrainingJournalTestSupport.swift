@@ -13,7 +13,7 @@ struct TrainingStack {
     let rewards: RewardCenter
 
     init(logStore: WorkoutLogStoring = InMemoryWorkoutLogStore(),
-         placementStore: PlacementStoring = InMemorySkillPlacementStore(),
+         placementStore: SkillPlacementStoring = InMemorySkillPlacementStore(),
          progressStore: SkillProgressStoring = InMemorySkillProgressStore(),
          calendar: Calendar = TestCalendar.utc,
          clock: @escaping () -> Date = { TestDate.reference }) {
@@ -84,7 +84,7 @@ extension WorkoutSessionDetailViewModel {
 extension HomeDashboardViewModel {
     convenience init(store: WorkoutLogStoring,
                      planService: WorkoutPlanService,
-                     placementStore: PlacementStoring = InMemorySkillPlacementStore(),
+                     placementStore: SkillPlacementStoring = InMemorySkillPlacementStore(),
                      goalStore: WeeklyGoalStoring = InMemoryWeeklyGoalStore(),
                      calendar: Calendar,
                      clock: @escaping () -> Date) {
@@ -115,7 +115,7 @@ extension WeeklyGoalEditorViewModel {
 extension ProgramStarter {
     convenience init(planService: WorkoutPlanService,
                      logStore: WorkoutLogStoring,
-                     placementStore: PlacementStoring,
+                     placementStore: SkillPlacementStoring,
                      calendar: Calendar,
                      clock: @escaping () -> Date) {
         let journal = TrainingJournal(store: logStore)

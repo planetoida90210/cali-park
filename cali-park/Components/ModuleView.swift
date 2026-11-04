@@ -6,7 +6,7 @@ import SwiftUI
 /// the header; everyone else drags the module or uses the module selection
 /// screen.
 struct ModuleView: View {
-    let module: ModuleDefinition
+    let module: HomeModule
     /// Real journal data for the training modules.
     let dashboard: HomeDashboardViewModel
     /// The nearest Park, for the "parks" module.
@@ -70,21 +70,19 @@ struct ModuleView: View {
 
     @ViewBuilder
     private var moduleContent: some View {
-        switch module.id {
-        case "log":
+        switch module {
+        case .lastWorkout:
             LastWorkoutModuleContent(dashboard: dashboard)
-        case "next":
+        case .nextWorkout:
             NextWorkoutModuleContent(dashboard: dashboard)
-        case "parks":
+        case .nearestPark:
             ParksModuleContent(model: nearestPark)
-        case WeeklyGoalModule.id:
+        case .weeklyGoal:
             WeeklyGoalModuleContent(snapshot: dashboard.weeklyGoal, onEdit: onEditGoal)
-        case "streak":
+        case .streak:
             StreakModuleContent(streak: dashboard.streak, today: dashboard.now, calendar: dashboard.calendar)
-        case "achievements":
+        case .achievements:
             AchievementsModuleContent(summary: dashboard.achievementsSummary)
-        default:
-            EmptyView()
         }
     }
 }
@@ -92,7 +90,7 @@ struct ModuleView: View {
 // MARK: - ModuleHeaderCard
 /// The module's icon, name and expand chevron on a glass card.
 struct ModuleHeaderCard: View {
-    let module: ModuleDefinition
+    let module: HomeModule
     let isExpanded: Bool
 
     var body: some View {
@@ -124,7 +122,7 @@ struct ModuleHeaderCard: View {
 // MARK: - ModuleDragPreview
 /// What follows the finger while a module is dragged: its header, lifted.
 struct ModuleDragPreview: View {
-    let module: ModuleDefinition
+    let module: HomeModule
 
     var body: some View {
         HStack(spacing: 10) {
@@ -156,16 +154,16 @@ struct ModuleDragPreview: View {
 
         ScrollView {
             VStack(spacing: 0) {
-                ForEach(environment.modulePreferences.enabledDefinitions) { module in
+                ForEach(environment.modulePreferences.enabledModules) { module in
                     ModuleView(
                         module: module,
                         dashboard: dashboard,
                         nearestPark: nearestPark,
                         preferences: environment.modulePreferences,
-                        isDragging: module.id == "next"
+                        isDragging: module == .nextWorkout
                     )
                 }
-                ModuleDragPreview(module: ModuleDefinition.allModules[0])
+                ModuleDragPreview(module: .lastWorkout)
                     .padding()
             }
         }

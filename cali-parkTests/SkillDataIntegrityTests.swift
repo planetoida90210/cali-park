@@ -56,7 +56,7 @@ private final class CountingProgressStore: SkillProgressStoring {
 }
 
 /// A placement store whose saved file cannot be read.
-private final class UnreadablePlacementStore: PlacementStoring {
+private final class UnreadablePlacementStore: SkillPlacementStoring {
     struct ReadError: Error {}
     private(set) var saveAttempts = 0
     func load() throws -> SkillPlacement? { throw ReadError() }

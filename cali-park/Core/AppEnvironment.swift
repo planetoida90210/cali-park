@@ -49,7 +49,7 @@ final class AppEnvironment {
     let workoutPlanService: WorkoutPlanService
     /// Persists the athlete's self-declared skill placement. Consumed by the
     /// onboarding calibration (SK4) and the Skills tab (SK5).
-    let placementStore: PlacementStoring
+    let placementStore: SkillPlacementStoring
     /// Persists which rewards have already been celebrated, so the reward loop
     /// (SK6a) stays idempotent. Only `rewardCenter` talks to it.
     let skillProgressStore: SkillProgressStoring
@@ -74,7 +74,7 @@ final class AppEnvironment {
          workoutPlanStore: WorkoutPlanStoring,
          reminderScheduler: WorkoutReminderScheduling = NotificationCenterReminderScheduler(center: SystemNotificationCenter()),
          reminderRefreshScheduler: ReminderRefreshScheduling = AppRefreshScheduler(),
-         placementStore: PlacementStoring,
+         placementStore: SkillPlacementStoring,
          skillProgressStore: SkillProgressStoring,
          weeklyGoalStore: WeeklyGoalStoring,
          diagnostics: DiagnosticsService,

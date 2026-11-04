@@ -30,7 +30,7 @@ final class ProgressService {
 
     // MARK: Dependencies
     private let journal: TrainingJournal
-    private let placementStore: PlacementStoring
+    private let placementStore: SkillPlacementStoring
     private let calendar: Calendar
     private let clock: () -> Date
     private let logger = AppLog.logger(category: "ProgressService")
@@ -42,7 +42,7 @@ final class ProgressService {
 
     // MARK: Init
     init(journal: TrainingJournal,
-         placementStore: PlacementStoring,
+         placementStore: SkillPlacementStoring,
          calendar: Calendar = .current,
          clock: @escaping () -> Date = { .now }) {
         self.journal = journal

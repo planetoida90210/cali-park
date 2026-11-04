@@ -370,7 +370,7 @@ private struct BrokenPlanStore: WorkoutPlanStoring {
     func delete(id: UUID) throws { throw ReadError() }
 }
 
-private struct BrokenPlacementStore: PlacementStoring {
+private struct BrokenPlacementStore: SkillPlacementStoring {
     struct ReadError: Error {}
     func load() throws -> SkillPlacement? { throw ReadError() }
     func save(_ placement: SkillPlacement) throws { throw ReadError() }

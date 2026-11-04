@@ -16,20 +16,20 @@ import Observation
 @MainActor
 @Observable
 final class ModuleDragState {
-    /// The ID of the module a drag was requested for.
-    private(set) var draggingID: String?
+    /// The module a drag was requested for.
+    private(set) var draggingID: HomeModule?
     /// Whether a drop target on Home has seen the drag.
     private(set) var isActive = false
     @ObservationIgnored private var token: UUID?
 
     /// The module to show as lifted, while a drag is really in progress.
-    var liftedID: String? { isActive ? draggingID : nil }
+    var liftedID: HomeModule? { isActive ? draggingID : nil }
 
-    /// Starts dragging `id` and returns the token that ends this drag.
-    func begin(_ id: String) -> UUID {
+    /// Starts dragging `module` and returns the token that ends this drag.
+    func begin(_ module: HomeModule) -> UUID {
         let token = UUID()
         self.token = token
-        draggingID = id
+        draggingID = module
         isActive = false
         return token
     }
@@ -50,7 +50,7 @@ final class ModuleDragState {
     /// The finger entered `target` while dragging: the drag is real, and the
     /// dragged module takes the target's place. Does nothing outside a drag,
     /// so a drop from another app never reorders anything.
-    func enter(_ target: String, in preferences: ModulePreferences) {
+    func enter(_ target: HomeModule, in preferences: ModulePreferences) {
         guard let draggingID else { return }
         isActive = true
         preferences.move(draggingID, onto: target)

@@ -1,5 +1,5 @@
 //
-//  cali_parkApp.swift
+//  CaliParkApp.swift
 //  cali-park
 //
 //  Created by Emanuel Delawarski on 04/05/2025.
@@ -17,7 +17,7 @@ enum AppLauncher {
         if AppLaunch.isHostingUnitTests(ProcessInfo.processInfo.environment) {
             UnitTestHostApp.main()
         } else {
-            cali_parkApp.main()
+            CaliParkApp.main()
         }
     }
 }
@@ -40,8 +40,8 @@ struct UnitTestHostApp: App {
     }
 }
 
-// MARK: - cali_parkApp
-struct cali_parkApp: App {
+// MARK: - CaliParkApp
+struct CaliParkApp: App {
     /// Composition root, built once and passed down the view tree through
     /// initializers. `@State` only keeps the one instance; nothing observes it.
     @State private var environment = AppEnvironment.live()

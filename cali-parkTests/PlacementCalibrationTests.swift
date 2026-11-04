@@ -274,8 +274,8 @@ struct PlacementNeverGrantsXPTests {
 
 // MARK: - Fixtures
 
-/// A `PlacementStoring` stub whose `save` always throws, to exercise error copy.
-private struct FailingPlacementStore: PlacementStoring {
+/// A `SkillPlacementStoring` stub whose `save` always throws, to exercise error copy.
+private struct FailingPlacementStore: SkillPlacementStoring {
     struct SaveError: Error {}
     func load() -> SkillPlacement? { nil }
     func save(_ placement: SkillPlacement) throws { throw SaveError() }

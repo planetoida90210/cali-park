@@ -20,7 +20,7 @@ struct ModuleSelectionView: View {
                             .font(.bodySmall)
                             .foregroundStyle(Color.textSecondary)
                     }
-                    ForEach(preferences.enabledDefinitions) { module in
+                    ForEach(preferences.enabledModules) { module in
                         moduleRow(module)
                             .accessibilityActions {
                                 if preferences.canMoveUp(module.id) {
@@ -42,9 +42,9 @@ struct ModuleSelectionView: View {
                     )
                 }
 
-                if !preferences.disabledDefinitions.isEmpty {
+                if !preferences.disabledModules.isEmpty {
                     Section("Ukryte") {
-                        ForEach(preferences.disabledDefinitions) { module in
+                        ForEach(preferences.disabledModules) { module in
                             moduleRow(module)
                         }
                     }
@@ -76,7 +76,7 @@ struct ModuleSelectionView: View {
         }
     }
 
-    private func move(_ module: ModuleDefinition, up: Bool) {
+    private func move(_ module: HomeModule, up: Bool) {
         withAnimation {
             if up {
                 preferences.moveUp(module.id)
@@ -90,7 +90,7 @@ struct ModuleSelectionView: View {
         ).post()
     }
 
-    private func moduleRow(_ module: ModuleDefinition) -> some View {
+    private func moduleRow(_ module: HomeModule) -> some View {
         Toggle(
             isOn: Binding(
                 get: { preferences.isEnabled(module.id) },

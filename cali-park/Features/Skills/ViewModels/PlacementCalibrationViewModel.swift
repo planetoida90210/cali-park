@@ -4,7 +4,7 @@ import Observation
 // MARK: - PlacementCalibrationViewModel
 /// Drives the placement form shared by onboarding and the in-app calibration
 /// sheet: it holds the athlete's answers, turns them into a `SkillPlacement`
-/// through `PlacementCalibration`, and persists it through `PlacementStoring`.
+/// through `PlacementCalibration`, and persists it through `SkillPlacementStoring`.
 ///
 /// Re-calibration starts from the saved placement: answers that map back to it
 /// unambiguously are pre-filled, and saving changes only the paths the athlete
@@ -38,13 +38,13 @@ final class PlacementCalibrationViewModel {
     /// declares when its answer could not be pre-filled.
     private let savedPlacement: SkillPlacement?
 
-    private let store: PlacementStoring
+    private let store: SkillPlacementStoring
     private let now: () -> Date
     /// Runs after a successful save, so shared progress re-reads the placement.
     private let onSave: @MainActor () -> Void
 
     // MARK: Init
-    init(store: PlacementStoring,
+    init(store: SkillPlacementStoring,
          now: @escaping () -> Date = { .now },
          onSave: @escaping @MainActor () -> Void = {}) {
         self.store = store

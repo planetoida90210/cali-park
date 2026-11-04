@@ -54,7 +54,7 @@ private enum BackupFixtures {
 private struct BackupRig {
     let log: WorkoutLogStoring
     let plans: WorkoutPlanStoring
-    let placement: PlacementStoring
+    let placement: SkillPlacementStoring
     let progress: SkillProgressStoring
     let goal: WeeklyGoalStoring
     let favorites: FavoriteParkStoring
@@ -65,7 +65,7 @@ private struct BackupRig {
 
     init(log: WorkoutLogStoring = InMemoryWorkoutLogStore(),
          plans: WorkoutPlanStoring = InMemoryWorkoutPlanStore(),
-         placement: PlacementStoring = InMemorySkillPlacementStore(),
+         placement: SkillPlacementStoring = InMemorySkillPlacementStore(),
          progress: SkillProgressStoring = InMemorySkillProgressStore(),
          goal: WeeklyGoalStoring = InMemoryWeeklyGoalStore(),
          favorites: FavoriteParkStoring = InMemoryFavoriteParkStore(),
@@ -123,7 +123,7 @@ private final class FailingReplacePlanStore: WorkoutPlanStoring {
 
 /// A placement store that takes the first replace (the import) and refuses
 /// every later one (the rollback), to model a rollback that cannot finish.
-private final class OneShotPlacementStore: PlacementStoring {
+private final class OneShotPlacementStore: SkillPlacementStoring {
     struct Failure: Error {}
     private var placement: SkillPlacement?
     private var replaces = 0

@@ -41,7 +41,7 @@ nonisolated enum TrainingBackupRestoreError: Error, Equatable {
 final class TrainingBackupService {
     private let journal: TrainingJournal
     private let planStore: WorkoutPlanStoring
-    private let placementStore: PlacementStoring
+    private let placementStore: SkillPlacementStoring
     private let progressStore: SkillProgressStoring
     private let goalStore: WeeklyGoalStoring
     private let favorites: ParkFavorites
@@ -57,7 +57,7 @@ final class TrainingBackupService {
     /// `goals` and `progressStore` behind `rewards`.
     init(journal: TrainingJournal,
          planStore: WorkoutPlanStoring,
-         placementStore: PlacementStoring,
+         placementStore: SkillPlacementStoring,
          progressStore: SkillProgressStoring,
          goalStore: WeeklyGoalStoring,
          favorites: ParkFavorites,

@@ -1,6 +1,6 @@
 import Foundation
 
-// MARK: - PlacementStoring
+// MARK: - SkillPlacementStoring
 /// Abstraction over `SkillPlacement` persistence, mirroring `WorkoutLogStoring`
 /// and `WorkoutPlanStoring`: view models stay testable with the in-memory stub,
 /// and the backend can be swapped later (local JSON now → account sync later).
@@ -8,7 +8,7 @@ import Foundation
 /// Placement is training data (declared rungs and owned equipment), not a
 /// secret — no tokens, credentials, or entitlement flags belong here — so a
 /// plain JSON file in the store directory is the right store.
-nonisolated protocol PlacementStoring {
+nonisolated protocol SkillPlacementStoring {
     /// The saved placement, or `nil` when the athlete never declared one (used
     /// to prompt calibration on first contact with the Skills tab). Throws when
     /// a saved placement exists but cannot be read — that is not "never declared".
@@ -23,7 +23,7 @@ nonisolated protocol PlacementStoring {
 }
 
 // MARK: - Default replace
-nonisolated extension PlacementStoring {
+nonisolated extension SkillPlacementStoring {
     /// Fallback replace: saves a value, and refuses to delete one, since this
     /// store has no way to. Conformers that can delete should override this.
     func replace(with placement: SkillPlacement?) throws {
@@ -36,10 +36,10 @@ nonisolated extension PlacementStoring {
 }
 
 // MARK: - FileSkillPlacementStore
-/// Default `PlacementStoring` implementation: a single JSON file in the app's
+/// Default `SkillPlacementStoring` implementation: a single JSON file in the app's
 /// store directory, through `JSONFileStore`. Deliberately not Core Data —
 /// one small value per user.
-nonisolated struct FileSkillPlacementStore: PlacementStoring {
+nonisolated struct FileSkillPlacementStore: SkillPlacementStoring {
     private let file: JSONFileStore<SkillPlacement>
 
     init(directory: URL, fileName: String = StoreFile.skillPlacement.fileName) {
