@@ -66,7 +66,7 @@ Przyjęty limit: do ok. 10 000 wpisów. Realny intensywny użytkownik ma po 3 la
 | A-5 | Awans liczony per wpis, nie trening | naprawione | `688ee1e` | `ScoringLog` łączy wpisy po treningu i ćwiczeniu. |
 | A-6 | Szczebel zapisany jako indeks | naprawione | `d4e1011` | ID ćwiczenia zamiast indeksu, migracja przez `LadderOrderV1`. |
 | A-7 | Stare mapowanie kubełków bez migracji | świadomie odłożone | MAP, Faza 0b | Starego zapisu nie da się pewnie rozpoznać; apka nie wyszła poza urządzenia deweloperskie. |
-| A-8 | Holdy zapisane jako powtórzenia | naprawione | `3bbf358`, `688ee1e`, W-program-gaps | Silnik czyta je jako sekundy, prefill bierze miarę ćwiczenia; dziennik czyta stare holdy jako sekundy, więc historia, Home, cel objętości i eksport też (plik zostaje bez zmian). |
+| A-8 | Holdy zapisane jako powtórzenia | naprawione | `3bbf358`, `688ee1e`, a32ffc8 | Silnik czyta je jako sekundy, prefill bierze miarę ćwiczenia; dziennik czyta stare holdy jako sekundy, więc historia, Home, cel objętości i eksport też (plik zostaje bez zmian). |
 | A-9 | Pierwsza celebracja bez haptyki i pulsu | naprawione | `7df43bf` | Wyzwalacz ustawiany przy pojawieniu się, więc pierwsza i jedyna też gra. |
 | A-10 | Pokazane XP różni się od zdobytego | naprawione | `688ee1e` | Jeden `RewardCenter`, „Razem +N XP” na ostatniej celebracji. |
 | A-11 | Silnik wielokrotnie skanuje dziennik | naprawione | `688ee1e` | Snapshot postępu raz na rewizję dziennika. |
