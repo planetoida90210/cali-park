@@ -3,12 +3,12 @@ cornerRadius 2
 onTapGesture 0
 onChangeOneParameter 0
 tabItem 0
-ObservableObject 1
+ObservableObject 0
 fontSystemSize 1
 NavigationView 0
 taskSleepNanoseconds 0
 stringFormat 2
-DispatchQueue 1
+DispatchQueue 0
 forEachArrayEnumerated 0
 documentsDirectoryLookup 0
 UIGraphicsImageRenderer 0
