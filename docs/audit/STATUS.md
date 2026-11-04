@@ -151,7 +151,7 @@ Przyjęty limit: do ok. 10 000 wpisów. Realny intensywny użytkownik ma po 3 la
 | E-22 | Martwy kod widoków | naprawione | `16467aa`, `d163d01` | Usunięte `hideKeyboard()` i `statusGreen`; prototypy tylko w Debug, celowo. |
 | E-23 | Przestarzałe modyfikatory | naprawione | `c01ada3` | Ostatnie przyciski z `Label` (10 i menu „Dodaj cel”) na `Button(_:systemImage:)` ze stylem; `fontWeight` zastąpione `bold(_:)`. |
 | E-24 | `DispatchQueue`, `sleep(nanoseconds:)`, `String(format:)` | naprawione | `7ac1773`, `4114c35` | Lint: 0 dla wszystkich trzech. |
-| E-25 | `ObservableObject`, `AnyView`, wiele typów | naprawione | `0f5a3e2`, `fe53c2f`, `47326e5`, `2c7ab22` i dalsze z gałęzi `w-views` | `ExerciseLibraryView`, `ExerciseDetailView`, `PlanEditorView`, `PathDetailView` i inne ekrany rozbite na pliki w `Views/Components/`; widoki z właściwości ponad kilka linii są osobnymi strukturami. Zostały tylko jednolinijkowe właściwości i świadome wyjątki (szczegóły w raporcie gałęzi). |
+| E-25 | `ObservableObject`, `AnyView`, wiele typów | naprawione | `958a83c`, `b174e2a`, `c4f8201`, `f44cd05` i dalsze z gałęzi `w-views` | `ExerciseLibraryView`, `ExerciseDetailView`, `PlanEditorView`, `PathDetailView`, ekran treningu (`QuickWorkoutView`, przy okazji poprawione wiersze i pasek „Dodaj ćwiczenie” przy dużym tekście), `SetPadEntryView`, `ProgramDetailView` i inne ekrany rozbite na pliki w `Views/Components/`; widoki z właściwości ponad kilka linii są osobnymi strukturami. Zostały tylko jednolinijkowe właściwości i świadome wyjątki (szczegóły w raporcie gałęzi). |
 | E-26 | Sortowanie i filtrowanie w `body` | naprawione | `688ee1e`, `5c74141` | Rodzic i warianty ćwiczenia z gotowych indeksów. |
 | E-27 | Kamera bez sprawdzenia | zniknęło | `34554ab` | |
 | E-28 | Podglądy bez wariantów dostępności | naprawione | `e07dfb7` | Warianty `.accessibility5` dla Home, hero, listy ćwiczeń, ścieżki, edytora planu i karty Parku; podglądy dla widoków bez nich (poza prototypami). |
@@ -163,7 +163,7 @@ Przyjęty limit: do ok. 10 000 wpisów. Realny intensywny użytkownik ma po 3 la
 | F-4 | Stan nagród w każdym ekranie | naprawione | `688ee1e` | `RewardCenter`. |
 | F-5 | Brak koordynacji przypomnień | naprawione | `bfb3796`, `5012b44` | `WorkoutPlanService`. |
 | F-6 | Postęp liczony wielokrotnie | naprawione | `688ee1e` | `ProgressService`. |
-| F-7 | Problemy korzenia kompozycji | naprawione | `7ac1773`, `5f7775f`, `052396e`, `6a6f7bb` | Home bierze modele arkuszy z `AppEnvironment`, wszystkie parametry `AppEnvironment.init` są wymagane, `ProgramDetailViewModel` czyta w `.task`. Edytor celu tygodniowego i formularz poziomu czytają store w `load()` przy pokazaniu, nie w `init` (`6a6f7bb`). |
+| F-7 | Problemy korzenia kompozycji | naprawione | `7ac1773`, `5f7775f`, `052396e`, `9cd6d3b` | Home bierze modele arkuszy z `AppEnvironment`, wszystkie parametry `AppEnvironment.init` są wymagane, `ProgramDetailViewModel` czyta w `.task`. Edytor celu tygodniowego i formularz poziomu czytają store w `load()` przy pokazaniu, nie w `init` (`9cd6d3b`). |
 | F-8 | Foldery a własność domeny | otwarte | `Features/` | Wspólna domena treningu leży w folderach funkcji. |
 | F-9 | Parki na starej architekturze | zniknęło | `34554ab`, `d1d1736` | |
 | F-10 | Fonty i trzy systemy przycisków | naprawione | `9d340c9`, `f7332b3`, `b115b59` | Typografia na stylach tekstu; jeden `errorAlert`/`messageAlert` zamiast 17 kopii `errorBinding`; wspólne `ExerciseCategoryChips`; bez `.blur` na jednolitym kolorze; jeden system przycisków (E-21). |
@@ -171,7 +171,7 @@ Przyjęty limit: do ok. 10 000 wpisów. Realny intensywny użytkownik ma po 3 la
 | F-12 | Martwy kod | naprawione | `16467aa`, `e3e2a39`, `34554ab`, `d163d01` | |
 | F-13 | Powielone formatowanie | naprawione | `688ee1e` | `MeasureFormat`. |
 | F-14 | Niespójne nazwy, ID modułów | naprawione | `06fc6a4` | `enum HomeModule: String` z tymi samymi surowymi wartościami (test starej zapisanej tablicy), `CaliParkApp`, `SkillPlacementStoring`; reszta nazw zniknęła ze starym kodem. |
-| F-15 | Wiele typów w pliku, dublery w produkcji | naprawione | `7b3d3fa`, `97f1a75` | Dublery `InMemory…`, `FixedLocationProvider`, `DiagnosticPreviewData`, `UserDefaults.throwaway()` i `AppEnvironment.seeded(...)`/`preview…` w `cali-park/PreviewSupport/` pod `#if DEBUG`, razem z `#Preview`, które ich używają. Build Release kompiluje się bez ostrzeżeń, a jego binarka nie zawiera żadnego dublera. |
+| F-15 | Wiele typów w pliku, dublery w produkcji | naprawione | `7b3d3fa`, `5414f10` | Dublery `InMemory…`, `FixedLocationProvider`, `DiagnosticPreviewData`, `UserDefaults.throwaway()` i `AppEnvironment.seeded(...)`/`preview…` w `cali-park/PreviewSupport/` pod `#if DEBUG`, razem z `#Preview`, które ich używają. Build Release kompiluje się bez ostrzeżeń, a jego binarka nie zawiera żadnego dublera. |
 | F-V1 | Odległości od sztywnej Warszawy | naprawione | `d1d1736` | `LocationProviding`. |
 | G-1 | Brak manifestu prywatności | naprawione | `7a802c5` | |
 | G-2 | Atrapy na Home | naprawione | `16467aa`, `89a3528` | |
