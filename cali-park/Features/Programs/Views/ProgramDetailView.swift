@@ -18,43 +18,14 @@ struct ProgramDetailView: View {
             ProgramHeaderSection(program: viewModel.program, schedule: viewModel.scheduleSummary)
 
             if viewModel.showsFirstPullUpHint {
-                Section {
-                    NavigationLink(value: ProgramID.firstPullUp) {
-                        Label("Nie robisz jeszcze pełnego podciągnięcia? Zacznij od programu Pierwsze podciągnięcie.",
-                              systemImage: "lightbulb")
-                            .font(.bodyMedium)
-                            .foregroundStyle(Color.textPrimary)
-                    }
-                    .listRowBackground(Color.componentBackground)
-                }
+                ProgramFirstPullUpHintSection()
             }
 
             ForEach(viewModel.previewPlans) { plan in
-                Section {
-                    ForEach(plan.exercises) { planned in
-                        ProgramItemRow(exercise: viewModel.exercise(for: planned),
-                                       target: viewModel.targetSummary(for: planned, in: plan))
-                            .listRowBackground(Color.componentBackground)
-                    }
-                } header: {
-                    Text("Trening na Twoich szczeblach")
-                } footer: {
-                    Text("Gdy awansujesz na drabinie, plan przejdzie na nowy szczebel sam.")
-                }
+                ProgramSessionPreviewSection(plan: plan, viewModel: viewModel)
             }
 
-            Section {
-                ForEach(viewModel.program.details, id: \.self) { paragraph in
-                    Text(paragraph)
-                        .font(.bodyMedium)
-                        .foregroundStyle(Color.textPrimary)
-                        .listRowBackground(Color.componentBackground)
-                }
-            } header: {
-                Text("Jak trenować")
-            } footer: {
-                Text(viewModel.program.creditLine.keptTogether)
-            }
+            ProgramHowToTrainSection(program: viewModel.program)
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
@@ -84,62 +55,6 @@ struct ProgramDetailView: View {
             Text("Utworzyć drugi?")
         }
         .errorAlert($viewModel.errorMessage, hint: "Spróbuj ponownie.")
-    }
-}
-
-// MARK: - ProgramHeaderSection
-private struct ProgramHeaderSection: View {
-    let program: TrainingProgram
-    let schedule: String
-
-    var body: some View {
-        Section {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(program.tagline)
-                    .font(.bodyLarge)
-                    .foregroundStyle(Color.textPrimary)
-                Text(program.audience)
-                    .font(.bodyMedium)
-                    .foregroundStyle(Color.textSecondary)
-            }
-            .padding(.vertical, 4)
-            .listRowBackground(Color.componentBackground)
-
-            LabeledContent("Jak często", value: program.frequency.keptTogether)
-                .listRowBackground(Color.componentBackground)
-            LabeledContent("Czas treningu", value: program.sessionLength.keptTogether)
-                .listRowBackground(Color.componentBackground)
-            LabeledContent("Dni na start", value: schedule)
-                .listRowBackground(Color.componentBackground)
-        } footer: {
-            Text("Dni zmienisz potem w edytorze planu.")
-        }
-        .foregroundStyle(Color.textPrimary)
-    }
-}
-
-// MARK: - ProgramItemRow
-private struct ProgramItemRow: View {
-    let exercise: Exercise?
-    let target: String?
-
-    var body: some View {
-        HStack(spacing: 12) {
-            ExerciseIconView(symbolName: exercise?.symbolName ?? ExerciseCatalog.unknownSymbolName, size: .row)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(exercise?.name ?? ExerciseCatalog.unknownName)
-                    .font(.bodyLarge)
-                    .foregroundStyle(Color.textPrimary)
-                if let target {
-                    Text(target)
-                        .font(.bodySmall)
-                        .foregroundStyle(Color.textSecondary)
-                }
-            }
-        }
-        .padding(.vertical, 4)
-        .accessibilityElement(children: .combine)
     }
 }
 
