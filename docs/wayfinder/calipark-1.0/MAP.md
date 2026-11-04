@@ -95,7 +95,7 @@ Zdecydowany spec CaliPark 1.0: zakres, backend, model danych, wygląd kluczowych
 - Strona startowa (2026-11-04, Q32): na Vercelu właściciela (Pro), nie na GitHub Pages; opis apki, polityka prywatności, dane Parków (ODbL), pomoc. Publikacja dopiero po akceptacji tekstu przez właściciela.
 - Diagnostyka (2026-11-04, Q33, decyzja delegowana koordynatorowi): tylko narzędzia Apple, czyli raporty crashy z TestFlight i App Store w Xcode Organizer oraz MetricKit trzymany na telefonie; raport wychodzi tylko wtedy, gdy użytkownik sam go wyśle mailem z „Pomoc i opinie”. Bez zewnętrznego SDK.
 - Motyw (2026-11-04, Q34): w 1.0 tylko ciemny.
-- Ikona (2026-11-04, Q38): koncept D „Drabinka” (drabinka progresji, szczeble jaśnieją ku górze, limonka na ciemnym tle); ten sam znak jako logo strony.
+- Ikona (2026-11-04, Q38): koncept D „Drabinka” (drabinka progresji, szczeble jaśnieją ku górze, limonka na ciemnym tle); ten sam znak jako logo strony; po porównaniu z „Pinezką” właściciel potwierdził „Drabinkę” (Q38b).
 
 ## Postęp wykonania
 
