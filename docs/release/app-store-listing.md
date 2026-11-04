@@ -6,13 +6,13 @@ Limity Apple: nazwa i podtytuł do 30 znaków, tekst promocyjny do 170, opis do 
 
 ## Nazwa (≤ 30)
 
-**CaliPark** (8). Opcja z dopiskiem, lepsza do wyszukiwania: **CaliPark: kalistenika** (21). Decyzja właściciela.
+**CaliPark: kalistenika** (21). Decyzja 2026-11-04 (Q39, delegowana koordynatorowi): dopisek łapie wyszukiwanie „kalistenika”; pod ikoną na telefonie zostaje „CaliPark”.
 
 ## Podtytuł (≤ 30)
 
-**Kalistenika z planem i mapą** (27 znaków)
+**Trening na drążku z planem** (26 znaków). Bez słowa „kalistenika”, bo jest już w nazwie, a Apple indeksuje nazwę i podtytuł razem.
 
-Inne: „Drabiny progresji i drążki” (26), „Trening na drążku z planem” (26).
+Inne: „Drabiny progresji i drążki” (26).
 
 ## Tekst promocyjny (≤ 170)
 
