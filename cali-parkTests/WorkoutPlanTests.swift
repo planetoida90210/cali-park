@@ -158,14 +158,13 @@ struct WorkoutPlanTests {
     }
 
     @Test
-    func targetSetsSumsOnlyPrescribedValues() {
+    func exerciseCountCountsEveryPlannedExercise() {
         let plan = WorkoutPlan(name: "Push", exercises: [
             PlannedExercise(exerciseID: UUID(), targetSets: 3),
             PlannedExercise(exerciseID: UUID()),
             PlannedExercise(exerciseID: UUID(), targetSets: 4)
         ])
         #expect(plan.exerciseCount == 3)
-        #expect(plan.totalTargetSets == 7)
     }
 }
 

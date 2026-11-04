@@ -109,12 +109,6 @@ final class HomeDashboardViewModel {
         WorkoutSessionDetailViewModel(sessionID: sessionID, journal: journal)
     }
 
-    /// Editor for a brand-new plan, started straight from Home when nothing is
-    /// scheduled yet ("Zaplanuj trening").
-    func makePlanEditorViewModel() -> PlanEditorViewModel {
-        PlanEditorViewModel(plan: nil, service: planService, calendar: calendar)
-    }
-
     // MARK: Last workout
     func exercise(for entry: WorkoutLogEntry) -> Exercise? {
         ExerciseCatalog.exercise(withID: entry.exerciseID)

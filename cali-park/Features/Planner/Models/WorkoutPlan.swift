@@ -47,11 +47,6 @@ nonisolated struct WorkoutPlan: Identifiable, Codable, Equatable, Hashable {
 
     var exerciseCount: Int { exercises.count }
 
-    /// Sum of prescribed sets across exercises (targets are optional).
-    var totalTargetSets: Int {
-        exercises.compactMap(\.targetSets).reduce(0, +)
-    }
-
     /// The plan's next scheduled day, or `nil` when inactive or unscheduled.
     func nextOccurrence(onOrAfter reference: Date = .now, calendar: Calendar = .current) -> Date? {
         guard isActive else { return nil }

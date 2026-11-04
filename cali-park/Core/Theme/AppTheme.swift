@@ -14,7 +14,6 @@ extension Color {
     // Status colors
     static let statusRed = Color.red
     static let statusOrange = Color.orange
-    static let statusGreen = Color.green
     
     // Text colors
     static let textPrimary = Color.white
