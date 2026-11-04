@@ -13,9 +13,6 @@ struct OnboardingView: View {
 
     @State private var viewModel: OnboardingViewModel
 
-    /// Scales the hero glyphs with Dynamic Type while keeping their base size.
-    @ScaledMetric private var heroIconSize: CGFloat = 80
-
     init(environment: AppEnvironment) {
         _viewModel = State(initialValue: environment.makeOnboardingViewModel())
     }
@@ -26,18 +23,18 @@ struct OnboardingView: View {
 
             VStack {
                 TabView(selection: pageBinding) {
-                    welcomeView.tag(OnboardingPage.welcome)
-                    placementView.tag(OnboardingPage.placement)
+                    OnboardingWelcomePage().tag(OnboardingPage.welcome)
+                    OnboardingPlacementPage(viewModel: viewModel.calibration).tag(OnboardingPage.placement)
                     ProgramChoiceView(viewModel: viewModel.programChoice).tag(OnboardingPage.program)
                     OnboardingWeeklyGoalPage(viewModel: viewModel).tag(OnboardingPage.weeklyGoal)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
 
                 VStack {
-                    pageIndicators
+                    OnboardingPageIndicators(currentPage: viewModel.page)
                         .padding(.bottom, 20)
 
-                    navigationButtons
+                    OnboardingNavigationButtons(viewModel: viewModel, onFinish: finish)
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 32)
@@ -59,63 +56,6 @@ struct OnboardingView: View {
     // Bridges the optional error to a Bool binding for `.alert`. Closing the
     // alert finishes onboarding with whatever could be saved.
 
-    // MARK: - Navigation chrome
-
-    private var pageIndicators: some View {
-        HStack {
-            ForEach(OnboardingPage.allCases, id: \.self) { page in
-                Circle()
-                    .fill(viewModel.page == page ? Color.accent : Color.divider)
-                    .frame(width: 10, height: 10)
-            }
-        }
-        .accessibilityHidden(true)
-    }
-
-    /// "Wróć" and "Dalej" side by side; when large text doesn't fit one row
-    /// they are stacked at full width, so the titles don't break mid-word.
-    private var navigationButtons: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack {
-                if viewModel.page.previous != nil {
-                    backButton(fullWidth: false)
-                }
-
-                Spacer()
-
-                forwardButton(fullWidth: false)
-            }
-
-            VStack(spacing: 12) {
-                forwardButton(fullWidth: true)
-                if viewModel.page.previous != nil {
-                    backButton(fullWidth: true)
-                }
-            }
-        }
-    }
-
-    private func backButton(fullWidth: Bool) -> some View {
-        Button("Wróć") {
-            withAnimation { viewModel.goBack() }
-        }
-        .buttonStyle(.secondary(.large, fillsWidth: fullWidth))
-    }
-
-    private func forwardButton(fullWidth: Bool) -> some View {
-        Button {
-            if viewModel.page.isLast {
-                finish()
-            } else {
-                withAnimation { viewModel.goForward() }
-            }
-        } label: {
-            Text(viewModel.page.isLast ? "Rozpocznij" : "Dalej")
-        }
-        .buttonStyle(.accent(.large, fillsWidth: fullWidth))
-        .disabled(viewModel.isFinishing)
-    }
-
     /// Saves the placement, the program's plans and the weekly goal. A
     /// failure shows an alert that finishes onboarding when closed.
     private func finish() {
@@ -123,110 +63,6 @@ struct OnboardingView: View {
             if await viewModel.finish() {
                 hasCompletedOnboarding = true
             }
-        }
-    }
-
-    // MARK: - Pages
-
-    private var welcomeView: some View {
-        VStack(spacing: 32) {
-            Spacer()
-
-            Image(systemName: "figure.gymnastics")
-                .font(.system(size: heroIconSize))
-                .foregroundStyle(Color.accent)
-
-            Text("Witaj w CaliPark")
-                .font(.appLargeTitle)
-                .foregroundStyle(Color.textPrimary)
-                .multilineTextAlignment(.center)
-                .accessibilityAddTraits(.isHeader)
-
-            Text("Trenuj kalistenikę krok po kroku, od szczebla, na którym już jesteś.")
-                .font(.bodyLarge)
-                .foregroundStyle(Color.textSecondary)
-                .multilineTextAlignment(.center)
-
-            Spacer()
-        }
-        .padding()
-    }
-
-    private var placementView: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Co już potrafisz?")
-                        .font(.appTitle2)
-                        .foregroundStyle(Color.textPrimary)
-                        .accessibilityAddTraits(.isHeader)
-
-                    Text("Zaczniesz od właściwego szczebla, nie od zera.")
-                        .font(.bodyMedium)
-                        .foregroundStyle(Color.textSecondary)
-                }
-
-                PlacementFormView(viewModel: viewModel.calibration)
-            }
-            .padding(.vertical, 8)
-        }
-    }
-}
-
-// MARK: - OnboardingWeeklyGoalPage
-/// The last step: how many days a week to train, defaulting to the chosen
-/// program's frequency. Other goal kinds are set later in Profile or on Home.
-private struct OnboardingWeeklyGoalPage: View {
-    let viewModel: OnboardingViewModel
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Cel tygodniowy")
-                        .font(.appTitle2)
-                        .foregroundStyle(Color.textPrimary)
-                        .accessibilityAddTraits(.isHeader)
-
-                    Text(hint)
-                        .font(.bodyMedium)
-                        .foregroundStyle(Color.textSecondary)
-                }
-
-                Stepper(
-                    value: Binding(
-                        get: { viewModel.trainingDays },
-                        set: { viewModel.setTrainingDays($0) }
-                    ),
-                    in: WeeklyGoal.trainingDaysRange
-                ) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(PolishPlural.trainingDays(viewModel.trainingDays))
-                            .font(.appTitle3)
-                            .foregroundStyle(Color.textPrimary)
-                        Text("w tygodniu, w dowolne dni")
-                            .font(.bodySmall)
-                            .foregroundStyle(Color.textSecondary)
-                    }
-                }
-                .padding()
-                .background(Color.componentBackground)
-                .clipShape(.rect(cornerRadius: AppRadius.medium))
-
-                Text("Odpoczynek jest elastyczny: liczy się, ile dni w tygodniu trenujesz, nie które. Cel i pauzę zmienisz później w Profilu.")
-                    .font(.bodySmall)
-                    .foregroundStyle(Color.textSecondary)
-            }
-            .padding(.vertical, 8)
-        }
-    }
-
-    private var hint: String {
-        if let program = viewModel.chosenProgramName {
-            let days = PolishPlural.days(viewModel.suggestedTrainingDays)
-            return String(localized: "Program \(program) to \(days) w tygodniu. Ustaw, ile dni chcesz trenować.")
-        } else {
-            return String(localized: "Ile dni w tygodniu chcesz trenować? Na start polecamy 3.")
         }
     }
 }
