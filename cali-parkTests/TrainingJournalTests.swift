@@ -333,14 +333,16 @@ struct RewardCenterTests {
     @Test
     func clearingAnOlderToastKeepsTheNewerOne() throws {
         let stack = TrainingStack(logStore: InMemoryWorkoutLogStore(initial: [JournalFixture.pullUps([8, 8, 8])]))
-        let setPad = WorkoutLogViewModel(exercise: try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),
-                                         journal: stack.journal)
+        let pullUps = try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID))
+        // Each save is its own SetPad sheet: a saved pad ignores further taps (C-12).
+        let setPad = WorkoutLogViewModel(exercise: pullUps, journal: stack.journal)
         setPad.input.appendDigit(5)
         setPad.save()
         let first = try #require(stack.rewards.xpToastAmount)
 
-        setPad.input.appendDigit(3)
-        setPad.save()
+        let secondPad = WorkoutLogViewModel(exercise: pullUps, journal: stack.journal)
+        secondPad.input.appendDigit(3)
+        secondPad.save()
         let second = try #require(stack.rewards.xpToastAmount)
         #expect(second != first)
 
