@@ -18,27 +18,39 @@ nonisolated enum ReminderSyncResult: Equatable, Sendable {
 /// one for a plan just done today, and repair drift (a permission granted in
 /// Settings, a missed reschedule).
 ///
-/// Every sync reads the plans and the log when it runs, and syncs run one
-/// after another, so the last one always reflects the latest saved state.
+/// Every sync reads the plans and the log entries when it runs, and syncs run
+/// one after another, so the last one always reflects the latest saved state.
+/// In the app the entries come from the `TrainingJournal` in memory, so a
+/// sync never decodes the whole log file again (audit D-7).
 @MainActor
 final class WorkoutPlanService {
     private let store: WorkoutPlanStoring
-    private let logStore: WorkoutLogStoring
+    /// The saved log entries; throws when the log can't be read.
+    private let logEntries: @MainActor () throws -> [WorkoutLogEntry]
     private let scheduler: WorkoutReminderScheduling
     private let refreshScheduler: ReminderRefreshScheduling
     private let logger = AppLog.logger(category: "WorkoutPlanService")
     /// The latest queued sync; the next one waits for it.
     private var lastSync: Task<ReminderSyncResult, Never>?
 
-    /// `logStore` is read only, to skip reminders on days a plan is done.
+    /// `logEntries` is only read, to skip reminders on days a plan is done.
     init(store: WorkoutPlanStoring,
-         logStore: WorkoutLogStoring,
+         logEntries: @escaping @MainActor () throws -> [WorkoutLogEntry],
          scheduler: WorkoutReminderScheduling,
          refreshScheduler: ReminderRefreshScheduling) {
         self.store = store
-        self.logStore = logStore
+        self.logEntries = logEntries
         self.scheduler = scheduler
         self.refreshScheduler = refreshScheduler
+    }
+
+    /// Reads the entries from the log store itself on every sync.
+    convenience init(store: WorkoutPlanStoring,
+                     logStore: WorkoutLogStoring,
+                     scheduler: WorkoutReminderScheduling,
+                     refreshScheduler: ReminderRefreshScheduling) {
+        self.init(store: store, logEntries: { try logStore.load() },
+                  scheduler: scheduler, refreshScheduler: refreshScheduler)
     }
 
     // MARK: Plans
@@ -104,7 +116,7 @@ final class WorkoutPlanService {
         }
         let entries: [WorkoutLogEntry]
         do {
-            entries = try logStore.load()
+            entries = try logEntries()
         } catch {
             logger.error("Workout log unreadable, reminders scheduled as if nothing were done: \(error.localizedDescription, privacy: .public)")
             entries = []

@@ -85,13 +85,18 @@ final class AppEnvironment {
         self.exerciseFavorites = ExerciseFavorites(store: favoriteExerciseStore)
         self.workoutPlanStore = workoutPlanStore
         self.reminderScheduler = reminderScheduler
-        // The plan service only reads the log, to skip days already done.
+        let journal = TrainingJournal(store: workoutLogStore)
+        // The plan service only reads the log, to skip days already done. It
+        // reads the journal's entries in memory rather than the file; a journal
+        // that failed to load throws, and the sync logs it.
         let planService = WorkoutPlanService(store: workoutPlanStore,
-                                             logStore: workoutLogStore,
+                                             logEntries: { [journal] in
+                                                 if let failure = journal.loadFailure { throw failure }
+                                                 return journal.entries
+                                             },
                                              scheduler: reminderScheduler,
                                              refreshScheduler: reminderRefreshScheduler)
         self.workoutPlanService = planService
-        let journal = TrainingJournal(store: workoutLogStore)
         journal.onChange { [weak planService] in
             Task { await planService?.syncReminders() }
         }

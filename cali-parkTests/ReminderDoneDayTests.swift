@@ -292,6 +292,48 @@ struct AppEnvironmentReminderSyncTests {
         #expect(await scheduler.rescheduleCount == 2)
         #expect(await scheduler.scheduledRequests.compactMap(Fixtures.fireDay).first == 1)
     }
+
+    /// D-7: a sync takes the entries from the journal in memory; only the
+    /// journal's own launch read touches the log store.
+    @Test
+    func syncReadsTheJournalNotTheLogFile() async throws {
+        let plan = Fixtures.plan()
+        let logStore = LoadCountingWorkoutLogStore()
+        let scheduler = Fixtures.scheduler()
+        let environment = AppEnvironment(favoriteParkStore: InMemoryFavoriteParkStore(),
+                                         favoriteExerciseStore: InMemoryFavoriteExerciseStore(),
+                                         workoutLogStore: logStore,
+                                         workoutPlanStore: InMemoryWorkoutPlanStore(initial: [plan]),
+                                         reminderScheduler: scheduler,
+                                         reminderRefreshScheduler: InMemoryReminderRefreshScheduler(),
+                                         placementStore: InMemorySkillPlacementStore(),
+                                         skillProgressStore: InMemorySkillProgressStore(),
+                                         weeklyGoalStore: InMemoryWeeklyGoalStore(),
+                                         defaults: .throwaway())
+        try environment.journal.log(Fixtures.entry(planID: plan.id))
+        await environment.workoutPlanService.syncReminders()
+
+        #expect(logStore.loadCount == 1)
+        // The entry logged a moment ago still counts: today is done.
+        #expect(await scheduler.scheduledRequests.compactMap(Fixtures.fireDay).first == 1)
+    }
+}
+
+/// An in-memory log store that counts full loads.
+private final class LoadCountingWorkoutLogStore: WorkoutLogStoring {
+    private let base = InMemoryWorkoutLogStore()
+    private(set) var loadCount = 0
+
+    func load() throws -> [WorkoutLogEntry] {
+        loadCount += 1
+        return base.load()
+    }
+
+    func append(_ entry: WorkoutLogEntry) throws { try base.append(entry) }
+    func append(contentsOf entries: [WorkoutLogEntry]) throws { try base.append(contentsOf: entries) }
+    func delete(id: UUID) throws { try base.delete(id: id) }
+    func delete(ids: Set<UUID>) throws { try base.delete(ids: ids) }
+    func replaceAll(with entries: [WorkoutLogEntry]) throws { try base.replaceAll(with: entries) }
 }
 
 // MARK: - Background refresh
