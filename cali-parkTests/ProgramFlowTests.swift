@@ -148,8 +148,8 @@ struct ProgramDetailViewModelTests {
         viewModel.reload()
         let plan = try #require(viewModel.previewPlans.first)
 
-        #expect(viewModel.targetSummary(for: plan.exercises[0], in: plan) == "Para 1 · 3 × 10–30 s · przerwa 90 s")
-        #expect(viewModel.targetSummary(for: plan.exercises[1], in: plan) == "Para 1 · 3 × 5–8 · przerwa 90 s")
+        #expect(viewModel.targetSummary(for: plan.exercises[0], in: plan) == "Para 1 · 3 × 10–30 s · przerwa 90 s".keptTogether)
+        #expect(viewModel.targetSummary(for: plan.exercises[1], in: plan) == "Para 1 · 3 × 5–8 · przerwa 90 s".keptTogether)
     }
 }
 
@@ -164,11 +164,11 @@ struct ProgramFormatTests {
         let lSit = PlannedExercise(exerciseID: E.oneLegLSitID, targetSeconds: 30, targetSecondsMin: 10, totalSeconds: 180)
 
         #expect(ProgramFormat.doseSummary(for: taps, exercise: E.exercise(withID: E.plankShoulderTapsID))
-                == "2–6 rund · 1–2 powtórzenia w zapasie na stronę")
+                == "2–6 rund · 1–2 powtórzenia w zapasie na stronę".keptTogether)
         #expect(ProgramFormat.groupLabel(for: taps, in: [taps]) == "Obwód")
-        #expect(ProgramFormat.doseSummary(for: practice, exercise: nil) == "do 10 min praktyki")
+        #expect(ProgramFormat.doseSummary(for: practice, exercise: nil) == "do 10 min praktyki".keptTogether)
         #expect(ProgramFormat.doseSummary(for: lSit, exercise: E.exercise(withID: E.oneLegLSitID))
-                == "łącznie do 3 min, holdy 10–30 s na stronę")
+                == "łącznie do 3 min, holdy 10–30 s na stronę".keptTogether)
     }
 
     @Test
@@ -177,9 +177,9 @@ struct ProgramFormatTests {
         let handBuilt = PlannedExercise(exerciseID: E.pushUpsID)
         let fixed = PlannedExercise(exerciseID: E.pushUpsID, targetSets: 3, targetReps: 12)
 
-        #expect(ProgramFormat.doseSummary(for: lunges, exercise: E.exercise(withID: E.lungesID)) == "3 × 5–8 na nogę")
+        #expect(ProgramFormat.doseSummary(for: lunges, exercise: E.exercise(withID: E.lungesID)) == "3 × 5–8 na nogę".keptTogether)
         #expect(ProgramFormat.doseSummary(for: handBuilt, exercise: nil) == nil)
-        #expect(ProgramFormat.doseSummary(for: fixed, exercise: nil) == "3 × 12")
+        #expect(ProgramFormat.doseSummary(for: fixed, exercise: nil) == "3 × 12".keptTogether)
         #expect(ProgramFormat.groupLabel(for: fixed, in: [fixed]) == nil)
         #expect(ProgramFormat.restSummary(for: fixed) == nil)
     }

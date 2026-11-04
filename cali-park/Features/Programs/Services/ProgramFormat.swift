@@ -3,12 +3,17 @@ import Foundation
 // MARK: - ProgramFormat
 /// Polish labels for program and plan items: what to do on an item ("3 × 5–8
 /// na nogę"), the pair or circuit it belongs to, and its rest. Shared by the
-/// program detail screen and the plan editor so both read the same.
+/// program detail screen and the plan editor so both read the same. Numbers
+/// stay on one line with their units and ranges (`String.keptTogether`).
 nonisolated enum ProgramFormat {
     /// What to do, e.g. "3 × 5–8", "3 × 10–30 s", "2–6 rund · 1–2 powtórzenia
     /// w zapasie", "do 10 min praktyki" or "łącznie do 3 min, holdy 10–30 s".
     /// `nil` when the item has no target at all (a plan built by hand).
     static func doseSummary(for planned: PlannedExercise, exercise: Exercise?) -> String? {
+        rawDoseSummary(for: planned, exercise: exercise)?.keptTogether
+    }
+
+    private static func rawDoseSummary(for planned: PlannedExercise, exercise: Exercise?) -> String? {
         let side = exercise?.unilateralSide.map { " " + $0.label } ?? ""
 
         if let minutes = planned.timeBoxMinutes {
@@ -50,7 +55,7 @@ nonisolated enum ProgramFormat {
 
     /// "przerwa 90 s", or `nil` without a set rest.
     static func restSummary(for planned: PlannedExercise) -> String? {
-        planned.restSeconds.map { String(localized: "przerwa \($0) s") }
+        planned.restSeconds.map { String(localized: "przerwa \($0) s").keptTogether }
     }
 
     // MARK: Workout screen
@@ -63,7 +68,7 @@ nonisolated enum ProgramFormat {
             return String(localized: "Jedno po drugim, przerwa po rundzie")
         }
         if let rest = items.compactMap(\.restSeconds).max() {
-            return String(localized: "Na przemian, przerwa \(rest) s po każdej serii")
+            return String(localized: "Na przemian, przerwa \(rest) s po każdej serii").keptTogether
         }
         return items.count > 1 ? String(localized: "Na przemian") : nil
     }
@@ -87,7 +92,7 @@ nonisolated enum ProgramFormat {
 
     /// "Przerwa 90 s", or "Przerwa 2 min" for whole minutes.
     static func restLabel(seconds: Int) -> String {
-        String(localized: "Przerwa \(duration(seconds))")
+        String(localized: "Przerwa \(duration(seconds))").keptTogether
     }
 
     /// "Program Fundamenty · wersja 1".

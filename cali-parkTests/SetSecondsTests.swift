@@ -110,13 +110,13 @@ struct SetLogFormatTests {
 
     @Test
     func breakdownCollapsesEqualHolds() {
-        #expect(MeasureFormat.breakdown(of: holds(20, 20, 20)) == "3 × 20 s")
-        #expect(MeasureFormat.breakdown(of: holds(15, 15, 15)) == "3 × 15 s")
+        #expect(MeasureFormat.breakdown(of: holds(20, 20, 20)) == "3 × 20 s".keptTogether)
+        #expect(MeasureFormat.breakdown(of: holds(15, 15, 15)) == "3 × 15 s".keptTogether)
     }
 
     @Test
     func breakdownListsVariedHolds() {
-        #expect(MeasureFormat.breakdown(of: holds(20, 15, 20)) == "20 + 15 + 20 s")
+        #expect(MeasureFormat.breakdown(of: holds(20, 15, 20)) == "20 + 15 + 20 s".keptTogether)
     }
 
     @Test
@@ -127,13 +127,13 @@ struct SetLogFormatTests {
     @Test
     func totalReadsRepsOrSeconds() {
         #expect(MeasureFormat.total(of: reps(6, 6, 8)) == "20 powtórzeń")
-        #expect(MeasureFormat.total(of: holds(20, 20, 20)) == "60 s")
+        #expect(MeasureFormat.total(of: holds(20, 20, 20)) == "60 s".keptTogether)
     }
 
     @Test(arguments: [
         (40, 0, "40 powtórzeń"),
-        (0, 60, "60 s"),
-        (40, 60, "40 powtórzeń · 60 s"),
+        (0, 60, "60 s".keptTogether),
+        (40, 60, "40 powtórzeń · 60 s".keptTogether),
         (0, 0, "0 powtórzeń")
     ])
     func totalsListsOnlyPresentMeasures(reps: Int, seconds: Int, expected: String) {
@@ -199,6 +199,6 @@ struct TimedWorkoutLogViewModelTests {
         #expect(entry.sets.map(\.durationSeconds) == [15, 15, 15])
         #expect(entry.totalSeconds == 45)
         #expect(entry.totalReps == 0)
-        #expect(MeasureFormat.breakdown(of: entry.sets) == "3 × 15 s")
+        #expect(MeasureFormat.breakdown(of: entry.sets) == "3 × 15 s".keptTogether)
     }
 }

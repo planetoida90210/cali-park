@@ -8,16 +8,17 @@ import Foundation
 /// "pierwsze 5 s". Totals keep reps and seconds apart, so a mixed session never
 /// adds seconds to repetitions. On screen the seconds unit stays the invariant
 /// "s"; spoken variants spell it out for VoiceOver. Counted nouns go through
-/// `PolishPlural`.
+/// `PolishPlural`. A number never wraps away from its unit or its "×": the
+/// on-screen forms use no-break spaces (`String.keptTogether`).
 nonisolated enum MeasureFormat {
     /// The unit symbol for a hold — invariant in Polish, like "kg".
     static let secondsUnit = String(localized: "s", comment: "Seconds unit symbol, as in \"20 s\"")
 
     // MARK: Values
 
-    /// "20 s".
+    /// "20 s", with a no-break space.
     static func seconds(_ value: Int) -> String {
-        "\(value) \(secondsUnit)"
+        "\(value)\(String.noBreakSpace)\(secondsUnit)"
     }
 
     /// An amount of work: "20 powtórzeń" for reps, "60 s" for a hold.
@@ -28,11 +29,13 @@ nonisolated enum MeasureFormat {
         }
     }
 
-    /// Equal sets: "3 × 8" for reps, "3 × 20 s" for holds.
+    /// Equal sets: "3 × 8" for reps, "3 × 20 s" for holds, with no-break
+    /// spaces.
     static func sets(_ count: Int, of value: Int, _ measurement: ExerciseMeasurement) -> String {
-        switch measurement {
-        case .reps: "\(count) × \(value)"
-        case .seconds: "\(count) × \(seconds(value))"
+        let times = "\(String.noBreakSpace)×\(String.noBreakSpace)"
+        return switch measurement {
+        case .reps: "\(count)\(times)\(value)"
+        case .seconds: "\(count)\(times)\(seconds(value))"
         }
     }
 
@@ -58,7 +61,7 @@ nonisolated enum MeasureFormat {
         if let first = held.first, held.allSatisfy({ $0 == first }) {
             return Self.sets(held.count, of: first, .seconds)
         }
-        return held.map(String.init).joined(separator: " + ") + " \(secondsUnit)"
+        return held.map(String.init).joined(separator: " + ") + "\(String.noBreakSpace)\(secondsUnit)"
     }
 
     /// The work in `sets` as a trailing summary: "20 powtórzeń" for reps, or

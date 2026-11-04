@@ -311,8 +311,19 @@ struct WeeklyGoalFormatTests {
         #expect(WeeklyGoalFormat.title(.exerciseVolume(exerciseID: ExerciseCatalog.pullUpsID, measurement: .reps,
                                                        amount: 75)) == "\(pullUps): 75 powtórzeń")
         let lSit = WeeklyGoal.Metric.exerciseVolume(exerciseID: ExerciseCatalog.lSitID, measurement: .seconds, amount: 180)
-        #expect(WeeklyGoalFormat.title(lSit).hasSuffix(": 180 s"))
+        #expect(WeeklyGoalFormat.title(lSit).hasSuffix(": 180 s".keptTogether))
         #expect(WeeklyGoalFormat.spokenTitle(lSit).hasSuffix(": 180 sekund"))
+    }
+
+    /// Row 18 of the second visual pass: "Dni treningowe" under "3 dni
+    /// treningowe" said nothing new.
+    @Test
+    func editorSubtitleOnlyWhereItAddsToTheTitle() {
+        #expect(WeeklyGoalFormat.editorSubtitle(.trainingDays(days: 3)) == nil)
+        #expect(WeeklyGoalFormat.editorSubtitle(.plannedWorkouts(target: .count(workouts: 4))) == nil)
+        #expect(WeeklyGoalFormat.editorSubtitle(.plannedWorkouts(target: .allScheduled)) == nil)
+        let volume = WeeklyGoal.Metric.exerciseVolume(exerciseID: ExerciseCatalog.pullUpsID, measurement: .reps, amount: 75)
+        #expect(WeeklyGoalFormat.editorSubtitle(volume) == "Objętość w tygodniu")
     }
 
     @Test
@@ -328,7 +339,7 @@ struct WeeklyGoalFormatTests {
             goal: F.goal(.exerciseVolume(exerciseID: ExerciseCatalog.lSitID, measurement: .seconds, amount: 180)),
             target: 180, value: 60
         )
-        #expect(WeeklyGoalFormat.progress(hold) == "60 / 180 s")
+        #expect(WeeklyGoalFormat.progress(hold) == "60 / 180 s".keptTogether)
         #expect(WeeklyGoalFormat.spokenProgress(hold) == "60 z 180 sekund")
     }
 }

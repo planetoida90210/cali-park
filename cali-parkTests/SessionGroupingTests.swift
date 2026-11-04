@@ -161,7 +161,7 @@ struct SessionGroupsInWorkoutTests {
         #expect(session.blocks.map(\.kind) == [.group(1), .group(2), .group(3)])
         #expect(session.blocks.allSatisfy { $0.items.count == 2 })
         #expect(session.groups[1]?.title == "Para 1")
-        #expect(session.groups[1]?.instruction == "Na przemian, przerwa 90 s po każdej serii")
+        #expect(session.groups[1]?.instruction == "Na przemian, przerwa 90 s po każdej serii".keptTogether)
         #expect(session.groups[1]?.tracker?.rounds == 3...3)
     }
 

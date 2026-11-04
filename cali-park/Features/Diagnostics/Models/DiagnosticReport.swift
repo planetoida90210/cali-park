@@ -30,8 +30,12 @@ nonisolated enum DiagnosticKind: String, Codable, CaseIterable, Comparable, Send
 
 // MARK: - DiagnosticFact
 /// One labelled detail of a diagnostic, e.g. the crash signal or the hang
-/// duration. The key is stored; the screen turns it into a Polish label. The
-/// value is MetricKit's own text ("SIGSEGV (11)", "2.4 sec"), not localized.
+/// duration. Both are stored as MetricKit gave them: the key, and the value
+/// as MetricKit's own English text ("SIGSEGV (11)", "2.4 sec", "2,400 kB").
+/// The screen shows them in Polish: `DiagnosticsFormat.label(for:)` names the
+/// key and `DiagnosticsFormat.value(of:)` formats durations and sizes
+/// ("2,4 s", "2,4 MB"); other values (signals, exception names) stay as
+/// MetricKit wrote them.
 nonisolated struct DiagnosticFact: Codable, Hashable, Sendable {
     /// Raw values are stored on disk; never rename them.
     enum Key: String, Codable, Sendable {

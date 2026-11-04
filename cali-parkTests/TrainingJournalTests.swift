@@ -591,7 +591,7 @@ struct LiveRungProgressTests {
 
         // The sheet reads progress through the same view model, no reload.
         #expect(ladder.rungProgress(for: step).bestValue == 6)
-        #expect(MeasureFormat.best(ladder.rungProgress(for: step)) == "3 × 6")
+        #expect(MeasureFormat.best(ladder.rungProgress(for: step)) == "3 × 6".keptTogether)
     }
 }
 
@@ -602,9 +602,9 @@ struct MeasureFormatTests {
     @Test
     func valuesSetsAndSpokenForms() {
         #expect(MeasureFormat.amount(20, .reps) == "20 powtórzeń")
-        #expect(MeasureFormat.amount(60, .seconds) == "60 s")
-        #expect(MeasureFormat.sets(3, of: 8, .reps) == "3 × 8")
-        #expect(MeasureFormat.sets(3, of: 20, .seconds) == "3 × 20 s")
+        #expect(MeasureFormat.amount(60, .seconds) == "60 s".keptTogether)
+        #expect(MeasureFormat.sets(3, of: 8, .reps) == "3 × 8".keptTogether)
+        #expect(MeasureFormat.sets(3, of: 20, .seconds) == "3 × 20 s".keptTogether)
         #expect(MeasureFormat.spokenSets(3, of: 8, .reps) == "3 serie po 8 powtórzeń")
         #expect(MeasureFormat.spokenSets(3, of: 20, .seconds) == "3 serie po 20 sekund")
     }
@@ -618,7 +618,7 @@ struct MeasureFormatTests {
                             sets: [LoggedSet(reps: 1, durationSeconds: 30)], sessionID: session)
         ]).first!
 
-        #expect(MeasureFormat.summary(of: workout) == "2 ćwiczenia · 16 powtórzeń · 30 s")
+        #expect(MeasureFormat.summary(of: workout) == "2 ćwiczenia · 16 powtórzeń · 30 s".keptTogether)
     }
 }
 

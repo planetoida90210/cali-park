@@ -160,6 +160,13 @@ final class PlanEditorViewModel {
         }
     }
 
+    /// The schedule's next days for the footer ("Najbliższe treningi: dziś,
+    /// 6 lis, 8 lis"), which the mode's own control doesn't show; `nil` when
+    /// nothing is coming up.
+    var upcomingDays: String? {
+        WorkoutScheduleFormatter.upcomingDays(schedule, asOf: today, calendar: calendar)
+    }
+
     /// The one-off date is before today, so the plan would never occur.
     var isOnceDateInPast: Bool {
         CalendarDay(onceDate, in: calendar) < CalendarDay(today, in: calendar)

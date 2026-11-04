@@ -19,7 +19,11 @@ struct PlanScheduleSection: View {
             Text("Harmonogram")
         } footer: {
             VStack(alignment: .leading, spacing: 4) {
-                Text(WorkoutScheduleFormatter.summary(viewModel.schedule))
+                // Not the mode again ("Co 2 dni" is in the stepper): when it
+                // comes up next.
+                if let upcoming = viewModel.upcomingDays {
+                    Text(upcoming)
+                }
                 if let problem = viewModel.scheduleProblem {
                     Label(problem, systemImage: "exclamationmark.triangle.fill")
                         .foregroundStyle(Color.warning)

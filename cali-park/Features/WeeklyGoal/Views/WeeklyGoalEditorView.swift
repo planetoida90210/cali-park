@@ -122,8 +122,8 @@ private struct WeeklyGoalEditorRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // The kind is also the subtitle, so at accessibility sizes the
-            // icon gives its width to the title instead of hyphenating it.
+            // At accessibility sizes the icon gives its width to the title
+            // instead of hyphenating it; the title names the kind.
             if !typeSize.isAccessibilitySize {
                 Image(systemName: goal.metric.kind.symbolName)
                     .foregroundStyle(Color.accent)
@@ -134,9 +134,11 @@ private struct WeeklyGoalEditorRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(WeeklyGoalFormat.title(goal.metric))
                     .foregroundStyle(Color.textPrimary)
-                Text(goal.metric.kind.displayName)
-                    .font(.bodySmall)
-                    .foregroundStyle(Color.textSecondary)
+                if let subtitle = WeeklyGoalFormat.editorSubtitle(goal.metric) {
+                    Text(subtitle)
+                        .font(.bodySmall)
+                        .foregroundStyle(Color.textSecondary)
+                }
             }
 
             Spacer(minLength: 8)

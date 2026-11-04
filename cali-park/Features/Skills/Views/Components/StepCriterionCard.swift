@@ -20,7 +20,7 @@ struct StepCriterionCard: View {
                 .foregroundStyle(Color.textPrimary)
 
             if let note = step.criterionNote {
-                Text(note)
+                Text(note.keptTogether)
                     .font(.bodyMedium)
                     .foregroundStyle(Color.textPrimary)
             }

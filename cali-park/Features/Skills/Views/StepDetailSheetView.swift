@@ -22,11 +22,20 @@ struct StepDetailSheetView: View {
     /// Payload-driven: the SetPad opens only when an exercise is set.
     @State private var loggingExercise: Exercise?
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
+                    if Self.inlineTitle(exercise.name, typeSize: typeSize).isEmpty {
+                        Text(exercise.name)
+                            .font(.appTitle2)
+                            .foregroundStyle(Color.textPrimary)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                            .accessibilityAddTraits(.isHeader)
+                    }
                     StepDetailHeader(exercise: exercise)
                     StepCriterionCard(step: step, progress: progress)
                     StepEquipmentRow(step: step)
@@ -36,7 +45,7 @@ struct StepDetailSheetView: View {
                 .padding(.vertical, 16)
             }
             .background(Color.appBackground.ignoresSafeArea())
-            .navigationTitle(exercise.name)
+            .navigationTitle(Self.inlineTitle(exercise.name, typeSize: typeSize))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -51,6 +60,13 @@ struct StepDetailSheetView: View {
             }
         }
         .rewardOverlay()
+    }
+
+    /// The navigation bar's title: the exercise name, or nothing at
+    /// accessibility sizes, where the inline title would cut a long name
+    /// ("Wiosłowanie na podwyż…") and the name heads the content instead.
+    static func inlineTitle(_ name: String, typeSize: DynamicTypeSize) -> String {
+        typeSize.isAccessibilitySize ? "" : name
     }
 }
 

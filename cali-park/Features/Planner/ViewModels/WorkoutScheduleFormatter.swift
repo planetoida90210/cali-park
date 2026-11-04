@@ -1,8 +1,8 @@
 import Foundation
 
 // MARK: - WorkoutScheduleFormatter
-/// Turns a `WorkoutSchedule` into a short, human Polish summary for the planner
-/// list and editor footer. Presentation logic lives here (not on the model) so
+/// Turns a `WorkoutSchedule` into short, human Polish text: the summary for
+/// the planner list, the upcoming days for the editor's footer. Presentation logic lives here (not on the model) so
 /// the model stays free of localization concerns.
 nonisolated enum WorkoutScheduleFormatter {
     /// A one-line description, e.g. "Co tydzień · Pon, Czw", "Co 3 dni",
@@ -46,6 +46,41 @@ nonisolated enum WorkoutScheduleFormatter {
         else { return summary(schedule, calendar: calendar, locale: locale) }
         let dateText = shortDate(day.startDate(in: calendar), calendar: calendar, locale: locale)
         return String(localized: "Minął · \(dateText)")
+    }
+
+    /// The schedule's next few days, for the plan editor's footer, so it
+    /// says something its controls don't: "Najbliższe treningi: dziś, 6 lis,
+    /// 8 lis", or "Najbliższy trening: jutro" for a one-off plan. `nil` when
+    /// nothing is coming up (no weekday picked, a past one-off day).
+    static func upcomingDays(
+        _ schedule: WorkoutSchedule,
+        count: Int = 3,
+        asOf reference: Date = .now,
+        calendar: Calendar = .current,
+        locale: Locale = .current
+    ) -> String? {
+        let today = calendar.startOfDay(for: reference)
+        var days: [Date] = []
+        var from = today
+        while days.count < count, let next = schedule.nextOccurrence(onOrAfter: from, calendar: calendar) {
+            days.append(next)
+            // A one-off plan has nothing after its day, so the loop ends there.
+            guard let following = calendar.date(byAdding: .day, value: 1, to: next) else { break }
+            from = following
+        }
+        guard !days.isEmpty else { return nil }
+
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)
+        let labels = days.map { day -> String in
+            if day == today { return String(localized: "dziś") }
+            if day == tomorrow { return String(localized: "jutro") }
+            // "6 lis" never wraps between the day and the month.
+            return String(shortDate(day, calendar: calendar, locale: locale).map { $0 == " " ? String.noBreakSpace : $0 })
+        }
+        let list = labels.joined(separator: ", ")
+        return days.count == 1
+            ? String(localized: "Najbliższy trening: \(list)")
+            : String(localized: "Najbliższe treningi: \(list)")
     }
 
     /// A short "when" label for a scheduled day: "Dziś", "Jutro", a weekday name

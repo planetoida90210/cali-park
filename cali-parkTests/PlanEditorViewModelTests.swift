@@ -323,6 +323,45 @@ struct WorkoutScheduleFormatterTests {
         #expect(summary == "Jednorazowo · 20 lip")
     }
 
+    // Row 14 of the second visual pass: the footer said "Co 2 dni" right
+    // under the stepper that says it. Now it names the next days.
+    @Test
+    func upcomingDaysListTheNextThree() throws {
+        let today = try #require(CalendarDay(year: 2026, month: 11, day: 4))
+        let now = today.startDate(in: Fixtures.calendar) + 15 * 3_600
+        func upcoming(_ schedule: WorkoutSchedule) -> String? {
+            WorkoutScheduleFormatter.upcomingDays(schedule, asOf: now, calendar: Fixtures.calendar, locale: Self.polish)?
+                .replacingOccurrences(of: String(String.noBreakSpace), with: " ")
+        }
+
+        #expect(upcoming(.everyNDays(2, from: today)) == "Najbliższe treningi: dziś, 6 lis, 8 lis")
+        #expect(upcoming(.everyNDays(1, from: today)) == "Najbliższe treningi: dziś, jutro, 6 lis")
+        // 2026-11-04 is a Wednesday.
+        #expect(upcoming(.weekly([.monday, .thursday])) == "Najbliższe treningi: jutro, 9 lis, 12 lis")
+        let oneOff = try #require(CalendarDay(year: 2026, month: 11, day: 20))
+        #expect(upcoming(.once(oneOff)) == "Najbliższy trening: 20 lis")
+    }
+
+    @Test
+    func nothingUpcomingHasNoFooterLine() throws {
+        let today = try #require(CalendarDay(year: 2026, month: 11, day: 4))
+        let now = today.startDate(in: Fixtures.calendar)
+        let past = try #require(CalendarDay(year: 2026, month: 11, day: 3))
+
+        #expect(WorkoutScheduleFormatter.upcomingDays(.weekly([]), asOf: now, calendar: Fixtures.calendar) == nil)
+        #expect(WorkoutScheduleFormatter.upcomingDays(.once(past), asOf: now, calendar: Fixtures.calendar) == nil)
+        #expect(WorkoutScheduleFormatter.upcomingDays(.once(nil), asOf: now, calendar: Fixtures.calendar) == nil)
+    }
+
+    @Test
+    func aDateNeverWrapsFromItsMonth() throws {
+        let today = try #require(CalendarDay(year: 2026, month: 11, day: 4))
+        let line = try #require(WorkoutScheduleFormatter.upcomingDays(
+            .everyNDays(3, from: today), asOf: today.startDate(in: Fixtures.calendar),
+            calendar: Fixtures.calendar, locale: Self.polish))
+        #expect(line.hasSuffix("7\u{00A0}lis, 10\u{00A0}lis"))
+    }
+
     @Test
     func dayLabelUsesPolishWeekdayAndMonth() throws {
         let monday = try #require(CalendarDay(year: 2026, month: 11, day: 2)).startDate(in: Fixtures.calendar)

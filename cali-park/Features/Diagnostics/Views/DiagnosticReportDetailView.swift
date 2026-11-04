@@ -21,7 +21,7 @@ struct DiagnosticReportDetailView: View {
                     detail("Wersja apki", version.text)
                 }
                 if let os = report.osVersion {
-                    detail("System", os)
+                    detail("System", DiagnosticsFormat.osVersion(os))
                 }
                 if let device = report.deviceType {
                     detail("Urządzenie", device)
@@ -80,7 +80,7 @@ struct DiagnosticReportDetailView: View {
     private func entrySection(_ entry: DiagnosticEntry, number: Int) -> some View {
         Section {
             ForEach(entry.facts, id: \.key) { fact in
-                detail(DiagnosticsFormat.label(for: fact.key), fact.value)
+                detail(DiagnosticsFormat.label(for: fact.key), DiagnosticsFormat.value(of: fact))
             }
             if !entry.topFrames.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {

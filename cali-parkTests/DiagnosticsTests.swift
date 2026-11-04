@@ -511,6 +511,51 @@ struct DiagnosticsFormatTests {
         #expect(DiagnosticsFormat.events(12) == "12 zdarzeń")
     }
 
+    // Row 13 of the second visual pass: MetricKit's English values showed
+    // as is ("Czas zawieszenia 2.4 sec", "iPhone OS 26.1").
+    @Test(
+        "MetricKit's durations and sizes read in Polish; other values stay as written",
+        arguments: [
+            (DiagnosticFact.Key.hangDuration, "2.4 sec", "2,4 s"),
+            (.launchDuration, "4.1 sec", "4,1 s"),
+            (.backgroundTime, "40 sec", "40 s"),
+            (.cpuTime, "92 sec", "1 min 32 s"),
+            (.foregroundTime, "1,260 sec", "21 min"),
+            (.foregroundTime, "3,725 sec", "1 godz. 2 min"),
+            (.hangDuration, "450 ms", "450 ms"),
+            (.peakMemory, "182,000 kB", "182 MB"),
+            (.diskWrites, "2,400 kB", "2,4 MB"),
+            (.writesCaused, "1,073,741,824 bytes", "1,07 GB"),
+            (.signal, "SIGSEGV (11)", "SIGSEGV (11)"),
+            (.unexpectedExits, "3", "3"),
+            (.hangDuration, "a while", "a while"),
+            (.hangDuration, "2.4 parsecs", "2.4 parsecs")
+        ])
+    func factValues(key: DiagnosticFact.Key, raw: String, shown: String) {
+        let value = DiagnosticsFormat.value(of: DiagnosticFact(key: key, value: raw), locale: Locale(identifier: "pl_PL"))
+        // Numbers keep their units on the same line: compare with plain spaces.
+        #expect(value.replacingOccurrences(of: String(String.noBreakSpace), with: " ") == shown)
+    }
+
+    @Test("The OS reads \"iOS\", not MetricKit's \"iPhone OS\"")
+    func osVersion() {
+        #expect(DiagnosticsFormat.osVersion("iPhone OS 26.1 (23B85)") == "iOS 26.1 (23B85)")
+        #expect(DiagnosticsFormat.osVersion("iPadOS 26.1") == "iPadOS 26.1")
+    }
+
+    @Test("Formatting for the screen leaves the stored summary as MetricKit wrote it")
+    func storedFactsStayRaw() throws {
+        let report = try #require(
+            DiagnosticReportParser.report(
+                from: .metrics(try DiagnosticFixtures.metricPayload()), receivedAt: DiagnosticFixtures.now))
+        let entry = try #require(report.entries.first)
+        let foreground = try #require(entry.facts.first { $0.key == .foregroundTime })
+
+        _ = DiagnosticsFormat.value(of: foreground, locale: Locale(identifier: "pl_PL"))
+        #expect(foreground.value == "1,260 sec")
+        #expect(report.osVersion == "iPhone OS 26.1 (23B85)")
+    }
+
     @Test("Kinds order from the most to the least severe")
     func severity() {
         #expect(DiagnosticKind.allCases.sorted() == [.crash, .hang, .cpuException, .diskWriteException, .appLaunch, .metrics])

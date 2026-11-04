@@ -89,7 +89,7 @@ struct ProgressionHintTests {
         #expect(hint.currentRungIndex == 5)
 
         let line = try #require(ProgressionFormat.hintLine(hint))
-        #expect(line.hasPrefix("Jeszcze 2 powtórzenia do 3 × 8"))
+        #expect(line.hasPrefix("Jeszcze 2 powtórzenia do 3 × 8".keptTogether))
         // The next rung (index 6) is what the athlete unlocks.
         let nextRungName = try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.lPullUpsID)?.name)
         #expect(line.contains("następny szczebel: \(nextRungName)"))
@@ -149,7 +149,7 @@ struct HomeAchievementsSummaryTests {
         ]
         let hint = try #require(dashboard(entries: logs, placement: placement).progressionHint)
 
-        #expect(hint.hasPrefix("Jeszcze 2 powtórzenia do 3 × 8"))
+        #expect(hint.hasPrefix("Jeszcze 2 powtórzenia do 3 × 8".keptTogether))
     }
 
     // MARK: Regression — the placement store must not disturb heroState.

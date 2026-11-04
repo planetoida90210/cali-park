@@ -22,6 +22,16 @@ nonisolated enum WeeklyGoalFormat {
         }
     }
 
+    /// The editor row's second line, only where it adds to `title`: the
+    /// volume goal says it counts the week's volume. "3 dni treningowe" and
+    /// "4 treningi z planu" already name their kind, so they get none.
+    static func editorSubtitle(_ metric: WeeklyGoal.Metric) -> String? {
+        switch metric {
+        case .trainingDays, .plannedWorkouts: nil
+        case .exerciseVolume: String(localized: "Objętość w tygodniu")
+        }
+    }
+
     /// `title` for VoiceOver, with seconds spelled out.
     static func spokenTitle(_ metric: WeeklyGoal.Metric) -> String {
         guard case let .exerciseVolume(exerciseID, .seconds, amount) = metric else { return title(metric) }
@@ -90,7 +100,7 @@ nonisolated enum WeeklyGoalFormat {
     static func amountText(_ amount: Int, _ measurement: ExerciseMeasurement) -> String {
         switch measurement {
         case .reps: PolishPlural.reps(amount)
-        case .seconds: String(localized: "\(amount) s")
+        case .seconds: String(localized: "\(amount) s").keptTogether
         }
     }
 
