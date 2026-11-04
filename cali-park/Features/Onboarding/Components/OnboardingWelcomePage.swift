@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - OnboardingWelcomePage
 /// The first onboarding page: the hero glyph and the welcome text.
 struct OnboardingWelcomePage: View {
-    /// Scales the hero glyphs with Dynamic Type while keeping their base size.
+    /// The hero glyph's side: 80 pt at the default text size, scaled with Dynamic Type.
     @ScaledMetric private var heroIconSize: CGFloat = 80
 
     var body: some View {
@@ -21,7 +21,9 @@ struct OnboardingWelcomePage: View {
     private var content: some View {
         VStack(spacing: 32) {
             Image(systemName: "figure.gymnastics")
-                .font(.system(size: heroIconSize))
+                .resizable()
+                .scaledToFit()
+                .frame(width: heroIconSize, height: heroIconSize)
                 .foregroundStyle(Color.accent)
                 .accessibilityHidden(true)
 
