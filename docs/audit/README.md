@@ -2,6 +2,7 @@
 
 Audyt objął 7 obszarów: logikę Skills, logikę treningów i planera, trwałość danych, współbieżność i Swift 6, SwiftUI/UX/dostępność, architekturę oraz gotowość produkcyjną. Każdy obszar przeczytał jeden agent, a drugi próbował obalić każde znalezisko w kodzie. **136 znalezisk przeszło weryfikację i żadne nie zostało obalone.** 40 z nich potwierdzono częściowo, z obniżoną wagą albo węższym zakresem. Weryfikatorzy dodali 5 własnych. Wiele znalezisk to ten sam problem wyłapany przez kilka obszarów, więc niżej są pogrupowane. Sam raport też przeszedł niezależną kontrolę zgodności ze znaleziskami.
 
+- **Aktualny stan każdego znaleziska (co naprawione, co zniknęło, co otwarte) jest w [STATUS.md](STATUS.md).** Ten README opisuje stan z dnia audytu.
 - Szczegóły każdego znaleziska z dowodem, skutkiem i fixem są w [findings.md](findings.md). Identyfikatory `A-1`, `B-2` prowadzą tam, a `X-V1` to znaleziska dodane przez weryfikatora.
 - Research skilli Swift dla Claude Code: [skills-research.md](skills-research.md).
 
