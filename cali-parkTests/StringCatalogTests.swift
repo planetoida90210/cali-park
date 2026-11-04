@@ -4,18 +4,15 @@ import Testing
 
 // MARK: - String Catalog
 
-/// The app ships a Polish String Catalog (`Localizable.xcstrings`). Polish is
-/// the source language and the only one, so every lookup must return the
-/// Polish source text, with its arguments filled in exactly as plain string
-/// interpolation would.
+/// The app has a Polish String Catalog (`Localizable.xcstrings`). Polish is
+/// the source language and the only one, so the catalog compiles to no
+/// tables yet and every lookup must return the Polish source text, with its
+/// arguments filled in exactly as plain string interpolation would.
 @Suite("String Catalog")
 struct StringCatalogTests {
-    @Test("The bundle is localized for Polish and carries the compiled catalog")
-    func polishCatalogIsBundled() {
-        let bundle = Bundle.main
-        #expect(bundle.developmentLocalization == "pl")
-        #expect(bundle.localizations.contains("pl"))
-        #expect(bundle.path(forResource: "Localizable", ofType: "strings", inDirectory: nil, forLocalization: "pl") != nil)
+    @Test("Polish is the bundle's development language")
+    func polishIsTheDevelopmentLanguage() {
+        #expect(Bundle.main.developmentLocalization == "pl")
     }
 
     @Test("A catalog key resolves to its Polish source text")

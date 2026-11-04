@@ -28,7 +28,7 @@ struct HeroWeeklyGoalView: View {
             } else {
                 HStack(spacing: 12) {
                     ring
-                    goalText(lineLimit: 1)
+                    goalText(lineLimit: 2)
                     Spacer(minLength: 0)
                     HeroWeekStreakBadge(weeks: snapshot.streak)
                 }

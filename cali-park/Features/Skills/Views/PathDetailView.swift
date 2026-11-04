@@ -150,7 +150,7 @@ private struct RungRow: View {
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(exercise?.name ?? "Szczebel"). \(stateLabel)")
+        .accessibilityLabel("\(exercise?.name ?? String(localized: "Szczebel")). \(stateLabel)")
         .accessibilityHint("Otwórz szczegóły i trenuj")
     }
 
