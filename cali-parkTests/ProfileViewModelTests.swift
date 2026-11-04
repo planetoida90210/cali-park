@@ -97,3 +97,11 @@ struct ProfileViewModelTests {
         #expect(model.errorMessage == StoreLoadFailure.message)
     }
 }
+
+@Suite("About screen")
+struct AboutContentTests {
+    @Test func osmCreditMatchesTheMapAttribution() {
+        #expect(AboutContent.mapAttribution.name == ParkFormat.attribution)
+        #expect(AboutContent.mapAttribution.name == "© Współtwórcy OpenStreetMap")
+    }
+}

@@ -71,7 +71,7 @@ enum AboutContent {
     /// OpenStreetMap data (Parks on the map) is under the ODbL, which
     /// requires this credit wherever the data is shown or used.
     static let mapAttribution = AboutSource(
-        name: "© współtwórcy OpenStreetMap",
+        name: ParkFormat.attribution,
         usage: "Dane o Parkach na mapie, licencja ODbL",
         url: url("https://www.openstreetmap.org/copyright")
     )
