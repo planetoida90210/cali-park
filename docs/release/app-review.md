@@ -25,7 +25,7 @@ Stan `main` z 2026-11-04: trening bez Konta, mapa Parków z OSM tylko do odczytu
 | 5.2.1, 5.2.2 Treści osób trzecich | Dane OSM, mapy Apple. | Każdy ekran z Parkami pokazuje „© Współtwórcy OpenStreetMap”, „O apce” linkuje licencję. Nic z geokodowania MapKit nie jest zapisywane. ODbL wymaga udostępnienia bazy Parków: plik `data/` jest gotowy, ale publiczny będzie dopiero ze stroną (`/dane`). Po publikacji link w „O apce”. | ⏳ |
 | Eksport (szyfrowanie) | Pytanie przy każdym buildzie. | `ITSAppUsesNonExemptEncryption = NO`: apka nie szyfruje sama i nie łączy się z siecią. | ✅ |
 | Privacy manifest (warunek uploadu) | Brak powodu dla API z wymaganym powodem (ITMS-91053). | `UserDefaults` z `CA92.1`; plik binarny Release nie odwołuje się do innych takich API (sprawdzenie w [checklist.md](checklist.md)). | ✅ |
-| Ikona (warunek uploadu) | Kanał alfa w ikonie (ITMS-90717). | Domyślna ikona 1024 px bez kanału alfa (`scripts/brand/build-icons.mjs`, test w `AppConfigurationTests`). | ✅ |
+| Ikona (warunek uploadu) | Kanał alfa w ikonie (ITMS-90717). | Domyślna ikona 1024 px bez kanału alfa (`scripts/brand/build-icons.mjs`, krok „App icon” w CI, `scripts/check-app-icon.sh`). | ✅ |
 
 ## Decyzje (2026-11-04)
 

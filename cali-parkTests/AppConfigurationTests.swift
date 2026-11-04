@@ -61,23 +61,4 @@ struct AppConfigurationTests {
         }
         #expect(reasons == ["NSPrivacyAccessedAPICategoryUserDefaults": ["CA92.1"]])
     }
-
-    /// App Store Connect rejects an app icon with an alpha channel
-    /// (ITMS-90717), even a fully opaque one. `scripts/brand/build-icons.mjs`
-    /// writes the default icon without one; dark and tinted stay transparent.
-    @Test
-    func theDefaultAppIconHasNoAlphaChannel() throws {
-        let icon = URL(filePath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .appending(path: "cali-park/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png")
-        let png = try Data(contentsOf: icon)
-        // The IHDR chunk: width at bytes 16–19, colour type at byte 25.
-        try #require(png.count > 25)
-        let width = png[16..<20].reduce(0) { $0 << 8 | Int($1) }
-        let colourType = png[25]
-
-        #expect(width == 1024)
-        #expect(colourType == 2, "Colour type \(colourType): 2 is RGB, 6 is RGB with alpha")
-    }
 }

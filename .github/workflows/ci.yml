@@ -109,6 +109,12 @@ jobs:
           xcodebuild -version
           echo "swift-format $(xcrun swift-format --version)"
 
+      # Blocking: App Store Connect rejects an app icon with an alpha
+      # channel (ITMS-90717). Not a unit test: the simulator can't read files
+      # in a checkout under ~/Documents (macOS privacy protection).
+      - name: App icon
+        run: scripts/check-app-icon.sh
+
       # Blocking: any rule above its baseline count fails the job.
       - name: Project rules
         run: scripts/lint-rules.sh --baseline scripts/lint-rules.baseline
