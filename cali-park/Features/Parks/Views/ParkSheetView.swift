@@ -42,6 +42,7 @@ struct ParkSheetView: View {
             VStack(alignment: .leading, spacing: 0) {
                 ParkCardHeader(park: park, distance: distance, isFavorite: isFavorite, isExpanded: isExpanded,
                                onToggleFavorite: onToggleFavorite, onExpand: onExpand, onClose: onClose)
+                    .accessibilityIdentifier("parks.card")
                     .padding(.horizontal, 20)
                     .padding(.top, ParkSheetView.headerTopPadding)
                     .onGeometryChange(for: CGFloat.self) { proxy in

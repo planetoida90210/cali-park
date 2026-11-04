@@ -39,6 +39,7 @@ struct RoundTrackerRow: View {
             } else if !tracker.isFinished {
                 Button("Runda zrobiona", systemImage: "checkmark", action: onFinishRound)
                     .buttonStyle(.accent(.compact, fillsWidth: false))
+                    .accessibilityIdentifier("quickWorkout.round.finish")
             } else {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(Color.accent)

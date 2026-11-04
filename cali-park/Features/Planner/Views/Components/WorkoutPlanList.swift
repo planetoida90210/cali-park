@@ -31,6 +31,7 @@ struct WorkoutPlanList: View {
                 } label: {
                     ProgramsEntryRow()
                 }
+                .accessibilityIdentifier("plans.programs")
                 .listRowBackground(Color.componentBackground)
             }
 

@@ -41,6 +41,7 @@ struct SkillPathsView: View {
                                 SkillPathCard(summary: summary)
                             }
                             .buttonStyle(.plain)
+                            .accessibilityIdentifier("skills.path.\(summary.id.rawValue)")
                         }
                     }
 

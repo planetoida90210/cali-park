@@ -57,6 +57,7 @@ struct ParksModuleContent: View {
         .accessibilityElement(children: .combine)
         EquipmentChips(equipment: item.park.equipment, limit: 3)
         mapButton("Pokaż na mapie") { router?.showPark(item.park.id) }
+            .accessibilityIdentifier("home.nearestPark.showOnMap")
     }
 
     private func message(_ text: Text, systemImage: String) -> some View {

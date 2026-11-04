@@ -20,6 +20,9 @@ enum Seed: String {
     /// A seasoned athlete whose "Pierwsze podciągnięcie" plan is done; today
     /// is a rest day.
     case veteran
+    /// Five weeks of "Fundamenty" with a week streak and the plan due
+    /// today, for the App Store screenshots.
+    case storeTour
 }
 
 /// Stable catalog exercise IDs (`ExerciseCatalog`), as the identifiers use them.
