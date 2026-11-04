@@ -12,8 +12,6 @@ struct PrimaryActionRailView: View {
     @State private var showingQuickWorkout = false
     @Environment(\.dynamicTypeSize) private var typeSize
 
-    private let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-
     /// Side by side; stacked at accessibility text sizes, where two half-width
     /// buttons would cut their titles.
     private var railLayout: AnyLayout {
@@ -28,7 +26,6 @@ struct PrimaryActionRailView: View {
     var body: some View {
         railLayout {
             Button {
-                impactFeedback.impactOccurred()
                 showingQuickWorkout = true
             } label: {
                 railLabel(iconName: "bolt.fill", title: "Szybki trening", isPrimary: true)
@@ -39,6 +36,9 @@ struct PrimaryActionRailView: View {
             }
         }
         .padding(.horizontal, 16)
+        .sensoryFeedback(.impact(weight: .medium), trigger: showingQuickWorkout) { _, isShowing in
+            isShowing
+        }
         .sheet(isPresented: $showingQuickWorkout) {
             QuickWorkoutView(viewModel: dashboard.makeQuickWorkoutViewModel())
         }
