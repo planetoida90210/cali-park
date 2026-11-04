@@ -7,6 +7,8 @@ import SwiftUI
 /// the Exercises tab and from Home.
 struct WorkoutPlansView: View {
     @State private var viewModel: WorkoutPlansViewModel
+    /// The "Czas na Fundamenty" card.
+    @State private var graduation: ProgramGraduationViewModel
     @State private var editorRoute: PlanEditorRoute?
     @State private var showingPrograms = false
     /// A plan just created from a program, opened in the editor once the
@@ -18,6 +20,7 @@ struct WorkoutPlansView: View {
     init(environment: AppEnvironment) {
         self.environment = environment
         _viewModel = State(initialValue: environment.makeWorkoutPlansViewModel())
+        _graduation = State(initialValue: environment.makeProgramGraduationViewModel())
     }
 
     var body: some View {
@@ -56,8 +59,20 @@ struct WorkoutPlansView: View {
                 viewModel.reload()
             }
         }
-        .onAppear { viewModel.reload() }
+        .onAppear {
+            viewModel.reload()
+            graduation.reload()
+        }
         .errorAlert($viewModel.errorMessage, hint: "Spróbuj ponownie.")
+        .errorAlert($graduation.errorMessage)
+    }
+
+    /// "Przejdź na Fundamenty": replaces the plan, then opens the new one in
+    /// the editor. It is a normal saved plan, so "Anuluj" keeps it.
+    private func moveOnToFundamentals() async {
+        let created = await graduation.moveOn()
+        viewModel.reload()
+        if let created { editorRoute = .edit(created) }
     }
 
     /// Opens the plan created from a program in the editor.
@@ -70,6 +85,18 @@ struct WorkoutPlansView: View {
     // MARK: Plan list
     private var planList: some View {
         List {
+            if let plan = graduation.candidate {
+                Section {
+                    ProgramGraduationCard(
+                        planName: plan.name,
+                        isReplacing: graduation.isReplacing,
+                        onMoveOn: { Task { await moveOnToFundamentals() } },
+                        onDismiss: { graduation.dismiss() }
+                    )
+                    .listRowBackground(Color.componentBackground)
+                }
+            }
+
             Section {
                 Button {
                     showingPrograms = true

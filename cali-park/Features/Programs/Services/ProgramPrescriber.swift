@@ -220,4 +220,30 @@ nonisolated enum ProgramPrescriber {
         else { return false }
         return state.isConquered(rungAt: pullUps)
     }
+
+    /// The plan to suggest moving on from: the oldest active plan from
+    /// "Pierwsze podciągnięcie" that is ready to graduate, or `nil` when there
+    /// is none or the athlete already has a plan from "Fundamenty".
+    static func graduationCandidate(plans: [WorkoutPlan],
+                                    pathStates: [ProgressionPathID: PathState]) -> WorkoutPlan? {
+        guard !plans.contains(where: { $0.programID == ProgramID.fundamentals.rawValue }) else { return nil }
+        return plans
+            .filter { $0.isActive && isReadyToGraduate($0, pathStates: pathStates) }
+            .min { $0.createdAt < $1.createdAt }
+    }
+
+    /// The plans that replace `plan` when the athlete moves on to `program`:
+    /// the program's plans on the current rungs, on `plan`'s days and with
+    /// its reminder, so the week keeps its shape.
+    static func replacementPlans(for plan: WorkoutPlan,
+                                 program: TrainingProgram,
+                                 pathStates: [ProgressionPathID: PathState],
+                                 today: Date = .now) -> [WorkoutPlan] {
+        plans(for: program, pathStates: pathStates, today: today).map { created in
+            var replacement = created
+            replacement.schedule = plan.schedule
+            replacement.reminderTime = plan.reminderTime
+            return replacement
+        }
+    }
 }

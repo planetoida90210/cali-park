@@ -13,4 +13,7 @@ nonisolated enum DefaultsKey: String, CaseIterable {
     case didRemoveCoreDataScaffold
     /// The shown Home modules, as an array of module IDs in display order.
     case enabledModules
+    /// The "Czas na Fundamenty" card in the Planner was dismissed or used, so
+    /// it never comes back.
+    case hasDismissedFundamentalsHint
 }

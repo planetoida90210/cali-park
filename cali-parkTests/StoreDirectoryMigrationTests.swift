@@ -282,6 +282,7 @@ struct DefaultsKeyTests {
         #expect(DefaultsKey.hasSeenSetPadHint.rawValue == "hasSeenSetPadHint")
         #expect(DefaultsKey.didRemoveCoreDataScaffold.rawValue == "didRemoveCoreDataScaffold")
         #expect(DefaultsKey.enabledModules.rawValue == "enabledModules")
-        #expect(DefaultsKey.allCases.count == 4)
+        #expect(DefaultsKey.hasDismissedFundamentalsHint.rawValue == "hasDismissedFundamentalsHint")
+        #expect(DefaultsKey.allCases.count == 5)
     }
 }

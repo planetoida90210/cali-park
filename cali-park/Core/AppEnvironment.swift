@@ -62,6 +62,9 @@ final class AppEnvironment {
     /// Crash and performance reports from MetricKit, kept on the phone and
     /// sent only by the user ("Diagnostyka" in Profile).
     let diagnostics: DiagnosticsService
+    /// The app's `UserDefaults` (a throwaway suite in previews and tests),
+    /// for the few flags view models keep there (`DefaultsKey`).
+    let defaults: UserDefaults
 
     // MARK: Init
     /// Every dependency is passed explicitly, with no defaults, so nothing
@@ -114,6 +117,7 @@ final class AppEnvironment {
         self.weeklyGoalStore = weeklyGoalStore
         self.modulePreferences = ModulePreferences(defaults: defaults)
         self.diagnostics = diagnostics
+        self.defaults = defaults
     }
 
     // MARK: View Model Factories
@@ -201,6 +205,12 @@ final class AppEnvironment {
     /// Detail screen of one ready-made program, with "Utwórz plan".
     func makeProgramDetailViewModel(program: TrainingProgram) -> ProgramDetailViewModel {
         ProgramDetailViewModel(program: program, starter: makeProgramStarter())
+    }
+
+    /// The Planner's "Czas na Fundamenty" card for a finished "Pierwsze
+    /// podciągnięcie" plan.
+    func makeProgramGraduationViewModel() -> ProgramGraduationViewModel {
+        ProgramGraduationViewModel(starter: makeProgramStarter(), defaults: defaults)
     }
 
     /// Onboarding's program suggestion after the level test.

@@ -82,9 +82,20 @@ Podpis: „Program CaliPark oparty na zasadach z Recommended Routine
 | 2 | `row` | dawka serii RR | — |
 | 3 | `pushUp` ↔ `legs` (para 1) | dawka serii RR | 90 s |
 
-Tor z gumą jest opcją drabiny, program go nie wybiera. Wyjście: przy
-zaliczonych pełnych podciągnięciach (3 × 8) `ProgramPrescriber.isReadyToGraduate`
-mówi, że czas na Fundamenty (na razie bez ekranu, który to pokazuje).
+Tor z gumą jest opcją drabiny, program go nie wybiera.
+
+**Wyjście na Fundamenty.** Przy zaliczonych pełnych podciągnięciach (3 × 8,
+`ProgramPrescriber.isReadyToGraduate`) „Plany treningowe” pokazują nad listą
+kartę „Czas na Fundamenty” (`ProgramGraduationCard`). Karta dotyczy
+najstarszego aktywnego planu z tego programu i nie pokazuje się, gdy jest już
+plan z Fundamentów.
+
+- „Przejdź na Fundamenty” jednym tapnięciem tworzy plan Fundamenty na
+  aktualnych szczeblach (ten sam `ProgramStarter` co „Utwórz plan”), w te same
+  dni i z tym samym przypomnieniem co stary plan, potem usuwa stary plan i
+  otwiera nowy w edytorze. Zapisane treningi zostają (mają swoje `planID`).
+- „Nie teraz” chowa kartę na zawsze (`DefaultsKey.hasDismissedFundamentalsHint`);
+  przejście też ją chowa.
 
 ### Skille — `skills`
 

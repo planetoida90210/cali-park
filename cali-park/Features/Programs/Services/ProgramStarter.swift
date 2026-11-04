@@ -7,6 +7,9 @@ nonisolated enum ProgramStartError: Error, Equatable {
     case ladderStateUnreadable
     /// A plan could not be saved.
     case saveFailed
+    /// The new plans were saved, but the plan they replace could not be
+    /// deleted, so both are on the list.
+    case replacedPlanKept
 }
 
 // MARK: - ProgramStarter
@@ -64,5 +67,37 @@ final class ProgramStarter {
             saved.append(plan)
         }
         return saved
+    }
+
+    // MARK: Moving on
+
+    /// The "Pierwsze podciągnięcie" plan whose athlete is ready for
+    /// "Fundamenty" (see `ProgramPrescriber.graduationCandidate`), or `nil`.
+    /// Unreadable plans or ladder state count as no.
+    func graduationCandidate() -> WorkoutPlan? {
+        guard let plans = try? planService.loadPlans(), let states = try? pathStates() else { return nil }
+        return ProgramPrescriber.graduationCandidate(plans: plans, pathStates: states)
+    }
+
+    /// Replaces `plan` with `program`'s plans on the same days and with the
+    /// same reminder: saves the new plans first, then deletes `plan`. Logged
+    /// workouts keep their plan id, so history and closed weeks stay as they
+    /// were. Returns the new plans as saved.
+    func replace(_ plan: WorkoutPlan, with program: TrainingProgram) async throws -> [WorkoutPlan] {
+        let plans = ProgramPrescriber.replacementPlans(for: plan, program: program,
+                                                       pathStates: try pathStates(), today: clock())
+        for created in plans {
+            do {
+                try await planService.save(created)
+            } catch {
+                throw ProgramStartError.saveFailed
+            }
+        }
+        do {
+            try await planService.delete(id: plan.id)
+        } catch {
+            throw ProgramStartError.replacedPlanKept
+        }
+        return plans
     }
 }
