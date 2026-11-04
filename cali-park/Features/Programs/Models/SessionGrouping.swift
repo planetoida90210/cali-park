@@ -121,7 +121,8 @@ nonisolated struct RoundTracker: Equatable, Sendable {
     mutating func finishRound(at date: Date) {
         guard !isFinished else { return }
         completed += 1
-        rest = isFinished || restSeconds <= 0
+        rest =
+            isFinished || restSeconds <= 0
             ? nil
             : DateInterval(start: date, duration: TimeInterval(restSeconds))
     }

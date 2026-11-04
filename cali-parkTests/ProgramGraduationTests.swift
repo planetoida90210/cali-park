@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 private typealias E = ExerciseCatalog
@@ -20,8 +21,9 @@ struct GraduationCandidateTests {
     private static let notYet = ProgramFixtures.states(logs: [ProgramFixtures.reps(E.pullUpsID, 7)])
 
     private static func plan(_ program: ProgramID, isActive: Bool = true, createdAt: Date = ProgramFixtures.today) -> WorkoutPlan {
-        WorkoutPlan(name: program.rawValue, schedule: .weekly([.monday]), isActive: isActive,
-                    createdAt: createdAt, programID: program.rawValue, programVersion: 1)
+        WorkoutPlan(
+            name: program.rawValue, schedule: .weekly([.monday]), isActive: isActive,
+            createdAt: createdAt, programID: program.rawValue, programVersion: 1)
     }
 
     @Test
@@ -39,8 +41,10 @@ struct GraduationCandidateTests {
 
     @Test
     func inactiveAndOtherPlansAreNotCandidates() {
-        let plans = [Self.plan(.firstPullUp, isActive: false), Self.plan(.minimum),
-                     WorkoutPlan(name: "Mój", schedule: .weekly([.friday]))]
+        let plans = [
+            Self.plan(.firstPullUp, isActive: false), Self.plan(.minimum),
+            WorkoutPlan(name: "Mój", schedule: .weekly([.friday]))
+        ]
         #expect(ProgramPrescriber.graduationCandidate(plans: plans, pathStates: Self.ready) == nil)
     }
 
@@ -57,9 +61,10 @@ struct GraduationCandidateTests {
         old.schedule = .weekly([.tuesday, .thursday, .saturday])
         old.reminderTime = DateComponents(hour: 18, minute: 30)
 
-        let replacement = try #require(ProgramPrescriber.replacementPlans(
-            for: old, program: ProgramCatalog.fundamentals, pathStates: Self.ready, today: ProgramFixtures.today
-        ).first)
+        let replacement = try #require(
+            ProgramPrescriber.replacementPlans(
+                for: old, program: ProgramCatalog.fundamentals, pathStates: Self.ready, today: ProgramFixtures.today
+            ).first)
         #expect(replacement.programID == ProgramID.fundamentals.rawValue)
         #expect(replacement.schedule == old.schedule)
         #expect(replacement.reminderTime == old.reminderTime)
@@ -83,22 +88,29 @@ struct ProgramGraduationViewModelTests {
         let firstPullUp: WorkoutPlan
     }
 
-    private static func harness(planStore: WorkoutPlanStoring? = nil,
-                                logs: [WorkoutLogEntry] = [ProgramFixtures.reps(E.pullUpsID, 8)]) throws -> Harness {
-        var firstPullUp = try #require(ProgramPrescriber.plans(for: ProgramCatalog.firstPullUp,
-                                                              pathStates: ProgramFixtures.newcomer,
-                                                              today: ProgramFixtures.today).first)
+    private static func harness(
+        planStore: WorkoutPlanStoring? = nil,
+        logs: [WorkoutLogEntry] = [ProgramFixtures.reps(E.pullUpsID, 8)]
+    ) throws -> Harness {
+        var firstPullUp = try #require(
+            ProgramPrescriber.plans(
+                for: ProgramCatalog.firstPullUp,
+                pathStates: ProgramFixtures.newcomer,
+                today: ProgramFixtures.today
+            ).first)
         firstPullUp.reminderTime = DateComponents(hour: 7, minute: 0)
         let store = InMemoryWorkoutPlanStore(initial: [firstPullUp])
         let defaults = UserDefaults.throwaway()
-        let starter = ProgramStarter(planService: .testing(planStore ?? store),
-                                     logStore: InMemoryWorkoutLogStore(initial: logs),
-                                     placementStore: InMemorySkillPlacementStore(),
-                                     calendar: ProgramFixtures.calendar,
-                                     clock: { ProgramFixtures.today })
-        return Harness(plans: store, defaults: defaults,
-                       viewModel: ProgramGraduationViewModel(starter: starter, defaults: defaults),
-                       firstPullUp: firstPullUp)
+        let starter = ProgramStarter(
+            planService: .testing(planStore ?? store),
+            logStore: InMemoryWorkoutLogStore(initial: logs),
+            placementStore: InMemorySkillPlacementStore(),
+            calendar: ProgramFixtures.calendar,
+            clock: { ProgramFixtures.today })
+        return Harness(
+            plans: store, defaults: defaults,
+            viewModel: ProgramGraduationViewModel(starter: starter, defaults: defaults),
+            firstPullUp: firstPullUp)
     }
 
     @Test
@@ -166,11 +178,12 @@ struct ProgramGraduationViewModelTests {
     }
 
     private static func viewModel(over store: WorkoutPlanStoring) throws -> ProgramGraduationViewModel {
-        let starter = ProgramStarter(planService: .testing(store),
-                                     logStore: InMemoryWorkoutLogStore(initial: [ProgramFixtures.reps(E.pullUpsID, 8)]),
-                                     placementStore: InMemorySkillPlacementStore(),
-                                     calendar: ProgramFixtures.calendar,
-                                     clock: { ProgramFixtures.today })
+        let starter = ProgramStarter(
+            planService: .testing(store),
+            logStore: InMemoryWorkoutLogStore(initial: [ProgramFixtures.reps(E.pullUpsID, 8)]),
+            placementStore: InMemorySkillPlacementStore(),
+            calendar: ProgramFixtures.calendar,
+            clock: { ProgramFixtures.today })
         return ProgramGraduationViewModel(starter: starter, defaults: .throwaway())
     }
 }

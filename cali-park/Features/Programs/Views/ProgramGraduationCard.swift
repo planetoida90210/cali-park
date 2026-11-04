@@ -22,9 +22,11 @@ struct ProgramGraduationCard: View {
                     .accessibilityAddTraits(.isHeader)
             }
 
-            Text("Robisz już 3 serie po 8 pełnych podciągnięć, więc plan „\(planName)” zrobił swoje. Fundamenty trenują całe ciało w trzech parach.")
-                .font(.bodyMedium)
-                .foregroundStyle(Color.textPrimary)
+            Text(
+                "Robisz już 3 serie po 8 pełnych podciągnięć, więc plan „\(planName)” zrobił swoje. Fundamenty trenują całe ciało w trzech parach."
+            )
+            .font(.bodyMedium)
+            .foregroundStyle(Color.textPrimary)
 
             Text("Plan Fundamenty zastąpi „\(planName)” w te same dni i z tym samym przypomnieniem. Historia treningów zostaje.")
                 .font(.bodySmall)

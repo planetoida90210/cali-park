@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 // MARK: - Blocks
@@ -25,8 +26,10 @@ struct SessionGroupingTests {
 
     @Test
     func singlesBeforeAPairShareOneBlock() {
-        let items = [Item(id: "pull", group: nil), Item(id: "row", group: nil),
-                     Item(id: "push", group: 1), Item(id: "legs", group: 1)]
+        let items = [
+            Item(id: "pull", group: nil), Item(id: "row", group: nil),
+            Item(id: "push", group: 1), Item(id: "legs", group: 1)
+        ]
         let blocks = SessionGrouping.blocks(items, group: \.group)
 
         #expect(blocks.map(\.kind) == [.singles, .group(1)])
@@ -35,15 +38,19 @@ struct SessionGroupingTests {
 
     @Test
     func aGroupStaysTogetherAroundAnInsertedExercise() {
-        let items = [Item(id: "a", group: 1), Item(id: "extra", group: nil), Item(id: "b", group: 1),
-                     Item(id: "c", group: 2), Item(id: "d", group: 2)]
+        let items = [
+            Item(id: "a", group: 1), Item(id: "extra", group: nil), Item(id: "b", group: 1),
+            Item(id: "c", group: 2), Item(id: "d", group: 2)
+        ]
         #expect(Self.kinds(items) == [["a", "b"], ["extra"], ["c", "d"]])
     }
 
     @Test
     func blocksHaveStableDistinctIDs() {
-        let items = [Item(id: "x", group: nil), Item(id: "a", group: 1), Item(id: "b", group: 1),
-                     Item(id: "y", group: nil)]
+        let items = [
+            Item(id: "x", group: nil), Item(id: "a", group: 1), Item(id: "b", group: 1),
+            Item(id: "y", group: nil)
+        ]
         let ids = SessionGrouping.blocks(items, group: \.group).map(\.id)
         #expect(ids == ["singles-x", "group-1", "singles-y"])
     }
@@ -94,8 +101,9 @@ struct RoundTrackerTests {
 
     @Test
     func aCircuitCountsUpToTheTopOfItsRangeWithTheDefaultRest() throws {
-        let circuit = ProgramPrescriber.plans(for: ProgramCatalog.minimum, pathStates: ProgramFixtures.newcomer,
-                                              today: ProgramFixtures.today)[0].exercises
+        let circuit = ProgramPrescriber.plans(
+            for: ProgramCatalog.minimum, pathStates: ProgramFixtures.newcomer,
+            today: ProgramFixtures.today)[0].exercises
         var tracker = try #require(RoundTracker(for: circuit))
         #expect(tracker.rounds == 2...6)
         #expect(tracker.restSeconds == RoundTracker.defaultCircuitRestSeconds)
@@ -113,8 +121,10 @@ struct RoundTrackerTests {
 
     @Test
     func aGroupWithoutSetsOrRoundsHasNoCounter() {
-        let group = [PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID, group: 1),
-                     PlannedExercise(exerciseID: ExerciseCatalog.squatsID, group: 1)]
+        let group = [
+            PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID, group: 1),
+            PlannedExercise(exerciseID: ExerciseCatalog.squatsID, group: 1)
+        ]
         #expect(RoundTracker(for: group) == nil)
     }
 
@@ -132,12 +142,16 @@ struct RoundTrackerTests {
 @MainActor
 @Suite("A program plan's pairs and circuits on the workout screen", .timeLimit(.minutes(1)))
 struct SessionGroupsInWorkoutTests {
-    private static func session(_ program: TrainingProgram,
-                                clock: @escaping () -> Date = { TestDate.reference }) -> QuickWorkoutViewModel {
-        let plan = ProgramPrescriber.plans(for: program, pathStates: ProgramFixtures.newcomer,
-                                           today: ProgramFixtures.today)[0]
-        return QuickWorkoutViewModel(store: InMemoryWorkoutLogStore(), plan: plan,
-                                     pathStates: ProgramFixtures.newcomer, logs: [], clock: clock)
+    private static func session(
+        _ program: TrainingProgram,
+        clock: @escaping () -> Date = { TestDate.reference }
+    ) -> QuickWorkoutViewModel {
+        let plan = ProgramPrescriber.plans(
+            for: program, pathStates: ProgramFixtures.newcomer,
+            today: ProgramFixtures.today)[0]
+        return QuickWorkoutViewModel(
+            store: InMemoryWorkoutLogStore(), plan: plan,
+            pathStates: ProgramFixtures.newcomer, logs: [], clock: clock)
     }
 
     @Test
@@ -182,8 +196,9 @@ struct SessionGroupsInWorkoutTests {
     @Test
     func roundsAreNotUnsavedChangesAndLoggingStaysPerExercise() async {
         let store = InMemoryWorkoutLogStore()
-        let plan = ProgramPrescriber.plans(for: ProgramCatalog.fundamentals, pathStates: ProgramFixtures.newcomer,
-                                           today: ProgramFixtures.today)[0]
+        let plan = ProgramPrescriber.plans(
+            for: ProgramCatalog.fundamentals, pathStates: ProgramFixtures.newcomer,
+            today: ProgramFixtures.today)[0]
         let session = QuickWorkoutViewModel(store: store, plan: plan, pathStates: ProgramFixtures.newcomer, logs: [])
         session.finishRound(inGroup: 1)
         #expect(!session.hasUnsavedChanges)

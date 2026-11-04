@@ -8,19 +8,22 @@
 
 import Foundation
 import Testing
+
 @testable import cali_park
 
 private typealias F = WeeklyGoalFixtures
 
 private enum ScheduleFixture {
-    static let allScheduled = F.goal(.plannedWorkouts(target: .allScheduled),
-                                     id: UUID(uuidString: "D0000000-0000-4000-8000-0000000000A1")!)
+    static let allScheduled = F.goal(
+        .plannedWorkouts(target: .allScheduled),
+        id: UUID(uuidString: "D0000000-0000-4000-8000-0000000000A1")!)
     static let versions = [F.version([allScheduled], from: F.day(week: -6, hour: 0))]
 
     /// Monday, Wednesday, Friday since week -6.
-    static let threeDays = WorkoutPlan(id: UUID(uuidString: "D0000000-0000-4000-8000-0000000000B1")!,
-                                       name: "Trzy dni", schedule: .weekly([.monday, .wednesday, .friday]),
-                                       createdAt: F.day(week: -6, hour: 0))
+    static let threeDays = WorkoutPlan(
+        id: UUID(uuidString: "D0000000-0000-4000-8000-0000000000B1")!,
+        name: "Trzy dni", schedule: .weekly([.monday, .wednesday, .friday]),
+        createdAt: F.day(week: -6, hour: 0))
 
     /// The same plan, moved to every day this week.
     static var everyDay: WorkoutPlan {
@@ -45,8 +48,10 @@ struct PlanScheduleRecordingTests {
     func theFirstRecordKeepsTheActivePlansOnly() throws {
         let paused = WorkoutPlan(name: "Wyłączony", schedule: .weekly([.sunday]), isActive: false)
 
-        let history = try #require(WeeklyGoalHistory.empty.recordingPlans([S.threeDays, paused], at: F.day(1),
-                                                                           calendar: F.calendar))
+        let history = try #require(
+            WeeklyGoalHistory.empty.recordingPlans(
+                [S.threeDays, paused], at: F.day(1),
+                calendar: F.calendar))
         #expect(history.planSchedules == [PlanScheduleRecord(effectiveFrom: F.day(1), plans: [ScheduledPlan(S.threeDays)])])
     }
 
@@ -57,8 +62,10 @@ struct PlanScheduleRecordingTests {
 
     @Test
     func unchangedPlansWriteNothing() throws {
-        let history = try #require(WeeklyGoalHistory.empty.recordingPlans([S.threeDays], at: F.day(week: -1),
-                                                                           calendar: F.calendar))
+        let history = try #require(
+            WeeklyGoalHistory.empty.recordingPlans(
+                [S.threeDays], at: F.day(week: -1),
+                calendar: F.calendar))
         var renamed = S.threeDays
         renamed.name = "Nowa nazwa"
         renamed.exercises = [PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)]
@@ -67,8 +74,10 @@ struct PlanScheduleRecordingTests {
 
     @Test
     func aChangeInALaterWeekAddsARecord() throws {
-        let first = try #require(WeeklyGoalHistory.empty.recordingPlans([S.threeDays], at: F.day(week: -1),
-                                                                         calendar: F.calendar))
+        let first = try #require(
+            WeeklyGoalHistory.empty.recordingPlans(
+                [S.threeDays], at: F.day(week: -1),
+                calendar: F.calendar))
         let second = try #require(first.recordingPlans([S.everyDay], at: F.day(1), calendar: F.calendar))
 
         #expect(second.planSchedules.map(\.effectiveFrom) == [F.day(week: -1), F.day(1)])
@@ -77,8 +86,10 @@ struct PlanScheduleRecordingTests {
 
     @Test
     func changesInTheSameWeekReplaceItsRecord() throws {
-        let earlier = try #require(WeeklyGoalHistory.empty.recordingPlans([S.threeDays], at: F.day(week: -1),
-                                                                           calendar: F.calendar))
+        let earlier = try #require(
+            WeeklyGoalHistory.empty.recordingPlans(
+                [S.threeDays], at: F.day(week: -1),
+                calendar: F.calendar))
         let monday = try #require(earlier.recordingPlans([S.everyDay], at: F.day(0), calendar: F.calendar))
         let tuesday = try #require(monday.recordingPlans([], at: F.day(1), calendar: F.calendar))
 
@@ -88,8 +99,10 @@ struct PlanScheduleRecordingTests {
 
     @Test
     func changingBackWithinTheWeekDropsItsRecord() throws {
-        let earlier = try #require(WeeklyGoalHistory.empty.recordingPlans([S.threeDays], at: F.day(week: -1),
-                                                                           calendar: F.calendar))
+        let earlier = try #require(
+            WeeklyGoalHistory.empty.recordingPlans(
+                [S.threeDays], at: F.day(week: -1),
+                calendar: F.calendar))
         let changed = try #require(earlier.recordingPlans([S.everyDay], at: F.day(0), calendar: F.calendar))
         let back = try #require(changed.recordingPlans([S.threeDays], at: F.day(2), calendar: F.calendar))
 
@@ -103,16 +116,21 @@ struct PlanScheduleRecordingTests {
 struct ClosedWeekPlansTests {
     private typealias S = ScheduleFixture
 
-    private static func verdict(_ week: Int, plans: [WorkoutPlan], records: [PlanScheduleRecord],
-                                entries: [WorkoutLogEntry]) -> WeeklyGoalWeek? {
-        WeeklyGoalEvaluator.evaluate(week: F.week(week), versions: S.versions, pauses: [], entries: entries,
-                                     plans: plans, planSchedules: records, calendar: F.calendar, asOf: F.day(1))
+    private static func verdict(
+        _ week: Int, plans: [WorkoutPlan], records: [PlanScheduleRecord],
+        entries: [WorkoutLogEntry]
+    ) -> WeeklyGoalWeek? {
+        WeeklyGoalEvaluator.evaluate(
+            week: F.week(week), versions: S.versions, pauses: [], entries: entries,
+            plans: plans, planSchedules: records, calendar: F.calendar, asOf: F.day(1))
     }
 
     @Test
     func aScheduleChangedThisWeekDoesNotRewriteLastWeek() {
-        let records = [PlanScheduleRecord(effectiveFrom: F.day(week: -3), activePlansOf: [S.threeDays]),
-                       PlanScheduleRecord(effectiveFrom: F.day(0), activePlansOf: [S.everyDay])]
+        let records = [
+            PlanScheduleRecord(effectiveFrom: F.day(week: -3), activePlansOf: [S.threeDays]),
+            PlanScheduleRecord(effectiveFrom: F.day(0), activePlansOf: [S.everyDay])
+        ]
         let entries = S.doneMondayWednesdayFriday(week: -1)
 
         let lastWeek = Self.verdict(-1, plans: [S.everyDay], records: records, entries: entries)
@@ -127,8 +145,10 @@ struct ClosedWeekPlansTests {
 
     @Test
     func aDeletedPlanStillCountsInTheWeeksItWasScheduled() {
-        let records = [PlanScheduleRecord(effectiveFrom: F.day(week: -3), activePlansOf: [S.threeDays]),
-                       PlanScheduleRecord(effectiveFrom: F.day(0), activePlansOf: [])]
+        let records = [
+            PlanScheduleRecord(effectiveFrom: F.day(week: -3), activePlansOf: [S.threeDays]),
+            PlanScheduleRecord(effectiveFrom: F.day(0), activePlansOf: [])
+        ]
         let entries = [F.entry(at: F.day(week: -1, 0), plan: S.threeDays)]
 
         let lastWeek = Self.verdict(-1, plans: [], records: records, entries: entries)
@@ -155,16 +175,22 @@ struct ClosedWeekPlansTests {
 
     @Test
     func theStreakKeepsWeeksMetUnderTheOldSchedule() {
-        let records = [PlanScheduleRecord(effectiveFrom: F.day(week: -3), activePlansOf: [S.threeDays]),
-                       PlanScheduleRecord(effectiveFrom: F.day(0), activePlansOf: [S.everyDay])]
+        let records = [
+            PlanScheduleRecord(effectiveFrom: F.day(week: -3), activePlansOf: [S.threeDays]),
+            PlanScheduleRecord(effectiveFrom: F.day(0), activePlansOf: [S.everyDay])
+        ]
         let entries = S.doneMondayWednesdayFriday(week: -2) + S.doneMondayWednesdayFriday(week: -1)
         let history = WeeklyGoalHistory(versions: S.versions, planSchedules: records)
 
-        let snapshot = WeeklyGoalEvaluator.snapshot(history: history, entries: entries, plans: [S.everyDay],
-                                                    calendar: F.calendar, asOf: F.day(1))
+        let snapshot = WeeklyGoalEvaluator.snapshot(
+            history: history, entries: entries, plans: [S.everyDay],
+            calendar: F.calendar, asOf: F.day(1))
         #expect(snapshot.streak == 2)
-        #expect(WeeklyGoalEvaluator.snapshot(history: WeeklyGoalHistory(versions: S.versions), entries: entries,
-                                             plans: [S.everyDay], calendar: F.calendar, asOf: F.day(1)).streak == 0)
+        #expect(
+            WeeklyGoalEvaluator.snapshot(
+                history: WeeklyGoalHistory(versions: S.versions), entries: entries,
+                plans: [S.everyDay], calendar: F.calendar, asOf: F.day(1)
+            ).streak == 0)
     }
 }
 
@@ -180,9 +206,10 @@ struct PlanScheduleServiceTests {
         var now = F.day(week: -1, 1)
         let goalStore = InMemoryWeeklyGoalStore(initial: WeeklyGoalHistory(versions: S.versions))
         let planService = WorkoutPlanService.testing(InMemoryWorkoutPlanStore())
-        let goals = WeeklyGoalService(journal: TrainingJournal(store: InMemoryWorkoutLogStore()),
-                                      store: goalStore, planService: planService,
-                                      calendar: F.calendar, clock: { now })
+        let goals = WeeklyGoalService(
+            journal: TrainingJournal(store: InMemoryWorkoutLogStore()),
+            store: goalStore, planService: planService,
+            calendar: F.calendar, clock: { now })
 
         try await planService.save(S.threeDays)
         #expect(goalStore.load()?.planSchedules == [PlanScheduleRecord(effectiveFrom: now, activePlansOf: [S.threeDays])])
@@ -198,9 +225,10 @@ struct PlanScheduleServiceTests {
     func aStoreRefusingWritesKeepsTheGoalReadable() async throws {
         let goalStore = ReadOnlyWeeklyGoalStore(initial: WeeklyGoalHistory(versions: S.versions))
         let planService = WorkoutPlanService.testing(InMemoryWorkoutPlanStore(initial: [S.threeDays]))
-        let goals = WeeklyGoalService(journal: TrainingJournal(store: InMemoryWorkoutLogStore()),
-                                      store: goalStore, planService: planService,
-                                      calendar: F.calendar, clock: { F.day(1) })
+        let goals = WeeklyGoalService(
+            journal: TrainingJournal(store: InMemoryWorkoutLogStore()),
+            store: goalStore, planService: planService,
+            calendar: F.calendar, clock: { F.day(1) })
 
         #expect(goals.snapshot != nil)
         #expect(goals.history?.planSchedules.isEmpty == true)
@@ -218,18 +246,28 @@ struct WeeklyGoalGoldenFileTests {
     private static let expected = WeeklyGoalHistory(
         versions: [
             WeeklyGoalVersion(effectiveFrom: StoreFixtures.october1, goals: WeeklyGoal.defaultGoals),
-            WeeklyGoalVersion(effectiveFrom: TestDate.at(2026, 10, 12, 9), goals: [
-                WeeklyGoal(id: UUID(uuidString: "D0000000-0000-4000-8000-000000000001")!,
-                           metric: .plannedWorkouts(target: .allScheduled)),
-                WeeklyGoal(id: UUID(uuidString: "D0000000-0000-4000-8000-000000000002")!,
-                           metric: .exerciseVolume(exerciseID: StoreFixtures.plankID, measurement: .seconds, amount: 180))
-            ])
+            WeeklyGoalVersion(
+                effectiveFrom: TestDate.at(2026, 10, 12, 9),
+                goals: [
+                    WeeklyGoal(
+                        id: UUID(uuidString: "D0000000-0000-4000-8000-000000000001")!,
+                        metric: .plannedWorkouts(target: .allScheduled)),
+                    WeeklyGoal(
+                        id: UUID(uuidString: "D0000000-0000-4000-8000-000000000002")!,
+                        metric: .exerciseVolume(exerciseID: StoreFixtures.plankID, measurement: .seconds, amount: 180))
+                ])
         ],
-        pauses: [WeeklyGoalPause(id: UUID(uuidString: "D0000000-0000-4000-8000-000000000003")!,
-                                 start: TestDate.at(2026, 10, 19, 0), plannedEnd: TestDate.at(2026, 10, 26, 0),
-                                 endedAt: StoreFixtures.october2.addingTimeInterval(20 * 86_400))],
-        celebrated: [WeeklyGoalCelebration(weekStart: TestDate.at(2026, 10, 12, 0),
-                                           goalID: UUID(uuidString: "D0000000-0000-4000-8000-000000000001")!)]
+        pauses: [
+            WeeklyGoalPause(
+                id: UUID(uuidString: "D0000000-0000-4000-8000-000000000003")!,
+                start: TestDate.at(2026, 10, 19, 0), plannedEnd: TestDate.at(2026, 10, 26, 0),
+                endedAt: StoreFixtures.october2.addingTimeInterval(20 * 86_400))
+        ],
+        celebrated: [
+            WeeklyGoalCelebration(
+                weekStart: TestDate.at(2026, 10, 12, 0),
+                goalID: UUID(uuidString: "D0000000-0000-4000-8000-000000000001")!)
+        ]
     )
 
     private static func installFixture(in directory: URL) throws {
@@ -259,8 +297,11 @@ struct WeeklyGoalGoldenFileTests {
         #expect(payload["planSchedules"] == nil)
 
         var withRecords = Self.expected
-        withRecords.planSchedules = [PlanScheduleRecord(effectiveFrom: StoreFixtures.october1,
-                                                        activePlansOf: [ScheduleFixture.threeDays])]
+        withRecords.planSchedules = [
+            PlanScheduleRecord(
+                effectiveFrom: StoreFixtures.october1,
+                activePlansOf: [ScheduleFixture.threeDays])
+        ]
         try store.save(withRecords)
         #expect(try store.load() == withRecords)
     }
