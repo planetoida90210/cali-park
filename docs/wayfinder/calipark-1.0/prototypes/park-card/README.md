@@ -2,7 +2,7 @@
 
 Ticket: [Karta parku](../../tickets/023-park-card.md). Klikalna karta Parku w SwiftUI, na mapie A „Wyciszona” ([ticket 011](../../tickets/011-map-look.md)). Pola Parku są z modelu z [ticketu 012](../../proposals/012-park-model.md), a weryfikacja i poprawki z [ticketu 014](../../tickets/014-verified-parks.md).
 
-Kod jest jednorazowy. Leży w `cali-park/Prototypes/ParkCard/` i kompiluje się tylko w buildzie Debug. Nic nie jest wysyłane ani zapisywane, wszystko żyje w pamięci. Parki, opinie, Pseudonimy, zdjęcia (rysowane) i pogoda są zmyślone. Pozycja „Tu jesteś” jest na sztywno przy Pałacu Kultury.
+Kod był jednorazowy i kompilował się tylko w buildzie Debug. Usunęliśmy go 2026-11-04, po wdrożeniu prawdziwej karty Parku (`cali-park/Features/Parks/Views/ParkSheetView.swift`). Zrzuty zostają. Nic nie jest wysyłane ani zapisywane, wszystko żyje w pamięci. Parki, opinie, Pseudonimy, zdjęcia (rysowane) i pogoda są zmyślone. Pozycja „Tu jesteś” jest na sztywno przy Pałacu Kultury.
 
 Na mapie są cztery Parki, po jednym na każdy stan:
 
@@ -102,24 +102,9 @@ Nazwa generowana z 012 („Street workout · Pole Mokotowskie”), bo autor nie 
 - **Podgląd zdjęcia:** przewijanie zdjęć, autor i data. Zdjęcia ekipy mają „Zdjęcie ekipy CaliPark”.
 - **Nawiguj:** otwiera Apple Maps z trasą pieszą do Parku.
 
-## Jak uruchomić
+## Kod prototypu
 
-W Xcode: **Product → Scheme → Edit Scheme… → Run → Arguments**, dodaj argument `-PrototypeParkCard` i uruchom apkę. Zamiast zwykłej apki pokaże się mapa z czterema Parkami. Stuknij pinezkę. Biała pigułka u góry wybiera Park i przełącza kolejność A ↔ B. Przy rozwiniętej karcie ta sama pigułka jest na dole arkusza. Pigułka nie jest częścią projektu.
-
-Z terminala, na włączonym symulatorze z zainstalowanym buildem Debug:
-
-```sh
-xcrun simctl launch booted com.michalbryk.cali-park -PrototypeParkCard
-```
-
-Dodatkowe argumenty, użyte do zrzutów:
-
-- `-ParkCardPark rich|community|osm|pending` otwiera kartę wybranego Parku,
-- `-ParkCardOrder photos|equipment` wybiera kolejność A albo B,
-- `-ParkCardDetent full` otwiera od razu pełną kartę,
-- `-ParkCardScroll photos|equipment|verification|weather|reviews|facts|footer` przewija pełną kartę do sekcji,
-- `-ParkCardModal correction|correction-equipment|correction-gone|report-photo|report-review|review|add-photo|photo` otwiera arkusz akcji,
-- `-ParkCardClean` chowa pigułkę.
+Prototyp był w `cali-park/Prototypes/ParkCard/` i otwierał się argumentem `-PrototypeParkCard` (z `-ParkCardPark`, `-ParkCardOrder`, `-ParkCardDetent`, `-ParkCardScroll`, `-ParkCardModal` i `-ParkCardClean` do zrzutów). Kod usunęliśmy po wdrożeniu prawdziwej karty Parku: kolejność A, tylko sekcje, które wypełniają dane z OSM (sprzęt, skąd te dane, szczegóły). Zdjęcia, opinie, pogoda i zgłoszenia dojdą z backendem i WeatherKit.
 
 ## Rekomendacja
 

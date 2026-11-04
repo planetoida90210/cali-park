@@ -4,11 +4,11 @@ onTapGesture 0
 onChangeOneParameter 0
 tabItem 0
 ObservableObject 1
-fontSystemSize 16
+fontSystemSize 1
 NavigationView 0
 taskSleepNanoseconds 0
 stringFormat 2
 DispatchQueue 1
-forEachArrayEnumerated 3
+forEachArrayEnumerated 0
 documentsDirectoryLookup 0
 UIGraphicsImageRenderer 0

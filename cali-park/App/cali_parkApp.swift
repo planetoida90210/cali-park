@@ -18,15 +18,9 @@ struct cali_parkApp: App {
         let planService = environment.workoutPlanService
         WindowGroup {
             #if DEBUG
-            // Throwaway map-look prototype (ticket 011), opened with `-PrototypeMapLook`.
-            if Self.mapLookOptions.isEnabled {
-                MapLookPrototypeRoot(options: Self.mapLookOptions)
-            } else if Self.parkSubmissionOptions.isEnabled {
-                // Throwaway Park Submission prototype (ticket 013), opened with `-PrototypeParkSubmission`.
+            // Throwaway Park Submission prototype (ticket 013), opened with `-PrototypeParkSubmission`.
+            if Self.parkSubmissionOptions.isEnabled {
                 ParkSubmissionPrototypeRoot(options: Self.parkSubmissionOptions)
-            } else if Self.parkCardOptions.isEnabled {
-                // Throwaway Park card prototype (ticket 023), opened with `-PrototypeParkCard`.
-                ParkCardPrototypeRoot(options: Self.parkCardOptions)
             } else {
                 appContent
             }
@@ -42,9 +36,7 @@ struct cali_parkApp: App {
     }
 
     #if DEBUG
-    private static let mapLookOptions = MapLookLaunchOptions()
     private static let parkSubmissionOptions = ParkSubmissionLaunchOptions()
-    private static let parkCardOptions = ParkCardLaunchOptions()
     #endif
 
     private var appContent: some View {

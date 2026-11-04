@@ -1,7 +1,8 @@
 #if DEBUG
-// PROTOTYPE — throwaway. Ticket: docs/wayfinder/calipark-1.0/tickets/011-map-look.md
-// Three visual directions for the Parks map, switchable from MapLookPrototypeRoot.
-// Launch with the `-PrototypeMapLook` argument. Not compiled into Release builds.
+// PROTOTYPE — throwaway. The made-up Parks, clustering and helpers the Park
+// Submission prototype (ticket 013) shows on its map. They came from the
+// map-look prototype (ticket 011), whose code was removed once the real Parks
+// map was built; the names keep their `MapLook` prefix.
 
 import CoreLocation
 import MapKit
@@ -70,14 +71,6 @@ struct MapLookPark: Identifiable, Hashable {
 /// Made-up Parks around central Warsaw. Names and coordinates are hand-written for
 /// the prototype and do not come from Google Maps or OpenStreetMap.
 enum MapLookSampleData {
-    /// Fake "you are here" point near the Palace of Culture, so no location permission is needed.
-    static let userLocation = CLLocationCoordinate2D(latitude: 52.2297, longitude: 21.0070)
-
-    static let initialRegion = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 52.2315, longitude: 21.0150),
-        span: MKCoordinateSpan(latitudeDelta: 0.085, longitudeDelta: 0.085)
-    )
-
     static let parks: [MapLookPark] = [
         MapLookPark(id: 0, name: "Drążki pod Kolumnadą", district: "Śródmieście", latitude: 52.2338, longitude: 21.0021, equipment: [.pullUpBar, .parallelBars, .wallBars], rating: 4.6, isLit: true),
         MapLookPark(id: 1, name: "Street Workout Mirów", district: "Wola", latitude: 52.2371, longitude: 20.9912, equipment: [.pullUpBar, .parallelBars, .rings], rating: 4.8, isLit: true),
@@ -105,39 +98,65 @@ enum MapLookSampleData {
         MapLookPark(id: 23, name: "Kółka przy Stadionie", district: "Praga-Południe", latitude: 52.2368, longitude: 21.0526, equipment: [.rings, .pullUpBar], rating: 4.0, isLit: true),
         MapLookPark(id: 24, name: "Drążek przy Torze", district: "Ochota", latitude: 52.2252, longitude: 20.9786, equipment: [.pullUpBar, .parallelBars], rating: 3.6, isLit: false),
     ]
-
-    static func sortedByDistance(_ parks: [MapLookPark] = parks) -> [MapLookPark] {
-        parks.sorted { $0.distance(from: userLocation) < $1.distance(from: userLocation) }
-    }
 }
 
 // MARK: - Formatting
 
 enum MapLookFormat {
-    private static let polish = Locale(identifier: "pl_PL")
-
-    /// "350 m" under a kilometre, "1,2 km" above.
-    static func distance(_ meters: CLLocationDistance) -> String {
-        if meters < 1000 {
-            let rounded = Int((meters / 10).rounded()) * 10
-            return "\(rounded) m"
-        }
-        let km = (meters / 1000).formatted(.number.precision(.fractionLength(1)).locale(polish))
-        return "\(km) km"
-    }
-
-    /// Walking time at about 80 m per minute: "6 min pieszo".
-    static func walk(_ meters: CLLocationDistance) -> String {
-        "\(max(1, Int((meters / 80).rounded()))) min pieszo"
-    }
-
-    static func rating(_ value: Double) -> String {
-        value.formatted(.number.precision(.fractionLength(1)).locale(polish))
-    }
-
     /// "1 Park", "3 Parki", "25 Parków".
     static func parks(_ count: Int) -> String {
         "\(count) \(PolishPlural.form(for: count, one: "Park", few: "Parki", many: "Parków"))"
+    }
+}
+
+// MARK: - Clustering
+
+/// Grid clustering for SwiftUI `Map`, which has no built-in annotation clustering.
+struct MapLookCluster: Identifiable {
+    let parks: [MapLookPark]
+
+    var id: String { parks.map { String($0.id) }.joined(separator: "-") }
+
+    var coordinate: CLLocationCoordinate2D {
+        let lat = parks.map(\.latitude).reduce(0, +) / Double(parks.count)
+        let lon = parks.map(\.longitude).reduce(0, +) / Double(parks.count)
+        return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+    }
+
+    var isSingle: Bool { parks.count == 1 }
+}
+
+enum MapLookClustering {
+    /// Buckets parks into a grid whose cell is `1 / cellsAcross` of the visible span.
+    /// Zooming in shrinks the cells, so clusters split into single pins.
+    static func clusters(
+        for parks: [MapLookPark],
+        span: MKCoordinateSpan,
+        cellsAcross: Double = 4.5
+    ) -> [MapLookCluster] {
+        let cell = max(span.longitudeDelta / cellsAcross, 0.0001)
+        let latCell = cell * 0.62 // roughly cos(52°), so cells are square on screen
+        var buckets: [String: [MapLookPark]] = [:]
+        for park in parks {
+            let key = "\(Int((park.latitude / latCell).rounded(.down))):\(Int((park.longitude / cell).rounded(.down)))"
+            buckets[key, default: []].append(park)
+        }
+        return buckets.values
+            .map { MapLookCluster(parks: $0.sorted { $0.id < $1.id }) }
+            .sorted { $0.id < $1.id }
+    }
+}
+
+// MARK: - User dot
+
+struct MapLookUserDot: View {
+    var body: some View {
+        Circle()
+            .fill(.blue)
+            .frame(width: 16, height: 16)
+            .overlay(Circle().stroke(.white, lineWidth: 3))
+            .background(Circle().fill(.blue.opacity(0.2)).frame(width: 44, height: 44))
+            .shadow(radius: 2)
     }
 }
 

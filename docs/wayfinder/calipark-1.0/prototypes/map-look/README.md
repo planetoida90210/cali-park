@@ -1,6 +1,6 @@
 # Prototyp: wygląd mapy Parków
 
-Ticket: [Wygląd mapy parków](../../tickets/011-map-look.md). Trzy warianty w MapKit dla SwiftUI, bez zewnętrznych SDK. Kod jest jednorazowy, leży w `cali-park/Prototypes/MapLook/` i kompiluje się tylko w buildzie Debug. Wszystkie 25 Parków i ich współrzędne są zmyślone. Pozycja „Tu jesteś” jest na sztywno przy Pałacu Kultury.
+Ticket: [Wygląd mapy parków](../../tickets/011-map-look.md). Trzy warianty w MapKit dla SwiftUI, bez zewnętrznych SDK. Kod był jednorazowy i kompilował się tylko w buildzie Debug. Usunęliśmy go 2026-11-04, po wdrożeniu prawdziwej mapy Parków (wariant A, `cali-park/Features/Parks/`). Zrzuty zostają. Wszystkie 25 Parków i ich współrzędne są zmyślone. Pozycja „Tu jesteś” jest na sztywno przy Pałacu Kultury.
 
 Każdy wariant ma dwa zrzuty: mapę na starcie i wybrany Park.
 
@@ -28,23 +28,11 @@ Mała mapa u góry z wyraźnymi neonowymi kropkami, a pod nią lista najbliższy
 | --- | --- |
 | ![C, mapa](C1-lista-mapa.png) | ![C, wybrany Park](C2-lista-wybrany-park.png) |
 
-## Jak uruchomić
+## Kod prototypu
 
-W Xcode: **Product → Scheme → Edit Scheme… → Run → Arguments**, dodaj argument `-PrototypeMapLook` i uruchom apkę. Zamiast zwykłej apki pokaże się lista trzech wariantów. Biała pigułka u góry przełącza warianty strzałkami, a ✕ wraca do listy. Pigułka nie jest częścią projektu.
+Prototyp był w `cali-park/Prototypes/MapLook/` i otwierał się argumentem `-PrototypeMapLook`. Kod usunęliśmy po wdrożeniu prawdziwej mapy Parków. Zmyślone Parki, grupowanie i kropka „Tu jesteś”, z których korzysta prototyp Zgłoszenia, są teraz w `cali-park/Prototypes/ParkSubmission/SubmissionSampleParks.swift`.
 
 ![Lista wariantów](00-picker.png)
-
-Z terminala, na włączonym symulatorze z zainstalowanym buildem Debug:
-
-```sh
-xcrun simctl launch booted com.michalbryk.cali-park -PrototypeMapLook
-```
-
-Dodatkowe argumenty, użyte do zrzutów:
-
-- `-MapLookVariant A|B|C` otwiera od razu wybrany wariant,
-- `-MapLookSelect 4` zaznacza Park o numerze 0–24,
-- `-MapLookClean` chowa pigułkę przełącznika.
 
 ## MapKit a Mapbox
 
