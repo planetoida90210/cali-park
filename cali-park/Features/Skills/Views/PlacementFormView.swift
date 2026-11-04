@@ -16,96 +16,13 @@ struct PlacementFormView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 32) {
             ForEach(viewModel.repQuestions) { question in
-                repQuestionSection(question)
+                PlacementRepQuestionSection(viewModel: viewModel, question: question)
             }
-            skillSection
+            PlacementSkillSection(viewModel: viewModel)
         }
         // Pre-fills from the saved placement on first appearance only, so
         // paging back to the level test keeps the answers in progress.
         .onAppear { viewModel.load() }
-    }
-
-    // MARK: Rep questions
-    private func repQuestionSection(_ question: RepCountQuestion) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(question.prompt)
-                .font(.bodyLarge)
-                .foregroundStyle(Color.textPrimary)
-
-            HStack(spacing: 8) {
-                ForEach(RepCountBucket.allCases) { bucket in
-                    bucketButton(bucket, for: question)
-                }
-            }
-
-            // A saved level no single bucket stands for (e.g. 1–5 and 6–11
-            // both lead to it) is kept as is unless the athlete answers again.
-            if let savedRung = viewModel.savedRungName(for: question) {
-                Text("Zapisany poziom: \(savedRung)")
-                    .font(.bodySmall)
-                    .foregroundStyle(Color.textSecondary)
-            }
-        }
-    }
-
-    private func bucketButton(_ bucket: RepCountBucket, for question: RepCountQuestion) -> some View {
-        let isSelected = viewModel.bucket(for: question) == bucket
-        return Button {
-            viewModel.select(bucket, for: question)
-        } label: {
-            Text(bucket.label)
-                .font(.buttonMedium)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .foregroundStyle(isSelected ? Color.black : Color.textPrimary)
-                .background(isSelected ? Color.accent : Color.componentBackground)
-                .clipShape(.rect(cornerRadius: AppRadius.medium))
-        }
-        .accessibilityLabel("\(question.prompt) \(bucket.label)")
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-    }
-
-    // MARK: Skills
-    private var skillSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Opanowane ruchy")
-                .font(.appTitle3)
-                .foregroundStyle(Color.textPrimary)
-                .accessibilityAddTraits(.isHeader)
-
-            Text("Zaznacz te, które już robisz.")
-                .font(.bodySmall)
-                .foregroundStyle(Color.textSecondary)
-
-            VStack(spacing: 8) {
-                ForEach(viewModel.skillQuestions) { question in
-                    skillRow(question)
-                }
-            }
-        }
-    }
-
-    private func skillRow(_ question: SkillQuestion) -> some View {
-        let isMastered = viewModel.isMastered(question)
-        return Button {
-            viewModel.toggleMastery(of: question)
-        } label: {
-            HStack {
-                Text(question.label)
-                    .font(.bodyLarge)
-                    .foregroundStyle(Color.textPrimary)
-
-                Spacer()
-
-                Image(systemName: isMastered ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(isMastered ? Color.accent : Color.textTertiary)
-            }
-            .padding()
-            .background(Color.componentBackground)
-            .clipShape(.rect(cornerRadius: AppRadius.medium))
-        }
-        .accessibilityLabel(question.label)
-        .accessibilityAddTraits(isMastered ? .isSelected : [])
     }
 }
 

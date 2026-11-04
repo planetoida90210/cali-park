@@ -27,9 +27,9 @@ struct StepDetailSheetView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    header
-                    criterionCard
-                    equipmentRow
+                    StepDetailHeader(exercise: exercise)
+                    StepCriterionCard(step: step, progress: progress)
+                    StepEquipmentRow(step: step)
                     ExerciseInstructionsList(steps: exercise.instructions)
                 }
                 .padding(.horizontal, 16)
@@ -44,171 +44,13 @@ struct StepDetailSheetView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) {
-                trainButton
+                StepTrainButton(onTrain: { loggingExercise = exercise })
             }
             .sheet(item: $loggingExercise) { exercise in
                 SetPadSheetView(viewModel: environment.makeWorkoutLogViewModel(exercise: exercise))
             }
         }
         .rewardOverlay()
-    }
-
-    // MARK: Header
-    private var header: some View {
-        VStack(spacing: 12) {
-            ExerciseIconView(symbolName: exercise.symbolName, size: .detail)
-
-            Text(exercise.description)
-                .font(.bodyMedium)
-                .foregroundStyle(Color.textPrimary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-    }
-
-    // MARK: Criterion
-    private var criterionCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Cel")
-                .font(.bodySmall)
-                .foregroundStyle(Color.textSecondary)
-                .textCase(.uppercase)
-                .accessibilityAddTraits(.isHeader)
-
-            Text(MeasureFormat.criterion(for: step))
-                .font(.appTitle3)
-                .foregroundStyle(Color.textPrimary)
-
-            if let note = step.criterionNote {
-                Text(note)
-                    .font(.bodyMedium)
-                    .foregroundStyle(Color.textPrimary)
-            }
-
-            if step.unilateralSide != nil {
-                Text("Wpisz wynik słabszej strony.")
-                    .font(.bodySmall)
-                    .foregroundStyle(Color.textSecondary)
-            }
-
-            if let best = MeasureFormat.best(progress) {
-                Text("Twoje najlepsze: \(best)")
-                    .font(.bodyMedium)
-                    .foregroundStyle(progress.isMet ? Color.accent : Color.textSecondary)
-            } else {
-                Text("Zaloguj serię, aby zmierzyć postęp.")
-                    .font(.bodyMedium)
-                    .foregroundStyle(Color.textSecondary)
-            }
-
-            ProgressView(value: progress.fractionComplete)
-                .tint(Color.accent)
-                .padding(.top, 4)
-
-            Text(step.criterionSource.sourceLine.keptTogether)
-                .font(.bodySmall)
-                .foregroundStyle(Color.textTertiary)
-                .padding(.top, 4)
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: AppRadius.medium))
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(accessibilityCriterion)
-        .accessibilityValue(accessibilityProgress)
-    }
-
-    private var accessibilityCriterion: String {
-        var parts = [String(localized: "Cel: \(MeasureFormat.spokenCriterion(for: step))")]
-        if let note = step.criterionNote { parts.append(note) }
-        if step.unilateralSide != nil { parts.append(String(localized: "Wpisz wynik słabszej strony")) }
-        parts.append(String(localized: "Źródło: \(step.criterionSource.explanation)"))
-        return parts.joined(separator: ". ")
-    }
-
-    private var accessibilityProgress: String {
-        guard let best = MeasureFormat.best(progress) else {
-            return String(localized: "Brak zapisów")
-        }
-        return progress.isMet ? String(localized: "Zaliczone, \(best)") : String(localized: "Twoje najlepsze: \(best)")
-    }
-
-    // MARK: Equipment
-    private var equipmentRow: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Sprzęt")
-                .font(.bodySmall)
-                .foregroundStyle(Color.textSecondary)
-                .textCase(.uppercase)
-                .accessibilityAddTraits(.isHeader)
-
-            Text(ProgressionFormat.equipment(step.equipment))
-                .font(.bodyMedium)
-                .foregroundStyle(Color.textPrimary)
-
-            if let tip = step.tip {
-                Text("Wskazówka: \(tip)")
-                    .font(.bodySmall)
-                    .foregroundStyle(Color.textSecondary)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    // MARK: Train CTA
-    private var trainButton: some View {
-        Button("Trenuj") {
-            loggingExercise = exercise
-        }
-        .buttonStyle(.accent)
-        .padding(.horizontal, 16)
-        .padding(.bottom, 8)
-        .background(Color.appBackground.opacity(0.9))
-    }
-}
-
-// MARK: - ExerciseInstructionsList
-/// The "Jak wykonać" steps, numbered — shared shape with the exercise detail
-/// screen so technique reads the same everywhere.
-private struct ExerciseInstructionsList: View {
-    let steps: [String]
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Jak wykonać")
-                .font(.bodySmall)
-                .foregroundStyle(Color.textSecondary)
-                .textCase(.uppercase)
-                .accessibilityAddTraits(.isHeader)
-
-            VStack(spacing: 0) {
-                ForEach(steps.indices, id: \.self) { index in
-                    HStack(alignment: .firstTextBaseline, spacing: 12) {
-                        Text("\(index + 1)")
-                            .font(.bodyMedium)
-                            .monospacedDigit()
-                            .foregroundStyle(Color.accent)
-
-                        Text(steps[index])
-                            .font(.bodyMedium)
-                            .foregroundStyle(Color.textPrimary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .padding(.vertical, 12)
-                    .padding(.horizontal, 16)
-
-                    if index < steps.count - 1 {
-                        Divider()
-                            .overlay(Color.divider)
-                            .padding(.leading, 16)
-                    }
-                }
-            }
-            .background(Color.componentBackground)
-            .clipShape(.rect(cornerRadius: AppRadius.medium))
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

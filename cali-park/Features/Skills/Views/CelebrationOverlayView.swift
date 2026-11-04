@@ -20,7 +20,6 @@ struct CelebrationOverlayView: View {
     let hasNext: Bool
     let onDismiss: () -> Void
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// The trigger the haptic and the pulse have played for. It starts `nil`
     /// and takes `trigger` on appear, so the first (or only) celebration plays
     /// them too: both modifiers fire only when their trigger changes (A-9).
@@ -49,7 +48,10 @@ struct CelebrationOverlayView: View {
             .buttonStyle(.plain)
             .accessibilityLabel("Zamknij")
 
-            card
+            CelebrationCard(presentation: presentation,
+                            hasNext: hasNext,
+                            playedTrigger: playedTrigger,
+                            onDismiss: onDismiss)
                 .padding(.horizontal, 32)
         }
         // Full screen over the app: VoiceOver stays inside until it is dismissed.
@@ -57,61 +59,6 @@ struct CelebrationOverlayView: View {
         .sensoryFeedback(.success, trigger: playedTrigger)
         .onChange(of: trigger, initial: true) { _, newTrigger in
             playedTrigger = newTrigger
-        }
-    }
-
-    // MARK: Card
-    private var card: some View {
-        VStack(spacing: 24) {
-            icon
-
-            VStack(spacing: 8) {
-                Text(presentation.eyebrow)
-                    .font(.bodySmall)
-                    .tracking(1.5)
-                    .foregroundStyle(Color.accent)
-
-                Text(presentation.title)
-                    .font(.appTitle)
-                    .foregroundStyle(Color.textPrimary)
-                    .multilineTextAlignment(.center)
-
-                if let subtitle = presentation.subtitle {
-                    Text(subtitle)
-                        .font(.bodyMedium)
-                        .foregroundStyle(Color.textSecondary)
-                }
-
-                if let xpNote = presentation.xpNote {
-                    Text(xpNote)
-                        .font(.buttonMedium)
-                        .foregroundStyle(Color.accent)
-                        .padding(.top, 4)
-                }
-            }
-
-            Button(hasNext ? "Dalej" : "Świetnie", action: onDismiss)
-                .buttonStyle(.accent)
-        }
-        .padding(24)
-        .background(Color.componentBackground)
-        .clipShape(.rect(cornerRadius: AppRadius.large))
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(presentation.accessibilityLabel)
-    }
-
-    // MARK: Icon
-    @ViewBuilder
-    private var icon: some View {
-        if reduceMotion {
-            ExerciseIconView(symbolName: presentation.symbolName, size: .detail)
-        } else {
-            PhaseAnimator([0.85, 1.1, 1.0], trigger: playedTrigger) { scale in
-                ExerciseIconView(symbolName: presentation.symbolName, size: .detail)
-                    .scaleEffect(scale)
-            } animation: { _ in
-                .spring(response: 0.45, dampingFraction: 0.7)
-            }
         }
     }
 }
