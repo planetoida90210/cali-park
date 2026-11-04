@@ -14,7 +14,7 @@ struct KeptTogetherTests {
 
     @Test
     func rangeAndUnitStayOnOneLine() {
-        #expect("ok. 45–60 min".keptTogether == "ok. 45–\(joiner)60\(noBreakSpace)min")
+        #expect("ok. 45–60 min".keptTogether == "ok.\(noBreakSpace)45–\(joiner)60\(noBreakSpace)min")
     }
 
     @Test

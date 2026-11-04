@@ -4,7 +4,7 @@ import Foundation
 extension String {
     /// The text with line breaks ruled out where they read badly in Polish UI
     /// copy: inside a number range ("45–60"), between a number and "min"
-    /// ("60 min"), and after "r/" ("r/bodyweightfitness"). Uses invisible
+    /// ("60 min"), after "ok." ("ok. 45") and after "r/" ("r/bodyweightfitness"). Uses invisible
     /// joiners, so what is read out and copied stays the same text.
     var keptTogether: String {
         let characters = Array(self)
@@ -16,8 +16,9 @@ extension String {
             let previous = index > characters.startIndex ? characters[index - 1] : nil
             let next = index + 1 < characters.endIndex ? characters[index + 1] : nil
 
-            if character == " ", previous?.isNumber == true,
-               characters[(index + 1)...].starts(with: "min") {
+            let afterNumberBeforeMin = previous?.isNumber == true && characters[(index + 1)...].starts(with: "min")
+            let afterAbbreviation = index >= 3 && characters[(index - 3)..<index].elementsEqual("ok.")
+            if character == " ", afterNumberBeforeMin || afterAbbreviation {
                 result.append(Self.noBreakSpace)
                 continue
             }
