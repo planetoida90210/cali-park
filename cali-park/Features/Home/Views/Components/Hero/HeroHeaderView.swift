@@ -10,17 +10,20 @@ struct HeroHeaderView: View {
     var calendar: Calendar = .current
 
     var body: some View {
-        Text(greeting)
+        Text(Self.greeting(hour: calendar.component(.hour, from: now)))
             .font(.bodyMedium)
             .foregroundStyle(Color.textSecondary)
     }
 
-    /// Morning / midday / evening salutation, matching the app's casual voice.
-    private var greeting: String {
-        switch calendar.component(.hour, from: now) {
+    /// The salutation for an hour of the day (0–23), in the app's casual voice:
+    /// 5–11 "Dzień dobry", 12–17 "Cześć", 18–21 "Dobry wieczór", and
+    /// "Dobrej nocy" from 22 until 5, so 02:09 is not an evening.
+    static func greeting(hour: Int) -> String {
+        switch hour {
         case 5..<12: "Dzień dobry"
-        case 12..<18: "Siema"
-        default: "Dobry wieczór"
+        case 12..<18: "Cześć"
+        case 18..<22: "Dobry wieczór"
+        default: "Dobrej nocy"
         }
     }
 }
@@ -31,6 +34,7 @@ struct HeroHeaderView: View {
         HeroHeaderView(now: dateAt(hour: 8))
         HeroHeaderView(now: dateAt(hour: 14))
         HeroHeaderView(now: dateAt(hour: 21))
+        HeroHeaderView(now: dateAt(hour: 2))
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding()
