@@ -3,7 +3,8 @@ import SwiftUI
 // MARK: - CelebrationOverlayView
 /// The full-screen moment when a rung or a level is conquered: one icon, one
 /// headline, the XP it earned, and a way forward. Shown one advance at a time
-/// (the view model queues the rest), with success haptics on appear.
+/// (the view model queues the rest), with success haptics on appear,
+/// including the first one.
 ///
 /// Restraint over fireworks: a single clear message, not a wall of text. The
 /// entrance pulse is skipped under Reduce Motion, and every way to dismiss is a
@@ -20,6 +21,10 @@ struct CelebrationOverlayView: View {
     let onDismiss: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// The trigger the haptic and the pulse have played for. It starts `nil`
+    /// and takes `trigger` on appear, so the first (or only) celebration plays
+    /// them too: both modifiers fire only when their trigger changes (A-9).
+    @State private var playedTrigger: String?
 
     init(presentation: CelebrationPresentation,
          trigger: String,
@@ -49,7 +54,10 @@ struct CelebrationOverlayView: View {
         }
         // Full screen over the app: VoiceOver stays inside until it is dismissed.
         .accessibilityAddTraits(.isModal)
-        .sensoryFeedback(.success, trigger: trigger)
+        .sensoryFeedback(.success, trigger: playedTrigger)
+        .onChange(of: trigger, initial: true) { _, newTrigger in
+            playedTrigger = newTrigger
+        }
     }
 
     // MARK: Card
@@ -105,7 +113,7 @@ struct CelebrationOverlayView: View {
         if reduceMotion {
             ExerciseIconView(symbolName: presentation.symbolName, size: .detail)
         } else {
-            PhaseAnimator([0.85, 1.1, 1.0], trigger: trigger) { scale in
+            PhaseAnimator([0.85, 1.1, 1.0], trigger: playedTrigger) { scale in
                 ExerciseIconView(symbolName: presentation.symbolName, size: .detail)
                     .scaleEffect(scale)
             } animation: { _ in
