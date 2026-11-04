@@ -179,6 +179,18 @@ struct HomeWeeklyGoalTests {
         )
     }
 
+    private func goals(goalStore: WeeklyGoalStoring,
+                       entries: [WorkoutLogEntry],
+                       now: Date = F.day(3)) -> WeeklyGoalService {
+        WeeklyGoalService(
+            journal: TrainingJournal(store: InMemoryWorkoutLogStore(initial: entries)),
+            store: goalStore,
+            planService: .testing(InMemoryWorkoutPlanStore()),
+            calendar: F.calendar,
+            clock: { now }
+        )
+    }
+
     @Test
     func homeShowsTheSavedPrimaryGoal() throws {
         let volume = F.goal(.exerciseVolume(exerciseID: ExerciseCatalog.pullUpsID, measurement: .reps, amount: 30))
@@ -197,7 +209,7 @@ struct HomeWeeklyGoalTests {
         let home = dashboard(goalStore: BrokenWeeklyGoalStore(), entries: F.trained(week: 0, days: [0, 1, 2]))
         #expect(home.weeklyGoal == nil)
         #expect(home.errorMessage == StoreLoadFailure.message)
-        #expect(home.goalCelebration == nil)
+        #expect(goals(goalStore: BrokenWeeklyGoalStore(), entries: F.trained(week: 0, days: [0, 1, 2])).pendingCelebration == nil)
     }
 
     /// A met goal celebrates once: dismissing records it, so a new dashboard
@@ -206,33 +218,33 @@ struct HomeWeeklyGoalTests {
     func metGoalCelebratesOnce() throws {
         let store = InMemoryWeeklyGoalStore()
         let entries = F.trained(week: 0, days: [0, 1, 2])
-        let home = dashboard(goalStore: store, entries: entries)
+        let service = goals(goalStore: store, entries: entries)
 
-        let celebrated = try #require(home.goalCelebration)
+        let celebrated = try #require(service.pendingCelebration)
         #expect(celebrated.goal.id == WeeklyGoal.defaultGoalID)
 
-        home.dismissGoalCelebration()
-        #expect(home.goalCelebration == nil)
+        service.dismissCelebration()
+        #expect(service.pendingCelebration == nil)
         let saved = try #require(store.load())
         #expect(saved.hasCelebrated(goalID: WeeklyGoal.defaultGoalID, weekStart: F.monday))
         #expect(saved.versions.isEmpty) // marking a celebration does not save a goal
 
-        #expect(dashboard(goalStore: store, entries: entries).goalCelebration == nil)
+        #expect(goals(goalStore: store, entries: entries).pendingCelebration == nil)
     }
 
     @Test
     func failedMarkStillHidesTheCelebrationForTheSession() {
-        let home = dashboard(goalStore: ReadOnlyWeeklyGoalStore(), entries: F.trained(week: 0, days: [0, 1, 2]))
-        #expect(home.goalCelebration != nil)
-        home.dismissGoalCelebration()
-        #expect(home.goalCelebration == nil)
+        let service = goals(goalStore: ReadOnlyWeeklyGoalStore(), entries: F.trained(week: 0, days: [0, 1, 2]))
+        #expect(service.pendingCelebration != nil)
+        service.dismissCelebration()
+        #expect(service.pendingCelebration == nil)
     }
 
     @Test
     func celebrationPresentationHasNoXP() throws {
-        let home = dashboard(goalStore: InMemoryWeeklyGoalStore(),
-                             entries: F.trained(week: -1, days: [0, 1, 2]) + F.trained(week: 0, days: [0, 1, 2]))
-        let met = try #require(home.goalCelebration)
+        let service = goals(goalStore: InMemoryWeeklyGoalStore(),
+                            entries: F.trained(week: -1, days: [0, 1, 2]) + F.trained(week: 0, days: [0, 1, 2]))
+        let met = try #require(service.pendingCelebration)
         let presentation = CelebrationPresentation.weeklyGoalMet(met, isPrimary: true, streak: 2)
         #expect(presentation.xpNote == nil)
         #expect(presentation.title == "3 dni treningowe")

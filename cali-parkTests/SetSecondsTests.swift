@@ -105,29 +105,29 @@ struct SetLogFormatTests {
 
     @Test
     func breakdownJoinsReps() {
-        #expect(SetLogFormat.breakdown(of: reps(6, 6, 8)) == "6 + 6 + 8")
+        #expect(MeasureFormat.breakdown(of: reps(6, 6, 8)) == "6 + 6 + 8")
     }
 
     @Test
     func breakdownCollapsesEqualHolds() {
-        #expect(SetLogFormat.breakdown(of: holds(20, 20, 20)) == "3 × 20 s")
-        #expect(SetLogFormat.breakdown(of: holds(15, 15, 15)) == "3 × 15 s")
+        #expect(MeasureFormat.breakdown(of: holds(20, 20, 20)) == "3 × 20 s")
+        #expect(MeasureFormat.breakdown(of: holds(15, 15, 15)) == "3 × 15 s")
     }
 
     @Test
     func breakdownListsVariedHolds() {
-        #expect(SetLogFormat.breakdown(of: holds(20, 15, 20)) == "20 + 15 + 20 s")
+        #expect(MeasureFormat.breakdown(of: holds(20, 15, 20)) == "20 + 15 + 20 s")
     }
 
     @Test
     func breakdownOfEmptySetsIsEmpty() {
-        #expect(SetLogFormat.breakdown(of: []).isEmpty)
+        #expect(MeasureFormat.breakdown(of: []).isEmpty)
     }
 
     @Test
     func totalReadsRepsOrSeconds() {
-        #expect(SetLogFormat.total(of: reps(6, 6, 8)) == "20 powtórzeń")
-        #expect(SetLogFormat.total(of: holds(20, 20, 20)) == "60 s")
+        #expect(MeasureFormat.total(of: reps(6, 6, 8)) == "20 powtórzeń")
+        #expect(MeasureFormat.total(of: holds(20, 20, 20)) == "60 s")
     }
 
     @Test(arguments: [
@@ -137,12 +137,12 @@ struct SetLogFormatTests {
         (0, 0, "0 powtórzeń")
     ])
     func totalsListsOnlyPresentMeasures(reps: Int, seconds: Int, expected: String) {
-        #expect(SetLogFormat.totals(reps: reps, seconds: seconds) == expected)
+        #expect(MeasureFormat.totals(reps: reps, seconds: seconds) == expected)
     }
 
     @Test
     func spokenBreakdownReadsEqualHoldsNaturally() {
-        #expect(SetLogFormat.spokenBreakdown(of: holds(20, 20, 20)) == "3 serie po 20 sekund")
+        #expect(MeasureFormat.spokenBreakdown(of: holds(20, 20, 20)) == "3 serie po 20 sekund")
     }
 }
 
@@ -187,6 +187,6 @@ struct TimedWorkoutLogViewModelTests {
         #expect(entry.sets.map(\.durationSeconds) == [15, 15, 15])
         #expect(entry.totalSeconds == 45)
         #expect(entry.totalReps == 0)
-        #expect(SetLogFormat.breakdown(of: entry.sets) == "3 × 15 s")
+        #expect(MeasureFormat.breakdown(of: entry.sets) == "3 × 15 s")
     }
 }

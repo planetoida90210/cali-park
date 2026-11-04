@@ -260,23 +260,16 @@ struct LoweredFloorTests {
 
     @MainActor
     @Test func recalibratingDownInTheAppShowsNoFalseOverlay() throws {
-        let logStore = InMemoryWorkoutLogStore()
         let placementStore = InMemorySkillPlacementStore(initial: SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.pullUpsID]))
-        let progressStore = InMemorySkillProgressStore()
-        let viewModel = SkillPathsViewModel(logStore: logStore, placementStore: placementStore, progressStore: progressStore)
+        let stack = TrainingStack(placementStore: placementStore)
 
-        try logStore.append(IntegrityFixture.pullUps3x8())
-        viewModel.load()
-        var guardRail = 0
-        while viewModel.currentCelebration != nil, guardRail < 20 {
-            viewModel.dismissCurrentCelebration()
-            guardRail += 1
-        }
+        try stack.journal.log(IntegrityFixture.pullUps3x8())
+        stack.drainCelebrations()
 
         try placementStore.save(SkillPlacement(declaredRungByPath: [:]))
-        viewModel.load()
+        stack.progress.reloadPlacement()
 
-        #expect(viewModel.currentCelebration == nil)
+        #expect(stack.rewards.currentCelebration == nil)
     }
 }
 
@@ -289,98 +282,68 @@ struct CelebratedWhenShownTests {
         let logStore = InMemoryWorkoutLogStore()
         let placementStore = InMemorySkillPlacementStore()
         let progressStore = InMemorySkillProgressStore()
-        func launch() -> SkillPathsViewModel {
-            SkillPathsViewModel(logStore: logStore, placementStore: placementStore, progressStore: progressStore)
+        func launch() -> TrainingStack {
+            TrainingStack(logStore: logStore, placementStore: placementStore, progressStore: progressStore)
         }
         _ = launch() // seeds the baseline
 
         try logStore.append(IntegrityFixture.pullUps3x8())
-        // The app launches with the Skills tab off screen: the VM queues the
+        // The app launches with no overlay on screen: the center queues the
         // advance, but nothing is recorded as celebrated yet.
         let offScreen = launch()
-        let queued = try #require(offScreen.currentCelebration)
+        let queued = try #require(offScreen.rewards.currentCelebration)
         #expect(progressStore.load()?.celebratedRungs.isEmpty == true)
 
         // Killed before the overlay was seen: the next launch still shows it.
         let relaunched = launch()
-        #expect(relaunched.currentCelebration == queued)
+        #expect(relaunched.rewards.currentCelebration == queued)
 
-        var guardRail = 0
-        while relaunched.currentCelebration != nil, guardRail < 20 {
-            relaunched.dismissCurrentCelebration()
-            guardRail += 1
-        }
+        relaunched.drainCelebrations()
         #expect(progressStore.load()?.hasCelebrated(IntegrityFixture.pullUpRung) == true)
-        #expect(launch().currentCelebration == nil)
+        #expect(launch().rewards.currentCelebration == nil)
     }
 
     @Test func leavingMidQueueKeepsTheRestForNextTime() throws {
         let logStore = InMemoryWorkoutLogStore()
         let placementStore = InMemorySkillPlacementStore()
         let progressStore = InMemorySkillProgressStore()
-        _ = SkillPathsViewModel(logStore: logStore, placementStore: placementStore, progressStore: progressStore)
+        func launch() -> TrainingStack {
+            TrainingStack(logStore: logStore, placementStore: placementStore, progressStore: progressStore)
+        }
+        _ = launch()
         try logStore.append(IntegrityFixture.pullUps3x8())
 
-        let first = SkillPathsViewModel(logStore: logStore, placementStore: placementStore, progressStore: progressStore)
-        let shown = try #require(first.currentCelebration)
-        #expect(first.hasQueuedCelebrations)
-        first.dismissCurrentCelebration()
-        let next = try #require(first.currentCelebration)
+        let first = launch()
+        let shown = try #require(first.rewards.currentCelebration)
+        #expect(first.rewards.hasQueuedCelebrations)
+        first.rewards.dismissCurrentCelebration()
+        let next = try #require(first.rewards.currentCelebration)
 
         // The athlete leaves (or the app dies) with `next` on screen.
-        let later = SkillPathsViewModel(logStore: logStore, placementStore: placementStore, progressStore: progressStore)
-        #expect(later.currentCelebration == next)
-        #expect(later.currentCelebration != shown)
+        let later = launch()
+        #expect(later.rewards.currentCelebration == next)
+        #expect(later.rewards.currentCelebration != shown)
     }
 
-    @Test func loadsDoNotRewriteAnUnchangedRecord() throws {
-        let logStore = InMemoryWorkoutLogStore(initial: [IntegrityFixture.pullUps3x8()])
+    @Test func evaluationsDoNotRewriteAnUnchangedRecord() throws {
         let progressStore = CountingProgressStore()
-        let viewModel = SkillPathsViewModel(
-            logStore: logStore,
-            placementStore: InMemorySkillPlacementStore(),
-            progressStore: progressStore
-        )
+        let stack = TrainingStack(logStore: InMemoryWorkoutLogStore(initial: [IntegrityFixture.pullUps3x8()]),
+                                  progressStore: progressStore)
         #expect(progressStore.saveCount == 1) // the first-run baseline
 
-        viewModel.load()
-        viewModel.load()
+        stack.rewards.refresh()
+        stack.progress.reloadPlacement()
         #expect(progressStore.saveCount == 1)
 
         // A fresh advance is queued without a write, and written on dismissal.
-        try logStore.append(WorkoutLogEntry(exerciseID: ExerciseCatalog.lPullUpsID,
-                                            date: IntegrityFixture.day,
-                                            sets: [LoggedSet(reps: 5), LoggedSet(reps: 5), LoggedSet(reps: 5)]))
-        viewModel.load()
-        #expect(viewModel.currentCelebration != nil)
+        try stack.journal.log(WorkoutLogEntry(exerciseID: ExerciseCatalog.lPullUpsID,
+                                              date: IntegrityFixture.day,
+                                              sets: [LoggedSet(reps: 5), LoggedSet(reps: 5), LoggedSet(reps: 5)]))
+        #expect(stack.rewards.currentCelebration != nil)
         #expect(progressStore.saveCount == 1)
 
-        viewModel.dismissCurrentCelebration()
+        stack.rewards.dismissCurrentCelebration()
         #expect(progressStore.saveCount == 2)
-    }
-
-    @Test func aCelebrationShownOnAnotherScreenIsNotReplayed() throws {
-        let logStore = InMemoryWorkoutLogStore()
-        let placementStore = InMemorySkillPlacementStore()
-        let progressStore = InMemorySkillProgressStore()
-        let overview = SkillPathsViewModel(logStore: logStore, placementStore: placementStore, progressStore: progressStore)
-        let detail = SkillPathsViewModel(logStore: logStore, placementStore: placementStore, progressStore: progressStore)
-
-        try logStore.append(IntegrityFixture.pullUps3x8())
-        overview.load()
-        detail.load()
-        #expect(overview.currentCelebration != nil)
-
-        var guardRail = 0
-        while detail.currentCelebration != nil, guardRail < 20 {
-            detail.dismissCurrentCelebration()
-            guardRail += 1
-        }
-
-        // Back on the overview, which reloads on appear.
-        overview.load()
-        #expect(overview.currentCelebration == nil)
-        #expect(!overview.hasQueuedCelebrations)
     }
 }
 

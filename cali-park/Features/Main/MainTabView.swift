@@ -30,6 +30,10 @@ struct MainTabView: View {
             }
         }
         .tint(Color.accent)
+        // One reward overlay for the whole app: a workout logged on any tab
+        // celebrates where it was saved, exactly once.
+        .rewardOverlay()
+        .environment(environment.rewardCenter)
         // Lets deep views (the Home achievements module) switch tabs.
         .environment(router)
     }

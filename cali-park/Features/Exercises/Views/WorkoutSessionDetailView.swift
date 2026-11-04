@@ -109,10 +109,10 @@ struct WorkoutSessionDetailView: View {
         WorkoutSessionDetailView(
             viewModel: WorkoutSessionDetailViewModel(
                 sessionID: session,
-                store: InMemoryWorkoutLogStore(initial: [
+                journal: TrainingJournal(store: InMemoryWorkoutLogStore(initial: [
                     WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, sets: [LoggedSet(reps: 8), LoggedSet(reps: 6)], sessionID: session),
                     WorkoutLogEntry(exerciseID: ExerciseCatalog.plankID, sets: [LoggedSet(reps: 1, durationSeconds: 45)], sessionID: session)
-                ])
+                ]))
             )
         )
     }
@@ -125,9 +125,9 @@ struct WorkoutSessionDetailView: View {
         WorkoutSessionDetailView(
             viewModel: WorkoutSessionDetailViewModel(
                 sessionID: session,
-                store: InMemoryWorkoutLogStore(initial: [
+                journal: TrainingJournal(store: InMemoryWorkoutLogStore(initial: [
                     WorkoutLogEntry(exerciseID: ExerciseCatalog.pushUpsID, sets: [LoggedSet(reps: 15), LoggedSet(reps: 12)], sessionID: session)
-                ])
+                ]))
             ),
             onDone: {}
         )

@@ -31,18 +31,18 @@ final class WeeklyGoalEditorViewModel: Identifiable {
     // MARK: Dependencies
     private let store: WeeklyGoalStoring
     /// Read on save, to anchor the implicit default at the first workout.
-    private let logStore: WorkoutLogStoring
+    private let journal: TrainingJournal
     let calendar: Calendar
     private let clock: () -> Date
     private let logger = AppLog.logger(category: "WeeklyGoalEditor")
 
     // MARK: Init
     init(store: WeeklyGoalStoring,
-         logStore: WorkoutLogStoring,
+         journal: TrainingJournal,
          calendar: Calendar = .current,
          clock: @escaping () -> Date = { .now }) {
         self.store = store
-        self.logStore = logStore
+        self.journal = journal
         self.calendar = calendar
         self.clock = clock
         load()
@@ -117,15 +117,21 @@ final class WeeklyGoalEditorViewModel: Identifiable {
         guard canEdit else { return false }
         guard hasUnsavedChanges else { return true }
         guard WeeklyGoal.isValidSet(goals) else { return false }
+        // The implicit default is anchored at the first workout, so an
+        // unreadable journal must not pass for an empty one.
+        journal.reloadIfFailed()
         let history: WeeklyGoalHistory
-        let logs: [WorkoutLogEntry]
         do {
             history = try store.load() ?? .empty
-            logs = try logStore.load()
         } catch {
             errorMessage = StoreLoadFailure.message
             return false
         }
+        guard !journal.hasLoadFailure else {
+            errorMessage = StoreLoadFailure.message
+            return false
+        }
+        let logs = journal.entries
         let now = clock()
         guard let updated = history.settingGoals(
             goals,

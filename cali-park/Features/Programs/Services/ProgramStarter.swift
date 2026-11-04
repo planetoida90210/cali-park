@@ -11,23 +11,20 @@ enum ProgramStartError: Error, Equatable {
 
 // MARK: - ProgramStarter
 /// Creates the plans of a ready-made program for the athlete: reads their
-/// ladder state (logs and placement), prescribes the plans with
+/// ladder state from the shared `ProgressService`, prescribes the plans with
 /// `ProgramPrescriber`, and saves them through `WorkoutPlanService`. Shared by
 /// the Planner's program screens and onboarding.
 @MainActor
 final class ProgramStarter {
     private let planService: WorkoutPlanService
-    private let logStore: WorkoutLogStoring
-    private let placementStore: PlacementStoring
+    private let progress: ProgressService
     private let clock: () -> Date
 
     init(planService: WorkoutPlanService,
-         logStore: WorkoutLogStoring,
-         placementStore: PlacementStoring,
+         progress: ProgressService,
          clock: @escaping () -> Date = { .now }) {
         self.planService = planService
-        self.logStore = logStore
-        self.placementStore = placementStore
+        self.progress = progress
         self.clock = clock
     }
 
@@ -36,13 +33,9 @@ final class ProgramStarter {
     /// prescribing from an empty journal would put everyone on the bottom
     /// rung.
     func pathStates() throws -> [ProgressionPathID: PathState] {
-        do {
-            let logs = try logStore.load()
-            let placement = try placementStore.load()
-            return ProgressionEngine.pathStates(logs: logs, placement: placement)
-        } catch {
-            throw ProgramStartError.ladderStateUnreadable
-        }
+        progress.reloadIfFailed()
+        guard !progress.hasLoadError else { throw ProgramStartError.ladderStateUnreadable }
+        return progress.snapshot.pathStates
     }
 
     /// The plans the program would create now, without saving them.

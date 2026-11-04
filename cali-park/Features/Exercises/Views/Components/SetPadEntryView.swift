@@ -143,17 +143,12 @@ private struct SetPadDisplay: View {
         .accessibilityLabel(accessibilityLabel)
     }
 
-    /// Sets typed so far, read in the unit the exercise uses (reps or seconds).
-    private var loggedSets: [LoggedSet] {
-        input.setsForSaving.map { LoggedSet(value: $0, measurement: measurement) }
-    }
-
     private var summaryText: String {
         if showsHint && input.setsForSaving.isEmpty {
             return measurement == .seconds ? "Każdy + to nowe utrzymanie" : "Każdy + to nowa seria"
         }
         let sets = input.setsForSaving.count
-        return "\(PolishPlural.sets(sets)) · \(SetLogFormat.total(of: loggedSets))"
+        return "\(PolishPlural.sets(sets)) · \(MeasureFormat.total(of: input.loggedSets(for: measurement)))"
     }
 
     private var accessibilityLabel: String {

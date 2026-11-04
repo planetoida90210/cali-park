@@ -54,7 +54,7 @@ struct SetPadSheetView: View {
             SetPadSheetView(
                 viewModel: WorkoutLogViewModel(
                     exercise: ExerciseCatalog.all[0],
-                    store: InMemoryWorkoutLogStore()
+                    journal: TrainingJournal(store: InMemoryWorkoutLogStore())
                 )
             )
         }

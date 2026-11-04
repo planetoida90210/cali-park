@@ -446,11 +446,7 @@ struct StoreLoadFailureViewModelTests {
 
     @Test
     func skillsDoNotOfferCalibrationWhenPlacementIsUnreadable() {
-        let viewModel = SkillPathsViewModel(
-            logStore: InMemoryWorkoutLogStore(),
-            placementStore: BrokenPlacementStore(),
-            progressStore: InMemorySkillProgressStore()
-        )
+        let viewModel = TrainingStack(placementStore: BrokenPlacementStore()).skillPaths()
 
         #expect(viewModel.hasLoadError)
         #expect(!viewModel.needsCalibration)
@@ -459,11 +455,7 @@ struct StoreLoadFailureViewModelTests {
 
     @Test
     func skillsOfferCalibrationWhenPlacementIsMissing() {
-        let viewModel = SkillPathsViewModel(
-            logStore: InMemoryWorkoutLogStore(),
-            placementStore: InMemorySkillPlacementStore(),
-            progressStore: InMemorySkillProgressStore()
-        )
+        let viewModel = TrainingStack().skillPaths()
 
         #expect(!viewModel.hasLoadError)
         #expect(viewModel.needsCalibration)
@@ -477,15 +469,11 @@ struct StoreLoadFailureViewModelTests {
                                             date: StoreFixtures.october1,
                                             sets: [LoggedSet(reps: 8), LoggedSet(reps: 8), LoggedSet(reps: 8)]))
 
-        let viewModel = SkillPathsViewModel(
-            logStore: logStore,
-            placementStore: InMemorySkillPlacementStore(),
-            progressStore: progressStore
-        )
+        let stack = TrainingStack(logStore: logStore, progressStore: progressStore)
 
         #expect(progressStore.saveAttempts == 0)
-        #expect(viewModel.currentCelebration == nil)
-        #expect(!viewModel.hasLoadError) // logs and placement still show
+        #expect(stack.rewards.currentCelebration == nil)
+        #expect(!stack.skillPaths().hasLoadError) // logs and placement still show
     }
 
     @Test

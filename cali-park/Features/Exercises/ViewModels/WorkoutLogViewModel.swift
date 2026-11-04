@@ -3,7 +3,7 @@ import Observation
 
 // MARK: - WorkoutLogViewModel
 /// Drives one SetPad session for a single exercise: holds the `SetPadInput`
-/// state, persists the finished entry through `WorkoutLogStoring` and surfaces
+/// state, saves the finished entry to the `TrainingJournal` and surfaces
 /// save failures for an alert.
 @MainActor
 @Observable
@@ -19,31 +19,26 @@ final class WorkoutLogViewModel {
     var hasUnsavedChanges: Bool { !didSave && input != SetPadInput() }
 
     // MARK: Dependencies
-    private let store: WorkoutLogStoring
+    private let journal: TrainingJournal
 
     // MARK: Init
-    init(exercise: Exercise, store: WorkoutLogStoring) {
+    init(exercise: Exercise, journal: TrainingJournal) {
         self.exercise = exercise
-        self.store = store
+        self.journal = journal
     }
 
     // MARK: Intentions
     /// Persists the current sets (committed + pending entry) as one log entry.
     /// No-op when there is nothing to save.
     func save() {
-        let sets = input.setsForSaving
+        let sets = input.loggedSets(for: exercise.measurement)
         guard !sets.isEmpty else { return }
 
-        let entry = WorkoutLogEntry(
-            exerciseID: exercise.id,
-            sets: sets.map { LoggedSet(value: $0, measurement: exercise.measurement) }
-        )
-
         do {
-            try store.append(entry)
+            try journal.log(WorkoutLogEntry(exerciseID: exercise.id, sets: sets))
             didSave = true
         } catch {
-            errorMessage = "Nie udało się zapisać treningu."
+            errorMessage = TrainingJournal.saveFailureMessage
         }
     }
 }

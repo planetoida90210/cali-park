@@ -19,6 +19,10 @@ protocol WorkoutLogStoring {
 
     /// Removes the entry with the given identifier; no-op if absent.
     func delete(id: UUID) throws
+
+    /// Removes every entry whose identifier is in `ids` in one write, so a
+    /// whole workout is deleted all-or-nothing. Absent identifiers are skipped.
+    func delete(ids: Set<UUID>) throws
 }
 
 // MARK: - Default batch append
@@ -28,6 +32,14 @@ extension WorkoutLogStoring {
     func append(contentsOf entries: [WorkoutLogEntry]) throws {
         for entry in entries {
             try append(entry)
+        }
+    }
+
+    /// Fallback batch delete for stores without an optimized version.
+    /// Not atomic — conformers that can write once should override this.
+    func delete(ids: Set<UUID>) throws {
+        for id in ids {
+            try delete(id: id)
         }
     }
 }
@@ -62,6 +74,12 @@ struct FileWorkoutLogStore: WorkoutLogStoring {
     func delete(id: UUID) throws {
         try file.update(initial: []) { $0.removeAll { $0.id == id } }
     }
+
+    /// One atomic write for the whole set of entries.
+    func delete(ids: Set<UUID>) throws {
+        guard !ids.isEmpty else { return }
+        try file.update(initial: []) { $0.removeAll { ids.contains($0.id) } }
+    }
 }
 
 // MARK: - InMemoryWorkoutLogStore
@@ -81,5 +99,9 @@ final class InMemoryWorkoutLogStore: WorkoutLogStoring {
 
     func delete(id: UUID) throws {
         entries.removeAll { $0.id == id }
+    }
+
+    func delete(ids: Set<UUID>) throws {
+        entries.removeAll { ids.contains($0.id) }
     }
 }

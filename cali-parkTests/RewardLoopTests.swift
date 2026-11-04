@@ -139,97 +139,69 @@ struct CelebrationPresentationTests {
     }
 }
 
-// MARK: - View model reward loop
+// MARK: - App-wide reward loop
 
 @MainActor
-struct SkillPathsRewardTests {
+struct RewardCenterLoopTests {
     @Test func aFreshAthleteHasNoCelebrationAndNoBadges() {
-        let viewModel = SkillPathsViewModel(
-            logStore: InMemoryWorkoutLogStore(),
-            placementStore: InMemorySkillPlacementStore(),
-            progressStore: InMemorySkillProgressStore()
-        )
+        let stack = TrainingStack()
 
-        #expect(viewModel.currentCelebration == nil)
-        #expect(viewModel.badges.isEmpty)
-        #expect(viewModel.xpToastAmount == nil)
+        #expect(stack.rewards.currentCelebration == nil)
+        #expect(stack.skillPaths().badges.isEmpty)
+        #expect(stack.rewards.xpToastAmount == nil)
     }
 
     @Test func declaringAPlacementNeverCelebrates() {
         // A declaration conquers rungs, but the reward loop scores from logs
         // only — so nothing is celebrated and no badge is granted.
-        let viewModel = SkillPathsViewModel(
-            logStore: InMemoryWorkoutLogStore(),
-            placementStore: InMemorySkillPlacementStore(initial: SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.archerPullUpsID])),
-            progressStore: InMemorySkillProgressStore()
+        let stack = TrainingStack(
+            placementStore: InMemorySkillPlacementStore(initial: SkillPlacement(declaredStepByPath: [.pullUp: ExerciseCatalog.archerPullUpsID]))
         )
 
-        #expect(viewModel.currentCelebration == nil)
-        #expect(viewModel.badges.isEmpty)
+        #expect(stack.rewards.currentCelebration == nil)
+        #expect(stack.skillPaths().badges.isEmpty)
     }
 
     @Test func trainingANewRungQueuesACelebration() throws {
-        let store = InMemoryWorkoutLogStore()
-        let viewModel = SkillPathsViewModel(
-            logStore: store,
-            placementStore: InMemorySkillPlacementStore(),
-            progressStore: InMemorySkillProgressStore()
-        )
-        #expect(viewModel.currentCelebration == nil)
+        let stack = TrainingStack()
+        #expect(stack.rewards.currentCelebration == nil)
 
-        try store.append(RewardFixture.pullUps3x8())
-        viewModel.load()
+        try stack.journal.log(RewardFixture.pullUps3x8())
 
-        #expect(viewModel.currentCelebration != nil)
+        #expect(stack.rewards.currentCelebration != nil)
         // The XP toast stays silent while a celebration carries the moment.
-        #expect(viewModel.xpToastAmount == nil)
+        #expect(stack.rewards.xpToastAmount == nil)
 
         // Draining the queue eventually clears the overlay, once.
-        var guardRail = 0
-        while viewModel.currentCelebration != nil, guardRail < 100 {
-            viewModel.dismissCurrentCelebration()
-            guardRail += 1
-        }
-        #expect(viewModel.currentCelebration == nil)
+        stack.drainCelebrations()
+        #expect(stack.rewards.currentCelebration == nil)
 
-        // Re-loading the same logs celebrates nothing (idempotent).
-        viewModel.load()
-        #expect(viewModel.currentCelebration == nil)
+        // Refreshing the same logs celebrates nothing (idempotent).
+        stack.rewards.refresh()
+        #expect(stack.rewards.currentCelebration == nil)
     }
 
     @Test func addedVolumeOnAConqueredRungToastsXPWithoutCelebrating() throws {
         // Start already at the baseline (a 3 × 8 pre-logged), so its rungs are
-        // seeded as celebrated on the first load.
-        let store = InMemoryWorkoutLogStore(initial: [RewardFixture.pullUps3x8()])
-        let viewModel = SkillPathsViewModel(
-            logStore: store,
-            placementStore: InMemorySkillPlacementStore(),
-            progressStore: InMemorySkillProgressStore()
-        )
-        #expect(viewModel.currentCelebration == nil)
-        #expect(viewModel.xpToastAmount == nil)
+        // seeded as celebrated on the first evaluation.
+        let stack = TrainingStack(logStore: InMemoryWorkoutLogStore(initial: [RewardFixture.pullUps3x8()]))
+        #expect(stack.rewards.currentCelebration == nil)
+        #expect(stack.rewards.xpToastAmount == nil)
 
         // More volume on an already-conquered rung: XP grows, nothing new is
         // conquered, so the athlete gets a toast, not an overlay.
-        try store.append(RewardFixture.pullUps3x8())
-        viewModel.load()
+        try stack.journal.log(RewardFixture.pullUps3x8())
 
-        #expect(viewModel.currentCelebration == nil)
-        let toast = try #require(viewModel.xpToastAmount)
+        #expect(stack.rewards.currentCelebration == nil)
+        let toast = try #require(stack.rewards.xpToastAmount)
         #expect(toast == 24 * ProgressionEngine.xpPerRep)
     }
 
     @Test func earnedBadgesComeFromLogs() throws {
-        let store = InMemoryWorkoutLogStore()
-        let viewModel = SkillPathsViewModel(
-            logStore: store,
-            placementStore: InMemorySkillPlacementStore(),
-            progressStore: InMemorySkillProgressStore()
-        )
+        let stack = TrainingStack()
 
-        try store.append(RewardFixture.pullUps3x8())
-        viewModel.load()
+        try stack.journal.log(RewardFixture.pullUps3x8())
 
-        #expect(viewModel.badges.contains(.firstWorkout))
+        #expect(stack.skillPaths().badges.contains(.firstWorkout))
     }
 }

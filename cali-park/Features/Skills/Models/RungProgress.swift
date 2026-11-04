@@ -5,9 +5,10 @@ import Foundation
 ///
 /// `bestValue` is the athlete's best effort *in a single session*: the value
 /// (reps or seconds) of the weakest set among their best `criterion.sets` sets.
-/// It is `0` until a session logs at least that many qualifying sets, which is
-/// why "3 × 8 in one session" counts while the same volume split across sessions
-/// does not. This value only ever rises — a met rung stays met, so a bad week
+/// A session is one workout: entries sharing a `sessionID` are scored together
+/// per exercise (see `ScoringLog`). It is `0` until a session logs at least
+/// that many qualifying sets, which is why "3 × 8 in one session" counts while
+/// the same volume split across separate saves does not. This value only ever rises — a met rung stays met, so a bad week
 /// never demotes a ladder.
 struct RungProgress: Equatable, Sendable {
     /// The target this rung is scored against.

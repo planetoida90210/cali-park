@@ -7,11 +7,17 @@ import SwiftUI
 ///
 /// Presented from `PathDetailView`. The ladder is a map, never a gate, so this
 /// opens for any rung — conquered, current, or future.
+///
+/// Progress is read live from the shared snapshot, so a set saved through
+/// "Trenuj" shows in "Twoje najlepsze" as soon as the SetPad closes (audit
+/// A-12, E-19), and a conquered rung celebrates over this sheet.
 struct StepDetailSheetView: View {
     let exercise: Exercise
     let step: ProgressionStep
-    let progress: RungProgress
+    let viewModel: SkillPathsViewModel
     let environment: AppEnvironment
+
+    private var progress: RungProgress { viewModel.rungProgress(for: step) }
 
     /// Payload-driven: the SetPad opens only when an exercise is set.
     @State private var loggingExercise: Exercise?
@@ -44,6 +50,7 @@ struct StepDetailSheetView: View {
                 SetPadSheetView(viewModel: environment.makeWorkoutLogViewModel(exercise: exercise))
             }
         }
+        .rewardOverlay()
     }
 
     // MARK: Header
@@ -67,7 +74,7 @@ struct StepDetailSheetView: View {
                 .foregroundStyle(Color.textSecondary)
                 .textCase(.uppercase)
 
-            Text(ProgressionFormat.criterion(for: step))
+            Text(MeasureFormat.criterion(for: step))
                 .font(.title3)
                 .foregroundStyle(Color.textPrimary)
 
@@ -83,7 +90,7 @@ struct StepDetailSheetView: View {
                     .foregroundStyle(Color.textSecondary)
             }
 
-            if let best = ProgressionFormat.best(progress) {
+            if let best = MeasureFormat.best(progress) {
                 Text("Twoje najlepsze: \(best)")
                     .font(.bodyMedium)
                     .foregroundStyle(progress.isMet ? Color.accent : Color.textSecondary)
@@ -112,7 +119,7 @@ struct StepDetailSheetView: View {
     }
 
     private var accessibilityCriterion: String {
-        var parts = ["Cel: \(ProgressionFormat.spokenCriterion(for: step))"]
+        var parts = ["Cel: \(MeasureFormat.spokenCriterion(for: step))"]
         if let note = step.criterionNote { parts.append(note) }
         if step.unilateralSide != nil { parts.append("Wpisz wynik słabszej strony") }
         parts.append("Źródło: \(step.criterionSource.explanation)")
@@ -120,7 +127,7 @@ struct StepDetailSheetView: View {
     }
 
     private var accessibilityProgress: String {
-        guard let best = ProgressionFormat.best(progress) else {
+        guard let best = MeasureFormat.best(progress) else {
             return "Brak zapisów"
         }
         return progress.isMet ? "Zaliczone, \(best)" : "Twoje najlepsze: \(best)"
@@ -213,15 +220,19 @@ private struct ExerciseInstructionsList: View {
 #Preview {
     let path = ProgressionCatalog.path(withID: .pullUp)!
     let step = path.steps[3]
+    let environment = AppEnvironment.seeded(logs: [
+        WorkoutLogEntry(exerciseID: step.exerciseID, sets: Array(repeating: LoggedSet(reps: 6), count: 3))
+    ])
     return Color.appBackground
         .ignoresSafeArea()
         .sheet(isPresented: .constant(true)) {
             StepDetailSheetView(
                 exercise: ExerciseCatalog.exercise(withID: step.exerciseID)!,
                 step: step,
-                progress: RungProgress(criterion: step.criterion, bestValue: 6),
-                environment: .preview
+                viewModel: environment.makeSkillPathsViewModel(),
+                environment: environment
             )
+            .environment(environment.rewardCenter)
             .preferredColorScheme(.dark)
         }
 }

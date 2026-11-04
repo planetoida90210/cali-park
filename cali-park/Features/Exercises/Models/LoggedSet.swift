@@ -48,3 +48,16 @@ struct LoggedSet: Codable, Equatable, Hashable {
         }
     }
 }
+
+// MARK: - Set totals
+extension Sequence where Element == LoggedSet {
+    /// Total repetitions across the rep-based sets; timed holds are excluded.
+    var totalReps: Int {
+        reduce(0) { $0 + ($1.isTimed ? 0 : $1.reps) }
+    }
+
+    /// Total seconds held across the timed sets.
+    var totalSeconds: Int {
+        reduce(0) { $0 + ($1.durationSeconds ?? 0) }
+    }
+}

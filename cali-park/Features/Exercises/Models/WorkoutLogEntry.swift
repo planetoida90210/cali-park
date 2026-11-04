@@ -43,15 +43,11 @@ struct WorkoutLogEntry: Identifiable, Codable, Equatable, Hashable {
 
     /// Total repetitions across the rep-based sets. Timed (isometric) sets are
     /// excluded — their work is measured in `totalSeconds`, never mixed in here.
-    var totalReps: Int {
-        sets.reduce(0) { $0 + ($1.isTimed ? 0 : $1.reps) }
-    }
+    var totalReps: Int { sets.totalReps }
 
     /// Total seconds held across the timed (isometric) sets; `0` when the entry
     /// holds none.
-    var totalSeconds: Int {
-        sets.reduce(0) { $0 + ($1.durationSeconds ?? 0) }
-    }
+    var totalSeconds: Int { sets.totalSeconds }
 
     /// Whether every set in this entry is a timed hold, so its work reads in
     /// seconds rather than repetitions.

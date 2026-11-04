@@ -38,11 +38,16 @@ final class PlacementCalibrationViewModel {
 
     private let store: PlacementStoring
     private let now: () -> Date
+    /// Runs after a successful save, so shared progress re-reads the placement.
+    private let onSave: @MainActor () -> Void
 
     // MARK: Init
-    init(store: PlacementStoring, now: @escaping () -> Date = { .now }) {
+    init(store: PlacementStoring,
+         now: @escaping () -> Date = { .now },
+         onSave: @escaping @MainActor () -> Void = {}) {
         self.store = store
         self.now = now
+        self.onSave = onSave
         // Pre-fill from any prior declaration so re-calibration starts from
         // what the athlete already told us. An unreadable placement only loses
         // the pre-fill; saving reports the error.
@@ -116,6 +121,7 @@ final class PlacementCalibrationViewModel {
             let saved = try store.load()
             try store.save(PlacementCalibration.merging(placement, answeredPaths: answeredPaths, into: saved))
             didSave = true
+            onSave()
         } catch {
             errorMessage = "Nie udało się zapisać poziomu."
         }

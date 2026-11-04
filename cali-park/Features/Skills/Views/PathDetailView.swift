@@ -12,6 +12,8 @@ struct PathDetailView: View {
     let environment: AppEnvironment
     let pathID: ProgressionPathID
 
+    /// A projection of the shared progress snapshot; rewards live in the
+    /// app-wide `RewardCenter`, so this screen keeps no reward state.
     @State private var viewModel: SkillPathsViewModel
     @State private var selectedStep: ProgressionStep?
     @State private var showingCalibration = false
@@ -48,22 +50,17 @@ struct PathDetailView: View {
         .navigationTitle(summary?.path.name ?? "Ścieżka")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { viewModel.load() }
-        .onChange(of: selectedStep) { _, step in
-            // Returning from a training sheet may have logged new sets.
-            if step == nil { viewModel.load() }
-        }
         .sheet(item: $selectedStep) { step in
             StepDetailSheetView(
                 exercise: ExerciseCatalog.exercise(withID: step.exerciseID) ?? ExerciseCatalog.all[0],
                 step: step,
-                progress: viewModel.rungProgress(for: step),
+                viewModel: viewModel,
                 environment: environment
             )
         }
-        .sheet(isPresented: $showingCalibration, onDismiss: { viewModel.load() }) {
+        .sheet(isPresented: $showingCalibration) {
             PlacementCalibrationSheet(viewModel: environment.makePlacementCalibrationViewModel())
         }
-        .rewardOverlay(viewModel)
     }
 }
 
@@ -187,8 +184,8 @@ private struct RungRow: View {
     private var subtitle: String {
         switch displayState {
         case .conquered: "Zaliczone"
-        case .current: ProgressionFormat.progressLine(progress, side: step.unilateralSide)
-        case .future: ProgressionFormat.criterion(for: step)
+        case .current: MeasureFormat.progressLine(progress, side: step.unilateralSide)
+        case .future: MeasureFormat.criterion(for: step)
         }
     }
 
@@ -203,8 +200,8 @@ private struct RungRow: View {
     private var stateLabel: String {
         switch displayState {
         case .conquered: "Zaliczone"
-        case .current: "Trenujesz teraz. Cel: \(ProgressionFormat.spokenCriterion(for: step))"
-        case .future: "Cel: \(ProgressionFormat.spokenCriterion(for: step))"
+        case .current: "Trenujesz teraz. Cel: \(MeasureFormat.spokenCriterion(for: step))"
+        case .future: "Cel: \(MeasureFormat.spokenCriterion(for: step))"
         }
     }
 }
@@ -315,19 +312,17 @@ private struct CalibrationButton: View {
 
 // MARK: - Preview
 #Preview {
+    let environment = AppEnvironment.seeded(
+        logs: [
+            WorkoutLogEntry(
+                exerciseID: ExerciseCatalog.pullUpsID,
+                sets: [LoggedSet(reps: 6), LoggedSet(reps: 6), LoggedSet(reps: 6)]
+            )
+        ],
+        placement: SkillPlacement(declaredRungByPath: [.pullUp: 3])
+    )
     NavigationStack {
-        PathDetailView(
-            environment: .seeded(
-                logs: [
-                    WorkoutLogEntry(
-                        exerciseID: ExerciseCatalog.pullUpsID,
-                        sets: [LoggedSet(reps: 6), LoggedSet(reps: 6), LoggedSet(reps: 6)]
-                    )
-                ],
-                placement: SkillPlacement(declaredRungByPath: [.pullUp: 3])
-            ),
-            pathID: .pullUp
-        )
+        PathDetailView(environment: environment, pathID: .pullUp)
     }
     .preferredColorScheme(.dark)
 }

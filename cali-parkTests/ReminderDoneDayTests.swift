@@ -225,18 +225,20 @@ struct WorkoutPlanServiceDoneDayTests {
 
 // MARK: - Log writes re-sync
 
-struct ChangeNotifyingWorkoutLogStoreTests {
+@MainActor
+struct TrainingJournalChangeTests {
     @Test
     func everySuccessfulWriteNotifies() throws {
         let counter = CallCounter()
         let base = InMemoryWorkoutLogStore()
-        let store = ChangeNotifyingWorkoutLogStore(base: base) { counter.increment() }
+        let journal = TrainingJournal(store: base)
+        journal.onChange { counter.increment() }
         let entry = Fixtures.entry(planID: nil)
 
-        try store.append(entry)
-        try store.append(contentsOf: [Fixtures.entry(planID: nil), Fixtures.entry(planID: nil)])
-        try store.delete(id: entry.id)
-        _ = try store.load()
+        try journal.log(entry)
+        try journal.logSession([Fixtures.entry(planID: nil), Fixtures.entry(planID: nil)])
+        try journal.delete(ids: [entry.id])
+        journal.reloadIfFailed()
 
         #expect(counter.count == 3)
         #expect(base.load().count == 2)
@@ -245,17 +247,18 @@ struct ChangeNotifyingWorkoutLogStoreTests {
     @Test
     func failedWritesDoNotNotify() {
         let counter = CallCounter()
-        let store = ChangeNotifyingWorkoutLogStore(base: FailingReminderLogStore()) { counter.increment() }
+        let journal = TrainingJournal(store: FailingReminderLogStore())
+        journal.onChange { counter.increment() }
 
-        #expect(throws: FailingReminderLogStore.Unreadable.self) { try store.append(Fixtures.entry(planID: nil)) }
-        #expect(throws: FailingReminderLogStore.Unreadable.self) { try store.delete(id: UUID()) }
+        #expect(throws: FailingReminderLogStore.Unreadable.self) { try journal.log(Fixtures.entry(planID: nil)) }
+        #expect(throws: FailingReminderLogStore.Unreadable.self) { try journal.delete(ids: [UUID()]) }
         #expect(counter.count == 0)
     }
 }
 
 @MainActor
 struct AppEnvironmentReminderSyncTests {
-    /// Waits until the scheduler has run `count` reschedules (the log store
+    /// Waits until the scheduler has run `count` reschedules (the journal
     /// starts the sync in its own task).
     private func waitForReschedules(_ scheduler: InMemoryReminderScheduler, count: Int) async throws {
         for _ in 0..<200 where await scheduler.rescheduleCount < count {
@@ -277,9 +280,9 @@ struct AppEnvironmentReminderSyncTests {
         await environment.workoutPlanService.syncReminders()
         #expect(await scheduler.scheduledRequests.compactMap(Fixtures.fireDay).first == 0)
 
-        // Every view model writes through this store (SetPad, quick workout,
-        // history, session detail, Home).
-        try environment.workoutLogStore.append(Fixtures.entry(planID: plan.id))
+        // Every view model writes through this journal (SetPad, quick
+        // workout, history, session detail, Home).
+        try environment.journal.log(Fixtures.entry(planID: plan.id))
 
         try await waitForReschedules(scheduler, count: 2)
         #expect(await scheduler.rescheduleCount == 2)

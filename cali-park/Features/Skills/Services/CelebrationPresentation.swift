@@ -28,6 +28,20 @@ struct CelebrationPresentation: Equatable, Sendable {
         }
     }
 
+    /// The same presentation with the batch's real XP total added, for the
+    /// last overlay of a batch: "+100 XP · Razem +740 XP".
+    func addingTotalXP(_ total: Int) -> CelebrationPresentation {
+        let note = "Razem +\(total) XP"
+        return CelebrationPresentation(
+            eyebrow: eyebrow,
+            title: title,
+            subtitle: subtitle,
+            xpNote: xpNote.map { "\($0) · \(note)" } ?? note,
+            symbolName: symbolName,
+            accessibilityLabel: "\(accessibilityLabel) \(note)."
+        )
+    }
+
     // MARK: Rung
 
     private static func rungPresentation(_ rung: RungReference) -> CelebrationPresentation {

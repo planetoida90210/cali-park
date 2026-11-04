@@ -71,7 +71,7 @@ struct SkillPathsView: View {
                     showingCalibration = true
                 }
             }
-            .sheet(isPresented: $showingCalibration, onDismiss: { viewModel.load() }) {
+            .sheet(isPresented: $showingCalibration) {
                 PlacementCalibrationSheet(viewModel: environment.makePlacementCalibrationViewModel())
             }
             .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
@@ -80,7 +80,6 @@ struct SkillPathsView: View {
                 Text("Spróbuj ponownie.")
             }
         }
-        .rewardOverlay(viewModel)
     }
 
     // Bridges the optional `errorMessage` to a Bool binding for `.alert`.
@@ -186,7 +185,7 @@ private struct SkillPathCard: View {
                 ProgressView(value: summary.currentProgress.fractionComplete)
                     .tint(Color.accent)
 
-                Text(ProgressionFormat.criterion(for: summary.currentStep))
+                Text(MeasureFormat.criterion(for: summary.currentStep))
                     .font(.bodySmall)
                     .foregroundStyle(Color.textTertiary)
             }
@@ -203,7 +202,7 @@ private struct SkillPathCard: View {
         if summary.state.isComplete {
             return "\(summary.path.name). Ukończone."
         }
-        return "\(summary.path.name). Teraz: \(currentExercise?.name ?? ""). Cel: \(ProgressionFormat.spokenCriterion(for: summary.currentStep))."
+        return "\(summary.path.name). Teraz: \(currentExercise?.name ?? ""). Cel: \(MeasureFormat.spokenCriterion(for: summary.currentStep))."
     }
 }
 

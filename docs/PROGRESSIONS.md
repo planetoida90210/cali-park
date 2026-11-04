@@ -56,6 +56,13 @@ Każdy szczebel ma **kryterium**, czyli cel, który uznajemy za jego zaliczenie:
   „3 × 5 na rękę”, „3 × 8 na nogę”, „3 × 20 s na stronę”. Wpisujesz wynik
   słabszej strony. Format logów się nie zmienia; osobne logowanie lewej i
   prawej strony to przyszła zmiana schematu.
+- **Kryterium musi paść w jednym treningu.** Serie tego samego ćwiczenia z
+  jednego szybkiego treningu liczą się razem, także gdy dodasz je kilka razy
+  (superserie: podciągnięcia, dipy, podciągnięcia). Osobne zapisy z SetPada to
+  osobne treningi i się nie sumują (`ScoringLog`, audyt A-5).
+- **Holdy liczymy w sekundach.** Stary zapis holdu jako powtórzeń (deska „60”
+  sprzed holdów) czytamy jako 60 s, także w XP i odznace 1000 powtórzeń.
+  Zapisanych logów nie zmieniamy (audyt A-8).
 - **Wskazówka** (`tip`) przy szczeblu jest niewiążąca, nigdy nie jest warunkiem.
 
 Sprzęt zapisujemy kluczami spójnymi z `Park.equipments`. Starsze klucze są

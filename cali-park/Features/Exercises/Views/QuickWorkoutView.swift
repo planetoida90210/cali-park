@@ -13,12 +13,8 @@ struct QuickWorkoutView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(TabRouter.self) private var router: TabRouter?
 
-    /// Called after the session is saved, so the presenter can refresh.
-    var onFinish: () -> Void = {}
-
-    init(viewModel: QuickWorkoutViewModel, onFinish: @escaping () -> Void = {}) {
+    init(viewModel: QuickWorkoutViewModel) {
         _viewModel = State(initialValue: viewModel)
-        self.onFinish = onFinish
     }
 
     var body: some View {
@@ -71,7 +67,6 @@ struct QuickWorkoutView: View {
             }
             .onChange(of: viewModel.didFinish) { _, didFinish in
                 if didFinish {
-                    onFinish()
                     summarySessionID = viewModel.savedSessionID
                 }
             }
@@ -84,6 +79,9 @@ struct QuickWorkoutView: View {
                 Text("Spróbuj ponownie.")
             }
         }
+        // The sheet stays up on the summary after "Zakończ", so a conquered
+        // rung celebrates here.
+        .rewardOverlay()
         // A swipe must not drop an unsaved workout; "Anuluj" asks first. Once
         // saved, the summary's "Gotowe" is the way out.
         .interactiveDismissDisabled(viewModel.didFinish || viewModel.hasUnsavedChanges)
@@ -114,7 +112,7 @@ struct QuickWorkoutView: View {
                     for item in doomed { viewModel.remove(item) }
                 }
             } footer: {
-                Text("\(viewModel.exerciseCount) · \(PolishPlural.sets(viewModel.totalSets))")
+                Text("\(PolishPlural.exercises(viewModel.exerciseCount)) · \(PolishPlural.sets(viewModel.totalSets))")
                     .font(.bodySmall)
                     .foregroundStyle(Color.textSecondary)
             }
@@ -200,7 +198,7 @@ private struct SessionSetPadSheet: View {
             saveTitle: "Dodaj do treningu",
             cancel: SetPadEntryView.Cancel(hasUnsavedChanges: hasUnsavedChanges) { dismiss() }
         ) {
-            onSave(input.setsForSaving.map { LoggedSet(value: $0, measurement: exercise.measurement) })
+            onSave(input.loggedSets(for: exercise.measurement))
         }
         .interactiveDismissDisabled(hasUnsavedChanges)
         .padding(.horizontal, 16)
@@ -230,7 +228,7 @@ private struct QuickWorkoutItemRow: View {
                         .font(.bodySmall)
                         .foregroundStyle(Color.accent)
                 } else {
-                    Text(SetLogFormat.breakdown(of: item.sets))
+                    Text(MeasureFormat.breakdown(of: item.sets))
                         .font(.bodySmall)
                         .monospacedDigit()
                         .foregroundStyle(Color.textSecondary)
@@ -243,7 +241,7 @@ private struct QuickWorkoutItemRow: View {
                 Image(systemName: "plus.circle")
                     .foregroundStyle(Color.accent)
             } else {
-                Text(SetLogFormat.total(of: item.sets))
+                Text(MeasureFormat.total(of: item.sets))
                     .font(.bodySmall)
                     .foregroundStyle(Color.textSecondary)
             }
@@ -296,7 +294,7 @@ private struct QuickWorkoutEmptyState: View {
         .ignoresSafeArea()
         .sheet(isPresented: .constant(true)) {
             QuickWorkoutView(
-                viewModel: QuickWorkoutViewModel(store: InMemoryWorkoutLogStore())
+                viewModel: QuickWorkoutViewModel(journal: TrainingJournal(store: InMemoryWorkoutLogStore()))
             )
             .preferredColorScheme(.dark)
         }

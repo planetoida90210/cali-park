@@ -38,6 +38,12 @@ struct SetPadInput: Equatable {
         setsForSaving.reduce(0, +)
     }
 
+    /// The sets a save would persist, read as reps or seconds held per the
+    /// exercise's `measurement`. The one place SetPad values become sets.
+    func loggedSets(for measurement: ExerciseMeasurement) -> [LoggedSet] {
+        setsForSaving.map { LoggedSet(value: $0, measurement: measurement) }
+    }
+
     /// `+` only makes sense with a non-empty entry (empty commits are blocked).
     var canCommit: Bool {
         currentValue != nil

@@ -33,14 +33,11 @@ struct NextWorkoutModuleContent: View {
         .padding(16)
         .background(Color.componentBackground)
         .clipShape(.rect(cornerRadius: 12))
-        .sheet(item: $loggingExercise, onDismiss: { dashboard.reload() }) { exercise in
+        .sheet(item: $loggingExercise) { exercise in
             SetPadSheetView(viewModel: dashboard.makeWorkoutLogViewModel(exercise: exercise))
         }
-        .sheet(item: $startingPlan, onDismiss: { dashboard.reload() }) { plan in
-            QuickWorkoutView(
-                viewModel: dashboard.makeQuickWorkoutViewModel(plan: plan),
-                onFinish: { dashboard.reload() }
-            )
+        .sheet(item: $startingPlan) { plan in
+            QuickWorkoutView(viewModel: dashboard.makeQuickWorkoutViewModel(plan: plan))
         }
     }
 }

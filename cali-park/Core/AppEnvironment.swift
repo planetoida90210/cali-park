@@ -11,9 +11,20 @@ final class AppEnvironment: ObservableObject {
     let reviewsService: ReviewsServicing
     let calendarService: CalendarService
     let favoritesStore: FavoritesStoring
-    /// The workout log. Every write re-syncs plan reminders (a plan done today
-    /// gets no reminder today), so every view model gets this one instance.
-    let workoutLogStore: WorkoutLogStoring
+    /// The training journal: the only write path for workout logs. Every
+    /// change rescores progress (and the reward loop) and re-syncs plan
+    /// reminders (a plan done today gets no reminder today), so every view
+    /// model gets this one instance.
+    let journal: TrainingJournal
+    /// Progress (path states, XP, level, badges) computed once per journal
+    /// revision and placement change, shared by Skills, Home and programs.
+    let progressService: ProgressService
+    /// The weekly goal (current week, streak, met goals to celebrate), read
+    /// from the journal. Shared by Home and the reward overlay.
+    let weeklyGoalService: WeeklyGoalService
+    /// The one queue of celebrations (rungs, levels, met weekly goals) and XP
+    /// toasts, whichever screen logged.
+    let rewardCenter: RewardCenter
     /// Persists reusable, scheduled workout plans (planner feature).
     let workoutPlanStore: WorkoutPlanStoring
     /// Schedules local reminders for scheduled plans. Only `workoutPlanService`
@@ -26,7 +37,7 @@ final class AppEnvironment: ObservableObject {
     /// onboarding calibration (SK4) and the Skills tab (SK5).
     let placementStore: PlacementStoring
     /// Persists which rewards have already been celebrated, so the reward loop
-    /// (SK6a) stays idempotent. Consumed by the Skills tab.
+    /// (SK6a) stays idempotent. Only `rewardCenter` talks to it.
     let skillProgressStore: SkillProgressStoring
     /// Persists the weekly goal: goal versions, pauses and shown celebrations.
     /// Read by Home (hero ring, "Cel tygodniowy") and the goal editor.
@@ -50,14 +61,22 @@ final class AppEnvironment: ObservableObject {
         self.favoritesStore = favoritesStore
         self.workoutPlanStore = workoutPlanStore
         self.reminderScheduler = reminderScheduler
+        // The plan service only reads the log, to skip days already done.
         let planService = WorkoutPlanService(store: workoutPlanStore,
                                              logStore: workoutLogStore,
                                              scheduler: reminderScheduler,
                                              refreshScheduler: reminderRefreshScheduler)
         self.workoutPlanService = planService
-        self.workoutLogStore = ChangeNotifyingWorkoutLogStore(base: workoutLogStore) { [weak planService] in
-            Task { @MainActor in await planService?.syncReminders() }
+        let journal = TrainingJournal(store: workoutLogStore)
+        journal.onChange { [weak planService] in
+            Task { await planService?.syncReminders() }
         }
+        self.journal = journal
+        let progress = ProgressService(journal: journal, placementStore: placementStore)
+        self.progressService = progress
+        let goals = WeeklyGoalService(journal: journal, store: weeklyGoalStore, planService: planService)
+        self.weeklyGoalService = goals
+        self.rewardCenter = RewardCenter(progress: progress, store: skillProgressStore, goals: goals)
         self.placementStore = placementStore
         self.skillProgressStore = skillProgressStore
         self.weeklyGoalStore = weeklyGoalStore
@@ -86,49 +105,48 @@ final class AppEnvironment: ObservableObject {
     }
 
     /// Placement questionnaire for onboarding and in-app re-calibration.
+    /// Saving re-reads the placement into shared progress.
     func makePlacementCalibrationViewModel() -> PlacementCalibrationViewModel {
-        PlacementCalibrationViewModel(store: placementStore)
+        PlacementCalibrationViewModel(store: placementStore, onSave: { [progressService] in
+            progressService.reloadPlacement()
+        })
     }
 
-    /// Skills tab: per-path progress from logs and placement, plus the reward
-    /// loop (celebrations, XP toast, badges) backed by the progress store.
+    /// Skills tab: per-path progress from the shared snapshot. Rewards live
+    /// in `rewardCenter`.
     func makeSkillPathsViewModel() -> SkillPathsViewModel {
-        SkillPathsViewModel(
-            logStore: workoutLogStore,
-            placementStore: placementStore,
-            progressStore: skillProgressStore
-        )
+        SkillPathsViewModel(progress: progressService)
     }
 
     func makeWorkoutLogViewModel(exercise: Exercise) -> WorkoutLogViewModel {
-        WorkoutLogViewModel(exercise: exercise, store: workoutLogStore)
+        WorkoutLogViewModel(exercise: exercise, journal: journal)
     }
 
     func makeWorkoutHistoryViewModel() -> WorkoutHistoryViewModel {
-        WorkoutHistoryViewModel(store: workoutLogStore)
+        WorkoutHistoryViewModel(journal: journal)
     }
 
     func makeWorkoutSessionDetailViewModel(sessionID: UUID) -> WorkoutSessionDetailViewModel {
-        WorkoutSessionDetailViewModel(sessionID: sessionID, store: workoutLogStore)
+        WorkoutSessionDetailViewModel(sessionID: sessionID, journal: journal)
     }
 
     func makeQuickWorkoutViewModel() -> QuickWorkoutViewModel {
-        QuickWorkoutViewModel(store: workoutLogStore)
+        QuickWorkoutViewModel(journal: journal)
     }
 
     func makeHomeDashboardViewModel() -> HomeDashboardViewModel {
         HomeDashboardViewModel(
-            store: workoutLogStore,
+            journal: journal,
             planService: workoutPlanService,
-            placementStore: placementStore,
-            goalStore: weeklyGoalStore
+            progress: progressService,
+            goals: weeklyGoalService
         )
     }
 
     /// The weekly goal editor (goals and pause), shared by Home and, later,
     /// onboarding and Profile.
     func makeWeeklyGoalEditorViewModel() -> WeeklyGoalEditorViewModel {
-        WeeklyGoalEditorViewModel(store: weeklyGoalStore, logStore: workoutLogStore)
+        WeeklyGoalEditorViewModel(store: weeklyGoalStore, journal: journal)
     }
 
     func makeWorkoutPlansViewModel() -> WorkoutPlansViewModel {
@@ -142,11 +160,7 @@ final class AppEnvironment: ObservableObject {
 
     /// Creates a ready-made program's plans on the athlete's current rungs.
     func makeProgramStarter() -> ProgramStarter {
-        ProgramStarter(
-            planService: workoutPlanService,
-            logStore: workoutLogStore,
-            placementStore: placementStore
-        )
+        ProgramStarter(planService: workoutPlanService, progress: progressService)
     }
 
     /// Detail screen of one ready-made program, with "Utwórz plan".

@@ -1,11 +1,10 @@
 import Foundation
 import Observation
-import os
 
 // MARK: - HomeDashboardViewModel
 /// Feeds the Home modules (Quick Log, streak, next workout, hero card) from
-/// the same `WorkoutLogStoring` the Exercises tab writes to. Reload on appear
-/// picks up entries saved while another tab was active.
+/// the app's `TrainingJournal` and `ProgressService`, so a workout saved on
+/// any tab shows here without a reload. `reload()` re-reads the plans.
 ///
 /// Everything "today"-relative (hero, streak, next plan, weekly count) reads
 /// the cached `now`, which only moves on `reload()`. The view reloads when the
@@ -15,51 +14,52 @@ import os
 @Observable
 final class HomeDashboardViewModel {
     // MARK: State
-    private(set) var entries: [WorkoutLogEntry] = []
+    /// Every logged entry, newest first.
+    var entries: [WorkoutLogEntry] { journal.newestFirst }
     /// Saved workout plans, used to surface the next scheduled workout.
     private(set) var plans: [WorkoutPlan] = []
-    /// The athlete's declared placement, cached on reload so the achievements
-    /// module and hero hint read it without touching disk on every render.
-    private var placement: SkillPlacement?
     /// Set when a store fails to load, for the Home alert.
     var errorMessage: String?
-    /// Whether the last reload failed for any store. Data that did load is
-    /// shown; the rest keeps its previous value (empty on first load).
-    private(set) var hasLoadError = false
+    /// Whether the plans failed to load on the last reload.
+    private var plansFailed = false
+    /// Whether any store failed to load. Data that did load is shown; the
+    /// rest keeps its previous value (empty on first load).
+    var hasLoadError: Bool { plansFailed || goals.loadFailure != nil || progress.hasLoadError }
+    /// Whether the current failure streak was already announced.
+    @ObservationIgnored private var hasAlertedLoadError = false
     /// The reference instant for every "today" question, refreshed by
     /// `reload()` from the injected clock. Observed, so moving it re-renders
     /// Home even when no data changed (e.g. after midnight).
     private(set) var now: Date
-    /// The weekly goal for the cached `now`: current week, week streak, pause
-    /// and pending celebrations. `nil` while the goal store cannot be read, so
-    /// Home never shows the default goal in place of a saved one.
-    private(set) var weeklyGoal: WeeklyGoalSnapshot?
-    /// Goals whose celebration was dismissed while the mark could not be saved,
-    /// so a failed write does not bring the overlay straight back.
-    private var dismissedCelebrations: Set<WeeklyGoalCelebration> = []
+    /// The weekly goal: current week, week streak, pause and pending
+    /// celebrations. `nil` while the goal store cannot be read, so Home never
+    /// shows the default goal in place of a saved one. A met goal celebrates
+    /// through the app-wide `RewardCenter`.
+    var weeklyGoal: WeeklyGoalSnapshot? { goals.snapshot }
 
     // MARK: Dependencies
-    private let store: WorkoutLogStoring
+    private let journal: TrainingJournal
     /// Reads plans and owns saving them (with their reminders).
     private let planService: WorkoutPlanService
-    private let placementStore: PlacementStoring
-    private let goalStore: WeeklyGoalStoring
-    private let logger = AppLog.logger(category: "HomeDashboard")
+    /// Level, badges, the last advancement and the hint, shared with Skills.
+    private let progress: ProgressService
+    /// The weekly goal, shared with the reward overlay.
+    private let goals: WeeklyGoalService
     let calendar: Calendar
     /// Wall-clock source; tests inject a controllable one.
     private let clock: () -> Date
 
     // MARK: Init
-    init(store: WorkoutLogStoring,
+    init(journal: TrainingJournal,
          planService: WorkoutPlanService,
-         placementStore: PlacementStoring,
-         goalStore: WeeklyGoalStoring,
+         progress: ProgressService,
+         goals: WeeklyGoalService,
          calendar: Calendar = .current,
          clock: @escaping () -> Date = { .now }) {
-        self.store = store
+        self.journal = journal
         self.planService = planService
-        self.placementStore = placementStore
-        self.goalStore = goalStore
+        self.progress = progress
+        self.goals = goals
         self.calendar = calendar
         self.clock = clock
         self.now = clock()
@@ -67,35 +67,31 @@ final class HomeDashboardViewModel {
     }
 
     // MARK: Intentions
-    /// Re-reads every store and moves `now` to the current time.
+    /// Re-reads the plans, retries whatever failed to load, and moves `now`
+    /// to the current time.
     func reload() {
         now = clock()
-        var failed = false
-        do { entries = try store.load().sorted { $0.date > $1.date } } catch { failed = true }
-        do { plans = try planService.loadPlans() } catch { failed = true }
-        do { placement = try placementStore.load() } catch { failed = true }
+        progress.reloadIfFailed()
         do {
-            let history = try goalStore.load() ?? .empty
-            weeklyGoal = WeeklyGoalEvaluator.snapshot(
-                history: history, entries: entries, plans: plans, calendar: calendar, asOf: now
-            )
+            plans = try planService.loadPlans()
+            plansFailed = false
         } catch {
-            weeklyGoal = nil
-            failed = true
+            plansFailed = true
         }
+        goals.reload()
         // Alert once per failure streak, not on every appear.
-        if failed, !hasLoadError { errorMessage = StoreLoadFailure.message }
-        hasLoadError = failed
+        if hasLoadError, !hasAlertedLoadError { errorMessage = StoreLoadFailure.message }
+        hasAlertedLoadError = hasLoadError
     }
 
     /// SetPad session for logging straight from Home (Quick Log).
     func makeWorkoutLogViewModel(exercise: Exercise) -> WorkoutLogViewModel {
-        WorkoutLogViewModel(exercise: exercise, store: store)
+        WorkoutLogViewModel(exercise: exercise, journal: journal)
     }
 
     /// Quick workout session started from Home (Quick Log).
     func makeQuickWorkoutViewModel() -> QuickWorkoutViewModel {
-        QuickWorkoutViewModel(store: store)
+        QuickWorkoutViewModel(journal: journal)
     }
 
     /// Quick workout session seeded with a plan's exercises; the user confirms
@@ -103,13 +99,13 @@ final class HomeDashboardViewModel {
     /// program follow the athlete's current rung. When a store failed to
     /// load, the ladder state is unknown, so items keep their stored exercise.
     func makeQuickWorkoutViewModel(plan: WorkoutPlan) -> QuickWorkoutViewModel {
-        let pathStates = hasLoadError ? nil : ProgressionEngine.pathStates(logs: entries, placement: placement)
-        return QuickWorkoutViewModel(store: store, plan: plan, pathStates: pathStates, logs: entries)
+        let pathStates = hasLoadError ? nil : progress.snapshot.pathStates
+        return QuickWorkoutViewModel(journal: journal, plan: plan, pathStates: pathStates, logs: entries)
     }
 
     /// Detail screen for a workout opened from the "Ostatni trening" card.
     func makeWorkoutSessionDetailViewModel(sessionID: UUID) -> WorkoutSessionDetailViewModel {
-        WorkoutSessionDetailViewModel(sessionID: sessionID, store: store)
+        WorkoutSessionDetailViewModel(sessionID: sessionID, journal: journal)
     }
 
     /// Editor for a brand-new plan, started straight from Home when nothing is
@@ -153,40 +149,15 @@ final class HomeDashboardViewModel {
         WorkoutStreak.compute(from: entries.map(\.date), calendar: calendar, today: reference)
     }
 
-    // MARK: Weekly goal
-    /// The met goal to celebrate now, or `nil`. One at a time, primary first.
-    var goalCelebration: WeeklyGoalProgress? {
-        guard let weeklyGoal else { return nil }
-        let weekStart = weeklyGoal.week.interval.start
-        return weeklyGoal.pendingCelebrations.first {
-            !dismissedCelebrations.contains(WeeklyGoalCelebration(weekStart: weekStart, goalID: $0.goal.id))
-        }
-    }
-
-    /// Records the celebration on screen as shown, so it plays once per goal
-    /// per week. Re-reads the history first so a change saved elsewhere is
-    /// kept; a failed write only means it may play again after a relaunch.
-    func dismissGoalCelebration() {
-        guard let shown = goalCelebration, let weekStart = weeklyGoal?.week.interval.start else { return }
-        dismissedCelebrations.insert(WeeklyGoalCelebration(weekStart: weekStart, goalID: shown.goal.id))
-        do {
-            let history = try goalStore.load() ?? .empty
-            try goalStore.save(history.markingCelebrated(goalID: shown.goal.id, weekStart: weekStart, calendar: calendar))
-            reload()
-        } catch {
-            logger.error("Cannot mark goal celebration as shown: \(String(describing: error), privacy: .public)")
-        }
-    }
-
     // MARK: Skills bridge
     /// Real achievements for the Home module: level, XP to the next level, badge
     /// count, and the most recent conquered rung — all from logs, so Home mirrors
     /// the Skills tab. Declarations grant nothing here.
     var achievementsSummary: HomeAchievementsSummary {
-        let level = ProgressionEngine.playerLevel(for: entries)
-        let badges = ProgressionEngine.earnedBadges(from: entries, calendar: calendar)
-        let advancement = ProgressionEngine.lastAdvancement(from: entries)
-            .flatMap(resolveAdvancement)
+        let snapshot = progress.snapshot
+        let level = snapshot.level
+        let badges = snapshot.badges
+        let advancement = snapshot.lastAdvancement.flatMap(resolveAdvancement)
         return HomeAchievementsSummary(
             level: level.level,
             xpToNextLevel: level.xpToNextLevel,
@@ -199,11 +170,10 @@ final class HomeDashboardViewModel {
 
     /// A one-line progression nudge for the hero's rest-day / free-training
     /// states ("Jeszcze 2 powtórzenia do 3 × 8 — następny szczebel: …"), or
-    /// `nil` when no rung is partway done. Uses the cached placement as a floor,
-    /// like the Skills tab.
+    /// `nil` when no rung is partway done. Uses the placement as a floor, like
+    /// the Skills tab, from the same shared snapshot.
     var progressionHint: String? {
-        ProgressionEngine.mostActionableHint(logs: entries, placement: placement)
-            .flatMap(ProgressionFormat.hintLine)
+        progress.snapshot.hint.flatMap(ProgressionFormat.hintLine)
     }
 
     /// Resolves a rung reference into display names from the catalogs.

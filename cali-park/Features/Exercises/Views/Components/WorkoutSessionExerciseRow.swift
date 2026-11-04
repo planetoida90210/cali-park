@@ -18,16 +18,16 @@ struct WorkoutSessionExerciseRow: View {
                     .font(.bodyLarge)
                     .foregroundStyle(Color.textPrimary)
 
-                Text("\(PolishPlural.sets(entry.sets.count)): \(SetLogFormat.breakdown(of: entry.sets))")
+                Text("\(PolishPlural.sets(entry.sets.count)): \(MeasureFormat.breakdown(of: entry.sets))")
                     .font(.bodySmall)
                     .monospacedDigit()
                     .foregroundStyle(Color.textSecondary)
-                    .accessibilityLabel("\(PolishPlural.sets(entry.sets.count)): \(SetLogFormat.spokenBreakdown(of: entry.sets))")
+                    .accessibilityLabel("\(PolishPlural.sets(entry.sets.count)): \(MeasureFormat.spokenBreakdown(of: entry.sets))")
             }
 
             Spacer()
 
-            Text(SetLogFormat.total(of: entry.sets))
+            Text(MeasureFormat.total(of: entry.sets))
                 .font(.bodySmall)
                 .foregroundStyle(Color.textSecondary)
         }

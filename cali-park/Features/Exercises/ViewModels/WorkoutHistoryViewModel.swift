@@ -2,54 +2,59 @@ import Foundation
 import Observation
 
 // MARK: - WorkoutHistoryViewModel
-/// Drives the "Ostatnie treningi" list: loads log entries (newest first),
-/// groups quick-workout sessions together, deletes them on swipe and surfaces
-/// failures for an alert.
+/// Drives the "Ostatnie treningi" list: the journal's entries (newest first),
+/// quick-workout sessions grouped together, deletes on swipe, and failures
+/// surfaced for an alert.
 @MainActor
 @Observable
 final class WorkoutHistoryViewModel {
     // MARK: State
-    private(set) var entries: [WorkoutLogEntry] = []
     var errorMessage: String?
-    /// Whether the last reload failed. The list then keeps what it showed
-    /// before (nothing, on first load) instead of claiming the journal is empty.
-    private(set) var hasLoadError = false
+    /// Whether the current failure streak was already announced.
+    @ObservationIgnored private var hasAlertedLoadError = false
 
     // MARK: Dependencies
-    private let store: WorkoutLogStoring
+    private let journal: TrainingJournal
 
     // MARK: Init
-    init(store: WorkoutLogStoring) {
-        self.store = store
-        reload()
+    init(journal: TrainingJournal) {
+        self.journal = journal
+        alertIfLoadFailed()
     }
 
+    // MARK: Output
+    /// Every entry, newest first. After a failed load the list keeps what it
+    /// showed before (nothing, on first load) instead of claiming the journal
+    /// is empty.
+    var entries: [WorkoutLogEntry] { journal.newestFirst }
+
+    /// Whether the journal could not be read.
+    var hasLoadError: Bool { journal.hasLoadFailure }
+
     // MARK: Intentions
-    /// Re-reads the store; call when the view appears so entries saved from
-    /// the SetPad (or deleted on the detail screen) show up without extra wiring.
+    /// Retries a failed load and raises the alert once per failure streak.
+    /// Call when the view appears.
     func reload() {
-        do {
-            entries = try store.load().sorted { $0.date > $1.date }
-            hasLoadError = false
-        } catch {
-            // Alert once per failure streak, not on every appear.
-            if !hasLoadError { errorMessage = StoreLoadFailure.message }
-            hasLoadError = true
-        }
+        journal.reloadIfFailed()
+        alertIfLoadFailed()
     }
 
     func delete(_ entry: WorkoutLogEntry) {
+        delete([entry])
+    }
+
+    /// Deletes the given rows in one write.
+    func delete(_ doomed: [WorkoutLogEntry]) {
         do {
-            try store.delete(id: entry.id)
-            entries.removeAll { $0.id == entry.id }
+            try journal.delete(ids: Set(doomed.map(\.id)))
         } catch {
-            errorMessage = "Nie udało się usunąć treningu."
+            errorMessage = TrainingJournal.deleteFailureMessage
         }
     }
 
     /// Detail screen for a workout tapped in the list.
     func makeDetailViewModel(sessionID: UUID) -> WorkoutSessionDetailViewModel {
-        WorkoutSessionDetailViewModel(sessionID: sessionID, store: store)
+        WorkoutSessionDetailViewModel(sessionID: sessionID, journal: journal)
     }
 
     /// Resolves the catalog exercise a log entry points to.
@@ -61,5 +66,14 @@ final class WorkoutHistoryViewModel {
     /// into one workout, standalone logs stay on their own, all newest first.
     var sections: [WorkoutSession] {
         WorkoutSession.grouped(from: entries)
+    }
+
+    private func alertIfLoadFailed() {
+        guard hasLoadError else {
+            hasAlertedLoadError = false
+            return
+        }
+        if !hasAlertedLoadError { errorMessage = StoreLoadFailure.message }
+        hasAlertedLoadError = true
     }
 }

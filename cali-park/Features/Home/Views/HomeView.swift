@@ -31,8 +31,6 @@ struct HomeView: View {
     // The open weekly goal editor (long press on the hero ring, or the module).
     @State private var goalEditor: WeeklyGoalEditorViewModel?
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
     private let environment: AppEnvironment
 
     @Environment(\.scenePhase) private var scenePhase
@@ -112,11 +110,8 @@ struct HomeView: View {
             .sheet(item: $goalEditor, onDismiss: { dashboard.reload() }) { editor in
                 WeeklyGoalEditorView(viewModel: editor)
             }
-            .sheet(item: $startingPlan, onDismiss: { dashboard.reload() }) { plan in
-                QuickWorkoutView(
-                    viewModel: dashboard.makeQuickWorkoutViewModel(plan: plan),
-                    onFinish: { dashboard.reload() }
-                )
+            .sheet(item: $startingPlan) { plan in
+                QuickWorkoutView(viewModel: dashboard.makeQuickWorkoutViewModel(plan: plan))
             }
             .navigationDestination(for: HomeRoute.self) { route in
                 switch route {
@@ -130,7 +125,8 @@ struct HomeView: View {
                 )
             }
             .onAppear {
-                // Picks up entries logged in the Exercises tab.
+                // Picks up plans changed in the Planner. Workouts need no
+                // reload: Home reads the shared journal.
                 dashboard.reload()
             }
             // onAppear does not fire when the app returns from background, and
@@ -148,18 +144,6 @@ struct HomeView: View {
             }
         }
         .environmentObject(modulePreferences)
-        .overlay {
-            if let met = dashboard.goalCelebration, let snapshot = dashboard.weeklyGoal {
-                CelebrationOverlayView(
-                    presentation: .weeklyGoalMet(met, isPrimary: met.id == snapshot.week.primary.id, streak: snapshot.streak),
-                    trigger: "goal-\(met.id.uuidString)-\(snapshot.week.interval.start.timeIntervalSince1970)",
-                    hasNext: snapshot.pendingCelebrations.count > 1,
-                    onDismiss: { dashboard.dismissGoalCelebration() }
-                )
-                .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: 0.96)))
-            }
-        }
-        .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: dashboard.goalCelebration)
     }
 
     private func openGoalEditor() {

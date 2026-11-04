@@ -4,8 +4,8 @@ import SwiftUI
 /// The two headline actions on Home: start a spontaneous quick workout, or open
 /// the plans library. Contextual "start today's plan" now lives in the hero, so
 /// the second slot is a permanent entry into "Plany" (push `WorkoutPlansView`,
-/// which handles its own empty state). Quick workout writes through the same
-/// dashboard store, so Home refreshes as soon as the sheet closes.
+/// which handles its own empty state). Quick workout writes to the shared
+/// journal Home reads, so Home updates as soon as the workout is saved.
 struct PrimaryActionRailView: View {
     let dashboard: HomeDashboardViewModel
 
@@ -27,13 +27,8 @@ struct PrimaryActionRailView: View {
             }
         }
         .padding(.horizontal, 16)
-        // Reload on dismiss too: the summary can delete the workout just
-        // saved, and closing the sheet fires no onAppear on Home.
-        .sheet(isPresented: $showingQuickWorkout, onDismiss: { dashboard.reload() }) {
-            QuickWorkoutView(
-                viewModel: dashboard.makeQuickWorkoutViewModel(),
-                onFinish: { dashboard.reload() }
-            )
+        .sheet(isPresented: $showingQuickWorkout) {
+            QuickWorkoutView(viewModel: dashboard.makeQuickWorkoutViewModel())
         }
     }
 

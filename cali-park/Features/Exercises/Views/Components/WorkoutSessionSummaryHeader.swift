@@ -24,7 +24,7 @@ struct WorkoutSessionSummaryHeader: View {
         [
             PolishPlural.exercises(session.entries.count),
             PolishPlural.sets(session.totalSets),
-            SetLogFormat.totals(reps: session.totalReps, seconds: session.totalSeconds)
+            MeasureFormat.totals(reps: session.totalReps, seconds: session.totalSeconds)
         ]
         .joined(separator: " · ")
     }

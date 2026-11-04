@@ -33,10 +33,7 @@ struct WorkoutHistoryView: View {
                             }
                             .onDelete { offsets in
                                 // Resolve entries up front — deleting shifts indices.
-                                let doomed = offsets.map { section.entries[$0] }
-                                for entry in doomed {
-                                    viewModel.delete(entry)
-                                }
+                                viewModel.delete(offsets.map { section.entries[$0] })
                             }
                         } header: {
                             if section.isSession {
@@ -83,12 +80,12 @@ private struct WorkoutSessionHeader: View {
 
             Spacer()
 
-            Text("\(PolishPlural.exercises(section.entries.count)) · \(SetLogFormat.totals(reps: section.totalReps, seconds: section.totalSeconds))")
+            Text(MeasureFormat.summary(of: section))
         }
         .font(.bodySmall)
         .foregroundStyle(Color.textSecondary)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Trening, \(PolishPlural.exercises(section.entries.count)), \(SetLogFormat.totals(reps: section.totalReps, seconds: section.totalSeconds))")
+        .accessibilityLabel("Trening, \(PolishPlural.exercises(section.entries.count)), \(MeasureFormat.totals(reps: section.totalReps, seconds: section.totalSeconds))")
     }
 }
 
@@ -112,7 +109,7 @@ private struct WorkoutHistoryRow: View {
                     .font(.bodyLarge)
                     .foregroundStyle(Color.textPrimary)
 
-                Text(SetLogFormat.breakdown(of: entry.sets))
+                Text(MeasureFormat.breakdown(of: entry.sets))
                     .font(.bodySmall)
                     .monospacedDigit()
                     .foregroundStyle(Color.textSecondary)
@@ -127,7 +124,7 @@ private struct WorkoutHistoryRow: View {
                         .foregroundStyle(Color.textSecondary)
                 }
 
-                Text(SetLogFormat.total(of: entry.sets))
+                Text(MeasureFormat.total(of: entry.sets))
                     .font(.bodySmall)
                     .foregroundStyle(Color.textSecondary)
             }
@@ -163,12 +160,12 @@ private struct WorkoutHistoryEmptyState: View {
     NavigationStack {
         WorkoutHistoryView(
             viewModel: WorkoutHistoryViewModel(
-                store: InMemoryWorkoutLogStore(initial: [
+                journal: TrainingJournal(store: InMemoryWorkoutLogStore(initial: [
                     WorkoutLogEntry(
                         exerciseID: ExerciseCatalog.pullUpsID,
                         sets: [LoggedSet(reps: 6), LoggedSet(reps: 6), LoggedSet(reps: 8)]
                     )
-                ])
+                ]))
             )
         )
     }

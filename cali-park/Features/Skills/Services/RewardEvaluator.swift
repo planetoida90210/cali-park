@@ -35,9 +35,26 @@ enum RewardEvaluator {
     static func evaluate(logs: [WorkoutLogEntry],
                          placement: SkillPlacement?,
                          celebrated: SkillProgress?) -> RewardEvaluation {
-        let conqueredRungs = conqueredRungReferences(from: logs)
-        let currentLevel = ProgressionEngine.playerLevel(for: logs).level
+        evaluate(conqueredRungs: ProgressionEngine.conqueredRungs(logs: logs),
+                 currentLevel: ProgressionEngine.playerLevel(for: logs).level,
+                 placement: placement,
+                 celebrated: celebrated)
+    }
 
+    /// The same evaluation from an already computed progress snapshot, so the
+    /// reward loop never re-scores the log.
+    static func evaluate(snapshot: ProgressSnapshot,
+                         celebrated: SkillProgress?) -> RewardEvaluation {
+        evaluate(conqueredRungs: snapshot.conqueredRungs,
+                 currentLevel: snapshot.level.level,
+                 placement: snapshot.placement,
+                 celebrated: celebrated)
+    }
+
+    private static func evaluate(conqueredRungs: Set<RungReference>,
+                                 currentLevel: Int,
+                                 placement: SkillPlacement?,
+                                 celebrated: SkillProgress?) -> RewardEvaluation {
         // First run: adopt the current standing as the baseline, celebrate
         // nothing. A returning athlete's history is not a stream of surprises.
         guard let celebrated else {
@@ -72,20 +89,6 @@ enum RewardEvaluator {
     }
 
     // MARK: Helpers
-
-    /// Every rung the logs have conquered, on every path. Scored with no
-    /// placement, so declarations add nothing.
-    private static func conqueredRungReferences(from logs: [WorkoutLogEntry]) -> Set<RungReference> {
-        let logStates = ProgressionEngine.pathStates(logs: logs, placement: nil)
-        var references: Set<RungReference> = []
-        for path in ProgressionCatalog.all {
-            guard let state = logStates[path.id] else { continue }
-            for step in path.steps.prefix(state.conqueredRungCount) {
-                references.insert(RungReference(pathID: path.id, stepID: step.id))
-            }
-        }
-        return references
-    }
 
     /// Whether a rung sits at or above the path's declared floor. Conquering a
     /// rung below it is not a fresh advance: the athlete already said they were

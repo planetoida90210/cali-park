@@ -10,11 +10,11 @@ enum HeroWorkoutSummary {
     /// (or "Front lever · 3 × 20 s" for a timed exercise).
     static func headline(for workout: WorkoutSession) -> String {
         if workout.isSession {
-            return "\(PolishPlural.exercises(workout.entries.count)) · \(SetLogFormat.totals(reps: workout.totalReps, seconds: workout.totalSeconds))"
+            return MeasureFormat.summary(of: workout)
         }
         guard let entry = workout.entries.first else { return "Trening" }
         let name = ExerciseCatalog.exercise(withID: entry.exerciseID)?.name ?? "Ćwiczenie"
-        let breakdown = SetLogFormat.breakdown(of: entry.sets)
+        let breakdown = MeasureFormat.breakdown(of: entry.sets)
         return breakdown.isEmpty ? name : "\(name) · \(breakdown)"
     }
 }

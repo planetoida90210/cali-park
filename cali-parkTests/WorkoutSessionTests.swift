@@ -220,14 +220,16 @@ struct WorkoutSessionDetailViewModelTests {
         #expect(viewModel.session?.entries == [entry])
     }
 
+    /// Deleted from the history while the detail is open: both read the one
+    /// journal, so the detail sees it gone without a reload.
     @Test
     func workoutDeletedElsewhereReadsAsGone() throws {
         let entry = WorkoutLogEntry(exerciseID: ExerciseCatalog.pushUpsID, sets: [LoggedSet(reps: 15)])
-        let store = InMemoryWorkoutLogStore(initial: [entry])
-        let viewModel = WorkoutSessionDetailViewModel(sessionID: entry.id, store: store)
+        let journal = TrainingJournal(store: InMemoryWorkoutLogStore(initial: [entry]))
+        let viewModel = WorkoutSessionDetailViewModel(sessionID: entry.id, journal: journal)
+        let history = WorkoutHistoryViewModel(journal: journal)
 
-        try store.delete(id: entry.id)
-        viewModel.reload()
+        history.delete(entry)
 
         #expect(viewModel.session == nil)
     }

@@ -29,7 +29,7 @@ final class QuickWorkoutViewModel {
     private(set) var didFinish = false
 
     // MARK: Dependencies
-    private let store: WorkoutLogStoring
+    private let journal: TrainingJournal
     /// Shared identifier stamped on every entry saved from this session.
     private let sessionID = UUID()
     /// The plan this session was seeded from, stamped on every saved entry so
@@ -41,8 +41,8 @@ final class QuickWorkoutViewModel {
     private let initialItems: [DraftItem]
 
     // MARK: Init
-    init(store: WorkoutLogStoring) {
-        self.store = store
+    init(journal: TrainingJournal) {
+        self.journal = journal
         self.planID = nil
         self.initialItems = []
     }
@@ -55,11 +55,11 @@ final class QuickWorkoutViewModel {
     /// program) train the athlete's current rung instead of the one they were
     /// created on, and `logs` drive the "+1 rep" prefill. Without them, every
     /// item trains its stored exercise.
-    init(store: WorkoutLogStoring,
+    init(journal: TrainingJournal,
          plan: WorkoutPlan,
          pathStates: [ProgressionPathID: PathState]? = nil,
          logs: [WorkoutLogEntry] = []) {
-        self.store = store
+        self.journal = journal
         self.planID = plan.id
         let seeded = plan.exercises.compactMap { Self.draftItem(from: $0, pathStates: pathStates, logs: logs) }
         self.items = seeded
@@ -113,15 +113,17 @@ final class QuickWorkoutViewModel {
     /// differ from what the session opened with, and nothing is saved yet.
     var hasUnsavedChanges: Bool { !didFinish && items != initialItems }
 
-    /// The summary of the workout just saved, read back from the store so it
-    /// shows exactly what was persisted.
+    /// The summary of the workout just saved, read back from the journal so
+    /// it shows exactly what was persisted.
     func makeSummaryViewModel() -> WorkoutSessionDetailViewModel {
-        WorkoutSessionDetailViewModel(sessionID: sessionID, store: store)
+        WorkoutSessionDetailViewModel(sessionID: sessionID, journal: journal)
     }
 
     // MARK: Intentions
     /// Queues an exercise with the sets logged on the SetPad. Empty logs are
-    /// ignored so the session never gains a set-less exercise this way.
+    /// ignored so the session never gains a set-less exercise this way. The
+    /// same exercise may be added more than once (supersets); progress merges
+    /// a workout's entries per exercise, so every set counts (audit A-5).
     func addExercise(_ exercise: Exercise, sets: [LoggedSet]) {
         guard !sets.isEmpty else { return }
         items.append(DraftItem(exercise: exercise, sets: sets))
@@ -156,10 +158,10 @@ final class QuickWorkoutViewModel {
         }
 
         do {
-            try store.append(contentsOf: entries)
+            try journal.logSession(entries)
             didFinish = true
         } catch {
-            errorMessage = "Nie udało się zapisać treningu."
+            errorMessage = TrainingJournal.saveFailureMessage
         }
     }
 }
