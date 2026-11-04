@@ -58,6 +58,7 @@ private struct PlannedWorkoutContent: View {
                     .frame(width: 44, height: 44)
                     .background(Color.accent)
                     .clipShape(.rect(cornerRadius: 12))
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(planned.plan.name)
@@ -102,6 +103,7 @@ private struct DoneTodayContent: View {
                 .frame(width: 44, height: 44)
                 .background(Color.accent)
                 .clipShape(.rect(cornerRadius: 12))
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("Dziś · Zrobione")
@@ -168,6 +170,7 @@ private struct NextWorkoutEmptyState: View {
             Image(systemName: "dumbbell")
                 .font(.title2)
                 .foregroundStyle(Color.textSecondary)
+                .accessibilityHidden(true)
 
             Text("Brak propozycji")
                 .font(.bodyMedium)

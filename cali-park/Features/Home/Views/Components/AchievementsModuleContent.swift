@@ -76,6 +76,7 @@ struct AchievementsModuleContent: View {
                         .frame(width: 40, height: 40)
                         .background(Color.accent.opacity(0.15))
                         .clipShape(.circle)
+                        .accessibilityHidden(true)
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(advancement.title)

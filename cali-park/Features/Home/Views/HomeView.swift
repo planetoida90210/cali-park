@@ -198,6 +198,7 @@ struct HomeView: View {
             Image(systemName: "square.stack.3d.up")
                 .font(.largeTitle)
                 .foregroundStyle(Color.accent)
+                .accessibilityHidden(true)
 
             Text("Start jest pusty")
                 .font(.title3)

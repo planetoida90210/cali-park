@@ -32,6 +32,7 @@ private struct StreakSummaryRow: View {
             Image(systemName: "flame.fill")
                 .foregroundStyle(streak.current > 0 ? Color.orange : Color.textSecondary)
                 .font(.title)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(PolishPlural.days(streak.current))
@@ -126,6 +127,7 @@ private struct StreakEmptyState: View {
             Image(systemName: "flame")
                 .font(.title2)
                 .foregroundStyle(Color.textSecondary)
+                .accessibilityHidden(true)
 
             Text("Brak serii")
                 .font(.bodyMedium)
