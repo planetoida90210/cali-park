@@ -27,15 +27,74 @@ protocol LocationProviding: AnyObject {
     func currentLocation() async -> CLLocationCoordinate2D?
 }
 
+// MARK: - LocationManaging
+/// The part of `CLLocationManager` that `CoreLocationProvider` uses, so tests
+/// can drive authorization answers, fixes and silence without Core Location.
+/// Callbacks arrive on the main actor.
+@MainActor
+protocol LocationManaging: AnyObject {
+    var authorizationStatus: CLAuthorizationStatus { get }
+    /// Called whenever the authorization status changes, including once
+    /// shortly after creation.
+    var onAuthorizationChange: ((CLAuthorizationStatus) -> Void)? { get set }
+    /// Called with a fix after `requestLocation()`, or `nil` when it failed.
+    var onLocation: ((CLLocationCoordinate2D?) -> Void)? { get set }
+
+    func requestWhenInUseAuthorization()
+    func requestLocation()
+}
+
+// MARK: - SystemLocationManager
+/// `LocationManaging` on a real `CLLocationManager`. Create it on the main
+/// thread: the manager then calls its delegate on the main run loop.
+final class SystemLocationManager: NSObject, LocationManaging {
+    var onAuthorizationChange: ((CLAuthorizationStatus) -> Void)?
+    var onLocation: ((CLLocationCoordinate2D?) -> Void)?
+
+    private let manager = CLLocationManager()
+    private nonisolated static let log = AppLog.logger(category: "Location")
+
+    override init() {
+        super.init()
+        manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+    }
+
+    var authorizationStatus: CLAuthorizationStatus { manager.authorizationStatus }
+
+    func requestWhenInUseAuthorization() { manager.requestWhenInUseAuthorization() }
+
+    func requestLocation() { manager.requestLocation() }
+}
+
+extension SystemLocationManager: CLLocationManagerDelegate {
+    nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        let status = manager.authorizationStatus
+        MainActor.assumeIsolated { onAuthorizationChange?(status) }
+    }
+
+    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        let coordinate = locations.last?.coordinate
+        MainActor.assumeIsolated { onLocation?(coordinate) }
+    }
+
+    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        Self.log.error("Location request failed: \(error.localizedDescription, privacy: .public)")
+        MainActor.assumeIsolated { onLocation?(nil) }
+    }
+}
+
 // MARK: - CoreLocationProvider
-/// `LocationProviding` on `CLLocationManager`. Create it on the main thread:
-/// the manager then calls its delegate on the main run loop.
+/// `LocationProviding` over a `LocationManaging` (Core Location in the app).
+/// Callers waiting for the same answer share one prompt or one location
+/// request; a request that gets no answer ends with `nil` after a timeout.
 @MainActor
 @Observable
-final class CoreLocationProvider: NSObject, LocationProviding {
+final class CoreLocationProvider: LocationProviding {
     private(set) var authorization: LocationAuthorization = .notDetermined
 
-    @ObservationIgnored private let manager = CLLocationManager()
+    @ObservationIgnored private let manager: LocationManaging
+    @ObservationIgnored private let clock: () -> Date
     @ObservationIgnored private var authorizationWaiters: [CheckedContinuation<LocationAuthorization, Never>] = []
     @ObservationIgnored private var locationWaiters: [CheckedContinuation<CLLocationCoordinate2D?, Never>] = []
 
@@ -43,18 +102,22 @@ final class CoreLocationProvider: NSObject, LocationProviding {
 
     /// A fix received less than this ago is good enough for "how far is the
     /// Park".
-    @ObservationIgnored private let maximumFixAge: TimeInterval = 300
+    static let maximumFixAge: TimeInterval = 300
     /// `requestLocation()` can take a while (or never answer); give up then.
-    @ObservationIgnored private let requestTimeout: Duration = .seconds(10)
+    @ObservationIgnored private let requestTimeout: Duration
     @ObservationIgnored private var lastFix: (coordinate: CLLocationCoordinate2D, receivedAt: Date)?
     /// Bumped per `requestLocation()`, so a stale timeout can't end a newer request.
     @ObservationIgnored private var requestGeneration = 0
 
-    override init() {
-        super.init()
-        manager.delegate = self
-        manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+    init(manager: LocationManaging,
+         clock: @escaping () -> Date,
+         requestTimeout: Duration = .seconds(10)) {
+        self.manager = manager
+        self.clock = clock
+        self.requestTimeout = requestTimeout
         authorization = Self.authorization(from: manager.authorizationStatus)
+        manager.onAuthorizationChange = { [weak self] status in self?.authorizationDidChange(to: status) }
+        manager.onLocation = { [weak self] coordinate in self?.finishLocationRequest(with: coordinate) }
     }
 
     func requestAuthorization() async -> LocationAuthorization {
@@ -69,7 +132,7 @@ final class CoreLocationProvider: NSObject, LocationProviding {
 
     func currentLocation() async -> CLLocationCoordinate2D? {
         guard authorization == .authorized else { return nil }
-        if let lastFix, -lastFix.receivedAt.timeIntervalSinceNow < maximumFixAge {
+        if let lastFix, clock().timeIntervalSince(lastFix.receivedAt) < Self.maximumFixAge {
             return lastFix.coordinate
         }
         return await withCheckedContinuation { continuation in
@@ -118,29 +181,11 @@ final class CoreLocationProvider: NSObject, LocationProviding {
 
     private func finishLocationRequest(with coordinate: CLLocationCoordinate2D?) {
         if let coordinate {
-            lastFix = (coordinate, Date())
+            lastFix = (coordinate, clock())
         }
         requestGeneration += 1
         let waiters = locationWaiters
         locationWaiters = []
         waiters.forEach { $0.resume(returning: coordinate) }
-    }
-}
-
-// MARK: - CLLocationManagerDelegate
-extension CoreLocationProvider: CLLocationManagerDelegate {
-    nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        let status = manager.authorizationStatus
-        MainActor.assumeIsolated { authorizationDidChange(to: status) }
-    }
-
-    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        let coordinate = locations.last?.coordinate
-        MainActor.assumeIsolated { finishLocationRequest(with: coordinate) }
-    }
-
-    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        Self.log.error("Location request failed: \(error.localizedDescription, privacy: .public)")
-        MainActor.assumeIsolated { finishLocationRequest(with: nil) }
     }
 }

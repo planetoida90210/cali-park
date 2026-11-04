@@ -82,7 +82,7 @@ final class AppEnvironment {
         self.parkDirectory = parkDirectory
         // Built here: a main-actor default argument can't be evaluated in the
         // caller's nonisolated context.
-        self.locationProvider = locationProvider ?? CoreLocationProvider()
+        self.locationProvider = locationProvider ?? CoreLocationProvider(manager: SystemLocationManager(), clock: { .now })
         self.favoriteParkStore = favoriteParkStore
         self.parkFavorites = ParkFavorites(store: favoriteParkStore)
         self.favoriteExerciseStore = favoriteExerciseStore
