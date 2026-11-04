@@ -7,7 +7,6 @@ import SwiftUI
 struct HeroPlanTodayView: View {
     let plan: WorkoutPlan
     let loggedTodayReps: Int
-    let name: String
     var now: Date = .now
     let onStart: () -> Void
 
@@ -16,7 +15,7 @@ struct HeroPlanTodayView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
-                HeroHeaderView(name: name, now: now)
+                HeroHeaderView(now: now)
 
                 Text(plan.name)
                     .font(.title2)
@@ -71,7 +70,6 @@ struct HeroPlanTodayView: View {
             PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)
         ]),
         loggedTodayReps: 24,
-        name: "Michał",
         onStart: {}
     )
     .padding(20)

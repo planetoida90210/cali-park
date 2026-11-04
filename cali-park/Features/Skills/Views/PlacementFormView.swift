@@ -2,7 +2,9 @@ import SwiftUI
 
 // MARK: - PlacementFormView
 /// The placement questionnaire: a few rep-count questions, a handful of
-/// "can you already do this?" checkboxes, and the resistance-band question.
+/// "can you already do this?" checkboxes. The resistance band is not asked
+/// here (ticket 026): it stays a visible option on the ladder, and a band
+/// declared earlier is kept on save.
 ///
 /// Shared by onboarding (SK4) and the in-app calibration sheet so the two never
 /// drift apart. It lays out sections only — the caller supplies the scroll
@@ -17,7 +19,6 @@ struct PlacementFormView: View {
                 repQuestionSection(question)
             }
             skillSection
-            equipmentSection
         }
     }
 
@@ -101,25 +102,6 @@ struct PlacementFormView: View {
         }
         .accessibilityLabel(question.label)
         .accessibilityAddTraits(isMastered ? .isSelected : [])
-    }
-
-    // MARK: Equipment
-    private var equipmentSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Sprzęt")
-                .font(.title3)
-                .foregroundStyle(Color.textPrimary)
-
-            Toggle(isOn: $viewModel.ownsBand) {
-                Text("Mam gumę oporową")
-                    .font(.bodyLarge)
-                    .foregroundStyle(Color.textPrimary)
-            }
-            .tint(Color.accent)
-            .padding()
-            .background(Color.componentBackground)
-            .clipShape(.rect(cornerRadius: 12))
-        }
     }
 }
 

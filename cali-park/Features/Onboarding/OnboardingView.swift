@@ -1,44 +1,23 @@
 import SwiftUI
 
 // MARK: - OnboardingView
-/// First-run flow: welcome, placement (where the athlete already is on each
-/// progression path), a suggested ready-made program, goals, and location
-/// permission.
+/// First-run flow (ticket 026): welcome, the level test (where the athlete
+/// already is on each progression path), "Program na start", and the weekly
+/// goal. `OnboardingViewModel` owns the order and what each step suggests;
+/// this view only lays the pages out.
 ///
-/// The placement page replaces the old three-card "fitness level" question,
-/// whose answer was thrown away. Its answers are saved through `PlacementStoring`
-/// via `PlacementCalibrationViewModel`, so a strong athlete starts partway up
-/// each ladder instead of from the bottom. The program step suggests one
-/// program from those answers (`ProgramPrescriber.suggestedProgram`); the
-/// chosen one becomes plans on the declared rungs when onboarding finishes.
+/// There is no goals question (the program choice took its role) and no
+/// location step: the map asks for location when it first opens.
 struct OnboardingView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
 
-    @State private var currentPage = 0
-    @State private var calibration: PlacementCalibrationViewModel
-    @State private var programChoice: ProgramChoiceViewModel
-    @State private var selectedGoals: [String] = []
-    @State private var locationPermission = false
+    @State private var viewModel: OnboardingViewModel
 
     /// Scales the hero glyphs with Dynamic Type while keeping their base size.
     @ScaledMetric private var heroIconSize: CGFloat = 80
 
-    private let goals = [
-        "Zwiększenie siły",
-        "Budowa masy mięśniowej",
-        "Poprawa wytrzymałości",
-        "Redukcja tkanki tłuszczowej",
-        "Nauka nowych umiejętności",
-        "Przygotowanie do zawodów"
-    ]
-
-    private let pageCount = 5
-    /// The program step comes right after the level test.
-    private let programPage = 2
-
     init(environment: AppEnvironment) {
-        _calibration = State(initialValue: environment.makePlacementCalibrationViewModel())
-        _programChoice = State(initialValue: environment.makeProgramChoiceViewModel())
+        _viewModel = State(initialValue: environment.makeOnboardingViewModel())
     }
 
     var body: some View {
@@ -46,21 +25,13 @@ struct OnboardingView: View {
             Color.appBackground.ignoresSafeArea()
 
             VStack {
-                TabView(selection: $currentPage) {
-                    welcomeView.tag(0)
-                    placementView.tag(1)
-                    ProgramChoiceView(viewModel: programChoice).tag(programPage)
-                    goalsView.tag(3)
-                    locationPermissionView.tag(4)
+                TabView(selection: pageBinding) {
+                    welcomeView.tag(OnboardingPage.welcome)
+                    placementView.tag(OnboardingPage.placement)
+                    ProgramChoiceView(viewModel: viewModel.programChoice).tag(OnboardingPage.program)
+                    OnboardingWeeklyGoalPage(viewModel: viewModel).tag(OnboardingPage.weeklyGoal)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-                .onChange(of: currentPage) { _, page in
-                    // The suggestion follows the level test until the athlete
-                    // picks a program themselves.
-                    if page == programPage {
-                        programChoice.updateSuggestion(for: calibration.placement)
-                    }
-                }
 
                 VStack {
                     pageIndicators
@@ -73,17 +44,26 @@ struct OnboardingView: View {
             }
             .padding()
         }
-        .alert(programChoice.errorMessage ?? "", isPresented: programErrorBinding) {
+        .alert(viewModel.errorMessage ?? "", isPresented: errorBinding) {
             Button("Rozumiem", role: .cancel) { hasCompletedOnboarding = true }
         }
     }
 
-    // Bridges the optional program error to a Bool binding for `.alert`.
-    // Closing the alert finishes onboarding without the plan.
-    private var programErrorBinding: Binding<Bool> {
+    // Swipes go through the view model too, so each step's suggestion is
+    // refreshed however the athlete reaches it.
+    private var pageBinding: Binding<OnboardingPage> {
         Binding(
-            get: { programChoice.errorMessage != nil },
-            set: { if !$0 { programChoice.errorMessage = nil } }
+            get: { viewModel.page },
+            set: { viewModel.show($0) }
+        )
+    }
+
+    // Bridges the optional error to a Bool binding for `.alert`. Closing the
+    // alert finishes onboarding with whatever could be saved.
+    private var errorBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
         )
     }
 
@@ -91,9 +71,9 @@ struct OnboardingView: View {
 
     private var pageIndicators: some View {
         HStack {
-            ForEach(0..<pageCount, id: \.self) { index in
+            ForEach(OnboardingPage.allCases, id: \.self) { page in
                 Circle()
-                    .fill(currentPage == index ? Color.accent : Color.gray.opacity(0.3))
+                    .fill(viewModel.page == page ? Color.accent : Color.gray.opacity(0.3))
                     .frame(width: 10, height: 10)
             }
         }
@@ -102,35 +82,32 @@ struct OnboardingView: View {
 
     private var navigationButtons: some View {
         HStack {
-            if currentPage > 0 {
+            if viewModel.page.previous != nil {
                 Button("Wróć") {
-                    withAnimation { currentPage -= 1 }
+                    withAnimation { viewModel.goBack() }
                 }
                 .buttonStyle(SecondaryButtonStyle())
             }
 
             Spacer()
 
-            let isLastPage = currentPage == pageCount - 1
-            Button(isLastPage ? "Rozpocznij" : "Dalej") {
-                if isLastPage {
+            Button(viewModel.page.isLast ? "Rozpocznij" : "Dalej") {
+                if viewModel.page.isLast {
                     finish()
                 } else {
-                    withAnimation { currentPage += 1 }
+                    withAnimation { viewModel.goForward() }
                 }
             }
             .buttonStyle(PrimaryButtonStyle())
-            .disabled(programChoice.isCreating)
+            .disabled(viewModel.isFinishing)
         }
     }
 
-    /// Saves the placement first, so the chosen program's plans start on the
-    /// rungs just declared, then creates them. A failure shows an alert that
-    /// finishes onboarding when closed.
+    /// Saves the placement, the program's plans and the weekly goal. A
+    /// failure shows an alert that finishes onboarding when closed.
     private func finish() {
-        calibration.save()
         Task {
-            if await programChoice.createChosenProgram() {
+            if await viewModel.finish() {
                 hasCompletedOnboarding = true
             }
         }
@@ -151,7 +128,7 @@ struct OnboardingView: View {
                 .foregroundStyle(Color.textPrimary)
                 .multilineTextAlignment(.center)
 
-            Text("Siłownie, plany i ścieżki w jednym miejscu. Ustawimy start pod to, co już umiesz.")
+            Text("Trenuj kalistenikę krok po kroku, od szczebla, na którym już jesteś.")
                 .font(.bodyLarge)
                 .foregroundStyle(Color.textSecondary)
                 .multilineTextAlignment(.center)
@@ -174,101 +151,71 @@ struct OnboardingView: View {
                         .foregroundStyle(Color.textSecondary)
                 }
 
-                PlacementFormView(viewModel: calibration)
+                PlacementFormView(viewModel: viewModel.calibration)
+            }
+            .padding(.vertical, 8)
+        }
+    }
+}
+
+// MARK: - OnboardingWeeklyGoalPage
+/// The last step: how many days a week to train, defaulting to the chosen
+/// program's frequency. Other goal kinds are set later in Profile or on Home.
+private struct OnboardingWeeklyGoalPage: View {
+    let viewModel: OnboardingViewModel
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Cel tygodniowy")
+                        .font(.title2)
+                        .foregroundStyle(Color.textPrimary)
+
+                    Text(hint)
+                        .font(.bodyMedium)
+                        .foregroundStyle(Color.textSecondary)
+                }
+
+                Stepper(
+                    value: Binding(
+                        get: { viewModel.trainingDays },
+                        set: { viewModel.setTrainingDays($0) }
+                    ),
+                    in: WeeklyGoal.trainingDaysRange
+                ) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(PolishPlural.trainingDays(viewModel.trainingDays))
+                            .font(.title3)
+                            .foregroundStyle(Color.textPrimary)
+                        Text("w tygodniu, w dowolne dni")
+                            .font(.bodySmall)
+                            .foregroundStyle(Color.textSecondary)
+                    }
+                }
+                .padding()
+                .background(Color.componentBackground)
+                .clipShape(.rect(cornerRadius: 12))
+
+                Text("Odpoczynek jest elastyczny: liczy się, ile dni w tygodniu trenujesz, nie które. Cel i pauzę zmienisz później w Profilu.")
+                    .font(.bodySmall)
+                    .foregroundStyle(Color.textSecondary)
             }
             .padding(.vertical, 8)
         }
     }
 
-    private var goalsView: some View {
-        VStack(spacing: 20) {
-            Text("Jakie są Twoje cele treningowe?")
-                .font(.title2)
-                .foregroundStyle(Color.textPrimary)
-                .multilineTextAlignment(.center)
-
-            Text("Wybierz wszystkie, które Cię interesują.")
-                .font(.bodyMedium)
-                .foregroundStyle(Color.textSecondary)
-
-            ScrollView {
-                VStack(spacing: 12) {
-                    ForEach(goals, id: \.self) { goal in
-                        goalRow(goal: goal)
-                    }
-                }
-            }
-
-            Spacer()
+    private var hint: String {
+        if let program = viewModel.chosenProgramName {
+            "Program \(program) to \(PolishPlural.days(viewModel.suggestedTrainingDays)) w tygodniu. Ustaw, ile dni chcesz trenować."
+        } else {
+            "Ile dni w tygodniu chcesz trenować? Na start polecamy 3."
         }
-        .padding()
-    }
-
-    private func goalRow(goal: String) -> some View {
-        let isSelected = selectedGoals.contains(goal)
-
-        return Button {
-            if isSelected {
-                selectedGoals.removeAll { $0 == goal }
-            } else {
-                selectedGoals.append(goal)
-            }
-        } label: {
-            HStack {
-                Text(goal)
-                    .font(.bodyLarge)
-                    .foregroundStyle(Color.textPrimary)
-
-                Spacer()
-
-                Image(systemName: isSelected ? "checkmark.square.fill" : "square")
-                    .foregroundStyle(isSelected ? Color.accent : Color.textTertiary)
-                    .font(.title3)
-            }
-            .padding()
-            .background(Color.componentBackground)
-            .clipShape(.rect(cornerRadius: 12))
-        }
-        .accessibilityLabel(goal)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-    }
-
-    private var locationPermissionView: some View {
-        VStack(spacing: 32) {
-            Spacer()
-
-            Image(systemName: "location.circle.fill")
-                .font(.system(size: heroIconSize))
-                .foregroundStyle(Color.accent)
-
-            Text("Dostęp do lokalizacji")
-                .font(.title2)
-                .foregroundStyle(Color.textPrimary)
-                .multilineTextAlignment(.center)
-
-            Text("Aby znaleźć siłownie kalisteniki w pobliżu, potrzebujemy dostępu do Twojej lokalizacji. Możesz zmienić to później w ustawieniach.")
-                .font(.bodyLarge)
-                .foregroundStyle(Color.textSecondary)
-                .multilineTextAlignment(.center)
-
-            Toggle(isOn: $locationPermission) {
-                Text("Zezwól na dostęp do lokalizacji")
-                    .font(.bodyLarge)
-                    .foregroundStyle(Color.textPrimary)
-            }
-            .tint(Color.accent)
-            .padding()
-            .background(Color.componentBackground)
-            .clipShape(.rect(cornerRadius: 12))
-
-            Spacer()
-        }
-        .padding()
     }
 }
 
 // MARK: - Preview
 #Preview {
-    OnboardingView(environment: .preview)
+    OnboardingView(environment: .seeded())
         .preferredColorScheme(.dark)
 }

@@ -2,12 +2,6 @@ import Foundation
 
 // Mock data for development and previews
 enum MockDataProvider {
-    static let userProfile = MockUserProfile(
-        id: "user1",
-        name: "Michał",
-        level: 12
-    )
-    
     static let dailyChallenge = MockDailyChallenge(
         id: "challenge1",
         title: "30 podciągnięć w 3 seriach",
@@ -18,12 +12,6 @@ enum MockDataProvider {
 }
 
 // Mock models - renamed to avoid conflicts
-struct MockUserProfile {
-    let id: String
-    let name: String
-    let level: Int
-}
-
 struct MockDailyChallenge {
     let id: String
     let title: String

@@ -143,8 +143,7 @@ final class AppEnvironment: ObservableObject {
         )
     }
 
-    /// The weekly goal editor (goals and pause), shared by Home and, later,
-    /// onboarding and Profile.
+    /// The weekly goal editor (goals and pause), shared by Home and Profile.
     func makeWeeklyGoalEditorViewModel() -> WeeklyGoalEditorViewModel {
         WeeklyGoalEditorViewModel(store: weeklyGoalStore, journal: journal)
     }
@@ -171,6 +170,42 @@ final class AppEnvironment: ObservableObject {
     /// Onboarding's program suggestion after the level test.
     func makeProgramChoiceViewModel() -> ProgramChoiceViewModel {
         ProgramChoiceViewModel(starter: makeProgramStarter())
+    }
+
+    /// First-run flow: level test, program choice and weekly goal.
+    func makeOnboardingViewModel() -> OnboardingViewModel {
+        OnboardingViewModel(
+            calibration: makePlacementCalibrationViewModel(),
+            programChoice: makeProgramChoiceViewModel(),
+            goalStore: weeklyGoalStore,
+            goals: weeklyGoalService,
+            journal: journal
+        )
+    }
+
+    /// Profile tab: statistics and the weekly goal summary.
+    func makeProfileViewModel() -> ProfileViewModel {
+        ProfileViewModel(journal: journal, progress: progressService, goals: weeklyGoalService)
+    }
+
+    /// Reads and replaces everything the athlete owns (export and import).
+    func makeTrainingBackupService() -> TrainingBackupService {
+        TrainingBackupService(
+            journal: journal,
+            planStore: workoutPlanStore,
+            placementStore: placementStore,
+            progressStore: skillProgressStore,
+            goalStore: weeklyGoalStore,
+            planService: workoutPlanService,
+            progress: progressService,
+            goals: weeklyGoalService,
+            rewards: rewardCenter
+        )
+    }
+
+    /// "Eksport i import treningów" in Profile.
+    func makeTrainingBackupViewModel() -> TrainingBackupViewModel {
+        TrainingBackupViewModel(service: makeTrainingBackupService())
     }
 
     // MARK: Preview

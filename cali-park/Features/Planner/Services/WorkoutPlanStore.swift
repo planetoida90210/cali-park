@@ -14,6 +14,23 @@ protocol WorkoutPlanStoring {
 
     /// Removes the plan with the given identifier; no-op if absent.
     func delete(id: UUID) throws
+
+    /// Replaces every saved plan with `plans` (importing a backup).
+    func replaceAll(with plans: [WorkoutPlan]) throws
+}
+
+// MARK: - Default replace
+extension WorkoutPlanStoring {
+    /// Fallback replace: deletes every plan, then saves the new ones. Not
+    /// atomic — conformers that can write once should override this.
+    func replaceAll(with plans: [WorkoutPlan]) throws {
+        for plan in try load() {
+            try delete(id: plan.id)
+        }
+        for plan in plans {
+            try save(plan)
+        }
+    }
 }
 
 // MARK: - FileWorkoutPlanStore
@@ -46,6 +63,11 @@ struct FileWorkoutPlanStore: WorkoutPlanStoring {
     func delete(id: UUID) throws {
         try file.update(initial: []) { $0.removeAll { $0.id == id } }
     }
+
+    /// One atomic write. Refused while the existing file is unreadable.
+    func replaceAll(with plans: [WorkoutPlan]) throws {
+        try file.write(plans)
+    }
 }
 
 // MARK: - InMemoryWorkoutPlanStore
@@ -69,5 +91,9 @@ final class InMemoryWorkoutPlanStore: WorkoutPlanStoring {
 
     func delete(id: UUID) throws {
         plans.removeAll { $0.id == id }
+    }
+
+    func replaceAll(with plans: [WorkoutPlan]) throws {
+        self.plans = plans
     }
 }

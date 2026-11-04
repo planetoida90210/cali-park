@@ -11,6 +11,23 @@ protocol WeeklyGoalStoring {
 
     /// Replaces the saved history.
     func save(_ history: WeeklyGoalHistory) throws
+
+    /// Replaces the saved value; `nil` deletes it, as if nothing had ever
+    /// been saved (importing a backup).
+    func replace(with history: WeeklyGoalHistory?) throws
+}
+
+// MARK: - Default replace
+extension WeeklyGoalStoring {
+    /// Fallback replace: saves a value, and refuses to delete one, since this
+    /// store has no way to. Conformers that can delete should override this.
+    func replace(with history: WeeklyGoalHistory?) throws {
+        if let history {
+            try save(history)
+        } else if try load() != nil {
+            throw StoreReplaceError.cannotDelete
+        }
+    }
 }
 
 // MARK: - FileWeeklyGoalStore
@@ -31,6 +48,10 @@ struct FileWeeklyGoalStore: WeeklyGoalStoring {
     func save(_ history: WeeklyGoalHistory) throws {
         try file.write(history)
     }
+
+    func replace(with history: WeeklyGoalHistory?) throws {
+        if let history { try file.write(history) } else { try file.remove() }
+    }
 }
 
 // MARK: - InMemoryWeeklyGoalStore
@@ -47,6 +68,11 @@ final class InMemoryWeeklyGoalStore: WeeklyGoalStoring {
     func load() -> WeeklyGoalHistory? { history }
 
     func save(_ history: WeeklyGoalHistory) throws {
+        self.history = history
+        saveCount += 1
+    }
+
+    func replace(with history: WeeklyGoalHistory?) throws {
         self.history = history
         saveCount += 1
     }

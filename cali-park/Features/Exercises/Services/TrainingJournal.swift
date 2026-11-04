@@ -88,6 +88,13 @@ final class TrainingJournal {
         didWrite { $0.filter { !ids.contains($0.id) } }
     }
 
+    /// Replaces every entry in one write (importing a backup). Throws, and
+    /// leaves the journal as it was, when the store refuses the write.
+    func replaceAll(_ newEntries: [WorkoutLogEntry]) throws {
+        try store.replaceAll(with: newEntries)
+        didWrite { _ in newEntries }
+    }
+
     // MARK: Observing
     /// Runs `handler` after every change to the entries. Handlers run in the
     /// order they were added, on the main actor.

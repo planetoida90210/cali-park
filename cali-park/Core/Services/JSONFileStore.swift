@@ -90,6 +90,19 @@ struct JSONFileStore<Value: Codable>: Sendable {
         try encodeAndWrite(value)
     }
 
+    /// Deletes the stored value, so the next read returns `nil`. Refused
+    /// (throws) while the existing file is unreadable or undecodable; a missing
+    /// file is already removed.
+    func remove() throws {
+        guard try read() != nil else { return }
+        do {
+            try FileManager.default.removeItem(at: fileURL)
+        } catch {
+            logger.error("Cannot remove \(fileURL.lastPathComponent, privacy: .public): \(String(describing: error), privacy: .public)")
+            throw error
+        }
+    }
+
     // MARK: Format
     private func decode(_ data: Data) throws -> Value {
         do {

@@ -6,7 +6,6 @@ import SwiftUI
 /// finished.
 struct HeroCompletedTodayView: View {
     let summary: WorkoutSession
-    let name: String
     /// The weekly goal row; `nil` hides it (the goal could not be read).
     let weeklyGoal: WeeklyGoalSnapshot?
     /// Opens the goal editor (long press on the goal row).
@@ -16,7 +15,7 @@ struct HeroCompletedTodayView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
-                HeroHeaderView(name: name, now: now)
+                HeroHeaderView(now: now)
 
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
@@ -55,7 +54,6 @@ struct HeroCompletedTodayView: View {
                 WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID, sets: [LoggedSet(reps: 12)], sessionID: UUID())
             ]
         ),
-        name: "Michał",
         weeklyGoal: WeeklyGoalPreview.running
     )
     .padding(20)

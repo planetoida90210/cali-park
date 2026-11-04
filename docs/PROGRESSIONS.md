@@ -32,6 +32,9 @@ W kodzie etykieta kryterium to `ProgressionStep.criterionSource`
 (`CriterionSource`: `rr`, `og2`, `og2Table`, `gmb`, `sbw`, `caliMove`,
 `caliPark`). Arkusz szczebla pokazuje ją jako „Skąd to kryterium?”. Źródło
 samego szczebla (kolumna „Źródło szczebla”) jest tylko w tym dokumencie.
+Ekran „O apce” w Profilu pokazuje te źródła z linkami (`AboutContent` w
+`cali-park/Features/Profile/Models/AboutContent.swift`). Zmiana tej tabeli
+wymaga zmiany tam.
 
 ## Jak czytać kryteria
 

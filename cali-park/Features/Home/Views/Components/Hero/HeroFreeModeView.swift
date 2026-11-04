@@ -8,7 +8,6 @@ import SwiftUI
 struct HeroFreeModeView: View {
     let lastWorkout: WorkoutSession
     let suggestion: Exercise?
-    let name: String
     /// The weekly goal row; `nil` hides it (the goal could not be read).
     let weeklyGoal: WeeklyGoalSnapshot?
     /// Opens the goal editor (long press on the goal row).
@@ -20,7 +19,7 @@ struct HeroFreeModeView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
-                HeroHeaderView(name: name, now: now)
+                HeroHeaderView(now: now)
 
                 Text("Trenuj po swojemu")
                     .font(.title2)
@@ -62,7 +61,6 @@ struct HeroFreeModeView: View {
             entries: [WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, sets: [LoggedSet(reps: 8), LoggedSet(reps: 7)])]
         ),
         suggestion: ExerciseCatalog.exercise(withID: ExerciseCatalog.squatsID),
-        name: "Michał",
         weeklyGoal: WeeklyGoalPreview.running,
         progressionHint: "Jeszcze 2 powtórzenia do 3 × 8 — następny szczebel: Pełne podciągnięcia"
     )

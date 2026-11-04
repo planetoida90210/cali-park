@@ -16,6 +16,23 @@ protocol PlacementStoring {
 
     /// Persists the placement, replacing any previous declaration.
     func save(_ placement: SkillPlacement) throws
+
+    /// Replaces the saved value; `nil` deletes it, as if nothing had ever
+    /// been saved (importing a backup).
+    func replace(with placement: SkillPlacement?) throws
+}
+
+// MARK: - Default replace
+extension PlacementStoring {
+    /// Fallback replace: saves a value, and refuses to delete one, since this
+    /// store has no way to. Conformers that can delete should override this.
+    func replace(with placement: SkillPlacement?) throws {
+        if let placement {
+            try save(placement)
+        } else if try load() != nil {
+            throw StoreReplaceError.cannotDelete
+        }
+    }
 }
 
 // MARK: - FileSkillPlacementStore
@@ -40,6 +57,10 @@ struct FileSkillPlacementStore: PlacementStoring {
     func save(_ placement: SkillPlacement) throws {
         try file.write(placement)
     }
+
+    func replace(with placement: SkillPlacement?) throws {
+        if let placement { try file.write(placement) } else { try file.remove() }
+    }
 }
 
 // MARK: - InMemorySkillPlacementStore
@@ -54,6 +75,10 @@ final class InMemorySkillPlacementStore: PlacementStoring {
     func load() -> SkillPlacement? { placement }
 
     func save(_ placement: SkillPlacement) throws {
+        self.placement = placement
+    }
+
+    func replace(with placement: SkillPlacement?) throws {
         self.placement = placement
     }
 }

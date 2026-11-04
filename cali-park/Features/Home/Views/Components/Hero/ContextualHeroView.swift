@@ -12,7 +12,6 @@ import SwiftUI
 /// states that have room for it (completed / rest / free mode).
 struct ContextualHeroView: View {
     let state: HomeHeroState
-    let name: String
     /// `nil` hides the goal row (the goal could not be read).
     let weeklyGoal: WeeklyGoalSnapshot?
     /// A one-line progression nudge shown on rest / free-training days, e.g.
@@ -47,7 +46,6 @@ struct ContextualHeroView: View {
             HeroPlanTodayView(
                 plan: plan,
                 loggedTodayReps: loggedTodayReps,
-                name: name,
                 now: now,
                 onStart: { onStartPlan(plan) }
             )
@@ -55,7 +53,6 @@ struct ContextualHeroView: View {
         case let .completedToday(summary, _):
             HeroCompletedTodayView(
                 summary: summary,
-                name: name,
                 weeklyGoal: weeklyGoal,
                 onEditGoal: onEditGoal,
                 now: now
@@ -65,7 +62,6 @@ struct ContextualHeroView: View {
             HeroRestDayView(
                 nextPlan: nextPlan,
                 date: date,
-                name: name,
                 weeklyGoal: weeklyGoal,
                 onEditGoal: onEditGoal,
                 progressionHint: progressionHint,
@@ -76,7 +72,6 @@ struct ContextualHeroView: View {
             HeroFreeModeView(
                 lastWorkout: lastWorkout,
                 suggestion: suggestion,
-                name: name,
                 weeklyGoal: weeklyGoal,
                 onEditGoal: onEditGoal,
                 progressionHint: progressionHint,
@@ -84,7 +79,7 @@ struct ContextualHeroView: View {
             )
 
         case .firstRun:
-            HeroFirstRunView(name: name, now: now)
+            HeroFirstRunView(now: now)
         }
     }
 
@@ -106,8 +101,6 @@ struct ContextualHeroView: View {
 /// Preview-only fixtures so each hero state can be eyeballed without seeding a
 /// store. The real states come from `heroState(asOf:)` in the app.
 private enum HeroPreview {
-    static let name = "Michał"
-
     static let planToday = HomeHeroState.planToday(
         plan: WorkoutPlan(name: "Push Day", exercises: [
             PlannedExercise(exerciseID: ExerciseCatalog.pushUpsID),
@@ -153,7 +146,6 @@ private enum HeroPreview {
     static func card(_ state: HomeHeroState, weeklyGoal: WeeklyGoalSnapshot = WeeklyGoalPreview.running) -> some View {
         ContextualHeroView(
             state: state,
-            name: name,
             weeklyGoal: weeklyGoal
         )
     }

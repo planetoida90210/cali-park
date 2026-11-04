@@ -9,6 +9,9 @@ Decyzja: [ticket 016](wayfinder/calipark-1.0/tickets/016-programs-v1.md),
 [propozycja ze źródłami](wayfinder/calipark-1.0/proposals/016-programs.md).
 Drabiny: [PROGRESSIONS.md](PROGRESSIONS.md).
 
+Źródła programów z linkami pokazuje ekran „O apce” w Profilu
+(`AboutContent.programSources`). Zmiana źródła programu wymaga zmiany tam.
+
 ## Zasady
 
 - Program wskazuje **drabinę**, nie ćwiczenie. Plan z programu trenuje

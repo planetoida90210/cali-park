@@ -7,7 +7,6 @@ import SwiftUI
 struct HeroRestDayView: View {
     let nextPlan: WorkoutPlan
     let date: Date
-    let name: String
     /// The weekly goal row; `nil` hides it (the goal could not be read).
     let weeklyGoal: WeeklyGoalSnapshot?
     /// Opens the goal editor (long press on the goal row).
@@ -19,7 +18,7 @@ struct HeroRestDayView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
-                HeroHeaderView(name: name, now: now)
+                HeroHeaderView(now: now)
 
                 Text("Dziś odpoczywasz")
                     .font(.title2)
@@ -52,7 +51,6 @@ struct HeroRestDayView: View {
             PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)
         ]),
         date: Calendar.current.date(byAdding: .day, value: 1, to: .now)!,
-        name: "Michał",
         weeklyGoal: WeeklyGoalPreview.running,
         progressionHint: "Jeszcze 5 s do 3 × 20 s — następny szczebel: Advanced tuck front lever"
     )

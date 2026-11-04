@@ -26,7 +26,7 @@ struct MainTabView: View {
             }
 
             Tab("Profil", systemImage: "person.fill", value: AppTab.profile) {
-                ProfileView()
+                ProfileView(environment: environment)
             }
         }
         .tint(Color.accent)

@@ -2,19 +2,17 @@ import SwiftUI
 
 // MARK: - HeroHeaderView
 /// The greeting lead-in shared by every hero state: a time-of-day salutation
-/// plus the user's name. Deliberately quiet (secondary text) so each state's
-/// own headline stays the primary message. The `now` date is injected so the
-/// greeting is deterministic in previews.
+/// without a name (there is no Account in this build). Deliberately quiet
+/// (secondary text) so each state's own headline stays the primary message.
+/// The `now` date is injected so the greeting is deterministic in previews.
 struct HeroHeaderView: View {
-    let name: String
     var now: Date = .now
     var calendar: Calendar = .current
 
     var body: some View {
-        Text("\(greeting), \(name)")
+        Text(greeting)
             .font(.bodyMedium)
             .foregroundStyle(Color.textSecondary)
-            .accessibilityLabel("\(greeting), \(name)")
     }
 
     /// Morning / midday / evening salutation, matching the app's casual voice.
@@ -30,9 +28,9 @@ struct HeroHeaderView: View {
 // MARK: - Preview
 #Preview {
     VStack(alignment: .leading, spacing: 12) {
-        HeroHeaderView(name: "Michał", now: dateAt(hour: 8))
-        HeroHeaderView(name: "Michał", now: dateAt(hour: 14))
-        HeroHeaderView(name: "Michał", now: dateAt(hour: 21))
+        HeroHeaderView(now: dateAt(hour: 8))
+        HeroHeaderView(now: dateAt(hour: 14))
+        HeroHeaderView(now: dateAt(hour: 21))
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding()

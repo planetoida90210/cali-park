@@ -64,4 +64,9 @@ enum PolishPlural {
     static func trainingDays(_ count: Int) -> String {
         "\(count) \(form(for: count, one: "dzień treningowy", few: "dni treningowe", many: "dni treningowych"))"
     }
+
+    /// "1 plan", "3 plany", "5 planów".
+    static func plans(_ count: Int) -> String {
+        "\(count) \(form(for: count, one: "plan", few: "plany", many: "planów"))"
+    }
 }

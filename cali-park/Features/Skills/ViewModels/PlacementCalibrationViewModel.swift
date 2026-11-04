@@ -24,6 +24,8 @@ final class PlacementCalibrationViewModel {
     /// Identifiers of the skills the athlete marked as already owned.
     private(set) var masteredSkills: Set<String> = []
     /// Whether the athlete owns a resistance band (an optional parallel track).
+    /// The form no longer asks (ticket 026); this carries a band declared
+    /// earlier through re-calibration so a save never drops it.
     var ownsBand: Bool
 
     var errorMessage: String?

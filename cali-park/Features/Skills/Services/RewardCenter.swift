@@ -137,6 +137,20 @@ final class RewardCenter {
         xpToastAmount = currentCelebration == nil ? total - previous : nil
     }
 
+    /// Starts over after an import replaced the data: drops the queue and the
+    /// toast, then evaluates silently, as on launch. The imported history is
+    /// not progress made since the last save, and the imported "celebrated"
+    /// record decides what is still owed.
+    func rebaseline() {
+        currentCelebration = nil
+        pendingCelebrations = []
+        xpToastAmount = nil
+        batchStartXP = nil
+        previousTotalXP = nil
+        evaluatedRevision = nil
+        refresh()
+    }
+
     // MARK: Output
     /// What the overlay shows now: the next skill celebration, else a met
     /// weekly goal; `nil` when the queue is empty.

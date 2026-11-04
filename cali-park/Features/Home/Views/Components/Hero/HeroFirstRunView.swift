@@ -5,12 +5,11 @@ import SwiftUI
 /// two permanent actions ("Szybki trening" / "Plany") live in the rail right
 /// below, so it points there instead of repeating the same buttons.
 struct HeroFirstRunView: View {
-    let name: String
     var now: Date = .now
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            HeroHeaderView(name: name, now: now)
+            HeroHeaderView(now: now)
 
             Text("Zacznij swoją serię")
                 .font(.title2)
@@ -27,7 +26,7 @@ struct HeroFirstRunView: View {
 
 // MARK: - Preview
 #Preview("Pierwszy start") {
-    HeroFirstRunView(name: "Michał")
+    HeroFirstRunView()
     .padding(20)
     .background(Color.componentBackground)
     .clipShape(.rect(cornerRadius: 12))

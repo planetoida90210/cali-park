@@ -14,6 +14,23 @@ protocol SkillProgressStoring {
 
     /// Persists the progress record.
     func save(_ progress: SkillProgress) throws
+
+    /// Replaces the saved value; `nil` deletes it, as if nothing had ever
+    /// been saved (importing a backup).
+    func replace(with progress: SkillProgress?) throws
+}
+
+// MARK: - Default replace
+extension SkillProgressStoring {
+    /// Fallback replace: saves a value, and refuses to delete one, since this
+    /// store has no way to. Conformers that can delete should override this.
+    func replace(with progress: SkillProgress?) throws {
+        if let progress {
+            try save(progress)
+        } else if try load() != nil {
+            throw StoreReplaceError.cannotDelete
+        }
+    }
 }
 
 // MARK: - FileSkillProgressStore
@@ -37,6 +54,10 @@ struct FileSkillProgressStore: SkillProgressStoring {
     func save(_ progress: SkillProgress) throws {
         try file.write(progress)
     }
+
+    func replace(with progress: SkillProgress?) throws {
+        if let progress { try file.write(progress) } else { try file.remove() }
+    }
 }
 
 // MARK: - InMemorySkillProgressStore
@@ -51,6 +72,10 @@ final class InMemorySkillProgressStore: SkillProgressStoring {
     func load() -> SkillProgress? { progress }
 
     func save(_ progress: SkillProgress) throws {
+        self.progress = progress
+    }
+
+    func replace(with progress: SkillProgress?) throws {
         self.progress = progress
     }
 }

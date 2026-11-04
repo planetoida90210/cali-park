@@ -8,10 +8,8 @@ enum HomeRoute: Hashable {
 }
 
 struct HomeView: View {
-    // Real workout data for hero + modules; name stays mocked until the
-    // Profile sprint delivers a real user profile.
+    // Real workout data for hero + modules.
     @State private var dashboard: HomeDashboardViewModel
-    private let userProfile = MockDataProvider.userProfile
 
     // Module preferences
     @StateObject private var modulePreferences = ModulePreferences()
@@ -52,7 +50,6 @@ struct HomeView: View {
                             // A. Contextual hero — reacts to today's plan/logs.
                             ContextualHeroView(
                                 state: dashboard.heroState(),
-                                name: userProfile.name,
                                 weeklyGoal: dashboard.weeklyGoal,
                                 progressionHint: dashboard.progressionHint,
                                 now: dashboard.now,

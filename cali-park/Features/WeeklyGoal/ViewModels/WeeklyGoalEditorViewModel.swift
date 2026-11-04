@@ -6,8 +6,8 @@ import os
 /// Drives the weekly goal editor: a draft of one to three goals (the first is
 /// the primary) saved with "Zapisz", plus pausing, which applies at once.
 ///
-/// Reusable: Home opens it from the hero ring and the "Cel tygodniowy" module;
-/// onboarding and Profile can embed the same screen later.
+/// Reusable: Home opens it from the hero ring and the "Cel tygodniowy" module,
+/// and Profile from its weekly goal row.
 @MainActor
 @Observable
 final class WeeklyGoalEditorViewModel: Identifiable {
