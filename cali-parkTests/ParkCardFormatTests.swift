@@ -78,12 +78,13 @@ struct ParkCardFormatTests {
         openingHours: "Mo-Su 06:00-22:00"
     )
 
-    private static let calisthenicsOnly = Park(
+    /// A Park as OSM often has it: one pull-up bar and nothing else.
+    private static let sparsePark = Park(
         id: UUID(uuidString: "D0000000-0000-4000-8000-0000000000A2")!,
         latitude: 52.23, longitude: 20.97,
         osmRefs: ["w123456"],
-        generatedName: "Street workout · ul. Kasprzaka",
-        isCalisthenicsTagged: true
+        generatedName: "Drążki · ul. Kasprzaka",
+        equipment: [ParkEquipment(type: .horizontalBar)]
     )
 
     @Test("Counts and heights read as Polish, and nothing when OSM is silent")
@@ -112,13 +113,13 @@ struct ParkCardFormatTests {
         #expect(ParkFormat.equipmentSummary(equipment, shown: 4) == "Sprzęt: Drążek, Poręcze, Kółka, Drabinki gimnastyczne i 1 inny")
         #expect(ParkFormat.equipmentSummary(Array(equipment.prefix(2)), shown: 4) == "Sprzęt: Drążek, Poręcze")
         #expect(ParkFormat.equipmentSummary(equipment, shown: 2) == "Sprzęt: Drążek, Poręcze i 3 inne")
-        #expect(ParkFormat.equipmentSummary([], shown: 4) == "Sprzęt nieznany")
+        #expect(ParkFormat.equipmentSummary(Self.sparsePark.equipment, shown: 4) == "Sprzęt: Drążek")
     }
 
     @Test("Flag support needs a pole or wall bars (012 §3)")
     func flagSupport() {
         #expect(ParkFormat.supportsFlag(Self.richPark))
-        #expect(!ParkFormat.supportsFlag(Self.calisthenicsOnly))
+        #expect(!ParkFormat.supportsFlag(Self.sparsePark))
         #expect(!ParkFormat.supportsFlag(ParkFixtures.mokotow))
     }
 
@@ -133,7 +134,7 @@ struct ParkCardFormatTests {
 
     @Test("Unknown details stay unknown: no guessed hours or machines")
     func unknownDetails() {
-        let details = ParkFormat.details(for: Self.calisthenicsOnly)
+        let details = ParkFormat.details(for: Self.sparsePark)
         let values = Dictionary(uniqueKeysWithValues: details.map { ($0.id, $0.value) })
         #expect(values[.surface] == .some(nil))
         #expect(values[.lighting] == .some(nil))
@@ -159,14 +160,14 @@ struct ParkCardFormatTests {
         ("r42", "https://www.openstreetmap.org/relation/42")
     ])
     func osmLink(ref: String, expected: String) {
-        var park = Self.calisthenicsOnly
+        var park = Self.sparsePark
         park.osmRefs = [ref, "n1"]
         #expect(ParkFormat.osmURL(for: park)?.absoluteString == expected)
     }
 
     @Test("No OSM link without a valid ref", arguments: [[String](), ["x12"], ["n"], ["n12a"], ["w-1"]])
     func noOSMLink(refs: [String]) {
-        var park = Self.calisthenicsOnly
+        var park = Self.sparsePark
         park.osmRefs = refs
         #expect(ParkFormat.osmURL(for: park) == nil)
     }
@@ -176,8 +177,8 @@ struct ParkCardFormatTests {
         #expect(ParkFormat.subtitle(for: Self.richPark, distance: 1260) == "Ostropa, Gliwice · 1,3 km")
         #expect(ParkFormat.subtitle(for: Self.richPark, distance: nil) == "Ostropa, Gliwice")
         #expect(ParkFormat.subtitleAccessibility(for: Self.richPark, distance: 350) == "Ostropa, Gliwice, 350 m od Ciebie")
-        #expect(ParkFormat.subtitle(for: Self.calisthenicsOnly, distance: nil) == nil)
-        #expect(ParkFormat.subtitle(for: Self.calisthenicsOnly, distance: 80) == "80 m")
+        #expect(ParkFormat.subtitle(for: Self.sparsePark, distance: nil) == nil)
+        #expect(ParkFormat.subtitle(for: Self.sparsePark, distance: 80) == "80 m")
     }
 
     @Test("Badges read their meaning to VoiceOver")

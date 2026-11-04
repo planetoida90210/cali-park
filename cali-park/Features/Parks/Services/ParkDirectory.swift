@@ -48,7 +48,10 @@ struct ParkSnapshot: Decodable, Sendable {
             throw ParkDirectoryError.unsupportedSchema(schemaVersion)
         }
         osmDataTimestamp = try c.decodeIfPresent(Date.self, forKey: .osmDataTimestamp)
-        parks = try c.decode([Park].self, forKey: .parks)
+        // Like an unknown equipment key, an entry without core equipment
+        // (e.g. its only bar has a key this version doesn't know) is dropped,
+        // not shown with an empty equipment list.
+        parks = try c.decode([Park].self, forKey: .parks).filter(\.hasCoreEquipment)
     }
 
     static func decode(_ data: Data) throws -> ParkSnapshot {

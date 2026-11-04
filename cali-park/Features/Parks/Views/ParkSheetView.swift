@@ -176,28 +176,22 @@ struct ParkEquipmentGlyphs: View {
     @ScaledMetric(relativeTo: .subheadline) private var size: CGFloat = 28
 
     var body: some View {
-        if equipment.isEmpty {
-            Label("Sprzęt nieznany", systemImage: "questionmark.circle")
-                .font(.subheadline)
-                .foregroundStyle(Color.textSecondary)
-        } else {
-            HStack(spacing: 4) {
-                ForEach(equipment.prefix(limit), id: \.type) { item in
-                    Image(systemName: item.type.symbol)
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(Color.accent)
-                        .frame(width: size, height: size)
-                        .background(Color.white.opacity(0.08), in: .circle)
-                }
-                if equipment.count > limit {
-                    Text("+\(equipment.count - limit)")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Color.textSecondary)
-                }
+        HStack(spacing: 4) {
+            ForEach(equipment.prefix(limit), id: \.type) { item in
+                Image(systemName: item.type.symbol)
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Color.accent)
+                    .frame(width: size, height: size)
+                    .background(Color.white.opacity(0.08), in: .circle)
             }
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(ParkFormat.equipmentSummary(equipment, shown: limit))
+            if equipment.count > limit {
+                Text("+\(equipment.count - limit)")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.textSecondary)
+            }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(ParkFormat.equipmentSummary(equipment, shown: limit))
     }
 }
 
@@ -237,13 +231,13 @@ struct ParkCardButtonStyle: ButtonStyle {
     ), distance: 1250)
 }
 
-#Preview("Unknown equipment, no location") {
+#Preview("Sparse OSM data, no location") {
     ParkSheetPreview(park: Park(
         id: UUID(), latitude: 52.23, longitude: 20.97,
         osmRefs: ["w123456"],
-        generatedName: "Street workout · ul. Kasprzaka",
+        generatedName: "Drążki · ul. Kasprzaka",
         locality: Locality(city: "Warszawa", district: "Wola"),
-        isCalisthenicsTagged: true
+        equipment: [ParkEquipment(type: .horizontalBar)]
     ), distance: nil)
 }
 

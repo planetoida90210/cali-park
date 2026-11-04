@@ -33,7 +33,8 @@ struct ParkSnapshotTests {
           "id": "D0000000-0000-4000-8000-0000000000A2",
           "status": "removed", "verification": "osm", "source": "osm",
           "latitude": 50.0, "longitude": 19.9,
-          "generatedName": "Drążki · Kraków"
+          "generatedName": "Drążki · Kraków",
+          "equipment": [{"type": "horizontal_bar"}]
         }
       ]
     }
@@ -66,9 +67,36 @@ struct ParkSnapshotTests {
         let park = try #require(try ParkSnapshot.decode(Data(json.utf8)).parks.last)
 
         #expect(park.osmRefs.isEmpty)
-        #expect(park.equipment.isEmpty)
+        #expect(park.equipment == [ParkEquipment(type: .horizontalBar)])
+        #expect(!park.isCalisthenicsTagged)
+        #expect(!park.hasMachines)
         #expect(park.access == .public)
         #expect(park.locality == Locality())
+    }
+
+    /// Owner's addendum to 012 (Q28): a place without a pull-up bar or
+    /// parallel bars in the data is not a Park, even when tagged
+    /// `sport=calisthenics`. Such entries are dropped, like unknown keys.
+    @Test func dropsEntriesWithoutCoreEquipment() throws {
+        func entry(_ id: Int, equipment: String) -> String {
+            """
+            {"id": "D0000000-0000-4000-8000-00000000000\(id)", "status": "published",
+             "verification": "osm", "source": "osm", "latitude": 52, "longitude": 21,
+             "generatedName": "Park \(id)", "isCalisthenicsTagged": true, "equipment": \(equipment)}
+            """
+        }
+        let parks = [
+            entry(1, equipment: "[]"),
+            entry(2, equipment: #"[{"type": "rings"}, {"type": "wall_bars"}]"#),
+            entry(3, equipment: #"[{"type": "jetpack"}, {"type": "sit-up"}]"#),
+            entry(4, equipment: "null"),
+            entry(5, equipment: #"[{"type": "rings"}, {"type": "dip_bench"}]"#)
+        ]
+        let json = #"{"schemaVersion": 1, "parks": ["# + parks.joined(separator: ",") + "]}"
+
+        let catalog = try ParkSnapshot.decode(Data(json.utf8)).catalog
+
+        #expect(catalog.parks.map(\.generatedName) == ["Park 5"])
     }
 
     @Test func newerSchemaIsRejected() {
@@ -88,19 +116,47 @@ struct ParkDirectoryTests {
         let directory = BundledParkDirectory(bundle: Bundle(for: AppEnvironment.self))
         let catalog = try await directory.catalog()
 
-        #expect(catalog.parks.count > 300)
+        #expect(catalog.parks.count > 200)
         #expect(catalog.dataTimestamp != nil)
         #expect(Set(catalog.parks.map(\.id)).count == catalog.parks.count)
         for park in catalog.parks {
             // Inside Poland's bounding box.
             #expect((49.0...55.0).contains(park.latitude), "\(park.displayName)")
             #expect((14.0...24.2).contains(park.longitude), "\(park.displayName)")
-            // A Park: core equipment or the calisthenics tag (012).
-            #expect(park.equipment.contains { $0.type.isCore } || park.isCalisthenicsTagged, "\(park.displayName)")
+            // A Park: a pull-up bar or parallel bars in the data. The
+            // calisthenics tag alone doesn't count (012, owner's addendum).
+            #expect(park.equipment.contains { $0.type.isCore }, "\(park.displayName)")
             #expect(!park.generatedName.isEmpty)
+            #expect(park.generatedName.hasPrefix(Self.namePrefix(for: park)), "\(park.generatedName)")
             #expect(!park.osmRefs.isEmpty)
             #expect(park.source == .osm && park.verification == .osm && park.status == .published)
         }
+    }
+
+    /// The generated-name prefix the pipeline gives (scripts/osm/README.md).
+    /// "Street workout" means a bar and bars, never "equipment unknown".
+    private static func namePrefix(for park: Park) -> String {
+        let types = Set(park.equipment.map(\.type))
+        let hasBar = types.contains(.horizontalBar)
+        let hasBars = !types.isDisjoint(with: [.parallelBars, .dipBench])
+        switch (hasBar, hasBars) {
+        case (true, false): return "Drążki"
+        case (false, true): return "Poręcze"
+        default: return "Street workout"
+        }
+    }
+
+    /// The decoder drops entries without core equipment, so the check above
+    /// alone can't catch a snapshot built with a looser rule. The pipeline
+    /// must write only Parks: every entry in the file survives decoding.
+    @Test func bundledSnapshotHasNoEntryTheAppDrops() throws {
+        let url = try #require(Bundle(for: AppEnvironment.self)
+            .url(forResource: BundledParkDirectory.resourceName, withExtension: "json"))
+        let data = try Data(contentsOf: url)
+        let raw = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let entries = try #require(raw["parks"] as? [Any])
+
+        #expect(try ParkSnapshot.decode(data).parks.count == entries.count)
     }
 
     @Test func bundledDirectoryReadsOnceAndCaches() async throws {
@@ -148,6 +204,7 @@ struct ParkModelTests {
     func headlineEquipmentIsTheFirstCoreDevice(equipment: [EquipmentType], expected: EquipmentType?) {
         let park = ParkFixtures.park(latitude: 52, longitude: 21, equipment: equipment)
         #expect(park.headlineEquipment == expected)
+        #expect(park.hasCoreEquipment == (expected != nil))
     }
 
     @Test(arguments: [

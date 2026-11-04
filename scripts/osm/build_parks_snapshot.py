@@ -48,10 +48,17 @@ SCHEMA_VERSION = 1
 # The query
 # ---------------------------------------------------------------------------
 
-# "core" = anything that may be Park evidence. Everything within 40 m of it with
+# "core" = anything that may be Park evidence (sport=calisthenics included: it
+# anchors the place and brings naming context, even though it no longer makes a
+# Park on its own). Everything within 40 m of it with
 # fitness tags is fetched as well, to complete the equipment list and to spot
 # machines next to a Park. The foreach block emits naming context per core
 # element, separated by `make ctx` marker elements.
+#
+# `around` always gets the elements together with their nodes (`.corex`, `.x`):
+# on 2026-11-04 overpass-api.de returned nothing for `around` on a set of ways
+# alone. The nodes lie on the ways, so this changes nothing where `around`
+# works on ways.
 QUERY = r"""
 [out:json][timeout:600];
 area["ISO3166-1"="PL"][admin_level=2]->.pl;
@@ -60,9 +67,10 @@ area["ISO3166-1"="PL"][admin_level=2]->.pl;
   nwr["fitness_station"~"horizontal_bar|parallel_bars|dip|pull_?-?up|street_workout|calisthenics|multirig|drąż|poręcz",i](area.pl);
   nwr[~"^fitness_station:(horizontal_bar|parallel_bars|dip_bench)$"~"^yes$"](area.pl);
 )->.core;
+(.core; .core >>;)->.corex;
 (
-  nwr(around.core:40)["leisure"="fitness_station"];
-  nwr(around.core:40)["fitness_station"];
+  nwr(around.corex:40)["leisure"="fitness_station"];
+  nwr(around.corex:40)["fitness_station"];
 )->.near;
 make ctx kind="elements"; out;
 (.core; .near;);
@@ -81,19 +89,19 @@ foreach.core->.p(
   );
   out tags;
   make ctx kind="school"; out;
-  nwr(around.p:30)["name"]["amenity"~"^(school|college|university)$"];
+  nwr(around.x:30)["name"]["amenity"~"^(school|college|university)$"];
   out tags;
   make ctx kind="park"; out;
-  nwr(around.p:30)["name"]["leisure"~"^(park|recreation_ground)$"];
+  nwr(around.x:30)["name"]["leisure"~"^(park|recreation_ground)$"];
   out tags;
   make ctx kind="street15"; out;
-  way(around.p:15)["name"]["highway"];
+  way(around.x:15)["name"]["highway"];
   out tags;
   make ctx kind="street30"; out;
-  way(around.p:30)["name"]["highway"];
+  way(around.x:30)["name"]["highway"];
   out tags;
   make ctx kind="street50"; out;
-  way(around.p:50)["name"]["highway"];
+  way(around.x:50)["name"]["highway"];
   out tags;
 );
 """
@@ -211,8 +219,16 @@ class Signals:
     machines: bool = False
 
     @property
+    def has_core_equipment(self) -> bool:
+        return bool(self.equipment & CORE_EQUIPMENT)
+
+    @property
     def is_core(self) -> bool:
-        return bool(self.equipment & CORE_EQUIPMENT) or self.calisthenics
+        """A Park candidate element: core equipment or the calisthenics tag.
+
+        Candidates pick the anchor (so Park IDs stay stable) and the naming
+        context. Only core equipment makes a Park (`is_park`)."""
+        return self.has_core_equipment or self.calisthenics
 
 
 # ---------------------------------------------------------------------------
@@ -443,11 +459,13 @@ def short_enough(name: str | None) -> str | None:
 
 
 def prefix_for(equipment: set[str]) -> str:
+    """'Drążki' (bar only), 'Poręcze' (parallel or dip bars only) or
+    'Street workout' (both). Every Park has at least one of them (`is_park`)."""
     has_bar = "horizontal_bar" in equipment
     has_parallel = bool(equipment & {"parallel_bars", "dip_bench"})
-    if has_bar and not has_parallel:
+    if not has_parallel:
         return "Drążki"
-    if has_parallel and not has_bar:
+    if not has_bar:
         return "Poręcze"
     return "Street workout"
 
@@ -537,12 +555,22 @@ def anchor(members: list[tuple[Element, Signals]]) -> Element:
     return sorted(core, key=lambda el: el.ref)[0]
 
 
-def build_parks(elements: dict[str, Element], contexts: dict[str, Context]) -> list[dict]:
+def is_park(members: list[tuple[Element, Signals]]) -> bool:
+    """012 with the owner's addendum (Q28): a Park needs a pull-up bar, parallel
+    bars or dip bars in the data. `sport=calisthenics` alone is not a Park."""
+    return any(s.has_core_equipment for _, s in members)
+
+
+def build_parks(elements: dict[str, Element], contexts: dict[str, Context]) -> tuple[list[dict], int]:
+    """The Parks, sorted by ID, and how many calisthenics-only places were left out."""
     usable = [el for el in elements.values() if not is_excluded(el.tags)]
     parks: list[dict] = []
+    calisthenics_only = 0
     for group in cluster(usable):
         members = [(el, element_signals(el.tags)) for el in group]
-        if not any(s.is_core for _, s in members):
+        if not is_park(members):
+            if any(s.is_core for _, s in members):
+                calisthenics_only += 1
             continue
         main = anchor(members)
         core_refs = sorted({el.ref for el, s in members if s.is_core})
@@ -590,7 +618,7 @@ def build_parks(elements: dict[str, Element], contexts: dict[str, Context]) -> l
             "openingHours": opening_hours,
         })
     parks.sort(key=lambda p: p["id"])
-    return parks
+    return parks, calisthenics_only
 
 
 def count_is_devices(members, key: str) -> bool:
@@ -655,7 +683,7 @@ def main() -> int:
             return 1
 
     elements, contexts, osm_base = parse_response(payload)
-    parks = build_parks(elements, contexts)
+    parks, calisthenics_only = build_parks(elements, contexts)
     if not parks:
         print("No Parks found; refusing to write an empty snapshot.", file=sys.stderr)
         return 1
@@ -667,10 +695,10 @@ def main() -> int:
     DUMP_OUT.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
 
     named = sum(1 for p in parks if p["name"])
-    with_equipment = sum(1 for p in parks if p["equipment"])
     no_city = sum(1 for p in parks if not p["locality"]["city"])
     print(f"OSM data: {osm_base}", file=sys.stderr)
-    print(f"Parks: {len(parks)} (named {named}, with equipment {with_equipment}, without city {no_city})", file=sys.stderr)
+    print(f"Parks: {len(parks)} (named {named}, without city {no_city}); "
+          f"left out {calisthenics_only} places tagged only sport=calisthenics", file=sys.stderr)
     print(f"Wrote {BUNDLE_OUT.relative_to(REPO_ROOT)} and {DUMP_OUT.relative_to(REPO_ROOT)}", file=sys.stderr)
     return 0
 

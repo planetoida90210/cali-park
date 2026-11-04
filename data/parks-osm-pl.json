@@ -5,8 +5,8 @@
   "license": "ODbL-1.0",
   "licenseURL": "https://opendatacommons.org/licenses/odbl/1-0/",
   "copyrightURL": "https://www.openstreetmap.org/copyright",
-  "osmDataTimestamp": "2026-11-03T23:47:42Z",
-  "generatedAt": "2026-11-03T23:58:01Z",
+  "osmDataTimestamp": "2026-11-04T08:22:36Z",
+  "generatedAt": "2026-11-04T08:30:16Z",
   "parks": [
     {
       "id": "0041a481-915f-54ef-b96c-29d040c1353a",
@@ -90,35 +90,6 @@
       "covered": null,
       "access": "public",
       "openingHours": "24/7"
-    },
-    {
-      "id": "007efdff-6d89-505f-96ea-b748c886b84f",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 51.925678,
-      "longitude": 15.492844,
-      "osmRefs": [
-        "n10175943391",
-        "n10175943392",
-        "n10175943393",
-        "n10175943394",
-        "w1112298684"
-      ],
-      "name": "Street Workout Park Piastowski",
-      "generatedName": "Street workout · Zielona Góra",
-      "locality": {
-        "city": "Zielona Góra",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": true,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
     },
     {
       "id": "02f09be3-cc95-55f8-ad73-0ea32d41c992",
@@ -230,31 +201,6 @@
       "covered": null,
       "access": "public",
       "openingHours": "24/7"
-    },
-    {
-      "id": "051775ce-2c71-5d6d-bc73-1ee348423a47",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 54.30868,
-      "longitude": 18.586566,
-      "osmRefs": [
-        "w1294574442"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Wielkopolska",
-      "locality": {
-        "city": "Gdańsk",
-        "district": "Orunia Górna - Gdańsk Południe"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
     },
     {
       "id": "05de6256-027b-5dc1-a0cb-1d78d92342cc",
@@ -457,32 +403,6 @@
       "openingHours": null
     },
     {
-      "id": "0a198be9-3d12-5d2e-8841-499601cd1285",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.140109,
-      "longitude": 20.830741,
-      "osmRefs": [
-        "w1475047534",
-        "w1475047536"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Otwarta Strefa Rekreacji",
-      "locality": {
-        "city": "Komorów",
-        "district": "Komorów-Wieś"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "0a30c94c-b407-5169-8523-9a62c6090221",
       "status": "published",
       "verification": "osm",
@@ -576,56 +496,6 @@
       "openingHours": null
     },
     {
-      "id": "0d6432d5-e279-554b-8039-4973108f1427",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 50.866262,
-      "longitude": 20.64593,
-      "osmRefs": [
-        "w701184174"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Zagórska",
-      "locality": {
-        "city": "Kielce",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": "24/7"
-    },
-    {
-      "id": "0dd81361-e8df-5dcd-9c2c-4c9471b8ca92",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.185805,
-      "longitude": 18.628999,
-      "osmRefs": [
-        "w1433549046"
-      ],
-      "name": "Ninja Park Koło",
-      "generatedName": "Street workout · Koło",
-      "locality": {
-        "city": "Koło",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": true,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "0f6d4ed3-811a-5184-a976-8a0852cc5692",
       "status": "published",
       "verification": "osm",
@@ -649,43 +519,6 @@
       ],
       "isCalisthenicsTagged": false,
       "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "10f6b798-6f09-56f2-b300-4a8bc77f78bc",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 53.144293,
-      "longitude": 16.724013,
-      "osmRefs": [
-        "n10962133381",
-        "n10962133382",
-        "n10962133390",
-        "n10962133392"
-      ],
-      "name": "Sześciokąt",
-      "generatedName": "Street workout · Park przy ulicy Ceglanej",
-      "locality": {
-        "city": "Piła",
-        "district": "Górne"
-      },
-      "equipment": [
-        {
-          "type": "horizontal_ladder",
-          "count": null
-        },
-        {
-          "type": "balance_beam",
-          "count": null
-        }
-      ],
-      "isCalisthenicsTagged": true,
-      "hasMachines": true,
       "surface": null,
       "lit": null,
       "covered": null,
@@ -837,31 +670,6 @@
         }
       ],
       "isCalisthenicsTagged": false,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "143d01c4-aa4b-56c9-9f31-730fe3b423de",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 51.191276,
-      "longitude": 17.173741,
-      "osmRefs": [
-        "n9865975621"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Migdałowa",
-      "locality": {
-        "city": "Domaszczyn",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
       "hasMachines": false,
       "surface": null,
       "lit": null,
@@ -1069,56 +877,6 @@
       "covered": null,
       "access": "public",
       "openingHours": null
-    },
-    {
-      "id": "1b2bf3e3-21d1-5fc8-a6a7-fc55a64d99f1",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 53.155923,
-      "longitude": 16.720229,
-      "osmRefs": [
-        "n10177343196"
-      ],
-      "name": "Street Workout Medyczna",
-      "generatedName": "Street workout · ul. Mikołaja Kopernika",
-      "locality": {
-        "city": "Piła",
-        "district": "Górne"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "1b8a17e0-603e-55a9-b995-09891298c48b",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 51.943335,
-      "longitude": 15.517136,
-      "osmRefs": [
-        "n10176017045"
-      ],
-      "name": "Exstreme construction",
-      "generatedName": "Street workout · Zielona Góra",
-      "locality": {
-        "city": "Zielona Góra",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": true,
-      "surface": "rubber",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": "24/7"
     },
     {
       "id": "1bd72131-a988-57a6-b8be-9acbcad844a8",
@@ -1550,32 +1308,6 @@
       "openingHours": null
     },
     {
-      "id": "223cb6a4-1c25-5331-9c75-fdbb6c4bb263",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.240794,
-      "longitude": 21.031758,
-      "osmRefs": [
-        "w727981130",
-        "w866400658"
-      ],
-      "name": "Street Workout Pod Mostem",
-      "generatedName": "Street workout · Most Świętokrzyski",
-      "locality": {
-        "city": "Warszawa",
-        "district": "Śródmieście"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "tartan",
-      "lit": true,
-      "covered": null,
-      "access": "public",
-      "openingHours": "24/7"
-    },
-    {
       "id": "22647492-dd3f-5b24-9a67-f8fb3e778757",
       "status": "published",
       "verification": "osm",
@@ -1637,32 +1369,6 @@
       "openingHours": null
     },
     {
-      "id": "2625f77d-6f61-58c1-bf99-78d8e237a7bd",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 49.551529,
-      "longitude": 21.852572,
-      "osmRefs": [
-        "w1334357991",
-        "w1334357992"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Dębowa",
-      "locality": {
-        "city": "Rymanów-Zdrój",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "28a991d6-0d6e-5dca-893a-bb8a07972274",
       "status": "published",
       "verification": "osm",
@@ -1687,57 +1393,6 @@
       "isCalisthenicsTagged": false,
       "hasMachines": false,
       "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "2938cd70-9903-55fd-a814-86038a4b1bbb",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 50.01894,
-      "longitude": 21.985746,
-      "osmRefs": [
-        "w447859180",
-        "w1245406942"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Politechnika Rzeszowska",
-      "locality": {
-        "city": "Rzeszów",
-        "district": "Dąbrowskiego"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "2d0aab05-3817-5fce-bf6d-8374d6724e0d",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.61898,
-      "longitude": 16.575812,
-      "osmRefs": [
-        "w1102725509"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Morelowa",
-      "locality": {
-        "city": "Szamotuły",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "ground",
       "lit": null,
       "covered": null,
       "access": "public",
@@ -2161,32 +1816,6 @@
       "openingHours": null
     },
     {
-      "id": "3514476c-61e0-5222-991d-0dc104109e1f",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.031325,
-      "longitude": 23.154902,
-      "osmRefs": [
-        "w1150436193",
-        "w1150436194"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Na Skarpie",
-      "locality": {
-        "city": "Biała Podlaska",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "3521814e-dd26-563f-bd81-febc9ff3171f",
       "status": "published",
       "verification": "osm",
@@ -2279,32 +1908,6 @@
       "openingHours": null
     },
     {
-      "id": "38dd1f62-8b66-5206-b891-ca599562a690",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.474966,
-      "longitude": 16.780868,
-      "osmRefs": [
-        "n6551329476",
-        "n10937845494"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Kiekrz",
-      "locality": {
-        "city": "Poznań",
-        "district": "Kiekrz"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "39b4f250-b7a0-5e01-8ffa-1650b0ae5159",
       "status": "published",
       "verification": "osm",
@@ -2388,32 +1991,6 @@
       "openingHours": null
     },
     {
-      "id": "3af310da-aefc-5855-9729-3a5963e28afa",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 53.451969,
-      "longitude": 18.71642,
-      "osmRefs": [
-        "w1348189177",
-        "w1348189178"
-      ],
-      "name": null,
-      "generatedName": "Street workout · przy SP 20",
-      "locality": {
-        "city": "Grudziądz",
-        "district": "Rządz"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "3b0d5d3f-c7ef-54d1-8afe-bf29de33ee92",
       "status": "published",
       "verification": "osm",
@@ -2436,57 +2013,6 @@
         }
       ],
       "isCalisthenicsTagged": false,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "3bd9c6f1-dc64-577a-88b0-e131566a0a47",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.247551,
-      "longitude": 21.288022,
-      "osmRefs": [
-        "w799789282"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Park Glinianki",
-      "locality": {
-        "city": "Sulejówek",
-        "district": "Sulejówek (osiedle)"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "ground",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "3cb7ae4f-c408-56f6-bafe-6c119aca7743",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 51.134108,
-      "longitude": 16.922938,
-      "osmRefs": [
-        "w1565768028",
-        "w1565768032"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Skwer Hansa Scharouna",
-      "locality": {
-        "city": "Wrocław",
-        "district": "Leśnica"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
       "hasMachines": false,
       "surface": null,
       "lit": null,
@@ -2525,31 +2051,6 @@
       "hasMachines": false,
       "surface": "tartan",
       "lit": false,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "3f98b036-f1cb-54dd-9bbe-34406a01996b",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.371053,
-      "longitude": 16.907972,
-      "osmRefs": [
-        "w1112255202"
-      ],
-      "name": "Street Workout Łozowa 34",
-      "generatedName": "Street workout · ul. Łozowa",
-      "locality": {
-        "city": "Poznań",
-        "district": "Zielony Dębiec"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
-      "lit": null,
       "covered": null,
       "access": "public",
       "openingHours": null
@@ -2679,31 +2180,6 @@
       "openingHours": null
     },
     {
-      "id": "419d68e0-51f5-5432-97d2-27caa4fbc0ed",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.66713,
-      "longitude": 16.838845,
-      "osmRefs": [
-        "w1104770953"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Sanatoryjna",
-      "locality": {
-        "city": "Kowanówko",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "423d173c-8886-5704-99a1-cc4d8bfbd957",
       "status": "published",
       "verification": "osm",
@@ -2728,36 +2204,6 @@
       "isCalisthenicsTagged": false,
       "hasMachines": false,
       "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "42dc832c-5554-5ec1-9060-46f675e84cf4",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.387893,
-      "longitude": 16.924847,
-      "osmRefs": [
-        "n10158084363"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Park Jana Pawła II",
-      "locality": {
-        "city": "Poznań",
-        "district": "Wilda"
-      },
-      "equipment": [
-        {
-          "type": "horizontal_ladder",
-          "count": null
-        }
-      ],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
       "lit": null,
       "covered": null,
       "access": "public",
@@ -3041,31 +2487,6 @@
       "openingHours": null
     },
     {
-      "id": "4bcd1d3c-ab42-5f85-84ed-c0f390a92cae",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 54.464412,
-      "longitude": 16.990578,
-      "osmRefs": [
-        "w1186775875"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Park im. Witkacego",
-      "locality": {
-        "city": "Słupsk",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "4d4b4df2-dad9-5c94-90af-aaf37c66ca20",
       "status": "published",
       "verification": "osm",
@@ -3090,31 +2511,6 @@
       "isCalisthenicsTagged": true,
       "hasMachines": false,
       "surface": "rubber",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": "24/7"
-    },
-    {
-      "id": "4d9782de-7499-50ec-8589-7e3cb3a1c8f7",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.429989,
-      "longitude": 16.90746,
-      "osmRefs": [
-        "w1112241459"
-      ],
-      "name": "Street workout zone Bonin",
-      "generatedName": "Street workout · XXV LO",
-      "locality": {
-        "city": "Poznań",
-        "district": "Winiary"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
       "lit": null,
       "covered": null,
       "access": "public",
@@ -3182,56 +2578,6 @@
       "openingHours": null
     },
     {
-      "id": "4f3cf38c-5d87-53dd-86e1-6cd2acf6b711",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 51.968467,
-      "longitude": 22.789972,
-      "osmRefs": [
-        "w857756545"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Międzyrzec Podlaski",
-      "locality": {
-        "city": "Międzyrzec Podlaski",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "4fce1acd-fe07-5ceb-94f3-d5a9521d0e4f",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 51.057689,
-      "longitude": 17.080886,
-      "osmRefs": [
-        "w1093408317"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Polna",
-      "locality": {
-        "city": "Wrocław",
-        "district": "Brochów"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "50a06075-fb4e-5b27-8bbe-36832d1d2bfb",
       "status": "published",
       "verification": "osm",
@@ -3293,56 +2639,6 @@
       "openingHours": null
     },
     {
-      "id": "50ea0867-a1bc-5b04-8415-3dc4a7517067",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 51.865349,
-      "longitude": 15.508459,
-      "osmRefs": [
-        "n13125524190"
-      ],
-      "name": "Street Workout Kiełpin",
-      "generatedName": "Street workout · ul. Kiełpin",
-      "locality": {
-        "city": "Zielona Góra",
-        "district": "Nowe Miasto"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "52bacb1d-836d-5eb9-a6aa-b69fe81e41b4",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.438898,
-      "longitude": 16.744467,
-      "osmRefs": [
-        "w1128359540"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Lipowa",
-      "locality": {
-        "city": "Swadzim",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "grass",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "5480979c-6d0b-59af-86ef-431a1ae554c4",
       "status": "published",
       "verification": "osm",
@@ -3367,31 +2663,6 @@
       "isCalisthenicsTagged": false,
       "hasMachines": false,
       "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "55b090c8-cd25-599f-aea0-7c72cb4a8bb1",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.609911,
-      "longitude": 16.594334,
-      "osmRefs": [
-        "w537243594"
-      ],
-      "name": "Street Workout Felińskiego",
-      "generatedName": "Street workout · ul. Gąsawska",
-      "locality": {
-        "city": "Szamotuły",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
       "lit": null,
       "covered": null,
       "access": "public",
@@ -3548,31 +2819,6 @@
       "openingHours": null
     },
     {
-      "id": "574646b4-bf94-5c8a-9960-48c0059221f0",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.626238,
-      "longitude": 16.56524,
-      "osmRefs": [
-        "n4708392092"
-      ],
-      "name": "Street Workout Leśna",
-      "generatedName": "Street workout · Leśny Zakątek",
-      "locality": {
-        "city": "Szamotuły",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "ground",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": "24/7"
-    },
-    {
       "id": "5762f6a9-4ff0-5ee1-b3c4-1672b9b2b21b",
       "status": "published",
       "verification": "osm",
@@ -3707,61 +2953,6 @@
       "isCalisthenicsTagged": false,
       "hasMachines": false,
       "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": "24/7"
-    },
-    {
-      "id": "5a3e1530-a4b1-5bc1-bab0-ef6a35edb886",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.622101,
-      "longitude": 16.572932,
-      "osmRefs": [
-        "w989400523"
-      ],
-      "name": "Street Workout Łukasiewicza",
-      "generatedName": "Street workout · ul. Ignacego Łukasiewicza",
-      "locality": {
-        "city": "Szamotuły",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "grass",
-      "lit": false,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "5b63080c-3eef-55cb-b2c5-077e8742edee",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.515585,
-      "longitude": 16.702554,
-      "osmRefs": [
-        "w520698386"
-      ],
-      "name": "Street workout Mrowino",
-      "generatedName": "Street workout · ul. Dworcowa",
-      "locality": {
-        "city": "Mrowino",
-        "district": null
-      },
-      "equipment": [
-        {
-          "type": "horizontal_ladder",
-          "count": null
-        }
-      ],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
       "lit": null,
       "covered": null,
       "access": "public",
@@ -4019,57 +3210,6 @@
       "openingHours": null
     },
     {
-      "id": "604a7360-b4fe-5478-a1c5-a455c0691589",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.59705,
-      "longitude": 16.590422,
-      "osmRefs": [
-        "w1152627314"
-      ],
-      "name": "Street Workout Zacisze",
-      "generatedName": "Street workout · ul. Zacisze",
-      "locality": {
-        "city": "Szamotuły",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "61db9cb7-26d0-5f4c-bd4b-7bcd67bc282a",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 51.14388,
-      "longitude": 17.121226,
-      "osmRefs": [
-        "w854918840",
-        "w854918841"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Miłostowska",
-      "locality": {
-        "city": "Wrocław",
-        "district": "Psie Pole-Zawidawie"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "64748e25-af4e-5ff0-b205-66b77e12505a",
       "status": "published",
       "verification": "osm",
@@ -4225,31 +3365,6 @@
       "openingHours": "24/7"
     },
     {
-      "id": "661ad677-5353-5d00-a88b-526ddb05988b",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 54.320456,
-      "longitude": 18.60462,
-      "osmRefs": [
-        "w870803095"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Augustowska",
-      "locality": {
-        "city": "Gdańsk",
-        "district": "Orunia Górna - Gdańsk Południe"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "66d42918-fe92-5722-8d30-e9e8d30c71f9",
       "status": "published",
       "verification": "osm",
@@ -4316,68 +3431,6 @@
       "openingHours": null
     },
     {
-      "id": "687bed3f-ec78-5dbc-9e76-9d26b5d0c256",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.436576,
-      "longitude": 15.570024,
-      "osmRefs": [
-        "n12816532490"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Międzyrzecz",
-      "locality": {
-        "city": "Międzyrzecz",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "68f3de85-c442-5c1e-bdc0-44aec2ebe197",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.389129,
-      "longitude": 16.925864,
-      "osmRefs": [
-        "n10158084359",
-        "n10158084360",
-        "n10158084361",
-        "n10158084362"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Park Jana Pawła II",
-      "locality": {
-        "city": "Poznań",
-        "district": "Wilda"
-      },
-      "equipment": [
-        {
-          "type": "rings",
-          "count": null
-        },
-        {
-          "type": "balance_beam",
-          "count": null
-        }
-      ],
-      "isCalisthenicsTagged": true,
-      "hasMachines": true,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "6acb8402-8d1b-5ee6-b7b0-ca3f48c7c303",
       "status": "published",
       "verification": "osm",
@@ -4424,41 +3477,6 @@
       "openingHours": null
     },
     {
-      "id": "6b220f58-98a6-5608-ab6a-fa703ac456ce",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.650163,
-      "longitude": 16.797956,
-      "osmRefs": [
-        "n10109926764",
-        "n10175782891",
-        "n10175782892",
-        "n10175782893",
-        "n10175782894",
-        "n10175782895"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Droga Leśna",
-      "locality": {
-        "city": "Oborniki",
-        "district": null
-      },
-      "equipment": [
-        {
-          "type": "rings",
-          "count": null
-        }
-      ],
-      "isCalisthenicsTagged": true,
-      "hasMachines": true,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "6bdf1fb7-ef6b-5735-adfd-a68b0d4725c9",
       "status": "published",
       "verification": "osm",
@@ -4493,115 +3511,6 @@
       "openingHours": null
     },
     {
-      "id": "6bea141e-07cf-521f-85b7-893b7da60498",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.366704,
-      "longitude": 16.942195,
-      "osmRefs": [
-        "n10175622144",
-        "n10175622145",
-        "n10175622146",
-        "n10175622147",
-        "n10175622148",
-        "n10175622149",
-        "n10175622150",
-        "w943218275",
-        "w1112258648"
-      ],
-      "name": "Street Workout Starołęka Mała",
-      "generatedName": "Street workout · Park Rekreacji Starołęka Mała",
-      "locality": {
-        "city": "Poznań",
-        "district": "Starołęka-Minikowo-Marlewo"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": true,
-      "surface": "sand",
-      "lit": true,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "6c30e165-d770-5d05-b60e-bc87bb9d3869",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.169758,
-      "longitude": 21.017446,
-      "osmRefs": [
-        "n12551028620"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Kampus Służewiec UW",
-      "locality": {
-        "city": "Warszawa",
-        "district": "Mokotów"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "6ca47a61-7ee4-5659-8632-c4cbf215f5d4",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 50.057052,
-      "longitude": 21.981563,
-      "osmRefs": [
-        "w442356386"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Skwer Krzysztofa Wyskiela",
-      "locality": {
-        "city": "Rzeszów",
-        "district": "Baranówka"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
-      "lit": false,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "6e39e014-d7cc-57d3-a164-22b0c8ca4807",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 50.085266,
-      "longitude": 18.209222,
-      "osmRefs": [
-        "w307535687",
-        "w1157753620"
-      ],
-      "name": "Street Workout Racibórz",
-      "generatedName": "Street workout · Tężnia solankowa",
-      "locality": {
-        "city": "Racibórz",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": "24/7"
-    },
-    {
       "id": "6ebe0e7a-3b9a-5aa4-b841-0b93057c09a9",
       "status": "published",
       "verification": "osm",
@@ -4630,32 +3539,6 @@
       "covered": null,
       "access": "public",
       "openingHours": "24/7"
-    },
-    {
-      "id": "6eed9077-ef51-5c77-81eb-57decdd8430c",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.42452,
-      "longitude": 16.786798,
-      "osmRefs": [
-        "w989738867",
-        "w989738868"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Przeźmierowo",
-      "locality": {
-        "city": "Przeźmierowo",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "gravel",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
     },
     {
       "id": "6fc0b4f1-a524-579a-b0eb-afddbf83cdbb",
@@ -4699,31 +3582,6 @@
       "covered": null,
       "access": "public",
       "openingHours": null
-    },
-    {
-      "id": "713e0309-d982-5acb-9ab9-ea89d9bd919e",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.440928,
-      "longitude": 16.926222,
-      "osmRefs": [
-        "w1112240015"
-      ],
-      "name": "Street workout zone os. Zwycięstwa",
-      "generatedName": "Street workout · przy ZS 7",
-      "locality": {
-        "city": "Poznań",
-        "district": "Nowe Winogrady Północ"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "tartan",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": "24/7"
     },
     {
       "id": "7232a7ff-167e-5479-831d-93688f6634ad",
@@ -4906,56 +3764,6 @@
       "openingHours": null
     },
     {
-      "id": "76bbdbd3-3a58-5350-afc0-cc2cb42e4d60",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 50.181061,
-      "longitude": 18.891941,
-      "osmRefs": [
-        "w878810502"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Centrum",
-      "locality": {
-        "city": "Mikołów",
-        "district": "Centrum"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "76cee7f8-e4b5-5b3c-914c-8a0fe8b80700",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.812162,
-      "longitude": 15.757984,
-      "osmRefs": [
-        "n12985330851"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Trzebicz",
-      "locality": {
-        "city": "Trzebicz",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": "24/7"
-    },
-    {
       "id": "771f2039-e613-5e5e-a9fb-841d5f895245",
       "status": "published",
       "verification": "osm",
@@ -4981,31 +3789,6 @@
       "hasMachines": false,
       "surface": null,
       "lit": true,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "7748da09-511c-5004-980d-cec0351c2281",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 51.09032,
-      "longitude": 16.996417,
-      "osmRefs": [
-        "w1204021971"
-      ],
-      "name": null,
-      "generatedName": "Street workout · aleja Generała Józefa Hallera",
-      "locality": {
-        "city": "Wrocław",
-        "district": "Gajowice"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
       "covered": null,
       "access": "public",
       "openingHours": null
@@ -5495,31 +4278,6 @@
       "openingHours": null
     },
     {
-      "id": "85afc6e2-6412-5efc-96b8-09b6ac586aca",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 50.076702,
-      "longitude": 19.884891,
-      "osmRefs": [
-        "w1462455296"
-      ],
-      "name": null,
-      "generatedName": "Street workout · przy SP 153",
-      "locality": {
-        "city": "Kraków",
-        "district": "Bronowice"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "85cc62b6-2760-57ed-8545-683cb687cd7c",
       "status": "published",
       "verification": "osm",
@@ -5575,32 +4333,6 @@
       "isCalisthenicsTagged": false,
       "hasMachines": false,
       "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "873e7450-900c-5acd-bedc-c414361d6cf8",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.399749,
-      "longitude": 16.925576,
-      "osmRefs": [
-        "n9396898878",
-        "w1018795182"
-      ],
-      "name": "Street Workout Park Drwęskich",
-      "generatedName": "Street workout · ul. Królowej Jadwigi",
-      "locality": {
-        "city": "Poznań",
-        "district": "Wilda"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "tartan",
       "lit": null,
       "covered": null,
       "access": "public",
@@ -5668,31 +4400,6 @@
       "openingHours": null
     },
     {
-      "id": "8b4df98e-0c27-5820-8b21-aa3199b3a238",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 50.806476,
-      "longitude": 16.278942,
-      "osmRefs": [
-        "w1132232133"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Poniatów",
-      "locality": {
-        "city": "Wałbrzych",
-        "district": "Poniatów"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "8bd5de9d-1b57-563a-99ec-5d0af075a734",
       "status": "published",
       "verification": "osm",
@@ -5722,32 +4429,6 @@
       "covered": null,
       "access": "public",
       "openingHours": "24/7"
-    },
-    {
-      "id": "8dad3f47-51a4-5ab9-a1f1-816401f25473",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.248781,
-      "longitude": 15.524013,
-      "osmRefs": [
-        "w1112290032",
-        "w1347777033"
-      ],
-      "name": "Street Workout Świebodzin",
-      "generatedName": "Street workout · Dolina Strugi Świebodzińskiej",
-      "locality": {
-        "city": "Świebodzin",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "tartan",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
     },
     {
       "id": "8ea1ed90-e34f-5047-b055-c56e41f0bd9c",
@@ -6158,31 +4839,6 @@
       "openingHours": null
     },
     {
-      "id": "96691838-5373-5f9a-b9de-198211e2c497",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.28227,
-      "longitude": 20.973418,
-      "osmRefs": [
-        "n14087464900"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Godowska",
-      "locality": {
-        "city": "Warszawa",
-        "district": "Bielany"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "96780af7-4b73-5405-b1ad-bb481496d9ca",
       "status": "published",
       "verification": "osm",
@@ -6235,32 +4891,6 @@
           "count": null
         }
       ],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "96ae647e-8c00-5f3e-a360-85a5da379eba",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 51.116643,
-      "longitude": 16.955357,
-      "osmRefs": [
-        "n14266109555",
-        "w315479536"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Nowy Dwór",
-      "locality": {
-        "city": "Wrocław",
-        "district": "Nowy Dwór"
-      },
-      "equipment": [],
       "isCalisthenicsTagged": true,
       "hasMachines": false,
       "surface": null,
@@ -6657,56 +5287,6 @@
       "openingHours": null
     },
     {
-      "id": "a1468441-be0e-5bdc-bd30-3aba74bbff25",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 51.021718,
-      "longitude": 17.007967,
-      "osmRefs": [
-        "w1426397159"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Karwiany",
-      "locality": {
-        "city": "Karwiany",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "a1cc7b17-45bb-5027-816e-78447a3a90ff",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 50.302798,
-      "longitude": 16.635545,
-      "osmRefs": [
-        "w1387386145"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Bystrzyca Kłodzka",
-      "locality": {
-        "city": "Bystrzyca Kłodzka",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": "24/7"
-    },
-    {
       "id": "a1cf8260-7905-50f9-a58e-49d07cda871a",
       "status": "published",
       "verification": "osm",
@@ -6768,81 +5348,6 @@
       "openingHours": "24/7"
     },
     {
-      "id": "a348d2c7-538c-5522-81b7-dcb9d99922fd",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 54.040557,
-      "longitude": 15.662392,
-      "osmRefs": [
-        "w1422811318"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Gościno",
-      "locality": {
-        "city": "Gościno",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "a3d152e4-7438-5819-9106-4442f147546b",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.391605,
-      "longitude": 16.979039,
-      "osmRefs": [
-        "w1556627699"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Park na os. Tysiąclecia",
-      "locality": {
-        "city": "Poznań",
-        "district": "Chartowo"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "a3ed4db1-fbbb-5fc8-874b-81123e847533",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.19144,
-      "longitude": 20.614532,
-      "osmRefs": [
-        "n10176090364"
-      ],
-      "name": "Klatka Combo OCR & Ninja",
-      "generatedName": "Street workout · Park Bajka",
-      "locality": {
-        "city": "Błonie",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": true,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": "Mo-Su 06:00-22:00"
-    },
-    {
       "id": "a47c9a03-b2ae-5a0f-a6bf-fffb2e9417cf",
       "status": "published",
       "verification": "osm",
@@ -6882,31 +5387,6 @@
       ],
       "isCalisthenicsTagged": false,
       "hasMachines": true,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "a48ea7fe-b351-54e0-af61-3dff5ff45681",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 54.403794,
-      "longitude": 18.644229,
-      "osmRefs": [
-        "w1482864479"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Ksawerego Dunikowskiego",
-      "locality": {
-        "city": "Gdańsk",
-        "district": "Brzeźno"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
       "surface": null,
       "lit": null,
       "covered": null,
@@ -7009,31 +5489,6 @@
       "openingHours": null
     },
     {
-      "id": "a69e6fa9-ef12-5493-b58a-e6e609af71b6",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.308743,
-      "longitude": 16.422747,
-      "osmRefs": [
-        "w1112287286"
-      ],
-      "name": "Street Workout Opalenica",
-      "generatedName": "Street workout · ul. Zamkowa",
-      "locality": {
-        "city": "Opalenica",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "a75ef4d8-71e2-50b0-bba7-c625214eb991",
       "status": "published",
       "verification": "osm",
@@ -7070,32 +5525,6 @@
       "openingHours": null
     },
     {
-      "id": "a7e7dbd2-9788-56aa-ac29-953635c742f4",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 50.02204,
-      "longitude": 22.015209,
-      "osmRefs": [
-        "w653653965",
-        "w653653969"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Park aktywności dla seniorów",
-      "locality": {
-        "city": "Rzeszów",
-        "district": "Nowe Miasto"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "a7ea28d8-1818-51f4-b034-ff9c5553c704",
       "status": "published",
       "verification": "osm",
@@ -7124,31 +5553,6 @@
       "covered": null,
       "access": "public",
       "openingHours": null
-    },
-    {
-      "id": "a9786a7e-0145-54cb-8642-3f26a46635b4",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 50.268401,
-      "longitude": 18.935684,
-      "osmRefs": [
-        "w946923736"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Jubileuszowa",
-      "locality": {
-        "city": "Chorzów",
-        "district": "Chorzów Batory"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": "24/7"
     },
     {
       "id": "a9b3f630-f57c-585a-b012-47ae21f4d325",
@@ -7209,31 +5613,6 @@
       "covered": null,
       "access": "public",
       "openingHours": "24/7"
-    },
-    {
-      "id": "a9d5ea05-d772-53e3-bd88-0050dc46515a",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.58858,
-      "longitude": 15.491237,
-      "osmRefs": [
-        "w303947036"
-      ],
-      "name": "Street Worout",
-      "generatedName": "Street workout · ul. Krótka",
-      "locality": {
-        "city": "Skwierzyna",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
     },
     {
       "id": "ac440977-06a5-58db-b980-50b13897cc68",
@@ -7496,81 +5875,6 @@
       "openingHours": null
     },
     {
-      "id": "b4948955-1afe-5f0c-9e6a-9a1ae0ee52e5",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 50.096137,
-      "longitude": 22.045396,
-      "osmRefs": [
-        "w1491470596"
-      ],
-      "name": null,
-      "generatedName": "Street workout · przy ZS w Nowej Wsi",
-      "locality": {
-        "city": "Nowa Wieś",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "rubber",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "b4fc4ee5-d5c5-562c-b6f5-70800db5246b",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.192165,
-      "longitude": 21.027758,
-      "osmRefs": [
-        "w1201707552"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Arkadia",
-      "locality": {
-        "city": "Warszawa",
-        "district": "Mokotów"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "b5222d72-04ce-5a35-9a32-2f17e7367134",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 50.026532,
-      "longitude": 21.999643,
-      "osmRefs": [
-        "w301108154"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Park Kultury i Wypoczynku",
-      "locality": {
-        "city": "Rzeszów",
-        "district": "Grota-Roweckiego"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "b61ec57a-af91-5018-ae66-c81eb3f96480",
       "status": "published",
       "verification": "osm",
@@ -7594,61 +5898,6 @@
       ],
       "isCalisthenicsTagged": false,
       "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "b81ee195-1ed2-558a-93ab-f67bea5475e7",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.39409,
-      "longitude": 16.974517,
-      "osmRefs": [
-        "w446571284"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Chartowo",
-      "locality": {
-        "city": "Poznań",
-        "district": "Chartowo"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "b84eb0fa-d422-5018-a191-5fc37f4ab0ba",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.395787,
-      "longitude": 16.872926,
-      "osmRefs": [
-        "n8050396195",
-        "n10175565744",
-        "n10175565745",
-        "n10175565746",
-        "n10175565747",
-        "w1112252604"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Grunwald Południe",
-      "locality": {
-        "city": "Poznań",
-        "district": "Grunwald Południe"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": true,
       "surface": null,
       "lit": null,
       "covered": null,
@@ -7727,56 +5976,6 @@
       "openingHours": "24/7"
     },
     {
-      "id": "bd047a86-4046-5502-98d3-4201d2e2bf56",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.192139,
-      "longitude": 20.616515,
-      "osmRefs": [
-        "n10176090361"
-      ],
-      "name": "Street Workaut Błonie",
-      "generatedName": "Street workout · Park Bajka",
-      "locality": {
-        "city": "Błonie",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "ground",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "bd156f04-3fb7-5d4a-bef4-feb6b6f9dbd3",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 49.691808,
-      "longitude": 22.020136,
-      "osmRefs": [
-        "w1506103141"
-      ],
-      "name": null,
-      "generatedName": "Street workout · przy ZS Budowlanych",
-      "locality": {
-        "city": "Brzozów",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "bdec10ea-62df-5d26-b79f-09ce85634507",
       "status": "published",
       "verification": "osm",
@@ -7800,31 +5999,6 @@
         }
       ],
       "isCalisthenicsTagged": false,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "be12415d-aa26-545a-9458-6e35a677e383",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 49.702006,
-      "longitude": 18.813121,
-      "osmRefs": [
-        "w1290842566"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Lipowa",
-      "locality": {
-        "city": "Ustroń",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
       "hasMachines": false,
       "surface": null,
       "lit": null,
@@ -7863,32 +6037,6 @@
       "openingHours": null
     },
     {
-      "id": "bf6ca970-ea17-5abf-b403-576cadb4548c",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 50.292739,
-      "longitude": 19.191572,
-      "osmRefs": [
-        "w786243665",
-        "w1238011842"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Sosnowiec",
-      "locality": {
-        "city": "Sosnowiec",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": "24/7"
-    },
-    {
       "id": "c1078944-ba49-5c25-9203-92d615beabf0",
       "status": "published",
       "verification": "osm",
@@ -7913,31 +6061,6 @@
       "isCalisthenicsTagged": false,
       "hasMachines": false,
       "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "c1727a89-784d-510a-98bb-5194f0f5dbcc",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.374391,
-      "longitude": 16.714001,
-      "osmRefs": [
-        "w1112274110"
-      ],
-      "name": "Street Workout ul. Promenada",
-      "generatedName": "Street workout · ul. Świtezianki",
-      "locality": {
-        "city": "Dopiewiec",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "rubber",
       "lit": null,
       "covered": null,
       "access": "public",
@@ -8004,31 +6127,6 @@
       "openingHours": null
     },
     {
-      "id": "c37b2f9d-1cc0-5873-863c-ef6d66361c03",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 51.499568,
-      "longitude": 16.087258,
-      "osmRefs": [
-        "w1516601180"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Adama Naruszewicza",
-      "locality": {
-        "city": "Polkowice",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "c454231a-a576-5eea-8f7e-3310131997a6",
       "status": "published",
       "verification": "osm",
@@ -8054,31 +6152,6 @@
       "hasMachines": false,
       "surface": "tartan",
       "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "c7140cd6-ec0b-51b5-91d2-b120eb4056a9",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 50.061785,
-      "longitude": 19.972087,
-      "osmRefs": [
-        "w1329741169"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Grzegórzki",
-      "locality": {
-        "city": "Kraków",
-        "district": "Grzegórzki"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": true,
       "covered": null,
       "access": "public",
       "openingHours": null
@@ -8174,60 +6247,6 @@
       "openingHours": null
     },
     {
-      "id": "cb30e4c3-80cd-5492-a367-2a405153b270",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.311522,
-      "longitude": 16.973098,
-      "osmRefs": [
-        "n10175778558",
-        "n10175778559",
-        "n10175778560",
-        "w1112277009"
-      ],
-      "name": "Street Workout Głuszyna",
-      "generatedName": "Street workout · Park Felicjana Sypniewskiego",
-      "locality": {
-        "city": "Poznań",
-        "district": "Głuszyna"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": true,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "cb6b428e-3eab-5495-8404-da6205e7364b",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.462741,
-      "longitude": 16.925607,
-      "osmRefs": [
-        "w473304141",
-        "w1107850022"
-      ],
-      "name": "Street Workout Batorego",
-      "generatedName": "Street workout · Osiedle Stefana Batorego",
-      "locality": {
-        "city": "Poznań",
-        "district": "Piątkowo"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": "24/7"
-    },
-    {
       "id": "cbea9d08-246c-57c7-abc5-9d67fd92cc86",
       "status": "published",
       "verification": "osm",
@@ -8266,31 +6285,6 @@
       "isCalisthenicsTagged": false,
       "hasMachines": false,
       "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "cc979ee8-d967-5395-a346-e3baf650605f",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 53.131365,
-      "longitude": 16.710197,
-      "osmRefs": [
-        "n10177359217"
-      ],
-      "name": "Street Workout jezioro Piaszczyste",
-      "generatedName": "Street workout · Staszyce",
-      "locality": {
-        "city": "Piła",
-        "district": "Staszyce"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
       "lit": null,
       "covered": null,
       "access": "public",
@@ -8544,31 +6538,6 @@
       "openingHours": null
     },
     {
-      "id": "d3779c53-0370-5781-9941-306a5f433161",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.765899,
-      "longitude": 15.717631,
-      "osmRefs": [
-        "w1307339261"
-      ],
-      "name": "Street Workout Gościm",
-      "generatedName": "Street workout · Gościm",
-      "locality": {
-        "city": "Gościm",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "d3813e4f-e1a4-52d6-b573-9bc6dda7cc71",
       "status": "published",
       "verification": "osm",
@@ -8714,31 +6683,6 @@
         }
       ],
       "isCalisthenicsTagged": false,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "d889490c-ebb0-5277-a42c-018b6f662bd5",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 51.12169,
-      "longitude": 23.458549,
-      "osmRefs": [
-        "w1536138959"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Chełm",
-      "locality": {
-        "city": "Chełm",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
       "hasMachines": false,
       "surface": null,
       "lit": null,
@@ -8935,32 +6879,6 @@
       "openingHours": "24/7"
     },
     {
-      "id": "db6acf1a-7a4a-5924-bc40-1a3181310b17",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 51.062778,
-      "longitude": 17.076557,
-      "osmRefs": [
-        "w1541236831",
-        "w1541236832"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Centralna",
-      "locality": {
-        "city": "Wrocław",
-        "district": "Brochów"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "dc963c4e-1f3c-5e26-9c10-413932965b01",
       "status": "published",
       "verification": "osm",
@@ -9051,32 +6969,6 @@
       "openingHours": "Mo-Fr 10:00-22:00"
     },
     {
-      "id": "dda3a2ef-bacc-5e7e-9b04-3b00ecf2be65",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 50.043758,
-      "longitude": 18.683546,
-      "osmRefs": [
-        "w1071995888",
-        "w1113373385"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Park Cegielnia",
-      "locality": {
-        "city": "Żory",
-        "district": "700-lecia Żor"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "ddc96aa4-a6c2-532f-9a77-ca7a7c1766dc",
       "status": "published",
       "verification": "osm",
@@ -9101,32 +6993,6 @@
       "isCalisthenicsTagged": false,
       "hasMachines": false,
       "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "ddec93ac-d808-53a5-a7a8-0b3282c0c767",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.759325,
-      "longitude": 15.260397,
-      "osmRefs": [
-        "w640547820",
-        "w847238026"
-      ],
-      "name": "Street Workout Park Górczyński",
-      "generatedName": "Street workout · Park Górczyński",
-      "locality": {
-        "city": "Gorzów Wielkopolski",
-        "district": "Manhattan"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": true,
-      "surface": "sand",
       "lit": null,
       "covered": null,
       "access": "public",
@@ -9193,32 +7059,6 @@
       "openingHours": null
     },
     {
-      "id": "e0295195-284d-577e-8b6c-645d8890a970",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.312433,
-      "longitude": 16.146611,
-      "osmRefs": [
-        "w759672375",
-        "w1205978117"
-      ],
-      "name": "Street Workout Nowy Tomyśl",
-      "generatedName": "Street workout · Nowy Tomyśl",
-      "locality": {
-        "city": "Nowy Tomyśl",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": "24/7"
-    },
-    {
       "id": "e17ba2a7-be6b-59fe-9010-ea0f40d55af3",
       "status": "published",
       "verification": "osm",
@@ -9247,31 +7087,6 @@
       "covered": null,
       "access": "public",
       "openingHours": null
-    },
-    {
-      "id": "e2c22464-5527-51d1-acc7-e9b754c213d3",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.409915,
-      "longitude": 17.068614,
-      "osmRefs": [
-        "r18027037"
-      ],
-      "name": "Street Workout Swarzędz",
-      "generatedName": "Street workout · Swarzędz",
-      "locality": {
-        "city": "Swarzędz",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": "24/7"
     },
     {
       "id": "e4b5d5cd-ccb7-5294-bdd0-e84ec402a8ae",
@@ -9416,31 +7231,6 @@
       "openingHours": null
     },
     {
-      "id": "e6805559-1c7b-582b-a705-513627dc3b66",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.212954,
-      "longitude": 20.994896,
-      "osmRefs": [
-        "n12791787908"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Ochota",
-      "locality": {
-        "city": "Warszawa",
-        "district": "Ochota"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "e6dd846f-a2df-5525-b405-c4b7cb0ef5f6",
       "status": "published",
       "verification": "osm",
@@ -9513,32 +7303,6 @@
       "openingHours": "24/7"
     },
     {
-      "id": "e7d02227-c680-527e-97b0-68afff2097b8",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.368337,
-      "longitude": 16.84686,
-      "osmRefs": [
-        "w654772428",
-        "w1170967944"
-      ],
-      "name": "Street Workout Fabianowo",
-      "generatedName": "Street workout · przy SP 52 \"Specto\"",
-      "locality": {
-        "city": "Poznań",
-        "district": "Fabianowo-Kotowo"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "e8e6ef53-1a3a-5137-9f2c-67e7ffbade73",
       "status": "published",
       "verification": "osm",
@@ -9585,31 +7349,6 @@
       "openingHours": null
     },
     {
-      "id": "eadea5f6-ce93-55ba-bfc1-fd1ee8e26fe4",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.597902,
-      "longitude": 15.894639,
-      "osmRefs": [
-        "n12826381366"
-      ],
-      "name": "Street Workout Miedzychód",
-      "generatedName": "Street workout · Ogródek Jordanowski",
-      "locality": {
-        "city": "Międzychód",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "eb1e3897-8911-5161-b7e2-89b3649cb958",
       "status": "published",
       "verification": "osm",
@@ -9632,57 +7371,6 @@
         }
       ],
       "isCalisthenicsTagged": false,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "eb218912-a888-54a4-8330-707ca5d4a9fb",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.713897,
-      "longitude": 16.395253,
-      "osmRefs": [
-        "w520911318",
-        "w1112283597"
-      ],
-      "name": "Street Workout Borek",
-      "generatedName": "Street workout · Osiedle Borek",
-      "locality": {
-        "city": "Wronki",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": true,
-      "surface": "sand",
-      "lit": true,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "ebe3983b-b31e-5582-a458-9ad76e99c7c7",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.198264,
-      "longitude": 21.033142,
-      "osmRefs": [
-        "w1473422641"
-      ],
-      "name": null,
-      "generatedName": "Street workout · przy SP Sportowa 272",
-      "locality": {
-        "city": "Warszawa",
-        "district": "Mokotów"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
       "hasMachines": false,
       "surface": null,
       "lit": null,
@@ -9776,58 +7464,6 @@
       "isCalisthenicsTagged": false,
       "hasMachines": false,
       "surface": "tartan",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "ee760efe-6641-5033-bd42-c6cae1d9d2f7",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.196889,
-      "longitude": 20.955926,
-      "osmRefs": [
-        "w1321630926",
-        "w1321630927"
-      ],
-      "name": null,
-      "generatedName": "Street workout · ul. Borsucza",
-      "locality": {
-        "city": "Warszawa",
-        "district": "Włochy"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "ef628cb3-275a-5408-9bb3-98f064c61c6d",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 54.306319,
-      "longitude": 18.591193,
-      "osmRefs": [
-        "w1417913184",
-        "w1434389643"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Orunia Górna - Gdańsk Południe",
-      "locality": {
-        "city": "Gdańsk",
-        "district": "Orunia Górna - Gdańsk Południe"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
       "lit": null,
       "covered": null,
       "access": "public",
@@ -10007,106 +7643,6 @@
       "openingHours": null
     },
     {
-      "id": "f2edd28d-8b52-5eba-a8e5-f1dbd0053b28",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.459524,
-      "longitude": 16.304723,
-      "osmRefs": [
-        "n12649542455"
-      ],
-      "name": "Street Workout Turowo",
-      "generatedName": "Street workout · Pniewy",
-      "locality": {
-        "city": "Pniewy",
-        "district": null
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "grass",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "f40f6734-b5c9-5370-9a7c-7a510604fc69",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.400177,
-      "longitude": 16.974024,
-      "osmRefs": [
-        "w684915600"
-      ],
-      "name": "Street Workout Malta",
-      "generatedName": "Street workout · Rataje",
-      "locality": {
-        "city": "Poznań",
-        "district": "Rataje"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "f563ccb0-2392-5f6a-9518-d57e25f7a862",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.205282,
-      "longitude": 20.895471,
-      "osmRefs": [
-        "w995328770"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Plac Wolności",
-      "locality": {
-        "city": "Warszawa",
-        "district": "Włochy"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "f5a0e820-8433-54d3-b503-a141a2dc8d75",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 50.049587,
-      "longitude": 21.97794,
-      "osmRefs": [
-        "w1444819002"
-      ],
-      "name": null,
-      "generatedName": "Street workout · Park Sybiraków",
-      "locality": {
-        "city": "Rzeszów",
-        "district": "Generała Władysława Andersa"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": "sand",
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "f5f74e82-5501-5a8c-9f55-a000a3a65547",
       "status": "published",
       "verification": "osm",
@@ -10247,31 +7783,6 @@
       "openingHours": null
     },
     {
-      "id": "f9d57117-9cc3-5844-bf92-d4e9f05d0f57",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 51.87745,
-      "longitude": 15.471374,
-      "osmRefs": [
-        "n13125651672"
-      ],
-      "name": "Street Workout Ochla-Topolowa",
-      "generatedName": "Street workout · Nowe Miasto",
-      "locality": {
-        "city": "Zielona Góra",
-        "district": "Nowe Miasto"
-      },
-      "equipment": [],
-      "isCalisthenicsTagged": true,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
       "id": "fa7ae369-3592-55bb-822e-b0b86abfa23a",
       "status": "published",
       "verification": "osm",
@@ -10354,36 +7865,6 @@
         }
       ],
       "isCalisthenicsTagged": false,
-      "hasMachines": false,
-      "surface": null,
-      "lit": null,
-      "covered": null,
-      "access": "public",
-      "openingHours": null
-    },
-    {
-      "id": "fd620835-e2ea-513e-9ac3-edd6cb7e83cd",
-      "status": "published",
-      "verification": "osm",
-      "source": "osm",
-      "latitude": 52.604666,
-      "longitude": 16.568706,
-      "osmRefs": [
-        "n4434936005"
-      ],
-      "name": "Drabinka pozioma",
-      "generatedName": "Street workout · Szamotuły",
-      "locality": {
-        "city": "Szamotuły",
-        "district": null
-      },
-      "equipment": [
-        {
-          "type": "horizontal_ladder",
-          "count": null
-        }
-      ],
-      "isCalisthenicsTagged": true,
       "hasMachines": false,
       "surface": null,
       "lit": null,

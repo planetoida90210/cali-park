@@ -102,7 +102,6 @@ enum ParkFormat {
 
     /// "Sprzęt: Drążek, Poręcze i 2 inne" for the compact card's glyphs.
     static func equipmentSummary(_ equipment: [ParkEquipment], shown limit: Int) -> String {
-        guard !equipment.isEmpty else { return "Sprzęt nieznany" }
         let names = equipment.prefix(limit).map(\.type.title).joined(separator: ", ")
         let rest = equipment.count - min(limit, equipment.count)
         guard rest > 0 else { return "Sprzęt: \(names)" }

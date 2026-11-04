@@ -44,7 +44,7 @@ Opiera się na researchu [osm-parks-poland.md](../../research/osm-parks-poland.m
 | `status` | enum (§5) | moderacja | Co widać publicznie |
 | `source` | `osm` / `user` / `team` | import albo Zgłoszenie | Atrybucja ODbL („Źródło: OpenStreetMap”) i zasady odświeżania |
 | `osmRefs` | lista `n123` / `w456` / `r789` | import | Dopasowanie przy cotygodniowym imporcie. Wymagane, gdy `source = osm` |
-| `parkEvidence` | co najmniej jeden sprzęt z rdzenia (§3) **albo** `sport=calisthenics` z OSM | sprzęt / OSM | Definicja Parku z GLOSSARY. 86 Parków klasy A ma tylko `sport=calisthenics`, bez listy sprzętu (OSM §2) |
+| `parkEvidence` | co najmniej jeden sprzęt z rdzenia (§3). ~~**albo** `sport=calisthenics` z OSM~~: odrzucone dopiskiem właściciela w [tickecie 012](../tickets/012-park-model.md) | sprzęt | Definicja Parku z GLOSSARY. Miejsca z samym `sport=calisthenics`, bez listy sprzętu (86 Parków klasy A w OSM §2), nie są Parkami |
 | `verification` | `osm` / `community` / `verified` (§5) | moderacja | Zaufanie i odznaka na karcie |
 | `locality` | gmina/miasto + dzielnica/osiedle | **liczy backend z granic administracyjnych OSM** | Lista, wyszukiwarka i nazwa zastępcza. Nie z geokodowania Apple (§4) |
 | `createdAt`, `updatedAt` | data | backend | Świeżość danych, różnice w dumpie |
@@ -55,7 +55,7 @@ Opiera się na researchu [osm-parks-poland.md](../../research/osm-parks-poland.m
 |---|---|---|---|
 | `name` | tekst 3–40 znaków | `name` | Ma je tylko ok. 6% miejsc (119 z 334 Parków A). Zastępczą nazwę podaje §4 |
 | `nameSource` | `osm` / `user` / `moderator` | — | Atrybucja i zasada nadpisywania przy imporcie |
-| `equipment` | lista `{type, count?, heights?}` (§3) | `fitness_station` | 92% miejsc w OSM nie ma sprzętu. Pusta lista z `sport=calisthenics` znaczy „sprzęt nieznany” |
+| `equipment` | lista `{type, count?, heights?}` (§3) | `fitness_station` | 92% miejsc w OSM nie ma sprzętu. Lista Parku nigdy nie jest pusta: zawsze ma sprzęt z rdzenia (dopisek w tickecie 012) |
 | `hasMachines` | bool | wartości maszyn (§3) | Informacja „obok siłownia z maszynami” przy Parkach mieszanych (48 w OSM) |
 | `surface` | `rubber`, `tartan`, `artificial_turf`, `sand`, `woodchips`, `grass`, `ground`, `gravel`, `paving_stones`, `concrete`, `asphalt` | `surface` | Rzadkie w OSM (315 miejsc); użytkownik może poprawić |
 | `lit` | tak / nie / nieznane | `lit` | Rzadkie (276); przydatne zimą |

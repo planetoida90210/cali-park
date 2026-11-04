@@ -27,7 +27,8 @@ struct Park: Identifiable, Hashable, Sendable {
     var generatedName: String
     var locality: Locality
     var equipment: [ParkEquipment]
-    /// OSM `sport=calisthenics`: a Park even when no device is tagged.
+    /// OSM `sport=calisthenics`. Data only: without core equipment the place
+    /// is not a Park (012, owner's addendum).
     var isCalisthenicsTagged: Bool
     /// Machines (ellipticals, rowers…) stand next to the Park. They are never
     /// listed as Park equipment.
@@ -50,6 +51,10 @@ struct Park: Identifiable, Hashable, Sendable {
     var headlineEquipment: EquipmentType? {
         EquipmentType.allCases.first { type in type.isCore && equipment.contains { $0.type == type } }
     }
+
+    /// A pull-up bar, parallel bars or dip bars: what makes a place a Park
+    /// (`GLOSSARY.md`, 012). `sport=calisthenics` alone is not enough.
+    var hasCoreEquipment: Bool { headlineEquipment != nil }
 
     init(id: UUID,
          latitude: Double,

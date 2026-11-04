@@ -97,35 +97,29 @@ struct ParkVerificationBadge: View {
 }
 
 // MARK: - EquipmentChips
-/// Equipment as small capsules; "Sprzęt nieznany" when OSM lists none.
+/// Equipment as small capsules. Every Park has at least one core device.
 struct EquipmentChips: View {
     let equipment: [ParkEquipment]
     var limit = Int.max
 
     var body: some View {
-        if equipment.isEmpty {
-            Label("Sprzęt nieznany", systemImage: "questionmark.circle")
-                .font(.caption.weight(.medium))
-                .foregroundStyle(Color.textSecondary)
-        } else {
-            let shown = equipment.prefix(limit)
-            HStack(spacing: 6) {
-                ForEach(shown, id: \.type) { item in
-                    Label(item.type.title, systemImage: item.type.symbol)
-                        .font(.caption.weight(.medium))
-                        .lineLimit(1)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 5)
-                        .background(Color.white.opacity(0.08), in: .capsule)
-                }
-                if equipment.count > shown.count {
-                    Text("+\(equipment.count - shown.count)")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Color.textSecondary)
-                }
+        let shown = equipment.prefix(limit)
+        HStack(spacing: 6) {
+            ForEach(shown, id: \.type) { item in
+                Label(item.type.title, systemImage: item.type.symbol)
+                    .font(.caption.weight(.medium))
+                    .lineLimit(1)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(Color.white.opacity(0.08), in: .capsule)
             }
-            .foregroundStyle(Color.textPrimary)
+            if equipment.count > shown.count {
+                Text("+\(equipment.count - shown.count)")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.textSecondary)
+            }
         }
+        .foregroundStyle(Color.textPrimary)
     }
 }
 

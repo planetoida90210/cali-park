@@ -14,8 +14,8 @@ struct ParkCardSectionHeader: View {
 }
 
 // MARK: - ParkEquipmentSection
-/// "Sprzęt": every device with its Polish name, count and heights when OSM
-/// has them, or "Sprzęt nieznany" for places tagged only as calisthenics.
+/// "Sprzęt": every device with its Polish name, and the count and heights
+/// when OSM has them. Every Park has at least one core device.
 struct ParkEquipmentSection: View {
     let park: Park
 
@@ -23,37 +23,21 @@ struct ParkEquipmentSection: View {
         VStack(alignment: .leading, spacing: 12) {
             ParkCardSectionHeader(title: "Sprzęt")
 
-            if park.equipment.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
-                    Label("Sprzęt nieznany", systemImage: "questionmark.circle")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Color.textPrimary)
-                    Text("OpenStreetMap mówi tylko, że to miejsce do kalisteniki. Nie wiemy, ile jest drążków ani jakiej są wysokości.")
-                        .font(.footnote)
-                        .foregroundStyle(Color.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .accessibilityElement(children: .combine)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(14)
-                .background(Color.componentBackground, in: .rect(cornerRadius: 18))
-            } else {
-                VStack(spacing: 0) {
-                    ForEach(park.equipment, id: \.type) { item in
-                        if item.type != park.equipment.first?.type {
-                            Divider().overlay(Color.divider)
-                        }
-                        ParkEquipmentLine(item: item)
+            VStack(spacing: 0) {
+                ForEach(park.equipment, id: \.type) { item in
+                    if item.type != park.equipment.first?.type {
+                        Divider().overlay(Color.divider)
                     }
+                    ParkEquipmentLine(item: item)
                 }
-                .padding(.horizontal, 14)
-                .background(Color.componentBackground, in: .rect(cornerRadius: 18))
+            }
+            .padding(.horizontal, 14)
+            .background(Color.componentBackground, in: .rect(cornerRadius: 18))
 
-                if ParkFormat.supportsFlag(park) {
-                    Label("Nadaje się do flagi: jest słup albo drabinka gimnastyczna", systemImage: "flag.fill")
-                        .font(.footnote)
-                        .foregroundStyle(Color.textSecondary)
-                }
+            if ParkFormat.supportsFlag(park) {
+                Label("Nadaje się do flagi: jest słup albo drabinka gimnastyczna", systemImage: "flag.fill")
+                    .font(.footnote)
+                    .foregroundStyle(Color.textSecondary)
             }
         }
     }
