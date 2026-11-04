@@ -16,12 +16,12 @@ nonisolated enum MuscleGroup: String, Codable, CaseIterable, Identifiable {
     /// Polish name shown in the UI.
     var displayName: String {
         switch self {
-        case .back: "Plecy"
-        case .chest: "Klatka"
-        case .shoulders: "Barki"
-        case .arms: "Ramiona"
-        case .core: "Core"
-        case .legs: "Nogi"
+        case .back: String(localized: "Plecy")
+        case .chest: String(localized: "Klatka")
+        case .shoulders: String(localized: "Barki")
+        case .arms: String(localized: "Ramiona")
+        case .core: String(localized: "Core", comment: "Muscle group: core (abdominals and lower back)")
+        case .legs: String(localized: "Nogi")
         }
     }
 }

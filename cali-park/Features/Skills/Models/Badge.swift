@@ -26,24 +26,24 @@ nonisolated enum Badge: String, Codable, CaseIterable, Identifiable, Sendable {
     /// Short Polish title for the badge.
     var title: String {
         switch self {
-        case .firstWorkout: "Pierwszy trening"
-        case .tenTrainingDays: "Regularność"
-        case .weekStreak: "Tydzień z rzędu"
-        case .firstSkill: "Pierwsza ścieżka"
-        case .threeSkills: "Kolekcjoner"
-        case .thousandReps: "Tysiąc powtórzeń"
+        case .firstWorkout: String(localized: "Pierwszy trening")
+        case .tenTrainingDays: String(localized: "Regularność")
+        case .weekStreak: String(localized: "Tydzień z rzędu")
+        case .firstSkill: String(localized: "Pierwsza ścieżka")
+        case .threeSkills: String(localized: "Kolekcjoner")
+        case .thousandReps: String(localized: "Tysiąc powtórzeń")
         }
     }
 
     /// Plain-language requirement, shown on locked badges too.
     var requirement: String {
         switch self {
-        case .firstWorkout: "Zapisz pierwszy trening."
-        case .tenTrainingDays: "Trenuj przez 10 różnych dni."
-        case .weekStreak: "Trenuj 7 dni z rzędu."
-        case .firstSkill: "Ukończ dowolną ścieżkę."
-        case .threeSkills: "Ukończ trzy ścieżki."
-        case .thousandReps: "Zbierz łącznie 1000 powtórzeń."
+        case .firstWorkout: String(localized: "Zapisz pierwszy trening.")
+        case .tenTrainingDays: String(localized: "Trenuj przez 10 różnych dni.")
+        case .weekStreak: String(localized: "Trenuj 7 dni z rzędu.")
+        case .firstSkill: String(localized: "Ukończ dowolną ścieżkę.")
+        case .threeSkills: String(localized: "Ukończ trzy ścieżki.")
+        case .thousandReps: String(localized: "Zbierz łącznie 1000 powtórzeń.")
         }
     }
 

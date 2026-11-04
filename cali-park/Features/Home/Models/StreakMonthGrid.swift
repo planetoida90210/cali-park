@@ -6,7 +6,15 @@ import Foundation
 /// blank. A pure value built from the reference day and the calendar.
 nonisolated struct StreakMonthGrid: Equatable {
     /// The weekday header, Monday first.
-    static let weekdaySymbols = ["pn", "wt", "śr", "cz", "pt", "sb", "nd"]
+    static let weekdaySymbols = [
+        String(localized: "pn", comment: "Monday, one-syllable column header in the streak grid"),
+        String(localized: "wt", comment: "Tuesday, one-syllable column header in the streak grid"),
+        String(localized: "śr", comment: "Wednesday, one-syllable column header in the streak grid"),
+        String(localized: "cz", comment: "Thursday, one-syllable column header in the streak grid"),
+        String(localized: "pt", comment: "Friday, one-syllable column header in the streak grid"),
+        String(localized: "sb", comment: "Saturday, one-syllable column header in the streak grid"),
+        String(localized: "nd", comment: "Sunday, one-syllable column header in the streak grid")
+    ]
 
     /// Row-major cells, seven per week. `nil` is a blank before day 1 or after
     /// the last day; a date is the start of that day in the calendar.

@@ -51,10 +51,10 @@ final class WorkoutPlansViewModel {
         do {
             let reminders = try await service.delete(id: plan.id)
             if reminders == .failed, plan.reminderTime != nil {
-                errorMessage = "Plan usunięty, ale nie udało się odwołać jego przypomnień."
+                errorMessage = String(localized: "Plan usunięty, ale nie udało się odwołać jego przypomnień.")
             }
         } catch {
-            errorMessage = "Nie udało się usunąć planu."
+            errorMessage = String(localized: "Nie udało się usunąć planu.")
             reload()
         }
     }

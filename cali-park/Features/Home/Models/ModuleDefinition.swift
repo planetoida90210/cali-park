@@ -13,39 +13,39 @@ nonisolated struct ModuleDefinition: Identifiable, Hashable {
     static let allModules: [ModuleDefinition] = [
         ModuleDefinition(
             id: "log",
-            name: "Ostatni trening",
+            name: String(localized: "Ostatni trening"),
             iconName: "clock.arrow.circlepath",
-            description: "Twój ostatni zapisany trening."
+            description: String(localized: "Twój ostatni zapisany trening.")
         ),
         ModuleDefinition(
             id: "next",
-            name: "Następny trening",
+            name: String(localized: "Następny trening"),
             iconName: "calendar",
-            description: "Najbliższy plan albo propozycja treningu."
+            description: String(localized: "Najbliższy plan albo propozycja treningu.")
         ),
         ModuleDefinition(
             id: "parks",
-            name: "Najbliższy Park",
+            name: String(localized: "Najbliższy Park"),
             iconName: "mappin.and.ellipse",
-            description: "Najbliższy Park z mapy Parków."
+            description: String(localized: "Najbliższy Park z mapy Parków.")
         ),
         ModuleDefinition(
             id: WeeklyGoalModule.id,
-            name: "Cel tygodniowy",
+            name: String(localized: "Cel tygodniowy"),
             iconName: "target",
-            description: "Postęp celów w tym tygodniu i seria tygodni."
+            description: String(localized: "Postęp celów w tym tygodniu i seria tygodni.")
         ),
         ModuleDefinition(
             id: "streak",
-            name: "Seria dni",
+            name: String(localized: "Seria dni"),
             iconName: "flame.fill",
-            description: "Dni treningu z rzędu."
+            description: String(localized: "Dni treningu z rzędu.")
         ),
         ModuleDefinition(
             id: "achievements",
-            name: "Osiągnięcia",
+            name: String(localized: "Osiągnięcia"),
             iconName: "star.fill",
-            description: "Twoje odznaki i postępy."
+            description: String(localized: "Twoje odznaki i postępy.")
         )
     ]
 

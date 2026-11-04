@@ -7,20 +7,20 @@ nonisolated enum ParkFormat {
     private static let polish = Locale(identifier: "pl_PL")
 
     /// Required OSM credit (ODbL, OSMF attribution guidelines).
-    static let attribution = "© Współtwórcy OpenStreetMap"
+    static let attribution = String(localized: "© Współtwórcy OpenStreetMap")
     static let copyrightURL = URL(string: "https://www.openstreetmap.org/copyright")!
 
     /// "350 m" under a kilometre, "1,2 km" under 100 km, "123 km" above.
     static func distance(_ meters: CLLocationDistance) -> String {
         let tens = Int((meters / 10).rounded()) * 10
         if tens < 1000 {
-            return "\(max(10, tens)) m"
+            return String(localized: "\(max(10, tens)) m")
         }
         let km = meters / 1000
         if km >= 100 {
-            return "\(Int(km.rounded())) km"
+            return String(localized: "\(Int(km.rounded())) km")
         }
-        return "\(km.formatted(.number.precision(.fractionLength(1)).locale(polish))) km"
+        return String(localized: "\(km.formatted(.number.precision(.fractionLength(1)).locale(polish))) km")
     }
 
     /// "1 Park", "3 Parki", "25 Parków".
@@ -30,7 +30,7 @@ nonisolated enum ParkFormat {
 
     /// "Dane OSM z 3 lis 2026".
     static func dataDate(_ date: Date) -> String {
-        "Dane OSM z \(date.formatted(.dateTime.day().month(.abbreviated).year().locale(polish)))"
+        String(localized: "Dane OSM z \(date.formatted(.dateTime.day().month(.abbreviated).year().locale(polish)))")
     }
 
     /// Directions to the Park in Apple Maps. Only our own coordinates go out;
@@ -73,7 +73,7 @@ nonisolated enum ParkFormat {
 
     /// The same for VoiceOver: "Mokotów, Warszawa, 1,2 km od Ciebie".
     static func subtitleAccessibility(for park: Park, distance: CLLocationDistance?) -> String? {
-        let parts = [park.locality.label, distance.map { "\(Self.distance($0)) od Ciebie" }].compactMap { $0 }
+        let parts = [park.locality.label, distance.map { String(localized: "\(Self.distance($0)) od Ciebie") }].compactMap { $0 }
         return parts.isEmpty ? nil : parts.joined(separator: ", ")
     }
 
@@ -95,7 +95,7 @@ nonisolated enum ParkFormat {
             parts.append("\(count) \(PolishPlural.form(for: count, one: "sztuka", few: "sztuki", many: "sztuk"))")
         }
         if let heights = heights(item) {
-            parts.append("wysokości: \(heights)")
+            parts.append(String(localized: "wysokości: \(heights)"))
         }
         return parts.joined(separator: ", ")
     }
@@ -104,8 +104,9 @@ nonisolated enum ParkFormat {
     static func equipmentSummary(_ equipment: [ParkEquipment], shown limit: Int) -> String {
         let names = equipment.prefix(limit).map(\.type.title).joined(separator: ", ")
         let rest = equipment.count - min(limit, equipment.count)
-        guard rest > 0 else { return "Sprzęt: \(names)" }
-        return "Sprzęt: \(names) i \(rest) \(PolishPlural.form(for: rest, one: "inny", few: "inne", many: "innych"))"
+        guard rest > 0 else { return String(localized: "Sprzęt: \(names)") }
+        let others = PolishPlural.form(for: rest, one: "inny", few: "inne", many: "innych")
+        return String(localized: "Sprzęt: \(names) i \(rest) \(others)")
     }
 
     /// The equipment ladders for the flag need a vertical pole or wall bars
@@ -124,15 +125,15 @@ nonisolated enum ParkFormat {
             ParkDetail(id: .access, value: park.access.title),
             ParkDetail(id: .openingHours, value: park.openingHours.map(ParkOpeningHours.text(for:))),
             // OSM can only say machines are there, never that they are not.
-            ParkDetail(id: .machines, value: park.hasMachines ? "Tak, obok Parku" : nil)
+            ParkDetail(id: .machines, value: park.hasMachines ? String(localized: "Tak, obok Parku") : nil)
         ]
     }
 
     /// Text for a missing detail.
-    static let unknownDetail = "Brak danych"
+    static let unknownDetail = String(localized: "Brak danych")
 
     private static func yesNo(_ value: Bool) -> String {
-        value ? "Tak" : "Nie"
+        value ? String(localized: "Tak") : String(localized: "Nie")
     }
 
     /// "52.229700": a dot and no grouping whatever the device locale is.
@@ -154,12 +155,12 @@ nonisolated struct ParkDetail: Identifiable, Hashable, Sendable {
 
     var label: String {
         switch id {
-        case .surface: "Nawierzchnia"
-        case .lighting: "Oświetlenie"
-        case .roof: "Zadaszenie"
-        case .access: "Dostęp"
-        case .openingHours: "Godziny"
-        case .machines: "Maszyny siłowni"
+        case .surface: String(localized: "Nawierzchnia")
+        case .lighting: String(localized: "Oświetlenie")
+        case .roof: String(localized: "Zadaszenie")
+        case .access: String(localized: "Dostęp")
+        case .openingHours: String(localized: "Godziny")
+        case .machines: String(localized: "Maszyny siłowni")
         }
     }
 
@@ -179,17 +180,17 @@ nonisolated struct ParkDetail: Identifiable, Hashable, Sendable {
 nonisolated extension ParkSurface {
     var title: String {
         switch self {
-        case .rubber: "Gumowa"
-        case .tartan: "Tartan"
-        case .sand: "Piasek"
-        case .woodchips: "Zrębki"
-        case .grass: "Trawa"
-        case .ground: "Ziemia"
-        case .gravel: "Żwir"
-        case .concrete: "Beton"
-        case .asphalt: "Asfalt"
-        case .artificialTurf: "Sztuczna trawa"
-        case .pavingStones: "Kostka brukowa"
+        case .rubber: String(localized: "Gumowa")
+        case .tartan: String(localized: "Tartan")
+        case .sand: String(localized: "Piasek")
+        case .woodchips: String(localized: "Zrębki")
+        case .grass: String(localized: "Trawa")
+        case .ground: String(localized: "Ziemia")
+        case .gravel: String(localized: "Żwir")
+        case .concrete: String(localized: "Beton")
+        case .asphalt: String(localized: "Asfalt")
+        case .artificialTurf: String(localized: "Sztuczna trawa")
+        case .pavingStones: String(localized: "Kostka brukowa")
         }
     }
 }
@@ -197,9 +198,9 @@ nonisolated extension ParkSurface {
 nonisolated extension ParkAccess {
     var title: String {
         switch self {
-        case .public: "Dla wszystkich"
-        case .customers: "Tylko dla klientów"
-        case .private: "Prywatny"
+        case .public: String(localized: "Dla wszystkich")
+        case .customers: String(localized: "Tylko dla klientów")
+        case .private: String(localized: "Prywatny")
         }
     }
 }
@@ -207,9 +208,9 @@ nonisolated extension ParkAccess {
 nonisolated extension ParkBarHeight {
     var title: String {
         switch self {
-        case .low: "niski"
-        case .medium: "średni"
-        case .high: "wysoki"
+        case .low: String(localized: "niski")
+        case .medium: String(localized: "średni")
+        case .high: String(localized: "wysoki")
         }
     }
 }
@@ -218,9 +219,9 @@ nonisolated extension ParkVerification {
     /// What the badge means, for VoiceOver.
     var accessibilityLabel: String {
         switch self {
-        case .osm: "Dane z OpenStreetMap, niesprawdzone przez CaliPark"
-        case .community: "Dodany przez Społeczność"
-        case .verified: "Zweryfikowany przez ekipę CaliPark"
+        case .osm: String(localized: "Dane z OpenStreetMap, niesprawdzone przez CaliPark")
+        case .community: String(localized: "Dodany przez Społeczność")
+        case .verified: String(localized: "Zweryfikowany przez ekipę CaliPark")
         }
     }
 
@@ -228,11 +229,11 @@ nonisolated extension ParkVerification {
     var explanation: String {
         switch self {
         case .osm:
-            "Dane pochodzą z OpenStreetMap, otwartej mapy tworzonej przez wolontariuszy. Nikt z CaliPark jeszcze ich nie sprawdził na miejscu, więc mogą być nieaktualne."
+            String(localized: "Dane pochodzą z OpenStreetMap, otwartej mapy tworzonej przez wolontariuszy. Nikt z CaliPark jeszcze ich nie sprawdził na miejscu, więc mogą być nieaktualne.")
         case .community:
-            "Park dodała osoba ze Społeczności, ze zdjęciem z miejsca. Moderator sprawdził Zgłoszenie, ale ekipa CaliPark jeszcze tu nie była."
+            String(localized: "Park dodała osoba ze Społeczności, ze zdjęciem z miejsca. Moderator sprawdził Zgłoszenie, ale ekipa CaliPark jeszcze tu nie była.")
         case .verified:
-            "Ekipa CaliPark była tu i sprawdziła sprzęt na miejscu."
+            String(localized: "Ekipa CaliPark była tu i sprawdziła sprzęt na miejscu.")
         }
     }
 }

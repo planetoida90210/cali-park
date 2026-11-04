@@ -15,11 +15,11 @@ nonisolated enum TrainingBackupRestoreError: Error, Equatable {
     var message: String {
         switch self {
         case .currentDataUnreadable:
-            StoreLoadFailure.message + " Import przerwany, nic nie zostało zmienione."
+            String(localized: "\(StoreLoadFailure.message) Import przerwany, nic nie zostało zmienione.")
         case .failedAndRolledBack:
-            "Nie udało się zaimportować kopii. Przywróciliśmy dane sprzed importu."
+            String(localized: "Nie udało się zaimportować kopii. Przywróciliśmy dane sprzed importu.")
         case .failedRollbackIncomplete:
-            "Nie udało się zaimportować kopii ani w pełni przywrócić danych sprzed importu. Nie usuwaj apki i spróbuj zaimportować kopię jeszcze raz."
+            String(localized: "Nie udało się zaimportować kopii ani w pełni przywrócić danych sprzed importu. Nie usuwaj apki i spróbuj zaimportować kopię jeszcze raz.")
         }
     }
 }

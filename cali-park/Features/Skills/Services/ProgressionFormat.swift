@@ -22,19 +22,19 @@ nonisolated enum ProgressionFormat {
         // the next step (audit A-3).
         if let nextIndex = ProgressionEngine.nextMainLineRung(in: path, from: hint.currentRungIndex + 1),
            let next = ExerciseCatalog.exercise(withID: path.steps[nextIndex].exerciseID) {
-            return "Jeszcze \(remainingText) do \(goal) — następny szczebel: \(next.name)"
+            return String(localized: "Jeszcze \(remainingText) do \(goal) — następny szczebel: \(next.name)")
         }
 
         // Top rung: name the skill being conquered rather than a next step.
         let current = ExerciseCatalog.exercise(withID: path.steps[hint.currentRungIndex].exerciseID)?.name ?? path.name
-        return "Jeszcze \(remainingText) do \(goal) — \(current)"
+        return String(localized: "Jeszcze \(remainingText) do \(goal) — \(current)")
     }
 
     /// Equipment for a rung by its Polish names, joined for display; any one
     /// piece is enough. "Masa ciała" when a rung needs none.
     static func equipment(_ equipment: [String]) -> String {
         equipment.isEmpty
-            ? "Masa ciała"
+            ? String(localized: "Masa ciała")
             : equipment.map(ExerciseEquipment.displayName(for:)).joined(separator: " · ")
     }
 }

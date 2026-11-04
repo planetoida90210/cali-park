@@ -31,7 +31,7 @@ nonisolated struct CelebrationPresentation: Equatable, Sendable {
     /// The same presentation with the batch's real XP total added, for the
     /// last overlay of a batch: "+100 XP · Razem +740 XP".
     func addingTotalXP(_ total: Int) -> CelebrationPresentation {
-        let note = "Razem +\(total) XP"
+        let note = String(localized: "Razem +\(total) XP")
         return CelebrationPresentation(
             eyebrow: eyebrow,
             title: title,
@@ -47,18 +47,22 @@ nonisolated struct CelebrationPresentation: Equatable, Sendable {
     private static func rungPresentation(_ rung: RungReference) -> CelebrationPresentation {
         let path = ProgressionCatalog.path(withID: rung.pathID)
         let step = rung.step
-        let exerciseName = step.flatMap { ExerciseCatalog.exercise(withID: $0.exerciseID)?.name } ?? "Nowy szczebel"
+        let exerciseName = step.flatMap { ExerciseCatalog.exercise(withID: $0.exerciseID)?.name } ?? String(localized: "Nowy szczebel")
         let pathName = path?.name
-        let xpNote = "+\(ProgressionEngine.xpPerConqueredRung) XP"
+        let xpNote = String(localized: "+\(ProgressionEngine.xpPerConqueredRung) XP")
 
-        let spokenPath = pathName.map { " na ścieżce \($0)" } ?? ""
+        let accessibilityLabel = if let pathName {
+            String(localized: "Zaliczony szczebel: \(exerciseName) na ścieżce \(pathName). \(xpNote).")
+        } else {
+            String(localized: "Zaliczony szczebel: \(exerciseName). \(xpNote).")
+        }
         return CelebrationPresentation(
-            eyebrow: "ZALICZONY SZCZEBEL",
+            eyebrow: String(localized: "ZALICZONY SZCZEBEL"),
             title: exerciseName,
             subtitle: pathName,
             xpNote: xpNote,
             symbolName: path?.symbolName ?? "checkmark.seal.fill",
-            accessibilityLabel: "Zaliczony szczebel: \(exerciseName)\(spokenPath). \(xpNote)."
+            accessibilityLabel: accessibilityLabel
         )
     }
 
@@ -66,12 +70,12 @@ nonisolated struct CelebrationPresentation: Equatable, Sendable {
 
     private static func levelPresentation(_ level: Int) -> CelebrationPresentation {
         CelebrationPresentation(
-            eyebrow: "NOWY POZIOM",
-            title: "Poziom \(level)",
+            eyebrow: String(localized: "NOWY POZIOM"),
+            title: String(localized: "Poziom \(level)"),
             subtitle: nil,
             xpNote: nil,
             symbolName: "trophy.fill",
-            accessibilityLabel: "Nowy poziom: \(level)."
+            accessibilityLabel: String(localized: "Nowy poziom: \(level).")
         )
     }
 }

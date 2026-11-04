@@ -15,19 +15,21 @@ nonisolated enum WorkoutScheduleFormatter {
     ) -> String {
         switch schedule {
         case .once(let day):
-            guard let day else { return "Bez terminu" }
-            return "Jednorazowo · " + shortDate(day.startDate(in: calendar), calendar: calendar, locale: locale)
+            guard let day else { return String(localized: "Bez terminu") }
+            let dateText = shortDate(day.startDate(in: calendar), calendar: calendar, locale: locale)
+            return String(localized: "Jednorazowo · \(dateText)")
 
         case .weekly(let days):
-            guard !days.isEmpty else { return "Co tydzień" }
+            guard !days.isEmpty else { return String(localized: "Co tydzień") }
             let labels = Weekday.ordered(for: calendar)
                 .filter { days.contains($0) }
                 .map(\.shortName)
-            return "Co tydzień · " + labels.joined(separator: ", ")
+            let daysText = labels.joined(separator: ", ")
+            return String(localized: "Co tydzień · \(daysText)")
 
         case .everyNDays(let interval, _):
-            guard interval > 1 else { return "Codziennie" }
-            return "Co \(PolishPlural.days(interval))"
+            guard interval > 1 else { return String(localized: "Codziennie") }
+            return String(localized: "Co \(PolishPlural.days(interval))")
         }
     }
 
@@ -42,7 +44,8 @@ nonisolated enum WorkoutScheduleFormatter {
         guard schedule.isExpired(asOf: reference, calendar: calendar),
               case .once(let day?) = schedule
         else { return summary(schedule, calendar: calendar, locale: locale) }
-        return "Minął · " + shortDate(day.startDate(in: calendar), calendar: calendar, locale: locale)
+        let dateText = shortDate(day.startDate(in: calendar), calendar: calendar, locale: locale)
+        return String(localized: "Minął · \(dateText)")
     }
 
     /// A short "when" label for a scheduled day: "Dziś", "Jutro", a weekday name
@@ -56,9 +59,9 @@ nonisolated enum WorkoutScheduleFormatter {
         let day = calendar.startOfDay(for: date)
         let today = calendar.startOfDay(for: reference)
 
-        if day == today { return "Dziś" }
+        if day == today { return String(localized: "Dziś") }
         if let tomorrow = calendar.date(byAdding: .day, value: 1, to: today), day == tomorrow {
-            return "Jutro"
+            return String(localized: "Jutro")
         }
 
         let daysAway = calendar.dateComponents([.day], from: today, to: day).day ?? 0

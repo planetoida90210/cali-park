@@ -39,23 +39,23 @@ nonisolated enum EquipmentType: String, Codable, Hashable, Sendable, CaseIterabl
 
     var title: String {
         switch self {
-        case .horizontalBar: "Drążek"
-        case .parallelBars: "Poręcze"
-        case .dipBench: "Poręcze do dipów"
-        case .rings: "Kółka"
-        case .horizontalLadder: "Drabinka pozioma"
-        case .wallBars: "Drabinki gimnastyczne"
-        case .fitnessPole: "Pionowy drążek"
-        case .climbingPole: "Słup do wspinania"
-        case .captainsChair: "Poręcze z oparciem"
-        case .pushUp: "Niskie drążki do pompek"
-        case .sitUp: "Ławka do brzuszków"
-        case .stretchBars: "Drążki do rozciągania"
-        case .box: "Skrzynia do skoków"
-        case .balanceBeam: "Równoważnia"
-        case .battlingRopes: "Liny"
-        case .tire: "Opona"
-        case .punchingBag: "Worek bokserski"
+        case .horizontalBar: String(localized: "Drążek")
+        case .parallelBars: String(localized: "Poręcze")
+        case .dipBench: String(localized: "Poręcze do dipów")
+        case .rings: String(localized: "Kółka")
+        case .horizontalLadder: String(localized: "Drabinka pozioma")
+        case .wallBars: String(localized: "Drabinki gimnastyczne")
+        case .fitnessPole: String(localized: "Pionowy drążek")
+        case .climbingPole: String(localized: "Słup do wspinania")
+        case .captainsChair: String(localized: "Poręcze z oparciem")
+        case .pushUp: String(localized: "Niskie drążki do pompek")
+        case .sitUp: String(localized: "Ławka do brzuszków")
+        case .stretchBars: String(localized: "Drążki do rozciągania")
+        case .box: String(localized: "Skrzynia do skoków")
+        case .balanceBeam: String(localized: "Równoważnia")
+        case .battlingRopes: String(localized: "Liny")
+        case .tire: String(localized: "Opona")
+        case .punchingBag: String(localized: "Worek bokserski")
         }
     }
 

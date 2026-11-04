@@ -35,12 +35,18 @@ nonisolated enum ParkOpeningHours {
 
     // MARK: Rules
 
-    private static let allDay = "Całą dobę"
+    private static let allDay = String(localized: "Całą dobę")
+    private static let everyDay = String(localized: "codziennie")
 
     /// OSM weekday keys in order, with their Polish abbreviations.
     private static let weekdays: [(key: String, label: String)] = [
-        ("Mo", "pon."), ("Tu", "wt."), ("We", "śr."), ("Th", "czw."),
-        ("Fr", "pt."), ("Sa", "sob."), ("Su", "niedz.")
+        ("Mo", String(localized: "pon.", comment: "Monday, abbreviated, in opening hours")),
+        ("Tu", String(localized: "wt.", comment: "Tuesday, abbreviated, in opening hours")),
+        ("We", String(localized: "śr.", comment: "Wednesday, abbreviated, in opening hours")),
+        ("Th", String(localized: "czw.", comment: "Thursday, abbreviated, in opening hours")),
+        ("Fr", String(localized: "pt.", comment: "Friday, abbreviated, in opening hours")),
+        ("Sa", String(localized: "sob.", comment: "Saturday, abbreviated, in opening hours")),
+        ("Su", String(localized: "niedz.", comment: "Sunday, abbreviated, in opening hours"))
     ]
 
     /// One rule: `[weekdays] times`, where times are ranges or `off`.
@@ -50,11 +56,12 @@ nonisolated enum ParkOpeningHours {
         case 1:
             // Times only: every day.
             guard let times = translate(times: parts[0]) else { return nil }
-            return times == allDay ? allDay : "codziennie \(times)"
+            return times == allDay ? allDay : String(localized: "codziennie \(times)")
         case 2:
             guard let days = translate(days: parts[0]), let times = translate(times: parts[1]) else { return nil }
-            if days == "codziennie" && times == allDay { return allDay }
-            return "\(days) \(times == allDay ? "całą dobę" : times)"
+            if days == everyDay && times == allDay { return allDay }
+            let timesText = times == allDay ? String(localized: "całą dobę") : times
+            return "\(days) \(timesText)"
         default:
             return nil
         }
@@ -74,7 +81,7 @@ nonisolated enum ParkOpeningHours {
                 guard let start = weekdayIndex(bounds[0]), let end = weekdayIndex(bounds[1]), start < end else {
                     return nil
                 }
-                if start == 0 && end == weekdays.count - 1 && items.count == 1 { return "codziennie" }
+                if start == 0 && end == weekdays.count - 1 && items.count == 1 { return everyDay }
                 labels.append("\(weekdays[start].label)–\(weekdays[end].label)")
             default:
                 return nil
@@ -89,7 +96,7 @@ nonisolated enum ParkOpeningHours {
 
     /// `06:00-22:00`, `06:00-12:00,14:00-20:00`, `00:00-24:00`, `off`.
     private static func translate(times: String) -> String? {
-        if times == "off" || times == "closed" { return "nieczynne" }
+        if times == "off" || times == "closed" { return String(localized: "nieczynne") }
         if times == "00:00-24:00" { return allDay }
         var ranges: [String] = []
         for range in times.split(separator: ",", omittingEmptySubsequences: false) {

@@ -19,8 +19,8 @@ final class ParkMapViewModel {
 
         var title: String {
             switch self {
-            case .all: "Wszystkie"
-            case .favorites: "Ulubione"
+            case .all: String(localized: "Wszystkie", comment: "Parks list filter: all Parks")
+            case .favorites: String(localized: "Ulubione", comment: "Parks list filter: favorite Parks")
             }
         }
     }
@@ -36,7 +36,7 @@ final class ParkMapViewModel {
     /// Zoom when a Park is selected; never zooms out a closer view.
     static let selectionSpan: CLLocationDegrees = 0.02
 
-    static let loadErrorMessage = "Nie udało się wczytać Parków. Spróbuj ponownie później."
+    static let loadErrorMessage = String(localized: "Nie udało się wczytać Parków. Spróbuj ponownie później.")
 
     // MARK: State
 

@@ -14,9 +14,9 @@ import Observation
 @Observable
 final class ExerciseFavorites {
     /// Alert text when the saved favorites can't be read.
-    static let loadFailureMessage = "Nie udało się odczytać ulubionych ćwiczeń. Nie zostały usunięte."
+    static let loadFailureMessage = String(localized: "Nie udało się odczytać ulubionych ćwiczeń. Nie zostały usunięte.")
     /// Alert text when a change can't be saved.
-    static let saveFailureMessage = "Nie udało się zapisać ulubionego ćwiczenia. Spróbuj ponownie."
+    static let saveFailureMessage = String(localized: "Nie udało się zapisać ulubionego ćwiczenia. Spróbuj ponownie.")
 
     /// Favorite exercise IDs in the order they were added.
     private(set) var ids: [UUID] = []

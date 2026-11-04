@@ -14,9 +14,9 @@ nonisolated enum UnilateralSide: String, Codable, Sendable {
     /// The suffix appended to a criterion: "3 × 5 na rękę".
     var label: String {
         switch self {
-        case .arm: "na rękę"
-        case .leg: "na nogę"
-        case .side: "na stronę"
+        case .arm: String(localized: "na rękę")
+        case .leg: String(localized: "na nogę")
+        case .side: String(localized: "na stronę")
         }
     }
 }

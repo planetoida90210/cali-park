@@ -23,9 +23,9 @@ final class PlanEditorViewModel {
 
         var title: String {
             switch self {
-            case .weekly: "Co tydzień"
-            case .everyNDays: "Co N dni"
-            case .once: "Jednorazowo"
+            case .weekly: String(localized: "Co tydzień")
+            case .everyNDays: String(localized: "Co N dni")
+            case .once: String(localized: "Jednorazowo")
             }
         }
     }
@@ -169,7 +169,7 @@ final class PlanEditorViewModel {
     /// when there is nothing to fix.
     var scheduleProblem: String? {
         guard scheduleMode == .once, isOnceDateInPast else { return nil }
-        return "Ta data już minęła. Wybierz dziś lub dzień w przyszłości – inaczej plan się nie odbędzie."
+        return String(localized: "Ta data już minęła. Wybierz dziś lub dzień w przyszłości – inaczej plan się nie odbędzie.")
     }
 
     /// Hour and minute of the reminder, or `nil` when it is off. Keeps the
@@ -238,7 +238,7 @@ final class PlanEditorViewModel {
             try await service.delete(id: original.id)
             return true
         } catch {
-            errorMessage = "Nie udało się usunąć planu."
+            errorMessage = String(localized: "Nie udało się usunąć planu.")
             return false
         }
     }
@@ -327,11 +327,11 @@ final class PlanEditorViewModel {
         do {
             let reminders = try await service.save(editedPlan)
             if reminders == .failed, reminderComponents != nil || original.reminderTime != nil {
-                errorMessage = "Plan zapisany, ale nie udało się ustawić przypomnienia."
+                errorMessage = String(localized: "Plan zapisany, ale nie udało się ustawić przypomnienia.")
             }
             didSave = true
         } catch {
-            errorMessage = "Nie udało się zapisać planu."
+            errorMessage = String(localized: "Nie udało się zapisać planu.")
         }
     }
 

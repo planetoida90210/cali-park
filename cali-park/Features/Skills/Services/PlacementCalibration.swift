@@ -29,28 +29,28 @@ nonisolated enum PlacementCalibration {
     static let repQuestions: [RepCountQuestion] = [
         RepCountQuestion(
             path: .pullUp,
-            prompt: "Ile pełnych podciągnięć robisz w jednej serii?",
+            prompt: String(localized: "Ile pełnych podciągnięć robisz w jednej serii?"),
             zeroRepStep: ExerciseCatalog.negativePullUpsID,
             movementStep: ExerciseCatalog.pullUpsID,
             nextVariantStep: ExerciseCatalog.lPullUpsID
         ),
         RepCountQuestion(
             path: .pushUp,
-            prompt: "Ile pełnych pompek robisz w jednej serii?",
+            prompt: String(localized: "Ile pełnych pompek robisz w jednej serii?"),
             zeroRepStep: ExerciseCatalog.kneePushUpsID,
             movementStep: ExerciseCatalog.pushUpsID,
             nextVariantStep: ExerciseCatalog.diamondPushUpsID
         ),
         RepCountQuestion(
             path: .dip,
-            prompt: "Ile dipów na poręczach robisz w jednej serii?",
+            prompt: String(localized: "Ile dipów na poręczach robisz w jednej serii?"),
             zeroRepStep: ExerciseCatalog.negativeDipsID,
             movementStep: ExerciseCatalog.dipsID,
             nextVariantStep: ExerciseCatalog.ringSupportHoldID
         ),
         RepCountQuestion(
             path: .legs,
-            prompt: "Ile przysiadów robisz w jednej serii?",
+            prompt: String(localized: "Ile przysiadów robisz w jednej serii?"),
             zeroRepStep: ExerciseCatalog.assistedSquatsID,
             movementStep: ExerciseCatalog.squatsID,
             nextVariantStep: ExerciseCatalog.lungesID
@@ -61,9 +61,11 @@ nonisolated enum PlacementCalibration {
     /// declares the skill itself as the current rung, so checking it actually
     /// moves the start point.
     static let skillQuestions: [SkillQuestion] = [
-        SkillQuestion(id: "muscleUp", path: .muscleUp, label: "Muscle-up", step: ExerciseCatalog.muscleUpID),
-        SkillQuestion(id: "fullLSit", path: .lSit, label: "Pełny L-sit", step: ExerciseCatalog.lSitID),
-        SkillQuestion(id: "pistolSquat", path: .legs, label: "Pistolet (przysiad na jednej nodze)", step: ExerciseCatalog.pistolSquatsID)
+        SkillQuestion(id: "muscleUp", path: .muscleUp, label: String(localized: "Muscle-up"), step: ExerciseCatalog.muscleUpID),
+        SkillQuestion(id: "fullLSit", path: .lSit, label: String(localized: "Pełny L-sit"), step: ExerciseCatalog.lSitID),
+        SkillQuestion(id: "pistolSquat", path: .legs,
+                      label: String(localized: "Pistolet (przysiad na jednej nodze)"),
+                      step: ExerciseCatalog.pistolSquatsID)
     ]
 
     // MARK: Reducer

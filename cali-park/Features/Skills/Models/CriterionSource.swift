@@ -28,11 +28,11 @@ nonisolated enum CriterionSource: String, Codable, CaseIterable, Sendable {
         switch self {
         case .rr: "RR"
         case .og2: "OG2"
-        case .og2Table: "OG2 (tabela)"
+        case .og2Table: String(localized: "OG2 (tabela)")
         case .gmb: "GMB"
         case .sbw: "SBW"
         case .caliMove: "Cali Move"
-        case .caliPark: "konwencja CaliPark"
+        case .caliPark: String(localized: "konwencja CaliPark")
         }
     }
 
@@ -40,19 +40,19 @@ nonisolated enum CriterionSource: String, Codable, CaseIterable, Sendable {
     /// Recommended Routine (r/bodyweightfitness)." The explanation names the
     /// source in full, so the short `label` would only repeat it.
     var sourceLine: String {
-        "Skąd to kryterium? \(explanation)"
+        String(localized: "Skąd to kryterium? \(explanation)")
     }
 
     /// One sentence answering "Skąd to kryterium?" in the rung sheet.
     var explanation: String {
         switch self {
-        case .rr: "Zasada z Recommended Routine (r/bodyweightfitness)."
-        case .og2: "Poziom z Overcoming Gravity, 2. wydanie."
-        case .og2Table: "Wyprowadzone z tabeli izometrii Overcoming Gravity, 2. wydanie."
-        case .gmb: "Kroki L-situ według GMB."
-        case .sbw: "Zasada ze StartBodyweight."
-        case .caliMove: "Z wyzwania podciągnięć Cali Move."
-        case .caliPark: "Nasza reguła, bez zewnętrznego źródła."
+        case .rr: String(localized: "Zasada z Recommended Routine (r/bodyweightfitness).")
+        case .og2: String(localized: "Poziom z Overcoming Gravity, 2. wydanie.")
+        case .og2Table: String(localized: "Wyprowadzone z tabeli izometrii Overcoming Gravity, 2. wydanie.")
+        case .gmb: String(localized: "Kroki L-situ według GMB.")
+        case .sbw: String(localized: "Zasada ze StartBodyweight.")
+        case .caliMove: String(localized: "Z wyzwania podciągnięć Cali Move.")
+        case .caliPark: String(localized: "Nasza reguła, bez zewnętrznego źródła.")
         }
     }
 }

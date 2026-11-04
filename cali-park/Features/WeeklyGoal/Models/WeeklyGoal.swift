@@ -68,9 +68,9 @@ nonisolated struct WeeklyGoal: Identifiable, Codable, Hashable, Sendable {
 
         var displayName: String {
             switch self {
-            case .trainingDays: "Dni treningowe"
-            case .plannedWorkouts: "Treningi z planu"
-            case .exerciseVolume: "Objętość ćwiczenia"
+            case .trainingDays: String(localized: "Dni treningowe")
+            case .plannedWorkouts: String(localized: "Treningi z planu")
+            case .exerciseVolume: String(localized: "Objętość ćwiczenia")
             }
         }
 

@@ -7,14 +7,19 @@ nonisolated extension CelebrationPresentation {
     static func weeklyGoalMet(_ progress: WeeklyGoalProgress, isPrimary: Bool, streak: Int) -> CelebrationPresentation {
         let title = WeeklyGoalFormat.title(progress.goal.metric)
         let subtitle = isPrimary && streak > 0 ? WeeklyGoalFormat.streak(streak) : nil
-        let spokenStreak = subtitle.map { " \($0)." } ?? ""
+        let spokenTitle = WeeklyGoalFormat.spokenTitle(progress.goal.metric)
+        let accessibilityLabel = if let subtitle {
+            String(localized: "Cel tygodniowy wykonany: \(spokenTitle). \(subtitle).")
+        } else {
+            String(localized: "Cel tygodniowy wykonany: \(spokenTitle).")
+        }
         return CelebrationPresentation(
-            eyebrow: "CEL TYGODNIOWY WYKONANY",
+            eyebrow: String(localized: "CEL TYGODNIOWY WYKONANY"),
             title: title,
             subtitle: subtitle,
             xpNote: nil,
             symbolName: "target",
-            accessibilityLabel: "Cel tygodniowy wykonany: \(WeeklyGoalFormat.spokenTitle(progress.goal.metric)).\(spokenStreak)"
+            accessibilityLabel: accessibilityLabel
         )
     }
 }

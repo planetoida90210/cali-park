@@ -85,8 +85,8 @@ nonisolated struct TrainingBackupSummary: Equatable, Sendable {
     /// 5 ulubionych ćwiczeń".
     var text: String {
         var parts = [PolishPlural.workouts(workouts), PolishPlural.plans(plans)]
-        if hasPlacement { parts.append("test poziomu") }
-        if hasWeeklyGoal { parts.append("cel tygodniowy") }
+        if hasPlacement { parts.append(String(localized: "test poziomu")) }
+        if hasWeeklyGoal { parts.append(String(localized: "cel tygodniowy")) }
         if favoriteParks > 0 {
             let noun = PolishPlural.form(for: favoriteParks, one: "ulubiony Park", few: "ulubione Parki", many: "ulubionych Parków")
             parts.append("\(favoriteParks) \(noun)")

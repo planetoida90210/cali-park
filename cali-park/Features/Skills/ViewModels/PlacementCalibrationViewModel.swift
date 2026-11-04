@@ -125,7 +125,7 @@ final class PlacementCalibrationViewModel {
             didSave = true
             onSave()
         } catch {
-            errorMessage = "Nie udało się zapisać poziomu."
+            errorMessage = String(localized: "Nie udało się zapisać poziomu.")
         }
     }
 }

@@ -11,7 +11,7 @@ import Foundation
 /// `PolishPlural`.
 nonisolated enum MeasureFormat {
     /// The unit symbol for a hold — invariant in Polish, like "kg".
-    static let secondsUnit = "s"
+    static let secondsUnit = String(localized: "s", comment: "Seconds unit symbol, as in \"20 s\"")
 
     // MARK: Values
 
@@ -42,7 +42,7 @@ nonisolated enum MeasureFormat {
         case .reps: PolishPlural.reps(value)
         case .seconds: PolishPlural.seconds(value)
         }
-        return "\(PolishPlural.sets(count)) po \(each)"
+        return String(localized: "\(PolishPlural.sets(count)) po \(each)")
     }
 
     // MARK: Logged sets
@@ -117,9 +117,9 @@ nonisolated enum MeasureFormat {
                           side: UnilateralSide? = nil) -> String {
         let target = switch criterion {
         case let .setsOfReps(count, reps):
-            count == 1 && reps == 1 ? "pierwsze czyste" : sets(count, of: reps, .reps)
+            count == 1 && reps == 1 ? String(localized: "pierwsze czyste") : sets(count, of: reps, .reps)
         case let .setsOfHold(count, held):
-            count == 1 ? "pierwsze \(seconds(held))" : sets(count, of: held, .seconds)
+            count == 1 ? String(localized: "pierwsze \(seconds(held))") : sets(count, of: held, .seconds)
         }
         return withSide(target, side)
     }
@@ -150,7 +150,7 @@ nonisolated enum MeasureFormat {
     static func progressLine(_ progress: RungProgress, side: UnilateralSide? = nil) -> String {
         let target = criterion(progress.criterion, side: side)
         guard let best = best(progress) else { return target }
-        return "\(target) — Twoje najlepsze: \(best)"
+        return String(localized: "\(target) — Twoje najlepsze: \(best)")
     }
 
     /// A spoken reading of a criterion for VoiceOver: "3 serie po 8 powtórzeń",
@@ -160,11 +160,11 @@ nonisolated enum MeasureFormat {
         let spoken = switch criterion {
         case let .setsOfReps(count, reps):
             count == 1 && reps == 1
-                ? "pierwsze czyste powtórzenie"
+                ? String(localized: "pierwsze czyste powtórzenie")
                 : spokenSets(count, of: reps, .reps)
         case let .setsOfHold(count, held):
             count == 1
-                ? "pierwsze utrzymanie \(PolishPlural.seconds(held))"
+                ? String(localized: "pierwsze utrzymanie \(PolishPlural.seconds(held))")
                 : spokenSets(count, of: held, .seconds)
         }
         return withSide(spoken, side)

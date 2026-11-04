@@ -141,7 +141,7 @@ final class OnboardingViewModel {
             programChoice.errorMessage = nil
         }
         if !saveWeeklyGoal() {
-            problems.append("Nie udało się zapisać celu tygodniowego. Ustawisz go później w Profilu.")
+            problems.append(String(localized: "Nie udało się zapisać celu tygodniowego. Ustawisz go później w Profilu."))
         }
 
         guard problems.isEmpty else {

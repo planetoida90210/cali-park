@@ -12,14 +12,14 @@ nonisolated enum ProgramFormat {
         let side = exercise?.unilateralSide.map { " " + $0.label } ?? ""
 
         if let minutes = planned.timeBoxMinutes {
-            return "do \(minutes) min praktyki"
+            return String(localized: "do \(minutes) min praktyki")
         }
         if let total = planned.totalSeconds {
-            var text = "łącznie do \(duration(total))"
-            if let hold = range(planned.targetSecondsMin, planned.targetSeconds) {
-                text += ", holdy \(hold) s\(side)"
+            let totalText = duration(total)
+            guard let hold = range(planned.targetSecondsMin, planned.targetSeconds) else {
+                return String(localized: "łącznie do \(totalText)")
             }
-            return text
+            return String(localized: "łącznie do \(totalText), holdy \(hold) s\(side)")
         }
         if let rounds = planned.rounds {
             var text = "\(rangeText(rounds)) \(PolishPlural.form(for: rounds.upperBound, one: "runda", few: "rundy", many: "rund"))"
@@ -33,7 +33,7 @@ nonisolated enum ProgramFormat {
                 return "\(sets) × \(reps)\(side)"
             }
             if let hold = range(planned.targetSecondsMin, planned.targetSeconds) {
-                return "\(sets) × \(hold) s\(side)"
+                return String(localized: "\(sets) × \(hold) s\(side)")
             }
         }
         return nil
@@ -43,27 +43,28 @@ nonisolated enum ProgramFormat {
     /// otherwise; `nil` for an item done on its own.
     static func groupLabel(for planned: PlannedExercise, in items: [PlannedExercise]) -> String? {
         guard let group = planned.group else { return nil }
-        if planned.rounds != nil { return "Obwód" }
+        if planned.rounds != nil { return String(localized: "Obwód") }
         let size = items.filter { $0.group == group }.count
-        return size == 2 ? "Para \(group)" : "Blok \(group)"
+        return size == 2 ? String(localized: "Para \(group)") : String(localized: "Blok \(group)")
     }
 
     /// "przerwa 90 s", or `nil` without a set rest.
     static func restSummary(for planned: PlannedExercise) -> String? {
-        planned.restSeconds.map { "przerwa \($0) s" }
+        planned.restSeconds.map { String(localized: "przerwa \($0) s") }
     }
 
     /// "Program Fundamenty · wersja 1".
     static func originLine(for program: TrainingProgram, version: Int?) -> String {
-        "Program \(program.name) · wersja \(version ?? program.version)"
+        String(localized: "Program \(program.name) · wersja \(version ?? program.version)")
     }
 
     // MARK: Helpers
 
     /// "1 powtórzenie w zapasie" or "1–2 powtórzenia w zapasie".
     private static func reserveText(_ reserve: Int) -> String {
-        guard reserve > 1 else { return "1 powtórzenie w zapasie" }
-        return "1–\(reserve) " + PolishPlural.form(for: reserve, one: "powtórzenie", few: "powtórzenia", many: "powtórzeń") + " w zapasie"
+        guard reserve > 1 else { return String(localized: "1 powtórzenie w zapasie") }
+        let noun = PolishPlural.form(for: reserve, one: "powtórzenie", few: "powtórzenia", many: "powtórzeń")
+        return String(localized: "1–\(reserve) \(noun) w zapasie")
     }
 
     private static func range(_ lower: Int?, _ upper: Int?) -> String? {
@@ -78,6 +79,6 @@ nonisolated enum ProgramFormat {
 
     /// "3 min" for whole minutes, otherwise "90 s".
     private static func duration(_ seconds: Int) -> String {
-        seconds % 60 == 0 ? "\(seconds / 60) min" : "\(seconds) s"
+        seconds % 60 == 0 ? String(localized: "\(seconds / 60) min") : String(localized: "\(seconds) s")
     }
 }

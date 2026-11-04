@@ -13,9 +13,9 @@ import Observation
 @Observable
 final class ParkFavorites {
     /// Alert text when the saved favorites can't be read.
-    static let loadFailureMessage = "Nie udało się odczytać ulubionych Parków. Nie zostały usunięte."
+    static let loadFailureMessage = String(localized: "Nie udało się odczytać ulubionych Parków. Nie zostały usunięte.")
     /// Alert text when a change can't be saved.
-    static let saveFailureMessage = "Nie udało się zapisać ulubionego Parku. Spróbuj ponownie."
+    static let saveFailureMessage = String(localized: "Nie udało się zapisać ulubionego Parku. Spróbuj ponownie.")
 
     /// Favorite Park IDs in the order they were added.
     private(set) var ids: [UUID] = []

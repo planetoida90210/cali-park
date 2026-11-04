@@ -85,7 +85,7 @@ final class TrainingBackupViewModel {
             exportFile = url
         } catch {
             logger.error("Cannot write export file: \(String(describing: error), privacy: .public)")
-            errorMessage = "Nie udało się przygotować pliku z kopią."
+            errorMessage = String(localized: "Nie udało się przygotować pliku z kopią.")
         }
     }
 
@@ -138,7 +138,7 @@ final class TrainingBackupViewModel {
         defer { isImporting = false }
         do throws(TrainingBackupRestoreError) {
             try await service.restore(pending.backup)
-            resultMessage = "Zaimportowano: \(pending.incoming.text)."
+            resultMessage = String(localized: "Zaimportowano: \(pending.incoming.text).")
         } catch {
             errorMessage = error.message
         }

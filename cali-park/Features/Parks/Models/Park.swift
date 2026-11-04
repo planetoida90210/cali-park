@@ -148,9 +148,9 @@ nonisolated enum ParkVerification: String, Codable, Sendable {
     /// Badge text on the Park card.
     var label: String {
         switch self {
-        case .osm: "Z OSM"
-        case .community: "Ze Społeczności"
-        case .verified: "Zweryfikowany"
+        case .osm: String(localized: "Z OSM")
+        case .community: String(localized: "Ze Społeczności")
+        case .verified: String(localized: "Zweryfikowany")
         }
     }
 }

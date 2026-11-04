@@ -21,26 +21,26 @@ nonisolated enum Weekday: Int, Codable, CaseIterable, Identifiable, Hashable {
     /// so the Polish text lives here (mirrors `MuscleGroup.displayName`).
     var displayName: String {
         switch self {
-        case .monday: "Poniedziałek"
-        case .tuesday: "Wtorek"
-        case .wednesday: "Środa"
-        case .thursday: "Czwartek"
-        case .friday: "Piątek"
-        case .saturday: "Sobota"
-        case .sunday: "Niedziela"
+        case .monday: String(localized: "Poniedziałek")
+        case .tuesday: String(localized: "Wtorek")
+        case .wednesday: String(localized: "Środa")
+        case .thursday: String(localized: "Czwartek")
+        case .friday: String(localized: "Piątek")
+        case .saturday: String(localized: "Sobota")
+        case .sunday: String(localized: "Niedziela")
         }
     }
 
     /// Compact label for chips and summaries, e.g. "Pon".
     var shortName: String {
         switch self {
-        case .monday: "Pon"
-        case .tuesday: "Wt"
-        case .wednesday: "Śr"
-        case .thursday: "Czw"
-        case .friday: "Pt"
-        case .saturday: "Sob"
-        case .sunday: "Ndz"
+        case .monday: String(localized: "Pon", comment: "Monday, abbreviated, for chips and schedule summaries")
+        case .tuesday: String(localized: "Wt", comment: "Tuesday, abbreviated, for chips and schedule summaries")
+        case .wednesday: String(localized: "Śr", comment: "Wednesday, abbreviated, for chips and schedule summaries")
+        case .thursday: String(localized: "Czw", comment: "Thursday, abbreviated, for chips and schedule summaries")
+        case .friday: String(localized: "Pt", comment: "Friday, abbreviated, for chips and schedule summaries")
+        case .saturday: String(localized: "Sob", comment: "Saturday, abbreviated, for chips and schedule summaries")
+        case .sunday: String(localized: "Ndz", comment: "Sunday, abbreviated, for chips and schedule summaries")
         }
     }
 

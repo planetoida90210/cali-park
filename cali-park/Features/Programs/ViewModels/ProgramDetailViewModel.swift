@@ -77,7 +77,7 @@ final class ProgramDetailViewModel {
             hasLoadError = true
             errorMessage = StoreLoadFailure.message
         } catch {
-            errorMessage = "Nie udało się utworzyć planu."
+            errorMessage = String(localized: "Nie udało się utworzyć planu.")
         }
     }
 

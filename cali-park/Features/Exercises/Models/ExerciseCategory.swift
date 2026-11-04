@@ -14,9 +14,9 @@ nonisolated enum ExerciseCategory: String, Codable, CaseIterable, Identifiable {
     /// Polish name shown in the UI.
     var displayName: String {
         switch self {
-        case .basic: "Podstawowe"
-        case .advanced: "Zaawansowane"
-        case .expert: "Ekspert"
+        case .basic: String(localized: "Podstawowe")
+        case .advanced: String(localized: "Zaawansowane")
+        case .expert: String(localized: "Ekspert")
         }
     }
 }

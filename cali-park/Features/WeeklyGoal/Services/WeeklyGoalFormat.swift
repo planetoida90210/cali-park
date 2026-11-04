@@ -14,9 +14,9 @@ nonisolated enum WeeklyGoalFormat {
         case let .trainingDays(days):
             PolishPlural.trainingDays(days)
         case let .plannedWorkouts(.count(workouts)):
-            "\(PolishPlural.workouts(workouts)) z planu"
+            String(localized: "\(PolishPlural.workouts(workouts)) z planu")
         case .plannedWorkouts(.allScheduled):
-            "Wszystkie zaplanowane treningi"
+            String(localized: "Wszystkie zaplanowane treningi")
         case let .exerciseVolume(exerciseID, measurement, amount):
             "\(exerciseName(exerciseID)): \(amountText(amount, measurement))"
         }
@@ -39,7 +39,7 @@ nonisolated enum WeeklyGoalFormat {
             "\(progress.value) / \(PolishPlural.days(progress.target))"
         case .plannedWorkouts:
             progress.target == 0
-                ? "Brak zaplanowanych treningów"
+                ? String(localized: "Brak zaplanowanych treningów")
                 : "\(progress.value) / \(PolishPlural.workouts(progress.target))"
         case let .exerciseVolume(_, measurement, _):
             "\(progress.value) / \(amountText(progress.target, measurement))"
@@ -48,29 +48,31 @@ nonisolated enum WeeklyGoalFormat {
 
     /// `progress` for VoiceOver: "2 z 3", then the unit.
     static func spokenProgress(_ progress: WeeklyGoalProgress) -> String {
-        let text = self.progress(progress)
-        guard progress.target > 0 else { return text }
-        if case .exerciseVolume(_, .seconds, _) = progress.goal.metric {
-            return "\(progress.value) z \(PolishPlural.seconds(progress.target))"
+        guard progress.target > 0 else { return self.progress(progress) }
+        let target = switch progress.goal.metric {
+        case .trainingDays: PolishPlural.days(progress.target)
+        case .plannedWorkouts: PolishPlural.workouts(progress.target)
+        case .exerciseVolume(_, .seconds, _): PolishPlural.seconds(progress.target)
+        case let .exerciseVolume(_, measurement, _): amountText(progress.target, measurement)
         }
-        return text.replacingOccurrences(of: " / ", with: " z ")
+        return String(localized: "\(progress.value) z \(target)")
     }
 
     // MARK: Week
 
     /// "Seria: 3 tygodnie".
     static func streak(_ weeks: Int) -> String {
-        "Seria: \(PolishPlural.weeks(weeks))"
+        String(localized: "Seria: \(PolishPlural.weeks(weeks))")
     }
 
     /// A short note on the week's verdict, or `nil` for a plain running week.
     static func status(_ week: WeeklyGoalWeek) -> String? {
         switch week.status {
-        case .met: "Cel wykonany"
-        case .paused: "Pauza"
-        case .warmUp: "Tydzień rozgrzewkowy"
-        case .nothingScheduled: "Nic nie zaplanowano"
-        case .missed: "Cel niewykonany"
+        case .met: String(localized: "Cel wykonany")
+        case .paused: String(localized: "Pauza")
+        case .warmUp: String(localized: "Tydzień rozgrzewkowy")
+        case .nothingScheduled: String(localized: "Nic nie zaplanowano")
+        case .missed: String(localized: "Cel niewykonany")
         case .inProgress: nil
         }
     }
@@ -78,7 +80,8 @@ nonisolated enum WeeklyGoalFormat {
     /// "Pauza do 12 lis" for an active pause (its last paused day).
     static func pauseLine(_ pause: WeeklyGoalPause, calendar: Calendar = .current) -> String {
         let lastDay = calendar.date(byAdding: .day, value: -1, to: pause.plannedEnd) ?? pause.plannedEnd
-        return "Pauza do " + lastDay.formatted(.dateTime.day().month(.abbreviated))
+        let dateText = lastDay.formatted(.dateTime.day().month(.abbreviated))
+        return String(localized: "Pauza do \(dateText)")
     }
 
     // MARK: Helpers
@@ -87,11 +90,11 @@ nonisolated enum WeeklyGoalFormat {
     static func amountText(_ amount: Int, _ measurement: ExerciseMeasurement) -> String {
         switch measurement {
         case .reps: PolishPlural.reps(amount)
-        case .seconds: "\(amount) s"
+        case .seconds: String(localized: "\(amount) s")
         }
     }
 
     static func exerciseName(_ id: UUID) -> String {
-        ExerciseCatalog.exercise(withID: id)?.name ?? "Ćwiczenie"
+        ExerciseCatalog.exercise(withID: id)?.name ?? String(localized: "Ćwiczenie")
     }
 }

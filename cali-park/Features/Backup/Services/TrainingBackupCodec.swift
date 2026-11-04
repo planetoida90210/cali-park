@@ -21,17 +21,17 @@ nonisolated enum TrainingBackupError: Error, Equatable {
     var message: String {
         switch self {
         case .notABackup:
-            "To nie jest plik kopii CaliPark. Wybierz plik „calipark-backup-…json”."
+            String(localized: "To nie jest plik kopii CaliPark. Wybierz plik „calipark-backup-…json”.")
         case .newerVersion:
-            "Ten plik zapisała nowsza wersja CaliPark. Zaktualizuj apkę i spróbuj ponownie."
+            String(localized: "Ten plik zapisała nowsza wersja CaliPark. Zaktualizuj apkę i spróbuj ponownie.")
         case .damaged:
-            "Plik kopii jest uszkodzony i nie da się go wczytać."
+            String(localized: "Plik kopii jest uszkodzony i nie da się go wczytać.")
         case .invalidContent(let reason):
-            "Plik kopii zawiera niepoprawne dane (\(reason))."
+            String(localized: "Plik kopii zawiera niepoprawne dane (\(reason)).")
         case .tooLarge:
-            "Ten plik jest za duży na kopię treningów."
+            String(localized: "Ten plik jest za duży na kopię treningów.")
         case .unreadableFile:
-            "Nie udało się otworzyć pliku."
+            String(localized: "Nie udało się otworzyć pliku.")
         }
     }
 }
@@ -118,25 +118,25 @@ nonisolated enum TrainingBackupCodec {
     /// The rules the stores rely on, checked before anything is written.
     static func validate(_ backup: TrainingBackup) throws(TrainingBackupError) {
         if Set(backup.workoutLog.map(\.id)).count != backup.workoutLog.count {
-            throw .invalidContent("powtórzone wpisy w dzienniku")
+            throw .invalidContent(String(localized: "powtórzone wpisy w dzienniku"))
         }
         if Set(backup.workoutPlans.map(\.id)).count != backup.workoutPlans.count {
-            throw .invalidContent("powtórzone plany")
+            throw .invalidContent(String(localized: "powtórzone plany"))
         }
         if let goal = backup.weeklyGoal {
             guard goal.versions.allSatisfy({ WeeklyGoal.isValidSet($0.goals) }) else {
-                throw .invalidContent("niepoprawny cel tygodniowy")
+                throw .invalidContent(String(localized: "niepoprawny cel tygodniowy"))
             }
             let starts = goal.versions.map(\.effectiveFrom)
             guard starts == starts.sorted() else {
-                throw .invalidContent("niepoprawna historia celu tygodniowego")
+                throw .invalidContent(String(localized: "niepoprawna historia celu tygodniowego"))
             }
         }
         if let favorites = backup.favoriteParkIDs, Set(favorites).count != favorites.count {
-            throw .invalidContent("powtórzone ulubione Parki")
+            throw .invalidContent(String(localized: "powtórzone ulubione Parki"))
         }
         if let favorites = backup.favoriteExerciseIDs, Set(favorites).count != favorites.count {
-            throw .invalidContent("powtórzone ulubione ćwiczenia")
+            throw .invalidContent(String(localized: "powtórzone ulubione ćwiczenia"))
         }
     }
 

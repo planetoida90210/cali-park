@@ -66,8 +66,8 @@ nonisolated enum WorkoutReminderPlanner {
               let minute = time.minute
         else { return [] }
 
-        let title = plan.name.isEmpty ? "Trening" : plan.name
-        let body = "Czas na trening. \(PolishPlural.exercises(plan.exerciseCount))."
+        let title = plan.name.isEmpty ? String(localized: "Trening", comment: "Reminder title for a plan without a name") : plan.name
+        let body = String(localized: "Czas na trening. \(PolishPlural.exercises(plan.exerciseCount)).")
 
         var result: [Candidate] = []
         var from = reference

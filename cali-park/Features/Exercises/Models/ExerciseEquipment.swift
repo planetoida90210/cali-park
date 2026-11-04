@@ -13,14 +13,14 @@ nonisolated enum ExerciseEquipment {
     }
 
     private static let displayNames: [String: String] = [
-        "Pull-up bar": "Drążek",
-        "Dip bar": "Poręcze do dipów",
-        "Monkey bars": "Drabinka pozioma",
-        "fitness_pole": "Pionowy drążek",
-        "wall_bars": "Drabinki gimnastyczne",
-        "Rings": "Kółka",
-        "Push-up handles": "Uchwyty do pompek",
-        "Parallel bars": "Poręcze",
-        "Resistance bands": "Gumy"
+        "Pull-up bar": String(localized: "Drążek"),
+        "Dip bar": String(localized: "Poręcze do dipów"),
+        "Monkey bars": String(localized: "Drabinka pozioma"),
+        "fitness_pole": String(localized: "Pionowy drążek"),
+        "wall_bars": String(localized: "Drabinki gimnastyczne"),
+        "Rings": String(localized: "Kółka"),
+        "Push-up handles": String(localized: "Uchwyty do pompek"),
+        "Parallel bars": String(localized: "Poręcze"),
+        "Resistance bands": String(localized: "Gumy")
     ]
 }

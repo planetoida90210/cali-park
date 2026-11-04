@@ -214,5 +214,5 @@ final class WeeklyGoalEditorViewModel: Identifiable {
         }
     }
 
-    static let saveFailureMessage = "Nie udało się zapisać celu. Spróbuj ponownie."
+    static let saveFailureMessage = String(localized: "Nie udało się zapisać celu. Spróbuj ponownie.")
 }

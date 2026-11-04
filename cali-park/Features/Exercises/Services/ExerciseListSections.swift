@@ -37,11 +37,11 @@ nonisolated struct ExerciseListSection: Identifiable, Equatable, Sendable {
 /// - The category chip filters every section.
 /// - Favorite and recent IDs missing from the catalog are skipped.
 nonisolated enum ExerciseListSections {
-    static let favoritesTitle = "Ulubione"
-    static let recentTitle = "Ostatnio"
+    static let favoritesTitle = String(localized: "Ulubione", comment: "Section title: favorite exercises")
+    static let recentTitle = String(localized: "Ostatnio", comment: "Section title: recently used exercises")
     /// How many recent exercises "Ostatnio" lists at most.
     static let recentLimit = 5
-    static let catalogTitle = "Wszystkie ćwiczenia"
+    static let catalogTitle = String(localized: "Wszystkie ćwiczenia")
 
     /// - Parameters:
     ///   - catalog: every exercise, progression variants included.

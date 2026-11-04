@@ -19,9 +19,9 @@ import os
 @Observable
 final class TrainingJournal {
     /// Alert copy when a workout could not be saved.
-    static let saveFailureMessage = "Nie udało się zapisać treningu."
+    static let saveFailureMessage = String(localized: "Nie udało się zapisać treningu.")
     /// Alert copy when a workout could not be deleted.
-    static let deleteFailureMessage = "Nie udało się usunąć treningu."
+    static let deleteFailureMessage = String(localized: "Nie udało się usunąć treningu.")
 
     // MARK: State
     /// Every entry, in saved order.

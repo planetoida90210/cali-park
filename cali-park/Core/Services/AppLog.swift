@@ -19,7 +19,7 @@ nonisolated enum AppLog {
 /// value, so a broken file never reads as an empty journal.
 nonisolated struct StoreLoadFailure: Error, Equatable, Sendable {
     /// Shared alert copy for every screen whose data failed to load.
-    static let message = "Nie udało się odczytać zapisanych treningów. Twoje dane nie zostały usunięte."
+    static let message = String(localized: "Nie udało się odczytać zapisanych treningów. Twoje dane nie zostały usunięte.")
 
     /// The underlying error, for the logs.
     let reason: String
