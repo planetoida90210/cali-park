@@ -55,6 +55,21 @@ nonisolated struct WorkoutLogEntry: Identifiable, Codable, Equatable, Hashable {
         !sets.isEmpty && sets.allSatisfy(\.isTimed)
     }
 
+    /// The entry with every rep-type set of a seconds-measured exercise read
+    /// as a hold of that many seconds (audit A-8): logs from before an
+    /// exercise became a hold, or saved by an old prefill, stored the seconds
+    /// in `reps`. Entries already in the exercise's unit come back unchanged.
+    var inCatalogUnits: WorkoutLogEntry {
+        guard sets.contains(where: { !$0.isTimed }),
+              ExerciseCatalog.exercise(withID: exerciseID)?.measurement == .seconds
+        else { return self }
+        var copy = self
+        copy.sets = sets.map { set in
+            set.isTimed ? set : LoggedSet(reps: 1, weight: set.weight, durationSeconds: set.reps)
+        }
+        return copy
+    }
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }

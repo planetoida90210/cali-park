@@ -63,15 +63,10 @@ nonisolated struct ScoringLog: Sendable {
     }
 
     /// `entry` with every rep-type set of a seconds-measured exercise read as
-    /// a hold of that many seconds.
+    /// a hold of that many seconds (`WorkoutLogEntry.inCatalogUnits`). The
+    /// journal already reads entries this way; scoring repeats it for logs
+    /// passed in directly.
     static func normalized(_ entry: WorkoutLogEntry) -> WorkoutLogEntry {
-        guard ExerciseCatalog.exercise(withID: entry.exerciseID)?.measurement == .seconds,
-              entry.sets.contains(where: { !$0.isTimed })
-        else { return entry }
-        var copy = entry
-        copy.sets = entry.sets.map { set in
-            set.isTimed ? set : LoggedSet(reps: 1, weight: set.weight, durationSeconds: set.reps)
-        }
-        return copy
+        entry.inCatalogUnits
     }
 }

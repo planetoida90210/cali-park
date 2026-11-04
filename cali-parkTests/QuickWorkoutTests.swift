@@ -275,7 +275,7 @@ struct WorkoutHistorySectionTests {
                                      sets: [LoggedSet(reps: 20)])
         let oldest = WorkoutLogEntry(exerciseID: ExerciseCatalog.plankID,
                                      date: Date(timeIntervalSince1970: 1_000),
-                                     sets: [LoggedSet(reps: 30)])
+                                     sets: [LoggedSet(value: 30, measurement: .seconds)])
         let viewModel = WorkoutHistoryViewModel(
             store: InMemoryWorkoutLogStore(initial: [sessionA, sessionB, newest, oldest])
         )

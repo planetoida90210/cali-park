@@ -519,6 +519,43 @@ struct HoldSecondsTests {
 
         #expect(ScoringLog.normalized(pullUps) == pullUps)
     }
+
+    // MARK: Everywhere else (rest of A-8)
+
+    @Test @MainActor
+    func theJournalReadsLegacyHoldsAsSecondsAndLeavesTheFileAlone() {
+        let store = InMemoryWorkoutLogStore(initial: [Self.legacyPlank, JournalFixture.pullUps([8])])
+        let journal = TrainingJournal(store: store)
+
+        let plank = journal.entries[0]
+        #expect(plank.isTimed)
+        #expect(plank.totalSeconds == 180)
+        #expect(plank.totalReps == 0)
+        #expect(journal.entries[1].sets == [LoggedSet(reps: 8)])
+        #expect(store.load()[0].sets.allSatisfy { !$0.isTimed })
+    }
+
+    @Test @MainActor
+    func historyAndHomeShowALegacyPlankInSeconds() {
+        let journal = TrainingJournal(store: InMemoryWorkoutLogStore(initial: [Self.legacyPlank]))
+        let session = WorkoutSession.latest(in: journal.newestFirst)
+
+        #expect(session?.totalSeconds == 180)
+        #expect(session?.totalReps == 0)
+        #expect(MeasureFormat.total(of: journal.entries[0].sets) == MeasureFormat.amount(180, .seconds))
+    }
+
+    @Test
+    func aSecondsVolumeGoalCountsLegacyHolds() {
+        let goal = WeeklyGoal(metric: .exerciseVolume(exerciseID: ExerciseCatalog.plankID,
+                                                      measurement: .seconds, amount: 180))
+        let week = WeeklyGoalEvaluator.week(containing: JournalFixture.day, calendar: TestCalendar.utc)
+        let progress = WeeklyGoalEvaluator.progress(of: goal, in: week,
+                                                    entries: [Self.legacyPlank.inCatalogUnits], plans: [],
+                                                    calendar: TestCalendar.utc)
+        #expect(progress.value == 180)
+        #expect(progress.isMet)
+    }
 }
 
 // MARK: - A-12: the rung sheet reads live progress

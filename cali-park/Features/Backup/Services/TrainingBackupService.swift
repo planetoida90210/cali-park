@@ -163,7 +163,7 @@ final class TrainingBackupService {
             Step(write: { [journal, weak self] backup in
                      try await journal.replaceAll(backup.workoutLog, afterWrite: { [weak self] in self?.settleServices() })
                  },
-                 holds: { [journal] backup in journal.loadFailure == nil && journal.entries == backup.workoutLog })
+                 holds: { [journal] backup in journal.loadFailure == nil && journal.entries == backup.workoutLog.map(\.inCatalogUnits) })
         ]
     }
 

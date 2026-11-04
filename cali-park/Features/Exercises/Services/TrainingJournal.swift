@@ -31,7 +31,11 @@ final class TrainingJournal {
     static let deleteFailureMessage = String(localized: "Nie udało się usunąć treningu.")
 
     // MARK: State
-    /// Every entry, in saved order.
+    /// Every entry, in saved order, with holds in seconds: a rep-type set of a
+    /// seconds-measured exercise (an old log) reads as a hold of that many
+    /// seconds (`WorkoutLogEntry.inCatalogUnits`, audit A-8), so history,
+    /// Home, the weekly goal and export all agree with progress. The file
+    /// keeps what was saved.
     private(set) var entries: [WorkoutLogEntry] = []
     /// The same entries, newest first, for lists and "latest" questions.
     private(set) var newestFirst: [WorkoutLogEntry] = []
@@ -63,7 +67,7 @@ final class TrainingJournal {
         do {
             let loaded = try store.load()
             loadFailure = nil
-            replaceEntries(with: loaded)
+            replaceEntries(with: loaded.map(\.inCatalogUnits))
         } catch {
             logger.error("Workout log unreadable: \(String(describing: error), privacy: .public)")
             loadFailure = StoreLoadFailure(error)
@@ -156,7 +160,8 @@ final class TrainingJournal {
             return
         }
         switch change {
-        case .appended(let added):
+        case .appended(let saved):
+            let added = saved.map(\.inCatalogUnits)
             guard !added.isEmpty else { return }
             var newest = newestFirst
             for entry in added {
@@ -169,7 +174,7 @@ final class TrainingJournal {
             guard kept.count != entries.count else { return }
             apply(kept, newestFirst: newestFirst.filter { !ids.contains($0.id) })
         case .replaced(let newEntries):
-            replaceEntries(with: newEntries)
+            replaceEntries(with: newEntries.map(\.inCatalogUnits))
         }
     }
 
