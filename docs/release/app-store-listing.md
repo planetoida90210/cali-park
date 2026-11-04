@@ -26,7 +26,7 @@ Inne: „Drabiny progresji i drążki” (26).
 CaliPark prowadzi Cię w kalistenice od pierwszego zwisu na drążku do muscle-upa. Mówi, co ćwiczyć dziś, kiedy przejść na trudniejszy wariant i gdzie w okolicy jest drążek.
 
 DRABINY PROGRESJI ZE ŹRÓDŁAMI
-13 ścieżek: podciąganie, wiosłowanie, pompki, dipy, nogi, core, muscle-up, L-sit, front lever, back lever, planche, flaga i stanie na rękach. Każdy szczebel ma jasne kryterium awansu, np. 3 × 8, i źródło: Recommended Routine z r/bodyweightfitness, Overcoming Gravity, GMB, StartBodyweight albo Cali Move. Krótki test na start ustawia Cię na właściwym szczeblu.
+13 ścieżek: podciąganie, wiosłowanie, pompki, dipy, nogi, core, muscle-up, L-sit, front lever, back lever, planche, flaga i stanie na rękach. Każdy szczebel ma jasne kryterium awansu, np. 3 × 8, i źródło: r/bodyweightfitness i Overcoming Gravity, i inne uznane źródła (lista w apce). Krótki test na start ustawia Cię na właściwym szczeblu.
 
 GOTOWE PROGRAMY
 Minimum, Fundamenty, Pierwsze podciągnięcie i Skille. Podgląd pokazuje ćwiczenia na Twoim poziomie, a jednym stuknięciem robisz z programu własny plan, który zmienisz, jak chcesz.
@@ -85,7 +85,7 @@ Nagłówki (do 30 znaków; gwiazdki oznaczają słowa w kolorze akcentu, `<br>` 
 | Polityka prywatności | `https://<domena>/prywatnosc` |
 | Copyright | `2026 [IMIĘ I NAZWISKO]` |
 | Cena | Darmowa |
-| Kategoria wiekowa | 16+ (ticket 021); wyliczone będzie 9+ (porady treningowe), odpowiedzi z kwestionariusza w [checklist.md](checklist.md) |
+| Kategoria wiekowa | 16+ od razu, także bez Społeczności (ticket 021, potwierdzone 2026-11-04); wyliczone będzie 9+ (porady treningowe), odpowiedzi z kwestionariusza w [checklist.md](checklist.md) |
 
 ## TestFlight
 

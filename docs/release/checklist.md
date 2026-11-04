@@ -38,7 +38,7 @@ Testy pilnują tego w `AppConfigurationTests`. Po każdej zmianie `Info.plist`, 
 Potem w lewym menu:
 
 **App Information**
-- *Subtitle*: „Trening na drążku z planem”.
+- *Subtitle*: „Trening na drążku z planem”. Opis, tekst promocyjny i słowa kluczowe: z [app-store-listing.md](app-store-listing.md) (źródła w opisie tylko „r/bodyweightfitness i Overcoming Gravity” plus „inne uznane źródła”, wytyczna 2.3.7).
 - *Category*: Primary **Health & Fitness**, Secondary **Sports** (opcjonalnie).
 - *Content Rights*: **Yes, it contains third-party content and I have the necessary rights** (dane Parków z OSM na licencji ODbL).
 - *Age Rating* → *Edit*: odpowiedzi z tabeli niżej.
@@ -59,7 +59,7 @@ Potem w lewym menu:
 | Advertising, Contests, Gambling, Loot boxes | No | No |
 | Dating and Relationships | No | No |
 | Przemoc, seks, wulgaryzmy, alkohol, horror itd. | None | None |
-| **Override** (*Age Rating Override*) | **16+** (rekomendacja; pytanie w [app-review.md](app-review.md)) | **16+**, obowiązkowo (regulamin: Konto od 16 lat) |
+| **Override** (*Age Rating Override*) | **16+** (decyzja 2026-11-04: od razu, żeby późniejsze podniesienie nie odcięło nikogo od aktualizacji) | **16+**, obowiązkowo (regulamin: Konto od 16 lat) |
 
 **App Privacy**
 - *Privacy Policy URL*: `https://<domena>/prywatnosc` (czeka na domenę, Q35).
