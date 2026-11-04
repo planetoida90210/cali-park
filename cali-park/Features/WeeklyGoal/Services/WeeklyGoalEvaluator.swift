@@ -130,9 +130,19 @@ nonisolated enum WeeklyGoalEvaluator {
 
         let primary = goals[0]
         let status: WeeklyGoalWeekStatus =
-            if primary.isMet { .met } else if primary.target == 0 { .nothingScheduled } else if isPaused { .paused } else if isWarmUp {
+            if primary.isMet {
+                .met
+            } else if primary.target == 0 {
+                .nothingScheduled
+            } else if isPaused {
+                .paused
+            } else if isWarmUp {
                 .warmUp
-            } else if asOf < week.end { .inProgress } else { .missed }
+            } else if asOf < week.end {
+                .inProgress
+            } else {
+                .missed
+            }
 
         return WeeklyGoalWeek(interval: week, goals: goals, status: status, isPaused: isPaused, isWarmUp: isWarmUp)
     }

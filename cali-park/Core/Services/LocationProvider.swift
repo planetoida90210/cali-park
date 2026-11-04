@@ -162,7 +162,7 @@ final class CoreLocationProvider: LocationProviding {
         guard state != .notDetermined else { return }
         let waiters = authorizationWaiters
         authorizationWaiters = []
-        waiters.forEach { $0.resume(returning: state) }
+        for waiter in waiters { waiter.resume(returning: state) }
     }
 
     private func startLocationRequest() {
@@ -188,6 +188,6 @@ final class CoreLocationProvider: LocationProviding {
         requestGeneration += 1
         let waiters = locationWaiters
         locationWaiters = []
-        waiters.forEach { $0.resume(returning: coordinate) }
+        for waiter in waiters { waiter.resume(returning: coordinate) }
     }
 }
