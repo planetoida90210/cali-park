@@ -295,6 +295,7 @@ struct ProgramSessionTests {
             store: InMemoryWorkoutLogStore(),
             planService: .testing(InMemoryWorkoutPlanStore(initial: [plan])),
             placementStore: InMemorySkillPlacementStore(initial: placement),
+            goalStore: InMemoryWeeklyGoalStore(),
             calendar: ProgramFixtures.calendar,
             clock: { ProgramFixtures.today }
         )
@@ -312,6 +313,7 @@ struct ProgramSessionTests {
             store: UnreadableLogStore(),
             planService: .testing(InMemoryWorkoutPlanStore(initial: [plan])),
             placementStore: InMemorySkillPlacementStore(initial: placement),
+            goalStore: InMemoryWeeklyGoalStore(),
             calendar: ProgramFixtures.calendar,
             clock: { ProgramFixtures.today }
         )

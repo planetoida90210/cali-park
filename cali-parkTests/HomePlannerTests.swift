@@ -32,6 +32,8 @@ struct NextPlannedWorkoutTests {
         HomeDashboardViewModel(
             store: InMemoryWorkoutLogStore(),
             planService: .testing(InMemoryWorkoutPlanStore(initial: plans)),
+            placementStore: InMemorySkillPlacementStore(),
+            goalStore: InMemoryWeeklyGoalStore(),
             calendar: Fixtures.calendar
         )
     }

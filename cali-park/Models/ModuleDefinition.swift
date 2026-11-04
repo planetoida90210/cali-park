@@ -27,6 +27,12 @@ struct ModuleDefinition: Identifiable, Codable, Equatable {
             description: "Pogoda i najbliższa siłownia."
         ),
         ModuleDefinition(
+            id: WeeklyGoalModule.id,
+            name: "Cel tygodniowy",
+            iconName: "target",
+            description: "Postęp celów w tym tygodniu i seria tygodni."
+        ),
+        ModuleDefinition(
             id: "streak",
             name: "Seria dni",
             iconName: "flame.fill",
@@ -71,8 +77,8 @@ class ModulePreferences: ObservableObject {
                 saveEnabledModules()
             }
         } else {
-            // Domyślnie włączone: log, next, parks
-            self.enabledModules = ["log", "next", "parks"]
+            // Enabled by default on a fresh install.
+            self.enabledModules = ["log", "next", WeeklyGoalModule.id, "parks"]
             saveEnabledModules()
         }
     }

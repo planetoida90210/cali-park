@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import os
 
 // MARK: - HomeDashboardViewModel
 /// Feeds the Home modules (Quick Log, streak, next workout, hero card) from
@@ -29,12 +30,21 @@ final class HomeDashboardViewModel {
     /// `reload()` from the injected clock. Observed, so moving it re-renders
     /// Home even when no data changed (e.g. after midnight).
     private(set) var now: Date
+    /// The weekly goal for the cached `now`: current week, week streak, pause
+    /// and pending celebrations. `nil` while the goal store cannot be read, so
+    /// Home never shows the default goal in place of a saved one.
+    private(set) var weeklyGoal: WeeklyGoalSnapshot?
+    /// Goals whose celebration was dismissed while the mark could not be saved,
+    /// so a failed write does not bring the overlay straight back.
+    private var dismissedCelebrations: Set<WeeklyGoalCelebration> = []
 
     // MARK: Dependencies
     private let store: WorkoutLogStoring
     /// Reads plans and owns saving them (with their reminders).
     private let planService: WorkoutPlanService
     private let placementStore: PlacementStoring
+    private let goalStore: WeeklyGoalStoring
+    private let logger = AppLog.logger(category: "HomeDashboard")
     let calendar: Calendar
     /// Wall-clock source; tests inject a controllable one.
     private let clock: () -> Date
@@ -42,12 +52,14 @@ final class HomeDashboardViewModel {
     // MARK: Init
     init(store: WorkoutLogStoring,
          planService: WorkoutPlanService,
-         placementStore: PlacementStoring = InMemorySkillPlacementStore(),
+         placementStore: PlacementStoring,
+         goalStore: WeeklyGoalStoring,
          calendar: Calendar = .current,
          clock: @escaping () -> Date = { .now }) {
         self.store = store
         self.planService = planService
         self.placementStore = placementStore
+        self.goalStore = goalStore
         self.calendar = calendar
         self.clock = clock
         self.now = clock()
@@ -62,6 +74,15 @@ final class HomeDashboardViewModel {
         do { entries = try store.load().sorted { $0.date > $1.date } } catch { failed = true }
         do { plans = try planService.loadPlans() } catch { failed = true }
         do { placement = try placementStore.load() } catch { failed = true }
+        do {
+            let history = try goalStore.load() ?? .empty
+            weeklyGoal = WeeklyGoalEvaluator.snapshot(
+                history: history, entries: entries, plans: plans, calendar: calendar, asOf: now
+            )
+        } catch {
+            weeklyGoal = nil
+            failed = true
+        }
         // Alert once per failure streak, not on every appear.
         if failed, !hasLoadError { errorMessage = StoreLoadFailure.message }
         hasLoadError = failed
@@ -132,13 +153,29 @@ final class HomeDashboardViewModel {
         WorkoutStreak.compute(from: entries.map(\.date), calendar: calendar, today: reference)
     }
 
-    // MARK: Hero card
-    /// Pull-up reps logged in the current calendar week.
-    var weeklyPullUps: Int {
-        guard let week = calendar.dateInterval(of: .weekOfYear, for: now) else { return 0 }
-        return entries
-            .filter { $0.exerciseID == ExerciseCatalog.pullUpsID && week.contains($0.date) }
-            .reduce(0) { $0 + $1.totalReps }
+    // MARK: Weekly goal
+    /// The met goal to celebrate now, or `nil`. One at a time, primary first.
+    var goalCelebration: WeeklyGoalProgress? {
+        guard let weeklyGoal else { return nil }
+        let weekStart = weeklyGoal.week.interval.start
+        return weeklyGoal.pendingCelebrations.first {
+            !dismissedCelebrations.contains(WeeklyGoalCelebration(weekStart: weekStart, goalID: $0.goal.id))
+        }
+    }
+
+    /// Records the celebration on screen as shown, so it plays once per goal
+    /// per week. Re-reads the history first so a change saved elsewhere is
+    /// kept; a failed write only means it may play again after a relaunch.
+    func dismissGoalCelebration() {
+        guard let shown = goalCelebration, let weekStart = weeklyGoal?.week.interval.start else { return }
+        dismissedCelebrations.insert(WeeklyGoalCelebration(weekStart: weekStart, goalID: shown.goal.id))
+        do {
+            let history = try goalStore.load() ?? .empty
+            try goalStore.save(history.markingCelebrated(goalID: shown.goal.id, weekStart: weekStart, calendar: calendar))
+            reload()
+        } catch {
+            logger.error("Cannot mark goal celebration as shown: \(String(describing: error), privacy: .public)")
+        }
     }
 
     // MARK: Skills bridge

@@ -49,4 +49,19 @@ enum PolishPlural {
     static func exercises(_ count: Int) -> String {
         "\(count) \(form(for: count, one: "ćwiczenie", few: "ćwiczenia", many: "ćwiczeń"))"
     }
+
+    /// "1 tydzień", "3 tygodnie", "5 tygodni".
+    static func weeks(_ count: Int) -> String {
+        "\(count) \(form(for: count, one: "tydzień", few: "tygodnie", many: "tygodni"))"
+    }
+
+    /// "1 trening", "3 treningi", "5 treningów".
+    static func workouts(_ count: Int) -> String {
+        "\(count) \(form(for: count, one: "trening", few: "treningi", many: "treningów"))"
+    }
+
+    /// "1 dzień treningowy", "3 dni treningowe", "5 dni treningowych".
+    static func trainingDays(_ count: Int) -> String {
+        "\(count) \(form(for: count, one: "dzień treningowy", few: "dni treningowe", many: "dni treningowych"))"
+    }
 }

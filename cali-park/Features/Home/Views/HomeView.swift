@@ -28,6 +28,11 @@ struct HomeView: View {
     // The plan the hero's "Rozpocznij" is starting; presents its quick workout.
     @State private var startingPlan: WorkoutPlan?
 
+    // The open weekly goal editor (long press on the hero ring, or the module).
+    @State private var goalEditor: WeeklyGoalEditorViewModel?
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     private let environment: AppEnvironment
 
     @Environment(\.scenePhase) private var scenePhase
@@ -50,11 +55,11 @@ struct HomeView: View {
                             ContextualHeroView(
                                 state: dashboard.heroState(),
                                 name: userProfile.name,
-                                weeklyReps: dashboard.weeklyPullUps,
-                                weeklyProgress: weeklyProgress,
+                                weeklyGoal: dashboard.weeklyGoal,
                                 progressionHint: dashboard.progressionHint,
                                 now: dashboard.now,
-                                onStartPlan: { startingPlan = $0 }
+                                onStartPlan: { startingPlan = $0 },
+                                onEditGoal: openGoalEditor
                             )
                             .padding(.horizontal, 16)
                             .padding(.bottom, 16)
@@ -104,6 +109,9 @@ struct HomeView: View {
             .sheet(isPresented: $showModuleSelector) {
                 ModuleSelectionView(modulePreferences: modulePreferences)
             }
+            .sheet(item: $goalEditor, onDismiss: { dashboard.reload() }) { editor in
+                WeeklyGoalEditorView(viewModel: editor)
+            }
             .sheet(item: $startingPlan, onDismiss: { dashboard.reload() }) { plan in
                 QuickWorkoutView(
                     viewModel: dashboard.makeQuickWorkoutViewModel(plan: plan),
@@ -140,6 +148,22 @@ struct HomeView: View {
             }
         }
         .environmentObject(modulePreferences)
+        .overlay {
+            if let met = dashboard.goalCelebration, let snapshot = dashboard.weeklyGoal {
+                CelebrationOverlayView(
+                    presentation: .weeklyGoalMet(met, isPrimary: met.id == snapshot.week.primary.id, streak: snapshot.streak),
+                    trigger: "goal-\(met.id.uuidString)-\(snapshot.week.interval.start.timeIntervalSince1970)",
+                    hasNext: snapshot.pendingCelebrations.count > 1,
+                    onDismiss: { dashboard.dismissGoalCelebration() }
+                )
+                .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: 0.96)))
+            }
+        }
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: dashboard.goalCelebration)
+    }
+
+    private func openGoalEditor() {
+        goalEditor = environment.makeWeeklyGoalEditorViewModel()
     }
 
     /// Fires when the calendar day rolls over (or the clock or time zone jumps)
@@ -158,18 +182,12 @@ struct HomeView: View {
         )
     }
 
-    /// Weekly pull-up goal progress (goal stays mocked until the Profile sprint).
-    private var weeklyProgress: Double {
-        guard userProfile.weeklyGoal > 0 else { return 0 }
-        return min(1, Double(dashboard.weeklyPullUps) / Double(userProfile.weeklyGoal))
-    }
-
     // Smart Stack Modules View
     @ViewBuilder
     private var modulesStackView: some View {
         VStack(spacing: 8) {
             ForEach(modulePreferences.enabledModules, id: \.self) { moduleId in
-                ModuleView(moduleId: moduleId, dashboard: dashboard)
+                ModuleView(moduleId: moduleId, dashboard: dashboard, onEditGoal: openGoalEditor)
                     .id(moduleId)
                     .onDrag({
                         draggingModuleId = moduleId

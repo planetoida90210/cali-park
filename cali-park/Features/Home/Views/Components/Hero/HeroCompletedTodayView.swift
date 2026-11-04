@@ -2,14 +2,15 @@ import SwiftUI
 
 // MARK: - HeroCompletedTodayView
 /// Today's training is done. The hero switches to a calm celebration: what was
-/// trained, the streak it kept alive, and the weekly goal demoted to a
-/// secondary line. No CTA — the work is finished.
+/// trained, then the weekly goal with its week streak. No CTA — the work is
+/// finished.
 struct HeroCompletedTodayView: View {
     let summary: WorkoutSession
-    let streak: WorkoutStreak
     let name: String
-    let weeklyReps: Int
-    let weeklyProgress: Double
+    /// The weekly goal row; `nil` hides it (the goal could not be read).
+    let weeklyGoal: WeeklyGoalSnapshot?
+    /// Opens the goal editor (long press on the goal row).
+    var onEditGoal: () -> Void = {}
     var now: Date = .now
 
     var body: some View {
@@ -34,11 +35,11 @@ struct HeroCompletedTodayView: View {
             }
             .accessibilityElement(children: .combine)
 
-            HeroStreakLabel(streak: streak)
+            if let weeklyGoal {
+                Divider().overlay(Color.divider)
 
-            Divider().overlay(Color.divider)
-
-            HeroWeeklyRingView(weeklyReps: weeklyReps, progress: weeklyProgress)
+                HeroWeeklyGoalView(snapshot: weeklyGoal, onEdit: onEditGoal)
+            }
         }
     }
 }
@@ -54,10 +55,8 @@ struct HeroCompletedTodayView: View {
                 WorkoutLogEntry(exerciseID: ExerciseCatalog.dipsID, sets: [LoggedSet(reps: 12)], sessionID: UUID())
             ]
         ),
-        streak: WorkoutStreak(current: 5, longest: 9, trainedDays: []),
         name: "Michał",
-        weeklyReps: 42,
-        weeklyProgress: 0.6
+        weeklyGoal: WeeklyGoalPreview.running
     )
     .padding(20)
     .background(Color.componentBackground)

@@ -28,6 +28,9 @@ final class AppEnvironment: ObservableObject {
     /// Persists which rewards have already been celebrated, so the reward loop
     /// (SK6a) stays idempotent. Consumed by the Skills tab.
     let skillProgressStore: SkillProgressStoring
+    /// Persists the weekly goal: goal versions, pauses and shown celebrations.
+    /// Read by Home (hero ring, "Cel tygodniowy") and the goal editor.
+    let weeklyGoalStore: WeeklyGoalStoring
 
     // MARK: Init
     init(communityPhotoService: CommunityPhotoServiceProtocol = InMemoryCommunityPhotoService(),
@@ -39,7 +42,8 @@ final class AppEnvironment: ObservableObject {
          reminderScheduler: WorkoutReminderScheduling = NotificationCenterReminderScheduler(center: SystemNotificationCenter()),
          reminderRefreshScheduler: ReminderRefreshScheduling = AppRefreshScheduler(),
          placementStore: PlacementStoring = FileSkillPlacementStore(),
-         skillProgressStore: SkillProgressStoring = FileSkillProgressStore()) {
+         skillProgressStore: SkillProgressStoring = FileSkillProgressStore(),
+         weeklyGoalStore: WeeklyGoalStoring = FileWeeklyGoalStore()) {
         self.communityPhotoService = communityPhotoService
         self.reviewsService = reviewsService
         self.calendarService = calendarService
@@ -56,6 +60,7 @@ final class AppEnvironment: ObservableObject {
         }
         self.placementStore = placementStore
         self.skillProgressStore = skillProgressStore
+        self.weeklyGoalStore = weeklyGoalStore
     }
 
     // MARK: View Model Factories
@@ -115,8 +120,15 @@ final class AppEnvironment: ObservableObject {
         HomeDashboardViewModel(
             store: workoutLogStore,
             planService: workoutPlanService,
-            placementStore: placementStore
+            placementStore: placementStore,
+            goalStore: weeklyGoalStore
         )
+    }
+
+    /// The weekly goal editor (goals and pause), shared by Home and, later,
+    /// onboarding and Profile.
+    func makeWeeklyGoalEditorViewModel() -> WeeklyGoalEditorViewModel {
+        WeeklyGoalEditorViewModel(store: weeklyGoalStore, logStore: workoutLogStore)
     }
 
     func makeWorkoutPlansViewModel() -> WorkoutPlansViewModel {
@@ -158,14 +170,16 @@ extension AppEnvironment {
     /// state without touching disk.
     static func seeded(logs: [WorkoutLogEntry] = [],
                        plans: [WorkoutPlan] = [],
-                       placement: SkillPlacement? = nil) -> AppEnvironment {
+                       placement: SkillPlacement? = nil,
+                       weeklyGoal: WeeklyGoalHistory? = nil) -> AppEnvironment {
         AppEnvironment(
             workoutLogStore: InMemoryWorkoutLogStore(initial: logs),
             workoutPlanStore: InMemoryWorkoutPlanStore(initial: plans),
             reminderScheduler: InMemoryReminderScheduler(status: .authorized),
             reminderRefreshScheduler: InMemoryReminderRefreshScheduler(),
             placementStore: InMemorySkillPlacementStore(initial: placement),
-            skillProgressStore: InMemorySkillProgressStore()
+            skillProgressStore: InMemorySkillProgressStore(),
+            weeklyGoalStore: InMemoryWeeklyGoalStore(initial: weeklyGoal)
         )
     }
 

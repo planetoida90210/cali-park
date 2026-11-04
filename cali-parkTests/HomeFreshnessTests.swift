@@ -54,6 +54,8 @@ struct HomeDayRolloverTests {
         HomeDashboardViewModel(
             store: InMemoryWorkoutLogStore(initial: entries),
             planService: .testing(InMemoryWorkoutPlanStore(initial: plans)),
+            placementStore: InMemorySkillPlacementStore(),
+            goalStore: InMemoryWeeklyGoalStore(),
             calendar: Fixtures.calendar,
             clock: { clock.now }
         )
@@ -141,24 +143,24 @@ struct HomeDayRolloverTests {
         #expect(dashboard.streak == dashboard.streak(asOf: Fixtures.tuesdayMorning))
     }
 
-    /// The weekly pull-up count resets when the week rolls over (Monday-first
-    /// weeks start on the injected calendar's first weekday).
+    /// The weekly goal's count resets when the week rolls over on Monday,
+    /// whatever the calendar's own first weekday (here Sunday).
     @Test
-    func weeklyPullUpsUseTheInjectedCalendarAndClock() {
-        var calendar = Fixtures.calendar
-        calendar.firstWeekday = 2 // Monday
+    func weeklyGoalUsesTheInjectedCalendarAndClock() throws {
         let clock = TestClock(Fixtures.mondayEvening - 2 * 86_400) // Saturday
         let dashboard = HomeDashboardViewModel(
             store: InMemoryWorkoutLogStore(initial: [Fixtures.entry(on: clock.now - 3_600)]),
             planService: .testing(InMemoryWorkoutPlanStore()),
-            calendar: calendar,
+            placementStore: InMemorySkillPlacementStore(),
+            goalStore: InMemoryWeeklyGoalStore(),
+            calendar: Fixtures.calendar,
             clock: { clock.now }
         )
-        #expect(dashboard.weeklyPullUps == 8)
+        #expect(try #require(dashboard.weeklyGoal).week.primary.value == 1)
 
         clock.now = Fixtures.mondayEvening
         dashboard.reload()
-        #expect(dashboard.weeklyPullUps == 0)
+        #expect(try #require(dashboard.weeklyGoal).week.primary.value == 0)
     }
 }
 
@@ -171,7 +173,12 @@ struct HomeReloadAfterSummaryDeleteTests {
     @Test
     func deletedWorkoutLeavesHomeAfterReload() throws {
         let logStore = InMemoryWorkoutLogStore()
-        let dashboard = HomeDashboardViewModel(store: logStore, planService: .testing(InMemoryWorkoutPlanStore()))
+        let dashboard = HomeDashboardViewModel(
+            store: logStore,
+            planService: .testing(InMemoryWorkoutPlanStore()),
+            placementStore: InMemorySkillPlacementStore(),
+            goalStore: InMemoryWeeklyGoalStore()
+        )
 
         let session = dashboard.makeQuickWorkoutViewModel()
         session.addExercise(try #require(ExerciseCatalog.exercise(withID: ExerciseCatalog.pullUpsID)),

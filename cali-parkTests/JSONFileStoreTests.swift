@@ -435,7 +435,8 @@ struct StoreLoadFailureViewModelTests {
         let viewModel = HomeDashboardViewModel(
             store: InMemoryWorkoutLogStore(initial: [entry]),
             planService: .testing(BrokenPlanStore()),
-            placementStore: InMemorySkillPlacementStore()
+            placementStore: InMemorySkillPlacementStore(),
+            goalStore: InMemoryWeeklyGoalStore()
         )
 
         #expect(viewModel.entries == [entry])

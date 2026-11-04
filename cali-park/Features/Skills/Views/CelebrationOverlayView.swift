@@ -8,15 +8,33 @@ import SwiftUI
 /// Restraint over fireworks: a single clear message, not a wall of text. The
 /// entrance pulse is skipped under Reduce Motion, and every way to dismiss is a
 /// real `Button`, so VoiceOver and Switch Control reach it.
+///
+/// Also used for a met weekly goal: pass a ready `CelebrationPresentation` and
+/// a stable `trigger` for the haptic and the entrance pulse.
 struct CelebrationOverlayView: View {
-    let event: CelebrationEvent
+    let presentation: CelebrationPresentation
+    /// Identifies the celebrated moment; a new value replays haptics and pulse.
+    let trigger: String
     /// Whether another advance follows, so the button reads "Dalej" vs "Świetnie".
     let hasNext: Bool
     let onDismiss: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private var presentation: CelebrationPresentation { .resolving(event) }
+    init(presentation: CelebrationPresentation,
+         trigger: String,
+         hasNext: Bool,
+         onDismiss: @escaping () -> Void) {
+        self.presentation = presentation
+        self.trigger = trigger
+        self.hasNext = hasNext
+        self.onDismiss = onDismiss
+    }
+
+    /// A rung or level advance from the Skills reward loop.
+    init(event: CelebrationEvent, hasNext: Bool, onDismiss: @escaping () -> Void) {
+        self.init(presentation: .resolving(event), trigger: event.id, hasNext: hasNext, onDismiss: onDismiss)
+    }
 
     var body: some View {
         ZStack {
@@ -29,7 +47,7 @@ struct CelebrationOverlayView: View {
             card
                 .padding(.horizontal, 32)
         }
-        .sensoryFeedback(.success, trigger: event)
+        .sensoryFeedback(.success, trigger: trigger)
     }
 
     // MARK: Card
@@ -85,7 +103,7 @@ struct CelebrationOverlayView: View {
         if reduceMotion {
             ExerciseIconView(symbolName: presentation.symbolName, size: .detail)
         } else {
-            PhaseAnimator([0.85, 1.1, 1.0], trigger: event) { scale in
+            PhaseAnimator([0.85, 1.1, 1.0], trigger: trigger) { scale in
                 ExerciseIconView(symbolName: presentation.symbolName, size: .detail)
                     .scaleEffect(scale)
             } animation: { _ in

@@ -6,9 +6,11 @@ import Foundation
 /// it (Sprint H2) stays "dumb" and switches on these cases. Deciding which case
 /// applies lives in `HomeDashboardViewModel.heroState(asOf:)`.
 ///
-/// Weekly pull-ups and the goal ring never live *inside* these cases: they stay
-/// on the view model and the hero view demotes them to a secondary line where
-/// they fit (completed / rest / free mode).
+/// The weekly goal and its week streak never live *inside* these cases: they
+/// stay on the view model and the hero view shows them as a secondary row
+/// where they fit (completed / rest / free mode). The hero no longer shows the
+/// day `streak` carried here (ticket 027: rest days are part of training); the
+/// "Seria dni" module still does.
 enum HomeHeroState: Equatable {
     /// A plan is scheduled for today and hasn't been completed yet. `plan`
     /// drives the big "Rozpocznij" call to action; `loggedTodayReps` is any

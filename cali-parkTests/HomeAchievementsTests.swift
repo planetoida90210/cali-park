@@ -110,6 +110,7 @@ struct HomeAchievementsSummaryTests {
             store: InMemoryWorkoutLogStore(initial: entries),
             planService: .testing(InMemoryWorkoutPlanStore(initial: [])),
             placementStore: InMemorySkillPlacementStore(initial: placement),
+            goalStore: InMemoryWeeklyGoalStore(),
             calendar: AchievementFixture.calendar
         )
     }

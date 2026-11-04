@@ -1,16 +1,17 @@
 import SwiftUI
 
 // MARK: - HeroRestDayView
-/// Nothing scheduled for today, but a plan is coming up. The hero keeps the
-/// streak alive in view and points to the next session's day, with the weekly
-/// goal as a secondary line. Rest is the message, so there's no CTA.
+/// Nothing scheduled for today, but a plan is coming up. The hero points to the
+/// next session's day, with the weekly goal and its week streak below: rest
+/// days never break a week streak. Rest is the message, so there's no CTA.
 struct HeroRestDayView: View {
     let nextPlan: WorkoutPlan
     let date: Date
-    let streak: WorkoutStreak
     let name: String
-    let weeklyReps: Int
-    let weeklyProgress: Double
+    /// The weekly goal row; `nil` hides it (the goal could not be read).
+    let weeklyGoal: WeeklyGoalSnapshot?
+    /// Opens the goal editor (long press on the goal row).
+    var onEditGoal: () -> Void = {}
     /// A one-line progression nudge, or `nil` when no rung is partway done.
     var progressionHint: String? = nil
     var now: Date = .now
@@ -35,11 +36,11 @@ struct HeroRestDayView: View {
                 HeroProgressionHintView(hint: progressionHint)
             }
 
-            HeroStreakLabel(streak: streak)
+            if let weeklyGoal {
+                Divider().overlay(Color.divider)
 
-            Divider().overlay(Color.divider)
-
-            HeroWeeklyRingView(weeklyReps: weeklyReps, progress: weeklyProgress)
+                HeroWeeklyGoalView(snapshot: weeklyGoal, onEdit: onEditGoal)
+            }
         }
     }
 }
@@ -51,10 +52,8 @@ struct HeroRestDayView: View {
             PlannedExercise(exerciseID: ExerciseCatalog.pullUpsID)
         ]),
         date: Calendar.current.date(byAdding: .day, value: 1, to: .now)!,
-        streak: WorkoutStreak(current: 3, longest: 7, trainedDays: []),
         name: "Michał",
-        weeklyReps: 18,
-        weeklyProgress: 0.3,
+        weeklyGoal: WeeklyGoalPreview.running,
         progressionHint: "Jeszcze 5 s do 3 × 20 s — następny szczebel: Advanced tuck front lever"
     )
     .padding(20)

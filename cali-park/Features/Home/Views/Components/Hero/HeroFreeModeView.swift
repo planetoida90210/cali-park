@@ -2,16 +2,17 @@ import SwiftUI
 
 // MARK: - HeroFreeModeView
 /// No plans, but a history to build on. The hero recalls the last workout,
-/// keeps the streak in view, and — when the heuristic has one — suggests what
+/// shows the weekly goal, and — when the heuristic has one — suggests what
 /// to train next. Acting on it is one tap away in the permanent rail below
 /// ("Szybki trening" / "Plany"), so the card informs rather than repeats it.
 struct HeroFreeModeView: View {
     let lastWorkout: WorkoutSession
     let suggestion: Exercise?
-    let streak: WorkoutStreak
     let name: String
-    let weeklyReps: Int
-    let weeklyProgress: Double
+    /// The weekly goal row; `nil` hides it (the goal could not be read).
+    let weeklyGoal: WeeklyGoalSnapshot?
+    /// Opens the goal editor (long press on the goal row).
+    var onEditGoal: () -> Void = {}
     /// A one-line progression nudge, or `nil` when no rung is partway done.
     var progressionHint: String? = nil
     var now: Date = .now
@@ -43,11 +44,11 @@ struct HeroFreeModeView: View {
                 HeroProgressionHintView(hint: progressionHint)
             }
 
-            HeroStreakLabel(streak: streak)
+            if let weeklyGoal {
+                Divider().overlay(Color.divider)
 
-            Divider().overlay(Color.divider)
-
-            HeroWeeklyRingView(weeklyReps: weeklyReps, progress: weeklyProgress)
+                HeroWeeklyGoalView(snapshot: weeklyGoal, onEdit: onEditGoal)
+            }
         }
     }
 }
@@ -61,10 +62,8 @@ struct HeroFreeModeView: View {
             entries: [WorkoutLogEntry(exerciseID: ExerciseCatalog.pullUpsID, sets: [LoggedSet(reps: 8), LoggedSet(reps: 7)])]
         ),
         suggestion: ExerciseCatalog.exercise(withID: ExerciseCatalog.squatsID),
-        streak: WorkoutStreak(current: 0, longest: 6, trainedDays: []),
         name: "Michał",
-        weeklyReps: 15,
-        weeklyProgress: 0.25,
+        weeklyGoal: WeeklyGoalPreview.running,
         progressionHint: "Jeszcze 2 powtórzenia do 3 × 8 — następny szczebel: Pełne podciągnięcia"
     )
     .padding(20)

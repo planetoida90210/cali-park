@@ -5,9 +5,6 @@ enum MockDataProvider {
     static let userProfile = MockUserProfile(
         id: "user1",
         name: "Michał",
-        weeklyPullUps: 57,
-        weeklyGoal: 75,
-        weeklyProgress: 0.76,
         level: 12
     )
     
@@ -24,9 +21,6 @@ enum MockDataProvider {
 struct MockUserProfile {
     let id: String
     let name: String
-    let weeklyPullUps: Int
-    let weeklyGoal: Int
-    let weeklyProgress: Double
     let level: Int
 }
 

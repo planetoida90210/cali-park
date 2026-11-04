@@ -29,6 +29,8 @@ struct ModuleView: View {
     var showGrabber: Bool = true
     // Callback dla rodzica – powiadamia o kliknięciu (np. aby przewinąć widok)
     var onToggle: ((String) -> Void)? = nil
+    // Opens the weekly goal editor from the "Cel tygodniowy" module.
+    var onEditGoal: () -> Void = {}
 
     var body: some View {
         if let module = module {
@@ -143,6 +145,8 @@ struct ModuleView: View {
             NextWorkoutModuleContent(dashboard: dashboard)
         case "parks":
             ParksModuleContent()
+        case WeeklyGoalModule.id:
+            WeeklyGoalModuleContent(snapshot: dashboard.weeklyGoal, onEdit: onEditGoal)
         case "streak":
             StreakModuleContent(streak: dashboard.streak, today: dashboard.now, calendar: dashboard.calendar)
         case "friends":

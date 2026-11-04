@@ -7,14 +7,14 @@ import SwiftUI
 /// shared card frame and forwards taps through closures. Wiring it into
 /// `HomeView` happens in Sprint H3 — for now it drives the previews below.
 ///
-/// Weekly pull-ups and the goal ring live *outside* the state (on the view
-/// model), so they're passed in here and demoted to a secondary line in the
-/// states that show them (completed / rest / free mode).
+/// The weekly goal lives *outside* the state (on the view model), so it is
+/// passed in here and shown as a secondary row, with the week streak, in the
+/// states that have room for it (completed / rest / free mode).
 struct ContextualHeroView: View {
     let state: HomeHeroState
     let name: String
-    let weeklyReps: Int
-    let weeklyProgress: Double
+    /// `nil` hides the goal row (the goal could not be read).
+    let weeklyGoal: WeeklyGoalSnapshot?
     /// A one-line progression nudge shown on rest / free-training days, e.g.
     /// "Jeszcze 2 powtórzenia do 3 × 8 — następny szczebel: …". `nil` hides it.
     var progressionHint: String? = nil
@@ -24,6 +24,8 @@ struct ContextualHeroView: View {
     /// spontaneous quick workout and plan management live permanently in the
     /// rail below, so the hero doesn't duplicate them.
     var onStartPlan: (WorkoutPlan) -> Void = { _ in }
+    /// Opens the weekly goal editor (long press on the goal row).
+    var onEditGoal: () -> Void = {}
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -50,36 +52,33 @@ struct ContextualHeroView: View {
                 onStart: { onStartPlan(plan) }
             )
 
-        case let .completedToday(summary, streak):
+        case let .completedToday(summary, _):
             HeroCompletedTodayView(
                 summary: summary,
-                streak: streak,
                 name: name,
-                weeklyReps: weeklyReps,
-                weeklyProgress: weeklyProgress,
+                weeklyGoal: weeklyGoal,
+                onEditGoal: onEditGoal,
                 now: now
             )
 
-        case let .restDay(nextPlan, date, streak):
+        case let .restDay(nextPlan, date, _):
             HeroRestDayView(
                 nextPlan: nextPlan,
                 date: date,
-                streak: streak,
                 name: name,
-                weeklyReps: weeklyReps,
-                weeklyProgress: weeklyProgress,
+                weeklyGoal: weeklyGoal,
+                onEditGoal: onEditGoal,
                 progressionHint: progressionHint,
                 now: now
             )
 
-        case let .freeMode(lastWorkout, suggestion, streak):
+        case let .freeMode(lastWorkout, suggestion, _):
             HeroFreeModeView(
                 lastWorkout: lastWorkout,
                 suggestion: suggestion,
-                streak: streak,
                 name: name,
-                weeklyReps: weeklyReps,
-                weeklyProgress: weeklyProgress,
+                weeklyGoal: weeklyGoal,
+                onEditGoal: onEditGoal,
                 progressionHint: progressionHint,
                 now: now
             )
@@ -151,12 +150,11 @@ private enum HeroPreview {
     private static let sharedSession = UUID()
 
     @ViewBuilder
-    static func card(_ state: HomeHeroState, weeklyReps: Int = 42, weeklyProgress: Double = 0.6) -> some View {
+    static func card(_ state: HomeHeroState, weeklyGoal: WeeklyGoalSnapshot = WeeklyGoalPreview.running) -> some View {
         ContextualHeroView(
             state: state,
             name: name,
-            weeklyReps: weeklyReps,
-            weeklyProgress: weeklyProgress
+            weeklyGoal: weeklyGoal
         )
     }
 }
@@ -177,21 +175,21 @@ private enum HeroPreview {
 }
 
 #Preview("Dzień przerwy") {
-    HeroPreview.card(HeroPreview.restDay, weeklyReps: 18, weeklyProgress: 0.3)
+    HeroPreview.card(HeroPreview.restDay, weeklyGoal: WeeklyGoalPreview.met)
         .padding()
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }
 
 #Preview("Wolny tryb") {
-    HeroPreview.card(HeroPreview.freeMode, weeklyReps: 15, weeklyProgress: 0.25)
+    HeroPreview.card(HeroPreview.freeMode, weeklyGoal: WeeklyGoalPreview.paused)
         .padding()
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }
 
 #Preview("Pierwszy start") {
-    HeroPreview.card(HeroPreview.firstRun, weeklyReps: 0, weeklyProgress: 0)
+    HeroPreview.card(HeroPreview.firstRun)
         .padding()
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
@@ -203,9 +201,9 @@ private enum HeroPreview {
         VStack(spacing: 16) {
             HeroPreview.card(HeroPreview.planToday)
             HeroPreview.card(HeroPreview.completedToday)
-            HeroPreview.card(HeroPreview.restDay, weeklyReps: 18, weeklyProgress: 0.3)
-            HeroPreview.card(HeroPreview.freeMode, weeklyReps: 15, weeklyProgress: 0.25)
-            HeroPreview.card(HeroPreview.firstRun, weeklyReps: 0, weeklyProgress: 0)
+            HeroPreview.card(HeroPreview.restDay, weeklyGoal: WeeklyGoalPreview.met)
+            HeroPreview.card(HeroPreview.freeMode, weeklyGoal: WeeklyGoalPreview.paused)
+            HeroPreview.card(HeroPreview.firstRun)
         }
         .padding()
     }

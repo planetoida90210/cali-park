@@ -133,6 +133,7 @@ struct HomePlanCompletionTests {
             store: InMemoryWorkoutLogStore(initial: entries),
             planService: .testing(InMemoryWorkoutPlanStore(initial: [Fixtures.push, Fixtures.mobility])),
             placementStore: InMemorySkillPlacementStore(),
+            goalStore: InMemoryWeeklyGoalStore(),
             calendar: Fixtures.calendar,
             clock: { Fixtures.today }
         )
@@ -189,6 +190,7 @@ struct HomePlanCompletionTests {
             store: InMemoryWorkoutLogStore(initial: [Fixtures.entry(at: Fixtures.day(-2))]),
             planService: .testing(InMemoryWorkoutPlanStore()),
             placementStore: InMemorySkillPlacementStore(),
+            goalStore: InMemoryWeeklyGoalStore(),
             calendar: Fixtures.calendar,
             clock: { Fixtures.today }
         )
