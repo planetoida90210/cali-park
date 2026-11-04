@@ -11,10 +11,63 @@ import Foundation
 /// Days are `CalendarDay`s, not instants, so they don't move when the time
 /// zone changes. Plans saved before that stored instants; `CalendarDay`
 /// still decodes them.
+///
+/// The on-disk shape is written by hand (below), frozen to what the
+/// synthesized `Codable` produced, so renaming a case or a label can't
+/// silently change the file format (audit C-4).
 nonisolated enum WorkoutSchedule: Codable, Equatable, Hashable {
     case once(CalendarDay?)
     case weekly(Set<Weekday>)
     case everyNDays(Int, from: CalendarDay)
+
+    // MARK: Codable
+    // {"once":{"_0":"2026-11-04"}}, {"once":{}} for a draft,
+    // {"weekly":{"_0":[2,5]}} and {"everyNDays":{"_0":3,"from":"2026-11-04"}}.
+    private enum Kind: String, CodingKey {
+        case once, weekly, everyNDays
+    }
+
+    private enum PayloadKey: String, CodingKey {
+        case value = "_0"
+        case from
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: Kind.self)
+        guard container.allKeys.count == 1, let kind = container.allKeys.first else {
+            throw DecodingError.dataCorrupted(DecodingError.Context(
+                codingPath: container.codingPath,
+                debugDescription: "Expected exactly one schedule kind, found \(container.allKeys.map(\.stringValue))"
+            ))
+        }
+        let payload = try container.nestedContainer(keyedBy: PayloadKey.self, forKey: kind)
+        switch kind {
+        case .once:
+            self = .once(try payload.decodeIfPresent(CalendarDay.self, forKey: .value))
+        case .weekly:
+            self = .weekly(try payload.decode(Set<Weekday>.self, forKey: .value))
+        case .everyNDays:
+            self = .everyNDays(try payload.decode(Int.self, forKey: .value),
+                               from: try payload.decode(CalendarDay.self, forKey: .from))
+        }
+    }
+
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: Kind.self)
+        switch self {
+        case .once(let day):
+            var payload = container.nestedContainer(keyedBy: PayloadKey.self, forKey: .once)
+            try payload.encodeIfPresent(day, forKey: .value)
+        case .weekly(let days):
+            var payload = container.nestedContainer(keyedBy: PayloadKey.self, forKey: .weekly)
+            // Sorted, so the same plan always writes the same bytes.
+            try payload.encode(days.map(\.rawValue).sorted(), forKey: .value)
+        case .everyNDays(let interval, let anchor):
+            var payload = container.nestedContainer(keyedBy: PayloadKey.self, forKey: .everyNDays)
+            try payload.encode(interval, forKey: .value)
+            try payload.encode(anchor, forKey: .from)
+        }
+    }
 
     /// Whether the plan repeats (a one-off does not).
     var isRecurring: Bool {
