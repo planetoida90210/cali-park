@@ -43,10 +43,11 @@ struct ContextualHeroView: View {
     @ViewBuilder
     private var content: some View {
         switch state {
-        case let .planToday(plan, loggedTodayReps):
+        case let .planToday(plan, loggedTodayReps, loggedTodaySeconds):
             HeroPlanTodayView(
                 plan: plan,
                 loggedTodayReps: loggedTodayReps,
+                loggedTodaySeconds: loggedTodaySeconds,
                 weeklyGoal: weeklyGoal,
                 onEditGoal: onEditGoal,
                 now: now,

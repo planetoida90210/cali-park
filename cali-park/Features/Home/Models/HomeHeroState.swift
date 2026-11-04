@@ -13,9 +13,10 @@ import Foundation
 /// "Seria dni" module still does.
 nonisolated enum HomeHeroState: Equatable {
     /// A plan is scheduled for today and hasn't been completed yet. `plan`
-    /// drives the big "Rozpocznij" call to action; `loggedTodayReps` is any
-    /// progress already logged today (0 when the day is still untouched).
-    case planToday(plan: WorkoutPlan, loggedTodayReps: Int)
+    /// drives the big "Rozpocznij" call to action; `loggedTodayReps` and
+    /// `loggedTodaySeconds` are any progress already logged today, holds kept
+    /// apart from reps (both 0 when the day is still untouched).
+    case planToday(plan: WorkoutPlan, loggedTodayReps: Int, loggedTodaySeconds: Int = 0)
 
     /// Today's training is done — either the scheduled plan or a free workout.
     /// `summary` is the session/workout to celebrate; `streak` is the run kept

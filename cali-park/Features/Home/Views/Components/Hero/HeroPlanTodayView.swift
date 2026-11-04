@@ -2,12 +2,14 @@ import SwiftUI
 
 // MARK: - HeroPlanTodayView
 /// Today has a plan that isn't done yet: the plan is the headline and a big
-/// "Rozpocznij" is the one move to make. Any reps already logged today show as
+/// "Rozpocznij" is the one move to make. Any reps or holds logged today show as
 /// quiet progress, and the weekly goal sits below the button. A "dumb" view —
 /// the state is passed in, the taps are closures.
 struct HeroPlanTodayView: View {
     let plan: WorkoutPlan
     let loggedTodayReps: Int
+    /// Seconds held today, kept apart from reps.
+    var loggedTodaySeconds: Int = 0
     /// The weekly goal row; `nil` hides it (the goal could not be read).
     var weeklyGoal: WeeklyGoalSnapshot? = nil
     /// Opens the goal editor (long press on the goal row).
@@ -30,8 +32,8 @@ struct HeroPlanTodayView: View {
                     .font(.bodySmall)
                     .foregroundStyle(Color.textSecondary)
 
-                if loggedTodayReps > 0 {
-                    Text("Zaczęte dziś: \(PolishPlural.reps(loggedTodayReps))")
+                if loggedTodayReps > 0 || loggedTodaySeconds > 0 {
+                    Text("Zaczęte dziś: \(MeasureFormat.totals(reps: loggedTodayReps, seconds: loggedTodaySeconds))")
                         .font(.bodySmall)
                         .foregroundStyle(Color.accent)
                         .contentTransition(.numericText())

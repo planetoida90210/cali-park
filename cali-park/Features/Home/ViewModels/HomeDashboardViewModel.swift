@@ -286,8 +286,12 @@ final class HomeDashboardViewModel {
 
         // Q1 — is a plan due today and not done yet? Offer the first one.
         if let planToday = plansToday(asOf: reference).undone.first {
-            let loggedTodayReps = entriesToday.reduce(0) { $0 + $1.totalReps }
-            return .planToday(plan: planToday, loggedTodayReps: loggedTodayReps)
+            // Holds count too: a hold-only start is still a start (B-12).
+            return .planToday(
+                plan: planToday,
+                loggedTodayReps: entriesToday.reduce(0) { $0 + $1.totalReps },
+                loggedTodaySeconds: entriesToday.reduce(0) { $0 + $1.totalSeconds }
+            )
         }
 
         // Q2 — every plan due today is done, or we trained without a plan.

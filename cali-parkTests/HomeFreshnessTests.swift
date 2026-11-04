@@ -98,7 +98,7 @@ struct HomeDayRolloverTests {
         clock.now = Fixtures.tuesdayMorning
         dashboard.reload()
 
-        guard case let .planToday(plan, loggedTodayReps) = dashboard.heroState() else {
+        guard case let .planToday(plan, loggedTodayReps, _) = dashboard.heroState() else {
             Issue.record("Expected planToday, got \(dashboard.heroState())")
             return
         }

@@ -94,7 +94,7 @@ struct HomeHeroActionsTests {
         free.finish()
         dashboard.reload()
 
-        guard case let .planToday(resolvedPlan, loggedTodayReps) = dashboard.heroState() else {
+        guard case let .planToday(resolvedPlan, loggedTodayReps, _) = dashboard.heroState() else {
             Issue.record("expected .planToday after a free log")
             return
         }

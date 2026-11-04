@@ -141,12 +141,25 @@ struct HomeHeroStateResolutionTests {
                                    sets: [LoggedSet(reps: 12), LoggedSet(reps: 8)])
         let vm = dashboard(plans: [plan], entries: [free])
 
-        guard case let .planToday(resolvedPlan, loggedTodayReps) = vm.heroState(asOf: Fixtures.middayOf(0)) else {
+        guard case let .planToday(resolvedPlan, loggedTodayReps, _) = vm.heroState(asOf: Fixtures.middayOf(0)) else {
             Issue.record("expected .planToday")
             return
         }
         #expect(resolvedPlan == plan)
         #expect(loggedTodayReps == 20)
+    }
+
+    /// B-12: a hold-only start shows as progress too, in seconds.
+    @Test
+    func planTodayCountsHoldsLoggedToday() throws {
+        let plan = thursdayPlan(name: "Pull")
+        let hold = WorkoutLogEntry(exerciseID: ExerciseCatalog.pushUpsID,
+                                   date: Fixtures.day(0) + 3_600,
+                                   sets: [LoggedSet(value: 20, measurement: .seconds), LoggedSet(value: 15, measurement: .seconds)])
+        let vm = dashboard(plans: [plan], entries: [hold])
+
+        #expect(vm.heroState(asOf: Fixtures.middayOf(0))
+            == .planToday(plan: plan, loggedTodayReps: 0, loggedTodaySeconds: 35))
     }
 
     @Test
